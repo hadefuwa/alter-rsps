@@ -1,5 +1,111 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-11 (Bug Fixes)
+
+### Summary
+Fixed two critical UI bugs that prevented players from using essential game features:
+1. Settings window close button was non-functional
+2. Home teleport button was not working
+
+---
+
+## Bug Fixes
+
+### 1. Settings Window Close Button Fix
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/options/tabs/OptionsTabFirstPlugin.kt`
+
+**Issue**: The settings window (interface 134) could not be closed by clicking the close button (component 4).
+
+**Root Cause**: Missing button click handler for the close button on interface 134.
+
+**Fix Applied**:
+- Added import for `Settings` class to use the `SETTINGS_CLOSE_BUTTON_ID` constant
+- Added `onButton` handler for interface 134, component 4 that closes the window
+- Handler calls `player.closeComponent(parent = 161, child = 18)` to properly close the interface
+
+**Code Added**:
+```kotlin
+import org.alter.plugins.content.interfaces.options.Settings
+
+/**
+ * Close button handler for the settings window (interface 134).
+ */
+onButton(interfaceId = OptionsTab.ALL_SETTINGS_INTERFACE_ID, component = Settings.SETTINGS_CLOSE_BUTTON_ID) {
+    player.closeComponent(parent = 161, child = 18)
+}
+```
+
+**Impact**: Players can now properly close the settings window by clicking the close button.
+
+---
+
+### 2. Home Teleport Button Fix
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/commands/commands/all/TeleportsPlugin.kt`
+
+**Issue**: The home teleport button (interface 218, component 7) was not functioning.
+
+**Root Cause**: Missing button click handler for the home teleport spell button.
+
+**Fix Applied**:
+- Added imports for `TaskPriority` and `prepareForTeleport` extension function
+- Implemented complete home teleport handler with proper animation sequence
+- Added teleport validation to check if player can teleport
+- Implemented 5-stage animation sequence matching OSRS home teleport behavior:
+  - Animation stages: LUMBRIDGE_HOME_TELEPORT_1 through LUMBRIDGE_HOME_TELEPORT_5
+  - Graphics: LUMBRIDGE_HOME_TELEPORT_1 through LUMBRIDGE_HOME_TELEPORT_4
+  - Proper timing with `wait()` cycles between animation stages
+- Teleports player to home location defined in `world.gameContext.home`
+- Properly locks/unlocks player during teleport process
+
+**Code Added**:
+```kotlin
+import org.alter.game.model.queue.TaskPriority
+import org.alter.plugins.content.magic.prepareForTeleport
+
+/**
+ * Home teleport button handler (interface 218, component 7).
+ */
+onButton(interfaceId = 218, component = 7) {
+    if (!player.lock.canTeleport()) {
+        return@onButton
+    }
+
+    val home = world.gameContext.home
+    player.queue(TaskPriority.STRONG) {
+        player.prepareForTeleport()
+        player.lock = LockState.FULL_WITH_DAMAGE_IMMUNITY
+        
+        // Home teleport animation sequence
+        player.animate(Animation.LUMBRIDGE_HOME_TELEPORT_1)
+        player.graphic(Graphic.LUMBRIDGE_HOME_TELEPORT_1)
+        wait(cycles = 2)
+        
+        player.animate(Animation.LUMBRIDGE_HOME_TELEPORT_2)
+        player.graphic(Graphic.LUMBRIDGE_HOME_TELEPORT_2)
+        wait(cycles = 2)
+        
+        player.animate(Animation.LUMBRIDGE_HOME_TELEPORT_3)
+        player.graphic(Graphic.LUMBRIDGE_HOME_TELEPORT_3)
+        wait(cycles = 2)
+        
+        player.animate(Animation.LUMBRIDGE_HOME_TELEPORT_4)
+        player.graphic(Graphic.LUMBRIDGE_HOME_TELEPORT_4)
+        wait(cycles = 2)
+        
+        player.animate(Animation.LUMBRIDGE_HOME_TELEPORT_5)
+        wait(cycles = 1)
+        
+        player.moveTo(home)
+        player.animate(-1)
+        player.unlock()
+    }
+}
+```
+
+**Impact**: Players can now use the home teleport spell button to teleport to their home location with proper animations.
+
+---
+
 ## Date: 2025-01-11
 
 ### Summary
