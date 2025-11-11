@@ -97,9 +97,12 @@ class PawnList<T : Pawn>(private val pawns: Array<T?>) {
      * Add [pawn] to our list.
      *
      * Note: this will set the [Pawn.index] for [pawn].
+     * 
+     * BUG FIX: Changed loop to start from index 0 instead of 1.
+     * Previously, index 0 was never used, wasting one slot in the array.
      */
     fun add(pawn: T): Boolean {
-        for (i in 1 until pawns.size) {
+        for (i in 0 until pawns.size) {
             if (pawns[i] == null) {
                 pawns[i] = pawn
                 pawn.index = i

@@ -15,8 +15,10 @@ object PawnPathAction {
     val walkPlugin: Plugin.() -> Unit = {
         val pawn = ctx as Pawn
         val world = pawn.world
-        val other = pawn.attr[INTERACTING_NPC_ATTR]?.get() ?: pawn.attr[INTERACTING_PLAYER_ATTR]?.get()!!
-        val opt = pawn.attr[INTERACTING_OPT_ATTR]!!
+        val other = pawn.attr[INTERACTING_NPC_ATTR]?.get() 
+            ?: pawn.attr[INTERACTING_PLAYER_ATTR]?.get() 
+            ?: return@walkPlugin // Both attributes are null, cannot proceed
+        val opt = pawn.attr[INTERACTING_OPT_ATTR] ?: return@walkPlugin // Missing interaction option
 
         /*
          * Some interactions only require line-of-sight range, such as npcs
@@ -43,7 +45,9 @@ object PawnPathAction {
     val itemUsePlugin: Plugin.() -> Unit = s@{
         val pawn = ctx as Pawn
         val world = pawn.world
-        val other = pawn.attr[INTERACTING_NPC_ATTR]?.get() ?: pawn.attr[INTERACTING_PLAYER_ATTR]?.get()!!
+        val other = pawn.attr[INTERACTING_NPC_ATTR]?.get() 
+            ?: pawn.attr[INTERACTING_PLAYER_ATTR]?.get() 
+            ?: return@s // Both attributes are null, cannot proceed
         /*
          * Some interactions only require line-of-sight range, such as npcs
          * behind cells or booths. This allows for diagonal interaction.

@@ -86,10 +86,9 @@ fun LootTable.mainRoll(): Loot {
 }
 fun LootTable.preRoll(): Loot? {
     for (loot in drops) {
-        loot.weight!!.let {
-            if (Random.nextInt(loot.weight) == 0) {
-                return loot
-            }
+        val weight = loot.weight ?: continue // Skip loot items without weight
+        if (Random.nextInt(weight) == 0) {
+            return loot
         }
     }
     return null
@@ -97,10 +96,9 @@ fun LootTable.preRoll(): Loot? {
 fun LootTable.tertiaryRoll(): List<Loot> {
     val items = ArrayList<Loot>()
     for (loot in drops) {
-        loot.weight!!.let {
-            if (Random.nextInt(loot.weight) == 0) {
-                items += loot
-            }
+        val weight = loot.weight ?: continue // Skip loot items without weight
+        if (Random.nextInt(weight) == 0) {
+            items += loot
         }
     }
     return items
@@ -137,6 +135,9 @@ fun Loot.handleToItem(p: Player) : List<GroundItem> {
                         throw IllegalStateException("Unhandled LootTable return type: ${item.returnType}")
                     }
                 } catch (e: Exception) {
+                    // Log error instead of silently printing stack trace
+                    // TODO: Add proper logging service access here
+                    println("Error processing loot function: ${e.message}")
                     e.printStackTrace()
                 }
             }

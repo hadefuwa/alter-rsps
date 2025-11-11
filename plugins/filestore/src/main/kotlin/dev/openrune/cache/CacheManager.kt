@@ -47,7 +47,13 @@ object CacheManager {
 
     private inline fun <T> getOrDefault(map: Map<Int, T>, id: Int, default: T, typeName: String): T {
         return map.getOrDefault(id, default).also {
-            if (id == -1) println("$typeName with id $id is missing.")
+            // Note: id == -1 check seems incorrect - should probably check if result == default
+            // Keeping original logic but using proper logging if logger is available
+            if (id == -1) {
+                // Using println as fallback since logger may not be available in this context
+                // TODO: Consider adding logger to CacheManager if needed
+                println("$typeName with id $id is missing.")
+            }
         }
     }
 

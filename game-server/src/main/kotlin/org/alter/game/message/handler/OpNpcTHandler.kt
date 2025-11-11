@@ -1,5 +1,6 @@
 package org.alter.game.message.handler
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.rsprot.protocol.game.incoming.npcs.OpNpcT
 import org.alter.game.message.MessageHandler
 import org.alter.game.model.attr.*
@@ -9,6 +10,10 @@ import java.lang.ref.WeakReference
 
 @Suppress("UNREACHABLE_CODE")
 class OpNpcTHandler : MessageHandler<OpNpcT> {
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+    
     override fun consume(
         client: Client,
         message: OpNpcT,
@@ -24,7 +29,8 @@ class OpNpcTHandler : MessageHandler<OpNpcT> {
         client.closeInterfaceModal()
         client.interruptQueues()
         client.resetInteractions()
-        println("$client, ${npc.id} ${message.index} $parent $child ${message.controlKey}")
+        // Debug logging removed - uncomment below if debugging NPC interactions
+        // logger.debug { "NPC interaction: client=$client, npcId=${npc.id}, index=${message.index}, parent=$parent, child=$child, controlKey=${message.controlKey}" }
         val verify = message.selectedObj
         /**
          * @TODO Need to validate this, currently working on path / movement.
