@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     alias(libs.plugins.kotlin.serialization)
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
 }
 allprojects {
     apply(plugin = "idea")
@@ -52,6 +53,21 @@ allprojects {
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+    
+    // Detekt configuration for static code analysis
+    detekt {
+        buildUponDefaultConfig = true
+        allRules = true
+        config.setFrom("$projectDir/config/detekt.yml")
+    }
+    
+    tasks.named("detekt").configure {
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+            txt.required.set(true)
         }
     }
 }

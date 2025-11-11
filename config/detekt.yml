@@ -1,0 +1,47 @@
+build:
+  maxIssues: 10
+  weights:
+    complexity: 2
+    LongParameterList: 1
+    style: 1
+    comments: 1
+
+complexity:
+  LongMethod:
+    threshold: 50
+  LongParameterList:
+    threshold: 8
+  CyclomaticComplexMethod:
+    threshold: 15
+  TooManyFunctions:
+    threshold: 20
+
+potential-bugs:
+  UnreachableCode:
+    active: true
+  UnusedPrivateMember:
+    active: true
+  UnusedVariable:
+    active: true
+  UnconditionalJumpStatementInLoop:
+    active: true
+  UnusedImports:
+    active: true
+  UnusedPrivateClass:
+    active: true
+
+style:
+  MagicNumber:
+    ignoreNumbers: ['-1', '0', '1', '2', '10', '100', '1000']
+  MaxLineLength:
+    maxLineLength: 120
+  ForbiddenComment:
+    active: true
+    values: ['TODO:', 'FIXME:', 'STOPSHIP:', 'XXX:']
+  NewLineAtEndOfFile:
+    active: true
+
+performance:
+  SpreadOperator:
+    active: true
+
