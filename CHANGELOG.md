@@ -1,5 +1,140 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-XX (Critical Bug Fixes and Code Quality Improvements)
+
+### Summary
+Fixed multiple critical bugs and code quality issues discovered during code review:
+1. Fixed broken logic in Social.kt that always evaluated to true
+2. Fixed array index bug in PawnList.kt that was wasting one slot
+3. Fixed unsafe null pointer exceptions that could cause server crashes
+4. Removed debug println statements from production code
+5. Improved error handling and documentation throughout
+
+---
+
+## Bug Fixes
+
+### 1. Social.kt - Broken Logic Fix
+**File**: `game-server/src/main/kotlin/org/alter/game/model/social/Social.kt`
+
+**Issue**: The `pushFriends()` method had a condition `if (friends.isEmpty() || true)` which always evaluated to true, making the else branch unreachable.
+
+**Root Cause**: Debugging code left in production with `|| true` condition.
+
+**Fix Applied**:
+- Removed the `|| true` condition
+- Cleaned up temporary fix entry handling
+- Documented incomplete friend/ignore list functionality with clear TODOs
+- Added notes about missing protocol messages needed for full implementation
+
+**Impact**: Friend list logic now works correctly. Full functionality pending protocol message implementation.
+
+---
+
+### 2. PawnList.kt - Array Index Bug Fix
+**File**: `game-server/src/main/kotlin/org/alter/game/model/PawnList.kt`
+
+**Issue**: The `add()` method started iterating from index 1 instead of 0, wasting the first slot in the array.
+
+**Root Cause**: Loop initialization error - `for (i in 1 until pawns.size)` instead of `for (i in 0 until pawns.size)`.
+
+**Fix Applied**:
+- Changed loop to start from index 0
+- Added documentation explaining the bug fix
+
+**Impact**: Now uses full array capacity. Previously wasted one player/NPC slot.
+
+---
+
+### 3. PawnPathAction.kt - Null Pointer Exception Fix
+**File**: `game-server/src/main/kotlin/org/alter/game/model/move/PawnPathAction.kt`
+
+**Issue**: Unsafe null assertions (`!!`) on nullable attributes could cause NPE if both `INTERACTING_NPC_ATTR` and `INTERACTING_PLAYER_ATTR` were null.
+
+**Root Cause**: Missing null checks before using force-unwrap operator.
+
+**Fix Applied**:
+- Replaced unsafe `!!` operators with safe null handling
+- Added early returns when both attributes are null
+- Added null check for `INTERACTING_OPT_ATTR`
+
+**Impact**: Prevents server crashes when interaction attributes are missing.
+
+---
+
+### 4. LootTableBuilder.kt - Null Safety Improvements
+**File**: `game-server/src/main/kotlin/org/alter/game/model/weightedTableBuilder/LootTableBuilder.kt`
+
+**Issue**: 
+- Unsafe null assertions (`!!`) on `loot.weight` could cause NPE
+- Empty catch block with only `printStackTrace()` provided no useful error information
+
+**Root Cause**: Missing null checks and poor error handling.
+
+**Fix Applied**:
+- Replaced `loot.weight!!` with safe null handling using `?: continue`
+- Improved error handling in catch block with error message logging
+- Added TODO for proper logging service integration
+
+**Impact**: Prevents crashes from null weights and provides better error visibility.
+
+---
+
+### 5. OpNpcTHandler.kt - Debug Code Removal
+**File**: `game-server/src/main/kotlin/org/alter/game/message/handler/OpNpcTHandler.kt`
+
+**Issue**: Debug `println` statement left in production code.
+
+**Root Cause**: Debugging code not removed before commit.
+
+**Fix Applied**:
+- Removed `println` statement
+- Added logger import and companion object
+- Replaced with commented debug logging for future use
+
+**Impact**: Cleaner production code, no unnecessary console output.
+
+---
+
+### 6. Code Quality Improvements
+
+#### Pawn.kt - Debug Statement Removal
+**File**: `game-server/src/main/kotlin/org/alter/game/model/entity/Pawn.kt`
+- Removed debug `println` statement from `isRouteBlocked()` method
+- Replaced with commented debug logging
+
+#### RSCM.kt - Logging Improvement
+**File**: `plugins/rscm/src/main/kotlin/org/alter/rscm/RSCM.kt`
+- Replaced `println` with proper `logger.warn` for error messages
+
+#### CacheManager.kt - Documentation
+**File**: `plugins/filestore/src/main/kotlin/dev/openrune/cache/CacheManager.kt`
+- Documented `println` usage (logger not available in this context)
+- Added TODO for potential logger integration
+
+#### WaterPlugin.kt - Documentation
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/water/WaterPlugin.kt`
+- Added comprehensive documentation explaining RSCM migration requirement
+- Documented required functionality for future implementation
+
+#### KeptOnDeath.kt - Documentation
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/worn_equipment/kod/KeptOnDeath.kt`
+- Added documentation for risk value calculation implementation
+- Documented TODO items with clear implementation guidance
+
+#### EventMouseClickHandler.kt - Documentation
+**File**: `game-server/src/main/kotlin/org/alter/game/message/handler/EventMouseClickHandler.kt`
+- Added comprehensive documentation explaining placeholder status
+- Documented when and how to implement if needed
+
+#### ItemMetadataService.kt - Enhanced TODOs
+**File**: `game-server/src/main/kotlin/org/alter/game/service/game/ItemMetadataService.kt`
+- Expanded TODO comments with detailed implementation guidance
+- Documented attack sounds and equip sound support requirements
+- Improved error handling documentation
+
+---
+
 ## Date: 2025-01-11 (Bug Fixes)
 
 ### Summary
