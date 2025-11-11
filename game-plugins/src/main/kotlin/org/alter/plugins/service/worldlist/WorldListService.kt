@@ -66,7 +66,7 @@ class WorldListService : Service {
         serviceProperties: ServerProperties,
     ) {
         port = serviceProperties.getOrDefault("port", 80)
-        path = Paths.get(serviceProperties.getOrDefault("config-path", "../data/cfg/world.json"))
+        path = Paths.get(serviceProperties.getOrDefault("config-path", "data/cfg/world.json"))
 
         // If the world configuration file doesn't exist, spit out a warning and do nothing
         if (!Files.exists(path)) {

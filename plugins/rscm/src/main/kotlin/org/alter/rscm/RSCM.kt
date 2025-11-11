@@ -31,7 +31,7 @@ object RSCM {
     }
 
     fun initRSCM() {
-        Path.of("../data/cfg/rscm/").toFile().listFiles()?.forEach {
+        Path.of("data/cfg/rscm/").toFile().listFiles()?.forEach {
             val map = it.name.replace(".rscm", "")
             it.bufferedReader(Charsets.UTF_8).use { buff ->
                 buff.lineSequence().forEach { line ->

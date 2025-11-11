@@ -16,7 +16,7 @@ class Json(override val collectionName: String) : FormatHandler(collectionName) 
     private var prettyPrintSettings: JsonWriterSettings = JsonWriterSettings.builder().indent(true).build()
 
     init {
-        path = Paths.get("../data/saves/${collectionName}/")
+        path = Paths.get("data/saves/${collectionName}/")
         if (!Files.exists(path)) {
             Files.createDirectories(path)
         }

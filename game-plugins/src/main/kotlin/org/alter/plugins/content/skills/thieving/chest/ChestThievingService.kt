@@ -25,7 +25,7 @@ class ChestThievingService : Service {
     private val entriesByObject: Int2ObjectOpenHashMap<ChestEntry> = Int2ObjectOpenHashMap()
 
     override fun init(server: Server, world: World, serviceProperties: ServerProperties) {
-        val file = Paths.get(serviceProperties.get("chests") ?: "../data/cfg/thieving/chests.json")
+        val file = Paths.get(serviceProperties.get("chests") ?: "data/cfg/thieving/chests.json")
 
         Files.newBufferedReader(file).use { reader ->
             val listType = object : TypeToken<List<ChestEntry>>() {}.type

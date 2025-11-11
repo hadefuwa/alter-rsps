@@ -25,7 +25,7 @@ class PickpocketService : Service {
     private val entriesByNpc: Int2ObjectOpenHashMap<PickpocketEntry> = Int2ObjectOpenHashMap()
 
     override fun init(server: Server, world: World, serviceProperties: ServerProperties) {
-        val file = Paths.get(serviceProperties.get("pickpockets") ?: "../data/cfg/thieving/pickpockets.json")
+        val file = Paths.get(serviceProperties.get("pickpockets") ?: "data/cfg/thieving/pickpockets.json")
 
         Files.newBufferedReader(file).use { reader ->
             val listType = object : TypeToken<List<PickpocketEntry>>() {}.type

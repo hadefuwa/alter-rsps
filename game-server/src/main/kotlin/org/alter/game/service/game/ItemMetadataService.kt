@@ -46,7 +46,7 @@ class ItemMetadataService : Service {
                 .build()
         val mapper = YAMLMapper(yamlFactory)
 
-        val path = Paths.get("../data/cfg/items")
+        val path = Paths.get("data/cfg/items")
 
         try {
             /**
@@ -61,7 +61,7 @@ class ItemMetadataService : Service {
              *
              * This ensures that item examine information gets loaded from an external source at runtime.
              */
-            Paths.get("../data/cfg/objs.csv").toFile().forEachLine { line ->
+            Paths.get("data/cfg/objs.csv").toFile().forEachLine { line ->
                 val parts = line.split(",")
                 if (parts.size >= 2) {
                     val id = parts[0].toIntOrNull()
@@ -152,10 +152,10 @@ class ItemMetadataService : Service {
              * This ensures that items have appropriate movement and action animations during gameplay.
              */
             val animationMap: Map<String, AnimationData> =
-                mapper.readValue(File("../data/cfg/items/renderAnimations/bas_mappings.json").readText())
+                mapper.readValue(File("data/cfg/items/renderAnimations/bas_mappings.json").readText())
             val valueMap: Map<Int, Int> = ObjectMapper().apply {
                 findAndRegisterModules()
-            }.readValue(File("../data/cfg/items/renderAnimations/item_bas.json").readText())
+            }.readValue(File("data/cfg/items/renderAnimations/item_bas.json").readText())
             valueMap.forEach { (item, animMap) ->
                 val animation = animationMap[animMap.toString()] ?: return@forEach
                 val def = getItem(item)

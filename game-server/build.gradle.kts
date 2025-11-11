@@ -174,6 +174,15 @@ tasks.withType<ProcessResources> {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+// Configure the run task to use root project directory as working directory
+tasks.named<JavaExec>("run") {
+    workingDir = rootProject.projectDir
+    // Show all output including errors
+    standardOutput = System.out
+    errorOutput = System.err
+    // Don't fail silently
+    isIgnoreExitValue = false
+}
 
 /**
  * @TODO Forgot about this one.
