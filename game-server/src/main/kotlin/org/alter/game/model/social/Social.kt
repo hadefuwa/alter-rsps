@@ -18,36 +18,39 @@ class Social {
      * [0] = Current one, And move [0] => [1] When user changes name, Just need verification on how many users does Gagex store.
      */
     fun pushFriends(player: Player) {
-        if (friends.isEmpty()) {
-            friends.add("TEMP_FIX_DONT_REMOVE")
-        }
+        // Remove temporary fix entry if it exists
+        friends.remove("TEMP_FIX_DONT_REMOVE")
+        
         val world = player.world
 
-        if (friends.isEmpty() || true) {
-            player.write(FriendListLoaded)
-        } else {
-            friends.forEach {
-//                val user = world.getPlayerForName(it)
-//                if (user != null && !user.social.ignores.contains(player.username))
-//                    player.write(UpdateFriendListMessage(0, user.username, "", 304, 0, 0))
-//                else
-//                /**
-//                 * @TODO
-//                 * When implementing name change -> save old user name for [previousUsername]
-//                 * Actually forgot if it was a list of usernames or only latest
-//                 */
-//                player.write(UpdateFriendListMessage(0, it, "", 0, 0, 0))
-            }
-        }
+        // Always send FriendListLoaded first to initialize the list
+        player.write(FriendListLoaded)
+        
+        // TODO: Implement friend list updates once protocol messages are available
+        // The commented code below shows the intended implementation:
+        // friends.forEach {
+        //     val user = world.getPlayerForName(it)
+        //     if (user != null && !user.social.ignores.contains(player.username)) {
+        //         // Friend is online - send online status
+        //         // player.write(UpdateFriendListMessage(0, user.username, "", 304, 0, 0))
+        //     } else {
+        //         // Friend is offline - send offline status
+        //         // player.write(UpdateFriendListMessage(0, it, "", 0, 0, 0))
+        //     }
+        // }
+        // NOTE: UpdateFriendListMessage protocol message needs to be implemented/imported
     }
 
     /**
      * TODO Add support for old display name if current isn't previous/original one
      */
     fun pushIgnores(player: Player) {
-//        ignores.forEach {
-//            player.write(UpdateIgnoreListMessage(0, it, ""))
-//        }
+        // TODO: Implement ignore list updates once protocol messages are available
+        // The commented code below shows the intended implementation:
+        // ignores.forEach {
+        //     player.write(UpdateIgnoreListMessage(0, it, ""))
+        // }
+        // NOTE: UpdateIgnoreListMessage protocol message needs to be implemented/imported
     }
 
     fun addFriend(
@@ -125,22 +128,23 @@ class Social {
         unpacked: String,
     ) {
         logger.info { "${player.username} is attempting to message: ${target.username} with message: $unpacked" }
-//        target.write(MessagePrivate(
-//            sender = player.username,
-//            worldId = 1,
-//            worldMessageCounter = 0,
-//            chatCrownType = player.privilege.icon,
-//            message = "Testing",
-//        ))
-//        player.write(MessagePrivate(
-//            sender = target.username,
-//            worldId = 1,
-//            worldMessageCounter = 0,
-//            chatCrownType = 0,
-//            message = "Testing",
-//        ))
-//        target.write(MessagePrivateReceiverMessage(player.username, 255, 0, player.privilege.icon, "Testing"))
-//        player.write(MessagePrivateReceiverMessage(target.username, 255, -1, 0, "Testing"))
+        // TODO: Implement private messaging once protocol messages are available
+        // The commented code below shows the intended implementation:
+        // target.write(MessagePrivate(
+        //     sender = player.username,
+        //     worldId = 1,
+        //     worldMessageCounter = 0,
+        //     chatCrownType = player.privilege.icon,
+        //     message = unpacked,
+        // ))
+        // player.write(MessagePrivate(
+        //     sender = target.username,
+        //     worldId = 1,
+        //     worldMessageCounter = 0,
+        //     chatCrownType = target.privilege.icon,
+        //     message = unpacked,
+        // ))
+        // NOTE: MessagePrivate and MessagePrivateReceiverMessage protocol messages need to be implemented/imported
     }
 
     companion object {

@@ -16,6 +16,21 @@ import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
 
+/**
+ * Water container mechanics plugin.
+ * 
+ * TODO: This plugin needs to be implemented using RSCM (RuneScape Configuration Manager) instead of hardcoded IDs.
+ * The previous implementation has been commented out and needs to be migrated to use RSCM identifiers.
+ * 
+ * Required functionality:
+ * 1. Fill water containers (bowl, bucket, jug, cup, vial, waterskin, watering can) from water sources
+ * 2. Empty water containers (except watering can and waterskin which only have "Drop" option)
+ * 3. Prevent transferring water between containers (must fill from sources)
+ * 4. Handle toy sink item special drop behavior
+ * 5. Handle hot water transfer from bowls to cups
+ * 
+ * See WaterContainers.kt and Waters.kt for the commented-out implementation that needs to be migrated.
+ */
 class WaterPlugin(
     r: PluginRepository,
     world: World,
@@ -23,9 +38,10 @@ class WaterPlugin(
 ) : KotlinPlugin(r, world, server) {
         
     init {
-        
+        // TODO: Implement water container mechanics using RSCM
+        // Previous implementation commented out - see WaterContainers.kt and Waters.kt
+        // Migration required: Replace hardcoded item/object IDs with RSCM identifiers
     }
-    //@TODO Replace to RSCM
 ///**
 // * Handle the filling of each [WaterContainers]' [Item] for each of the [WaterSources]
 // */

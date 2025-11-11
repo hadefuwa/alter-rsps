@@ -179,8 +179,14 @@ class ItemMetadataService : Service {
              *
              * This process ensures that custom item attributes or behaviors are loaded at runtime.
              *
-             * @TODO Add better context as to why file could not be loaded.
-             * @TODO Add support for remaining [`def`] properties override method.
+             * TODO: Add better error context when file loading fails
+             * - Include file path in error message
+             * - Include line number if YAML parsing fails
+             * - Log specific error type (file not found, permission denied, invalid format, etc.)
+             * 
+             * TODO: Add support for remaining item definition properties override
+             * - Currently missing: attackSounds, equipSound
+             * - See detailed TODO comments below for attackSounds implementation
              */
             Files.walk(path.resolve("itemOverrides")).parallel().filter { it.toFile().isFile }.forEach { file ->
                 if (file.fileName.toString().contains("FileExample.yml")) return@forEach
@@ -220,20 +226,27 @@ class ItemMetadataService : Service {
             }
 
             def.renderAnimations = equipment.renderAnimations?.getAsArray()
+            
             /**
-             * TODO def.attackSounds = equipment.attackSounds
-             *  - Create Array of AttackStyleID -> It's Sound
-             *  accurateAnim : accurateSound
-             *  aggressiveAnim : aggressiveSound
-             *  controlledAnim : controlledSound
-             *  defensiveAnim : defensiveSound
-             *  <--- AttackStyleID:[Anim, Sound]
-             *  AttackStyle can be from 0-3
-             *  If no data on it, it will be -1
-             *  blockAnim = When target attacks the Pawn on next tick?
-             *
-             *
-             *  TODO def.equipSound = equipment.equipSound
+             * TODO: Implement attackSounds support
+             * 
+             * Attack sounds need to be mapped by AttackStyleID (0-3):
+             * - 0: Accurate style -> accurateSound
+             * - 1: Aggressive style -> aggressiveSound  
+             * - 2: Controlled style -> controlledSound
+             * - 3: Defensive style -> defensiveSound
+             * 
+             * Structure needed: Array<IntArray> where:
+             *   - First dimension: AttackStyleID (0-3)
+             *   - Second dimension: [animationId, soundId]
+             *   - Use -1 for missing data
+             * 
+             * Block animation: Animation played when target attacks this pawn on next tick
+             * 
+             * TODO: Implement equipSound support
+             * 
+             * Equip sound should be played when item is equipped.
+             * Simple Int value representing the sound ID.
              */
             if (slots != null) {
                 def.equipSlot = slots.slot
@@ -326,9 +339,20 @@ class ItemMetadataService : Service {
         }
 
         /**
-         * @TODO Rethink the logic, gets printed out even for items that are not wearable.
-         * logger.warn {
-         *   "Item with ID: ${this.id} is missing the key '$key' in its params. Full params list: ${this.params}. Default value was set: $defaultValue."
+         * TODO: Improve validation logic
+         * 
+         * Current issue: Warning gets printed for items that aren't wearable/equipable.
+         * 
+         * Solution: Only log warnings for items that:
+         * 1. Have equipment metadata defined
+         * 2. Are actually wearable items
+         * 3. Are missing required params for their equipment type
+         * 
+         * Example fix:
+         * if (this.equipSlot != -1 && this.equipType != -1) {
+         *   logger.warn {
+         *     "Wearable item ID: ${this.id} is missing key '$key' in params. Full params: ${this.params}. Using default: $defaultValue."
+         *   }
          * }
          */
         return defaultValue

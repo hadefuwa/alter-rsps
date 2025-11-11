@@ -41,7 +41,7 @@ object RSCM {
                         val value = divider[1].trim().toInt()
                         rscmList[key] = value
                     } else {
-                        println("$line not enough arguments")
+                        logger.warn { "RSCM line '$line' does not have enough arguments (expected format: key:value)" }
                     }
                 }
             }

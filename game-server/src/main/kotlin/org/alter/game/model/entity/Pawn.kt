@@ -531,7 +531,8 @@ abstract class Pawn(val world: World) : Entity() {
     fun isRouteBlocked(item: GroundItem): Boolean {
         val dir = Direction.between(this.tile, item.tile)
         val collisionFlag = this.world.collision.get(item.tile.x, item.tile.z, item.tile.height)
-        println("dir: $dir, collisionFlag: $collisionFlag, DirectionFlag: ${Direction.getDirectionFlag(dir)}")
+        // Debug logging removed - uncomment below if route debugging is needed
+        // logger.debug { "Route check: dir=$dir, collisionFlag=$collisionFlag, DirectionFlag=${Direction.getDirectionFlag(dir)}" }
         return (collisionFlag and Direction.getDirectionFlag(dir)) != 0
     }
 
