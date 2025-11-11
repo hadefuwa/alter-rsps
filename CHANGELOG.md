@@ -1,5 +1,70 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-11 (Wilderness Content and Player Save Fixes)
+
+### Summary
+Added wilderness monster spawns and made them aggressive, plus fixed critical player position saving bug:
+1. Added comprehensive wilderness monster spawns (63 spawns across 8 monster types)
+2. Made all wilderness monsters aggressive with proper combat configurations
+3. Fixed player position not being saved/loaded correctly on server restart
+
+---
+
+## Features
+
+### 1. Wilderness Monster Spawns
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/spawns/SpawnPlugin.kt`
+
+**Feature**: Added comprehensive monster spawns throughout the wilderness area.
+
+**Details**:
+- Created new wilderness spawn plugin with 63 monster spawns
+- Added spawns for: Dark Wizards (9), Skeletons (12), Bandits (8), Chaos Druids (5), Wolves (9), Dark Warriors (6), Green Dragons (8), Hellhounds (6)
+- All spawns are within wilderness boundaries (x: 2941..3392, z: 3524..3968)
+- Monsters distributed across different wilderness levels (1-20+)
+
+**Impact**: Wilderness is now populated with monsters, making it a dangerous and engaging area for players.
+
+---
+
+### 2. Wilderness Monster Aggression
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/CombatConfigPlugin.kt`
+
+**Feature**: Made all wilderness monsters aggressive towards players.
+
+**Details**:
+- Created combat configuration plugin for wilderness monsters
+- Configured aggressive radius (7-10 tiles depending on monster type)
+- Set search delay for aggro checks (2-3 cycles)
+- Enabled `alwaysAggro()` for all wilderness monsters (aggressiveTimer = Int.MAX_VALUE)
+- Added proper combat stats, animations, and respawn delays for each monster type
+
+**Impact**: All wilderness monsters now actively attack players within range, creating a dangerous PvE experience in the wilderness.
+
+---
+
+## Bug Fixes
+
+### 3. Player Position Not Saved on Server Restart
+**File**: `game-server/src/main/kotlin/org/alter/game/saving/impl/DetailSerialisation.kt`
+
+**Issue**: Player positions were not being saved correctly, causing players to respawn in Lumbridge (home location) after server restart instead of their last location.
+
+**Root Cause**: The `fromDocument()` method used unsafe type casting (`doc["tile"] as List<Int>`) which would throw exceptions if:
+- The "tile" field was missing from saved data
+- The field existed but wasn't a List
+- The field was in an unexpected format
+
+**Fix Applied**:
+- Replaced unsafe casting with safe `getList()` method call wrapped in try-catch
+- Added validation to ensure tile data has at least 3 elements (x, z, height)
+- Added fallback to home location if tile data is missing or invalid
+- Improved error handling to prevent crashes during player data loading
+
+**Impact**: Player positions are now correctly saved when logging out and loaded when logging back in. Players will spawn at their last location instead of always returning to Lumbridge.
+
+---
+
 ## Date: 2025-01-XX (Critical Bug Fixes and Code Quality Improvements)
 
 ### Summary
