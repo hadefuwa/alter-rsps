@@ -99,7 +99,28 @@ class MovementQueue(val pawn: Pawn) {
         )
     }
     /**
-     * @TODO Add support for crawling. And have rule-set implemented for npc travel
+     * Processes movement queue each game cycle.
+     * 
+     * TODO: Add support for crawling movement type.
+     * 
+     * Crawling is a movement type used in certain situations:
+     * - When player is in a low-ceiling area (e.g., tunnels, caves)
+     * - When player is forced to crawl (e.g., certain quests, obstacles)
+     * - Movement speed is slower than walking but faster than some other movement types
+     * 
+     * TODO: Implement rule-set for NPC travel.
+     * 
+     * NPCs may have different movement rules than players:
+     * - Some NPCs can't traverse certain terrain
+     * - Some NPCs have movement restrictions (e.g., can't leave certain areas)
+     * - Some NPCs have special movement patterns (e.g., flying, swimming)
+     * - NPCs may need pathfinding rules different from players
+     * 
+     * Implementation needed:
+     * - Add crawling movement type to MovementType enum (if not exists)
+     * - Handle crawling speed/animations
+     * - Add NPC-specific movement rules
+     * - Validate NPC movement against area restrictions
      */
     fun cycle() {
         var next = steps.poll()

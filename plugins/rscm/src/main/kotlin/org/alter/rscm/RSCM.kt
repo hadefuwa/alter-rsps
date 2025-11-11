@@ -48,6 +48,29 @@ object RSCM {
         }
     }
 
+    /**
+     * Test method for validating RSCM configuration values.
+     * 
+     * TODO: Implement validation logic to check if RSCM values match expected values.
+     * 
+     * This method should verify:
+     * - NPC definitions match expected values
+     * - Object definitions match expected values
+     * - Item definitions match expected values
+     * - Location definitions match expected values
+     * - All RSCM identifiers are valid and properly formatted
+     * 
+     * Implementation should:
+     * - Compare loaded RSCM data against known good values
+     * - Log any mismatches or unexpected values
+     * - Return validation results (pass/fail with details)
+     * - Potentially throw exceptions for critical mismatches
+     * 
+     * This is useful for:
+     * - Ensuring RSCM migration was successful
+     * - Catching configuration errors early
+     * - Validating data integrity
+     */
     fun test() {
         // @TODO Check if some values match what was expected.
     }

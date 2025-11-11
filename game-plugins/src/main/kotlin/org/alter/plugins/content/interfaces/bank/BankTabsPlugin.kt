@@ -55,11 +55,18 @@ class BankTabsPlugin(
                     }
                 }
                 5 -> {
+                    // TODO: Implement bank tab option 5 functionality
+                    // This option is triggered when clicking option 5 on bank tabs
+                    // Needs investigation to determine exact functionality - possibly tab deletion or renaming
                     player.message("Not implemented [Bank1]")
                 }
                 6 -> {
-                    // @TODO Remove placeholders for that tab
-                    // If no placeholders Text: You don't have any placeholders to release. else Nothing xd
+                    // TODO: Implement placeholder removal for bank tab
+                    // When option 6 is clicked on a bank tab:
+                    // - Check if the tab has any placeholders (items with amount -2)
+                    // - If no placeholders exist, display: "You don't have any placeholders to release."
+                    // - If placeholders exist, remove all placeholders from that tab
+                    // - Placeholders are items with amount -2 that mark empty slots in bank tabs
                     player.message("Not implemented [Bank2]")
                 }
                 else -> {
@@ -71,6 +78,20 @@ class BankTabsPlugin(
             }
         }
 
+        /**
+         * TODO: Implement button handler for bank interface component 113
+         * 
+         * This button handler is currently empty. The commented code suggests:
+         * - Setting varbit 386 to 1 (possibly a bank setting or mode)
+         * - Closing the tab area interface
+         * - Opening inventory interface (component 4)
+         * 
+         * Needs investigation to determine:
+         * - What component 113 represents in the bank interface
+         * - What varbit 386 controls
+         * - When this button should be triggered
+         * - What the intended behavior should be
+         */
         onButton(BANK_INTERFACE_ID, 113) {
             // player.setVarbit(386, 1)
             // player.closeInterface(dest = InterfaceDestination.TAB_AREA)

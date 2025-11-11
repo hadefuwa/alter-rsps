@@ -28,6 +28,31 @@ class Mongo(override val collectionName: String) : FormatHandler(collectionName)
         return DatabaseManager.getCollection(collectionName).find(caseInsensitiveFilter).first()!!
     }
 
+    /**
+     * Loads all player documents from the MongoDB collection.
+     * 
+     * TODO: Implement this method to return all player documents from the database.
+     * 
+     * Expected behavior:
+     * - Query the MongoDB collection for all documents
+     * - Return a Map where:
+     *   - Key: Player username (or unique identifier)
+     *   - Value: Document containing player data
+     * 
+     * This method is likely used for:
+     * - Admin commands to list all players
+     * - Server statistics/analytics
+     * - Bulk operations on player data
+     * 
+     * Implementation example:
+     * ```kotlin
+     * return DatabaseManager.getCollection(collectionName)
+     *     .find()
+     *     .associate { doc -> 
+     *         doc.getString("loginUsername") to doc 
+     *     }
+     * ```
+     */
     override fun loadAll(): Map<String, Document> {
         TODO("Not yet implemented")
     }

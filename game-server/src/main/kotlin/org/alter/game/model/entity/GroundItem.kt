@@ -25,13 +25,28 @@ class GroundItem private constructor(val item: Int, var amount: Int, internal va
     }
 
     /**
-     * @TODO Need to implement this.
-     *  * | Id | Ownership Type |
-     *  * |----|:--------------:|
-     *  * | 0  |      None      |
-     *  * | 1  |   Self Player  |
-     *  * | 2  |  Other Player  |
-     *  * | 3  |  Group Ironman |
+     * The ownership type of this ground item.
+     * 
+     * TODO: Implement proper ownership type logic.
+     * 
+     * Ownership types:
+     * - 0: None (public item, anyone can pick up)
+     * - 1: Self Player (only the player who dropped it can see/pick it up initially)
+     * - 2: Other Player (visible to other players but not the dropper)
+     * - 3: Group Ironman (only visible to group members)
+     * 
+     * Current implementation:
+     * - Always defaults to 0 (None)
+     * - Should be set based on:
+     *   - Player's game mode (Ironman, Group Ironman, etc.)
+     *   - Item value (high-value items may have different ownership rules)
+     *   - Server settings
+     * 
+     * Implementation needed:
+     * - Set ownerShipType when item is dropped based on player's status
+     * - Use ownerShipType to determine visibility rules
+     * - Use ownerShipType to determine pickup permissions
+     * - Handle transitions (e.g., when item becomes public after timer expires)
      */
     var ownerShipType = 0
 

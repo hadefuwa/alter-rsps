@@ -72,37 +72,62 @@ class HansPlugin(
         }
     }
 
+    /**
+     * Handles the "age" option when talking to Hans.
+     * 
+     * TODO: Implement playtime calculation and display.
+     * 
+     * The commented code shows the intended implementation:
+     * - Calculate total playtime from player.playtime (in ticks, converted to seconds)
+     * - Calculate days, hours, and minutes played
+     * - Calculate days since registration
+     * - Format a message showing playtime and registration date
+     * 
+     * Required imports (currently missing):
+     * - java.time.LocalDate
+     * - java.time.temporal.ChronoUnit
+     * 
+     * Implementation steps:
+     * 1. Uncomment and fix the playtime calculation
+     * 2. Ensure player.playtime exists and is accurate
+     * 3. Ensure player.registryDate exists and is set correctly
+     * 4. Format the time string properly
+     * 5. Display the formatted message using chatNpc()
+     * 
+     * Example output: "You've spent 5 days, 3 hours, 45 minutes in the world since you arrived 10 days ago."
+     */
     suspend fun QueueTask.age(player: Player) {
-//        val seconds = (player.playtime * 0.6).toInt()
-//        val days = seconds / 86400
-//        val hours = (seconds / 3600) - (days * 24)
-//        val minutes = (seconds / 60) - (days * 1440) - (hours * 60)
-//        val daysSinceReg = player.registryDate.until(LocalDate.now(), ChronoUnit.DAYS).toInt()
-//
-//        val timeString = buildString {
-//            append("You've spent ")
-//            append("$days${if (days != 1) " days" else " day"}")
-//            append(", ")
-//            append("$hours${if (hours != 1) " hours" else " hour"}")
-//            append(", ")
-//            append("$minutes${if (minutes != 1) " minutes" else " minute"}")
-//            append(" in the world since you arrived ")
-//
-//            when (daysSinceReg) {
-//                0 -> {
-//                    append("today.")
-//                }
-//
-//                1 -> {
-//                    append("yesterday.")
-//                }
-//
-//                else -> {
-//                    append(daysSinceReg)
-//                    append(" days ago.")
-//                }
-//            }
-//        }
+        // TODO: Uncomment and implement playtime calculation
+        // val seconds = (player.playtime * 0.6).toInt()
+        // val days = seconds / 86400
+        // val hours = (seconds / 3600) - (days * 24)
+        // val minutes = (seconds / 60) - (days * 1440) - (hours * 60)
+        // val daysSinceReg = player.registryDate.until(LocalDate.now(), ChronoUnit.DAYS).toInt()
+        //
+        // val timeString = buildString {
+        //     append("You've spent ")
+        //     append("$days${if (days != 1) " days" else " day"}")
+        //     append(", ")
+        //     append("$hours${if (hours != 1) " hours" else " hour"}")
+        //     append(", ")
+        //     append("$minutes${if (minutes != 1) " minutes" else " minute"}")
+        //     append(" in the world since you arrived ")
+        //
+        //     when (daysSinceReg) {
+        //         0 -> {
+        //             append("today.")
+        //         }
+        //
+        //         1 -> {
+        //             append("yesterday.")
+        //         }
+        //
+        //         else -> {
+        //             append(daysSinceReg)
+        //             append(" days ago.")
+        //         }
+        //     }
+        // }
 
         chatPlayer(player, "Can you tell me how long I've been here?")
         chatNpc(player, "Not implemented.")
