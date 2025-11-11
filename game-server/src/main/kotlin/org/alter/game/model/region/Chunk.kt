@@ -178,6 +178,9 @@ class Chunk(val coords: ChunkCoords) {
      *
      */
     fun sendUpdates(p: Player) {
+        // Skip if player hasn't initialized lastKnownRegionBase yet (still logging in)
+        val lastKnownRegionBase = p.lastKnownRegionBase ?: return
+        
         val messages = ObjectArrayList<ZoneProt>()
 
         updates.forEach { update ->
@@ -185,7 +188,7 @@ class Chunk(val coords: ChunkCoords) {
                 messages.add(update.toMessage())
             }
         }
-        val local = p.lastKnownRegionBase!!.toLocal(coords.toTile())
+        val local = lastKnownRegionBase.toLocal(coords.toTile())
         val computed = zonePartialEnclosedCacheBuffer.computeZone(messages)
         if (messages.isNotEmpty()) {
             p.write(UpdateZonePartialEnclosed(zoneX = local.x, zoneZ = local.z, level = local.height, payload = computed[OldSchoolClientType.DESKTOP]!!))

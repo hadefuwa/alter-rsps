@@ -375,9 +375,12 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     }
 
     fun unregister(p: Player) {
-        network.playerInfoProtocol.dealloc(p.playerInfo)
-        network.npcInfoProtocol.dealloc(p.npcInfo)
-        network.worldEntityInfoProtocol.dealloc(p.worldEntityInfo)
+        // Only dealloc if player info was initialized (player completed login)
+        if (p.initiated) {
+            network.playerInfoProtocol.dealloc(p.playerInfo)
+            network.npcInfoProtocol.dealloc(p.npcInfo)
+            network.worldEntityInfoProtocol.dealloc(p.worldEntityInfo)
+        }
 
         players.remove(p)
         chunks.get(p.tile)?.removeEntity(this, p, p.tile)

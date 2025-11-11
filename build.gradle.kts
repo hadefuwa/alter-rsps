@@ -55,20 +55,17 @@ allprojects {
             languageVersion = JavaLanguageVersion.of(17)
         }
     }
-    
-    // Detekt configuration for static code analysis
-    detekt {
-        buildUponDefaultConfig = true
-        allRules = true
-        config.setFrom("$projectDir/config/detekt.yml")
-    }
-    
-    tasks.named("detekt").configure {
-        reports {
-            xml.required.set(true)
-            html.required.set(true)
-            txt.required.set(true)
-        }
+}
+
+// Detekt configuration for static code analysis (root project only)
+detekt {
+    buildUponDefaultConfig = true
+    allRules = true
+    config.setFrom("$projectDir/config/detekt.yml")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        txt.required.set(true)
     }
 }
 

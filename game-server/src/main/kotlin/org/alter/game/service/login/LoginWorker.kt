@@ -59,6 +59,8 @@ class LoginWorker(private val boss: LoginService, private val verificationServic
                                     return@apply
                                 }
                                 client.session = this
+                                // Use the same index that was sent to the client in LoginResponse.Ok
+                                // The index must match between the login response and protocol allocation
                                 client.playerInfo = client.world.network.playerInfoProtocol.alloc(client.index, OldSchoolClientType.DESKTOP)
                                 client.npcInfo = client.world.network.npcInfoProtocol.alloc(client.index, OldSchoolClientType.DESKTOP)
                                 client.worldEntityInfo =

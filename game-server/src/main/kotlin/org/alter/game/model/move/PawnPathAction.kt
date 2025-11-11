@@ -12,13 +12,13 @@ import java.lang.ref.WeakReference
 object PawnPathAction {
     private const val ITEM_USE_OPCODE = -1
 
-    val walkPlugin: Plugin.() -> Unit = {
+    val walkPlugin: Plugin.() -> Unit = s@{
         val pawn = ctx as Pawn
         val world = pawn.world
         val other = pawn.attr[INTERACTING_NPC_ATTR]?.get() 
             ?: pawn.attr[INTERACTING_PLAYER_ATTR]?.get() 
-            ?: return@walkPlugin // Both attributes are null, cannot proceed
-        val opt = pawn.attr[INTERACTING_OPT_ATTR] ?: return@walkPlugin // Missing interaction option
+            ?: return@s // Both attributes are null, cannot proceed
+        val opt = pawn.attr[INTERACTING_OPT_ATTR] ?: return@s // Missing interaction option
 
         /*
          * Some interactions only require line-of-sight range, such as npcs

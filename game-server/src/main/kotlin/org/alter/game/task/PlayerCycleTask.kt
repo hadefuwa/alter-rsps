@@ -15,6 +15,10 @@ class PlayerCycleTask : GameTask {
         service: GameService,
     ) {
         world.players.forEach { p ->
+            // Only process fully initialized players (skip players still logging in)
+            if (!p.initiated) {
+                return@forEach
+            }
             val start = System.currentTimeMillis()
             p.queues.cycle()
             p.cycle()

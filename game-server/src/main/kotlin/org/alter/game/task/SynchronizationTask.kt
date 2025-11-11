@@ -76,12 +76,22 @@ class SequentialSynchronizationTask : GameTask {
         for (n in worldNpcs.entries) {
             n?.npcPostSynchronizationTask()
         }
-        worldPlayers.forEach(Player::postCycle)
+        worldPlayers.forEach {
+            // Only call postCycle on fully initialized players
+            if (it.initiated) {
+                it.postCycle()
+            }
+        }
     }
 }
 
 fun Player.playerPreSynchronizationTask() {
     val pawn = this
+    // Check if player is fully initialized (player might still be logging in)
+    // The 'initiated' flag is set to true after login() completes, which initializes playerInfo
+    if (!initiated) {
+        return
+    }
     pawn.movementQueue.cycle()
     val last = pawn.lastKnownRegionBase
     val current = pawn.tile
@@ -163,6 +173,11 @@ fun Npc.npcPostSynchronizationTask() {
  * displacement effects [dspear, etc]
  */
 fun Player.playerCoordCycleTask() {
+    // Check if player is fully initialized (player might still be logging in)
+    // The 'initiated' flag is set to true after login() completes, which initializes playerInfo
+    if (!initiated) {
+        return
+    }
     this.playerInfo.updateCoord(this.tile.height, this.tile.x, this.tile.z)
     this.npcInfo.updateCoord(-1, this.tile.height, this.tile.x, this.tile.z)
     this.worldEntityInfo.updateCoord(-1, this.tile.height, this.tile.x, this.tile.z)

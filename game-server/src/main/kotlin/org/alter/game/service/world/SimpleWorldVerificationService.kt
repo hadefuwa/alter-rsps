@@ -13,11 +13,23 @@ class SimpleWorldVerificationService : WorldVerificationService {
         uid: PlayerUID,
         displayName: String,
         loginName: String,
-    ): LoginResponse? =
-        when {
+    ): LoginResponse? {
+        // Check for existing player with same name
+        val existingPlayer = world.getPlayerForName(displayName)
+        if (existingPlayer != null) {
+            // If existing player is not fully initialized (stuck in failed login), remove them
+            if (!existingPlayer.initiated) {
+                world.unregister(existingPlayer)
+            } else {
+                // Player is already logged in and active
+                return LoginResponse.Duplicate
+            }
+        }
+        
+        return when {
             world.rebootTimer != -1 && world.rebootTimer < World.REJECT_LOGIN_REBOOT_THRESHOLD -> LoginResponse.UpdateInProgress
-            world.getPlayerForName(displayName) != null -> LoginResponse.Duplicate
             world.players.count() >= world.players.capacity -> LoginResponse.IPLimit
             else -> null
         }
+    }
 }
