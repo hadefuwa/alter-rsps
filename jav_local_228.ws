@@ -1,6 +1,6 @@
 title=Alter
 adverturl=http://www.runescape.com/g=oldscape/bare_advert.ws
-codebase=https://YOUR_PUBLIC_URL/
+codebase=http://192.168.0.13:8080/
 cachedir=alter
 storebase=0
 initial_jar=gamepack_2221869.jar
@@ -53,7 +53,7 @@ param=3=true
 param=16=false
 param=2=https://payments.jagex.com/
 param=12=255
-param=17=https://YOUR_PUBLIC_URL/world_list.ws
+param=17=http://192.168.0.13:8080/world_list.ws
 param=21=0
 param=25=228
 param=9=ElZAIrq5NpKN6D3mDdihco3oPeYN2KFy2DCquj7JMmECPmLrDP3Bnw
