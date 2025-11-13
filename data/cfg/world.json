@@ -2,7 +2,7 @@
   {
     "id": 1,
     "types": ["FREE"],
-    "address": "127.0.0.1",
+    "address": "192.168.0.13",
     "activity": "Skilling",
     "location": "UNITED_STATES",
     "players": 1000
@@ -10,7 +10,7 @@
   {
     "id": 2,
     "types": ["PVP"],
-    "address": "127.0.0.2",
+    "address": "192.168.0.13",
     "activity": "Combat",
     "location": "UNITED_KINGDOM",
     "players": 1500

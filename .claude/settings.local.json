@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(./gradlew clean build:*)",
+      "Bash(java -jar runelite-client/build/libs/runelite-client-4.10.0-shaded.jar:*)",
+      "Bash(cat:*)",
+      "Bash(./gradlew:*)",
+      "Bash(gradlew :game-server:build:*)",
+      "Bash(cmd /c gradlew.bat :game-server:build -x test)",
+      "Bash(curl:*)",
+      "Bash(git clone:*)",
+      "Bash(openssl rsa:*)",
+      "Bash(openssl asn1parse:*)",
+      "Bash(cmd /c \"gradlew.bat :runelite-client:shadowJar -x test\")",
+      "Bash(gradlew.bat :runelite-client:shadowJar:*)",
+      "Bash(./gradlew.bat:*)",
+      "Bash(tree:*)",
+      "Bash(cmd /c \"gradlew.bat :game-server:build -x test\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
