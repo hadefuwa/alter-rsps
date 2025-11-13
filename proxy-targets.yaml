@@ -1,6 +1,6 @@
 config:
   - name: Alter
-    jav_config_url: https://YOUR_PUBLIC_URL/jav_config.ws
+    jav_config_url: https://raw.githubusercontent.com/hadefuwa/alter-rsps/main/jav_local_228.ws
     revision: 228.2
     varp_count: 15000
     modulus: abf0cb79b0fdc8175ca45f5f6b78e9326c59e892806a503eafacebe2b8888f5c034ccf0440973d0947f12069cc3d572bf6ddaaed4eed2d381d525cee777b5192ce424c835ec994dfcdf26b159fc5d5c3b414fdedbddae228b60795b74de56c2cc1c7020f17331b4b2206efcb17dc8d3331817476e947655a55705a944250f9b9
