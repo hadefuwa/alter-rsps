@@ -24,7 +24,7 @@ class CorsRoute(origin: String, methods: String, headers: String) {
             response.header("Access-Control-Allow-Origin", origin)
             response.header("Access-Control-Request-Method", methods)
             response.header("Access-Control-Allow-Headers", headers)
-            response.type("application/json")
+            // Don't override content-type here - let each route set its own
         }
     }
 }
