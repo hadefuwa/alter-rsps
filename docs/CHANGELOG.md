@@ -1,5 +1,171 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-15 (Auto-Save System and Teleport Menu Improvements)
+
+### Summary
+Implemented automatic periodic player saving and improved teleport menu navigation:
+1. Added automatic player save system to prevent data loss
+2. Redesigned teleport menu pagination for better navigation
+3. Made auto-save interval configurable via game.yml
+
+---
+
+## Features
+
+### 1. Automatic Player Save System
+**Files**:
+- `game-server/src/main/kotlin/org/alter/game/task/AutoSaveTask.kt` (NEW)
+- `game-server/src/main/kotlin/org/alter/game/service/GameService.kt`
+- `game-server/src/main/kotlin/org/alter/game/GameContext.kt`
+- `game-server/src/main/kotlin/org/alter/game/Server.kt`
+- `game.yml`
+
+**Feature**: Implemented periodic auto-save system to save all online players automatically.
+
+**Details**:
+- Created new `AutoSaveTask` game task that runs every game cycle
+- Auto-saves all online players at configurable intervals (default: every 100 cycles / 1 minute)
+- Prevents data loss from server crashes or unexpected disconnections
+- Saves complete player state: position, skills, inventory, bank, equipment, appearance, etc.
+- Provides logging of save operations with success/error counts
+- Can be disabled by setting interval to 0 (not recommended)
+
+**Configuration** (`game.yml`):
+```yaml
+# Auto-save configuration
+# How often to automatically save all online players, in game cycles.
+# At 600ms per cycle (default): 100 cycles = 1 minute, 200 cycles = 2 minutes
+# Set to 0 to disable auto-save (not recommended - only saves on logout)
+auto-save-interval: 100
+```
+
+**Impact**: Players no longer lose progress if the server crashes or they disconnect unexpectedly. Maximum data loss is now limited to the auto-save interval (default: 1 minute of gameplay).
+
+---
+
+### 2. Teleport Menu Pagination Redesign
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/commands/commands/all/TeleportsPlugin.kt`
+
+**Feature**: Redesigned teleport menu to show only 5 options per page with simplified navigation.
+
+**Details**:
+- Changed from 8 locations per page to 3 locations per page
+- Fixed pagination structure:
+  - Option 1: "Previous Page" (1st option)
+  - Options 2-4: Teleport locations (3 locations)
+  - Option 5: "Next Page" (5th option)
+- Total menu options: Always 5 (consistent UI)
+- Navigation buttons always visible for ease of use
+- Clicking Previous/Next on first/last page re-shows the same page (no action)
+- Total pages increased from 7 to 18 (52 locations ÷ 3 per page)
+
+**Impact**: Simpler, more consistent teleport menu navigation with exactly 5 clickable options per page.
+
+---
+
+## Technical Details
+
+### AutoSaveTask Implementation
+- **Execution**: Runs on every game cycle via `GameService.populateTasks()`
+- **Interval Tracking**: Tracks cycles since last save with internal counter
+- **Player Filtering**: Only saves fully initialized players (skips players still logging in)
+- **Error Handling**: Try-catch around each player save with detailed error logging
+- **Performance**: Minimal overhead - only executes save logic every N cycles
+- **Logging**: Info-level logging on successful saves, error-level on failures
+
+### Auto-Save Data Coverage
+Everything saved by the auto-save system (via `PlayerSaving.savePlayer()`):
+1. **Login credentials**: Username hash, password hash, XTEA keys
+2. **Player details**: Position (tile x/z/height), privilege level, run energy, display mode
+3. **Appearance**: Character looks, colors, gender
+4. **Skills**: All skill levels and experience values (23 skills)
+5. **Attributes**: Custom player attributes and flags
+6. **Timers**: Active timers with offline tick calculations
+7. **Containers**: Inventory, bank, equipment, and other item containers
+8. **Varps**: Variable player states (interface states, settings, etc.)
+
+### Configuration System
+- `GameContext.autoSaveInterval`: Added to game context data class
+- `Server.kt`: Loads interval from game.yml with default value of 100
+- `AutoSaveTask(interval)`: Constructor parameter for configuration injection
+- Can be changed at runtime by modifying game.yml and restarting server
+
+---
+
+## Date: 2025-01-XX (UI Navigation, Follow, and Trading Fixes)
+
+### Summary
+Fixed critical gameplay issues affecting user interface navigation, player following, and trading functionality:
+1. Fixed display settings button (116:68) incorrectly navigating to audio settings
+2. Implemented missing character follow functionality
+3. Fixed trading system crash when interacting with players
+
+---
+
+## Bug Fixes
+
+### 1. Display Settings Button Navigation Fix
+**Files**: 
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/options/tabs/OptionsTabFirstPlugin.kt`
+
+**Issue**: Clicking the display settings button (interface 116, component 68) immediately redirected users back to audio settings (component 67) instead of opening display settings.
+
+**Root Cause**: 
+- Component 67 (audio settings) was missing a handler to set the `SETTINGS_TAB_FOCUS` varbit
+- Component 68 (display settings) was incorrectly setting focus to 1 instead of 2
+
+**Fix Applied**:
+- Added missing handler for component 67 to set `SETTINGS_TAB_FOCUS` to 1 (audio settings)
+- Corrected component 68 to set `SETTINGS_TAB_FOCUS` to 2 (display settings) instead of 1
+
+**Impact**: Display settings button now correctly navigates to the display settings tab instead of redirecting to audio settings.
+
+---
+
+### 2. Character Follow Functionality Implementation
+**Files**: 
+- `game-server/src/main/kotlin/org/alter/game/model/attr/Attributes.kt`
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/OSRSPlugin.kt`
+- `game-server/src/main/kotlin/org/alter/game/model/entity/Pawn.kt`
+
+**Issue**: The "Follow" player option was sent to clients but had no handler implementation, causing the feature to be non-functional.
+
+**Root Cause**: Missing `onPlayerOption("Follow")` handler and no attribute to track follow targets.
+
+**Fix Applied**:
+- Added `FOLLOWING_TARGET_ATTR` attribute to track which player is being followed
+- Implemented `onPlayerOption("Follow")` handler with continuous following logic
+- Created follow loop that:
+  - Maintains 1-tile distance from target when possible
+  - Automatically stops if target moves >15 tiles away or changes levels
+  - Stops when player manually moves or interacts with other objects
+- Added cleanup in `resetInteractions()` to clear follow state when interactions are reset
+
+**Impact**: Players can now successfully follow other players. The system handles edge cases like target logout, distance limits, and manual movement cancellation.
+
+---
+
+### 3. Trading System Crash Fix
+**Files**: 
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/trading/TradingPlugin.kt`
+
+**Issue**: Trading system would crash with NullPointerException when attempting to trade with another player.
+
+**Root Cause**: The trading handler used unsafe `getInteractingPlayer()` method with non-null assertion (`!!`), which would throw exceptions if:
+- `INTERACTING_PLAYER_ATTR` was null
+- WeakReference to the target player was garbage collected
+- Target player logged out before handler execution
+
+**Fix Applied**:
+- Replaced unsafe `getInteractingPlayer()` with null-safe attribute access
+- Added proper null checking with error message if partner cannot be found
+- Added validation to prevent trading with yourself
+- Added check to ensure current player isn't already in a trade or locked
+
+**Impact**: Trading system now works reliably without crashes. Better error handling provides clear feedback when trading cannot proceed.
+
+---
+
 ## Date: 2025-11-15 (LAN Access, RSProx Compatibility, and Project Cleanup)
 
 ### Summary

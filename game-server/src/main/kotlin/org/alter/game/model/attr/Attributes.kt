@@ -233,3 +233,8 @@ val CHANGE_LOGGING = AttributeKey<Boolean>()
  * Instead of running tp
  */
 val CLIENT_KEY_COMBINATION = AttributeKey<Int>()
+
+/**
+ * The [Player] that this player is currently following.
+ */
+val FOLLOWING_TARGET_ATTR = AttributeKey<WeakReference<Player>>()

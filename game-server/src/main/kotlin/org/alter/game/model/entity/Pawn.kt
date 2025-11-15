@@ -498,6 +498,7 @@ abstract class Pawn(val world: World) : Entity() {
         attr.remove(COMBAT_TARGET_FOCUS_ATTR)
         attr.remove(INTERACTING_NPC_ATTR)
         attr.remove(INTERACTING_PLAYER_ATTR)
+        attr.remove(FOLLOWING_TARGET_ATTR)
         resetFacePawn()
     }
 

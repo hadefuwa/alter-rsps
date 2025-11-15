@@ -17,6 +17,7 @@ import org.alter.game.model.queue.*
 import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
+import java.lang.ref.WeakReference
 
 class OSRSPlugin(
     r: PluginRepository,
@@ -112,7 +113,100 @@ class OSRSPlugin(
             }
         }
 
-
+        /**
+         * Handle the "Follow" player option.
+         * When a player clicks "Follow" on another player, they will continuously follow them.
+         */
+        onPlayerOption("Follow") {
+            val target = player.attr[INTERACTING_PLAYER_ATTR]?.get() ?: return@onPlayerOption
+            
+            // Don't allow following yourself
+            if (target == player) {
+                return@onPlayerOption
+            }
+            
+            // Stop any existing follow
+            player.attr[FOLLOWING_TARGET_ATTR]?.get()?.let {
+                player.attr.remove(FOLLOWING_TARGET_ATTR)
+            }
+            
+            // Set the new follow target
+            player.attr[FOLLOWING_TARGET_ATTR] = WeakReference(target)
+            
+            // Start the continuous follow loop
+            player.queue(TaskPriority.STANDARD) {
+                terminateAction = {
+                    // Clean up when follow is stopped
+                    player.attr.remove(FOLLOWING_TARGET_ATTR)
+                }
+                
+                while (true) {
+                    val followTarget = player.attr[FOLLOWING_TARGET_ATTR]?.get()
+                    
+                    // If no target or target is invalid, stop following
+                    if (followTarget == null || followTarget !in world.players) {
+                        player.attr.remove(FOLLOWING_TARGET_ATTR)
+                        break
+                    }
+                    
+                    // Check if player is already close enough (within 1 tile)
+                    val distance = player.tile.getDistance(followTarget.tile)
+                    val sameLevel = player.tile.height == followTarget.tile.height
+                    
+                    if (distance <= 1 && sameLevel) {
+                        // Already close, just wait and check again
+                        wait(1)
+                        continue
+                    }
+                    
+                    // If target is too far away (more than 15 tiles), stop following
+                    if (distance > 15 || !sameLevel) {
+                        player.message("You can't reach that.")
+                        player.attr.remove(FOLLOWING_TARGET_ATTR)
+                        break
+                    }
+                    
+                    // Walk towards the target
+                    val route = player.world.smartRouteFinder.findRoute(
+                        level = player.tile.height,
+                        srcX = player.tile.x,
+                        srcZ = player.tile.z,
+                        destX = followTarget.tile.x,
+                        destZ = followTarget.tile.z,
+                        locShape = -2,
+                    )
+                    
+                    // Only walk if we have a valid route
+                    if (route.success) {
+                        player.walkRoute(route.toTileQueue(), stepType = MovementQueue.StepType.NORMAL)
+                        
+                        // Wait for movement to complete, checking periodically if we should stop
+                        while (player.hasMoveDestination()) {
+                            // Check if we should stop following (target moved too far, player manually moved, etc.)
+                            val currentTarget = player.attr[FOLLOWING_TARGET_ATTR]?.get()
+                            if (currentTarget == null || currentTarget !in world.players) {
+                                player.attr.remove(FOLLOWING_TARGET_ATTR)
+                                return@queue
+                            }
+                            
+                            val currentDistance = player.tile.getDistance(currentTarget.tile)
+                            if (currentDistance > 15 || player.tile.height != currentTarget.tile.height) {
+                                player.attr.remove(FOLLOWING_TARGET_ATTR)
+                                return@queue
+                            }
+                            
+                            wait(1)
+                        }
+                    } else {
+                        // No valid route, wait a bit before trying again
+                        wait(1)
+                    }
+                    
+                    // Small delay before next follow check
+                    wait(1)
+                }
+            }
+        }
 
         // TODO Whats this for:?
         onButton(245, 20) {

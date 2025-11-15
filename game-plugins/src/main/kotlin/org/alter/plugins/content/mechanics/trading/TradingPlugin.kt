@@ -50,13 +50,26 @@ class TradingPlugin(
          * rather than sending out a new request.
          */
         onPlayerOption(option = "Trade with") {
+            // The trade partner instance - safely get the interacting player
+            val partner = player.attr[INTERACTING_PLAYER_ATTR]?.get() ?: run {
+                player.message("Unable to find trade partner.")
+                return@onPlayerOption
+            }
 
-            // The trade partner instance
-            val partner = player.getInteractingPlayer()
+            // Don't allow trading with yourself
+            if (partner == player) {
+                return@onPlayerOption
+            }
 
             // If the player is already in a trade
             if (partner.getTradeSession() != null || partner.isLocked()) {
                 player.message("Other player is busy at the moment.")
+                return@onPlayerOption
+            }
+
+            // Check if the current player is already in a trade
+            if (player.getTradeSession() != null || player.isLocked()) {
+                player.message("You are busy at the moment.")
                 return@onPlayerOption
             }
 
