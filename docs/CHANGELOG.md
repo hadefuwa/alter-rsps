@@ -1,5 +1,101 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-15 (LAN Access, RSProx Compatibility, and Project Cleanup)
+
+### Summary
+Fixed server network binding to accept LAN connections, improved RSProx compatibility, and cleaned up project files:
+1. Updated server to bind to 0.0.0.0 (all interfaces) instead of 127.0.0.1 for LAN access
+2. Fixed RSProx compatibility by removing port from codebase URL (matching blurite.io format)
+3. Fixed world_list.ws string encoding to use explicit UTF-8
+4. Cleaned up project by removing documentation files, batch scripts, and temporary files
+5. Pushed all changes to GitHub
+
+---
+
+## Network and Connectivity Fixes
+
+### 1. Server LAN Access - Bind to All Interfaces
+**Files**: 
+- `game-plugins/src/main/kotlin/org/alter/plugins/service/restapi/RestApiService.kt`
+- `game-plugins/src/main/kotlin/org/alter/plugins/service/worldlist/WorldListService.kt`
+
+**Issue**: Server was only listening on 127.0.0.1 (localhost), preventing connections from other devices on the LAN.
+
+**Fix Applied**:
+- Updated RestApiService to explicitly bind Spark to 0.0.0.0 using `ipAddress("0.0.0.0")`
+- Updated WorldListService to bind Netty bootstrap to 0.0.0.0 using `InetSocketAddress("0.0.0.0", port)`
+- Server now accepts connections from any network interface, enabling LAN access
+
+**Impact**: Server can now be accessed from other devices on the local network (e.g., 192.168.0.13:8080 and 192.168.0.13:43594).
+
+---
+
+### 2. RSProx Compatibility - Codebase URL Format
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/service/restapi/routes/RestApiRoutes.kt`
+
+**Issue**: RSProx couldn't match codebase URL with world address, causing "Required value was null" errors.
+
+**Root Cause**: Codebase URL included port (`http://192.168.0.13:8080/`), but RSProx expects codebase without port (like blurite.io uses `http://127.0.0.1/`).
+
+**Fix Applied**:
+- Changed codebase URL from `http://$serverIp:$serverPort/` to `http://$serverIp/` (removed port)
+- World list URL still includes port: `http://$serverIp:$serverPort/world_list.ws`
+- Port is handled separately by RSProx via `game_server_port` config
+
+**Impact**: RSProx can now successfully match codebase host/IP with world address and load the server configuration.
+
+---
+
+### 3. World List Encoding Fix
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/service/restapi/routes/RestApiRoutes.kt`
+
+**Issue**: String encoding in world_list.ws used platform default instead of explicit UTF-8.
+
+**Fix Applied**:
+- Updated `writeString()` method to use `StandardCharsets.UTF_8` explicitly
+- Added proper import for `java.nio.charset.StandardCharsets`
+
+**Impact**: Ensures consistent string encoding in world_list.ws binary format, preventing parsing issues.
+
+---
+
+## Project Cleanup
+
+### 4. Removed Documentation Files
+**Files Removed**: 48+ .md files (kept only `docs/CHANGELOG.md`)
+
+**Details**:
+- Removed all troubleshooting guides, setup instructions, and temporary documentation
+- Kept only the main changelog for project history
+
+**Impact**: Cleaner project structure, reduced clutter.
+
+---
+
+### 5. Removed Batch and PowerShell Scripts
+**Files Removed**: 
+- 18 .bat files (all batch scripts)
+- 5 .ps1 files (PowerShell scripts)
+
+**Details**:
+- Removed all temporary setup, build, and troubleshooting scripts
+- Cleaned up client launch scripts and configuration helpers
+
+**Impact**: Reduced project size, removed temporary/obsolete automation scripts.
+
+---
+
+### 6. Removed Temporary and Duplicate Files
+**Files Removed**:
+- 4 duplicate proxy-targets.yaml files (kept main one)
+- 1 duplicate modulus file (kept root one)
+- jav_local_228.ws (test file)
+- custom-runelite-client.jar and runelite.jar (build artifacts)
+
+**Impact**: Cleaner repository, no duplicate configurations.
+
+---
+
 ## Date: 2025-11-11 (Wilderness Content and Player Save Fixes)
 
 ### Summary
