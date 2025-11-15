@@ -10,6 +10,7 @@ import org.alter.plugins.service.worldlist.model.WorldEntry
 import org.alter.plugins.service.worldlist.model.WorldLocation
 import org.alter.plugins.service.worldlist.model.WorldType
 import spark.Spark.*
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -18,6 +19,7 @@ import java.util.*
  * @TODO Http-api
  */
 class RestApiRoutes {
+    // These are used for client configuration (what IP clients connect to), not for binding
     private var serverIp: String = "127.0.0.1"
     private var serverPort: Int = 8080
     private var serverHostname: String = "127.0.0.1"
@@ -225,14 +227,16 @@ class RestApiRoutes {
         get("/jav_config.ws") { req, res ->
             res.type("application/octet-stream")
             try {
-                // Use hostname for world_list URL to match codebase hostname (for RSProx matching)
-                // RSProx needs consistent hostname usage for codebase replacement world matching
-                val worldListUrl = "http://$serverHostname:$serverPort/world_list.ws"
+                // RSProx matching: codebase hostname/IP must match world address
+                // Blurite.io uses: codebase=http://127.0.0.1/ (no port) for local connections
+                // For RSProx compatibility, use IP address without port in codebase
+                // World list URL can use full URL with port
+                val worldListUrl = "http://$serverIp:$serverPort/world_list.ws"
 
-                // Codebase: For RuneLite/RuneAvion clients, must include port for gamepack download
-                // The codebase URL points to where the gamepack JAR file is hosted
-                // Use hostname for RSProx codebase matching (RSProx maps hostname -> IP)
-                val codebaseUrl = "http://$serverHostname:$serverPort/"
+                // Codebase: Use IP address WITHOUT port (like blurite.io does with 127.0.0.1)
+                // RSProx matches codebase host/IP with world address IP
+                // Port is handled separately by RSProx via game_server_port config
+                val codebaseUrl = "http://$serverIp/"
                 
                 // Generate custom jav_config.ws that points to our world_list.ws
                 val javConfig = buildString {
@@ -514,10 +518,11 @@ class RestApiRoutes {
     
     /**
      * Writes a null-terminated string to the buffer
+     * Uses UTF-8 encoding (standard for OSRS protocol)
      */
     private fun writeString(buf: io.netty.buffer.ByteBuf, value: String) {
-        val bytes = value.toByteArray()
+        val bytes = value.toByteArray(StandardCharsets.UTF_8)
         buf.writeBytes(bytes)
-        buf.writeByte(0)
+        buf.writeByte(0)  // Null terminator
     }
 }

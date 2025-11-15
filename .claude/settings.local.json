@@ -17,7 +17,9 @@
       "Bash(gradlew.bat :runelite-client:shadowJar:*)",
       "Bash(./gradlew.bat:*)",
       "Bash(tree:*)",
-      "Bash(cmd /c \"gradlew.bat :game-server:build -x test\")"
+      "Bash(cmd /c \"gradlew.bat :game-server:build -x test\")",
+      "Bash(mvn clean install:*)",
+      "Bash(cmd /c \"gradlew.bat clean build -x test -x checkstyleMain\")"
     ],
     "deny": [],
     "ask": []

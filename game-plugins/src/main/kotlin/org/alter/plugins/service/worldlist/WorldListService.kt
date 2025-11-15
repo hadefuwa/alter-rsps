@@ -16,6 +16,7 @@ import org.alter.game.service.Service
 import org.alter.plugins.service.worldlist.io.WorldListChannelHandler
 import org.alter.plugins.service.worldlist.io.WorldListChannelInitializer
 import org.alter.plugins.service.worldlist.model.WorldEntry
+import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -106,7 +107,8 @@ class WorldListService : Service {
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
                 .childHandler(WorldListChannelInitializer(handler))
-                bootstrap.bind(port).sync().channel().closeFuture().sync()
+                // Bind to all interfaces (0.0.0.0) to accept connections from LAN
+                bootstrap.bind(InetSocketAddress("0.0.0.0", port)).sync().channel().closeFuture().sync()
         } finally {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
