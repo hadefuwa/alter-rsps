@@ -18,33 +18,35 @@ import java.util.*
  * @TODO Http-api
  */
 class RestApiRoutes {
+    private var serverIp: String = "127.0.0.1"
+    private var serverPort: Int = 8080
+    private var serverHostname: String = "127.0.0.1"
+    
     fun init(
         world: World,
         auth: Boolean,
+        serverIp: String = "127.0.0.1",
+        serverPort: Int = 8080,
+        serverHostname: String = "127.0.0.1",
     ) {
+        this.serverIp = serverIp
+        this.serverPort = serverPort
+        this.serverHostname = serverHostname
         println("[REST API] RestApiRoutes.init() called - registering routes...")
+        println("[REST API] Server IP: $serverIp, Port: $serverPort, Hostname: $serverHostname")
         
         // Serve bootstrap.json FIRST to ensure it's registered before other routes
         println("[REST API] Registering /bootstrap.json route...")
-        get("/bootstrap.json") { req, res ->
-            println("[REST API] bootstrap.json endpoint CALLED - request received!")
+        try {
+            get("/bootstrap.json") { req, res ->
             res.type("application/json")
             try {
-                // Get the project root directory - try multiple methods
+                // First try to read from file
                 val userDir = System.getProperty("user.dir")
-                val projectRoot = if (userDir != null) {
-                    Paths.get(userDir)
-                } else {
-                    Paths.get(".").toAbsolutePath().normalize()
-                }
-                
-                // Try multiple possible locations for bootstrap.json
                 val possiblePaths = listOf(
-                    projectRoot.resolve("bootstrap.json"),  // Project root (absolute)
-                    Paths.get("bootstrap.json").toAbsolutePath().normalize(),  // Current directory (absolute)
-                    projectRoot.resolve("data").resolve("bootstrap.json"),  // Data directory (absolute)
-                    Paths.get("bootstrap.json"),  // Relative current directory
-                    Paths.get("data/bootstrap.json")  // Relative data directory
+                    Paths.get("bootstrap.json"),
+                    Paths.get(userDir, "bootstrap.json"),
+                    Paths.get(userDir ?: ".", "bootstrap.json").toAbsolutePath().normalize()
                 )
                 
                 var bootstrapPath: java.nio.file.Path? = null
@@ -56,26 +58,160 @@ class RestApiRoutes {
                     }
                 }
                 
-                if (bootstrapPath == null || !Files.exists(bootstrapPath)) {
-                    res.status(404)
-                    val pathsChecked = possiblePaths.map { it.toAbsolutePath().normalize().toString() }.joinToString(", ")
-                    res.body("{\"error\": \"bootstrap.json not found. Checked paths: $pathsChecked, user.dir: $userDir\"}")
+                // If file exists, serve it
+                if (bootstrapPath != null && Files.exists(bootstrapPath)) {
+                    val bootstrapContent = Files.readString(bootstrapPath)
+                    res.body(bootstrapContent)
                     return@get null
                 }
-
-                // Read and serve the bootstrap.json file
-                val bootstrapContent = Files.readString(bootstrapPath)
-                res.body(bootstrapContent)
+                
+                // Otherwise, serve embedded bootstrap.json (fallback)
+                val embeddedBootstrap = """
+                    {
+                        "artifacts": [
+                            {
+                                "hash": "caf3eb630dc6d5b46a20cd6c075cf7f61e37df79daa4fbb7d7fca156bd37c6ca",
+                                "name": "client-1.11.11.jar",
+                                "path": "https://repo.runelite.net/net/runelite/client/1.11.11/client-1.11.11.jar",
+                                "size": 5203409
+                            }
+                        ],
+                        "clientJvm17Arguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "clientJvm17MacArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500",
+                            "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+                        ],
+                        "clientJvm9Arguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "clientJvmArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500",
+                            "-Xincgc",
+                            "-XX:+UseConcMarkSweepGC",
+                            "-XX:+UseParNewGC"
+                        ],
+                        "launcherArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500",
+                            "-Xincgc",
+                            "-XX:+UseConcMarkSweepGC",
+                            "-XX:+UseParNewGC"
+                        ],
+                        "launcherJvm11Arguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "launcherJvm11WindowsArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "launcherJvm17Arguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "launcherJvm17MacArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500",
+                            "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+                        ],
+                        "launcherJvm17WindowsArguments": [
+                            "-XX:+DisableAttachMechanism",
+                            "-Drunelite.launcher.nojvm=true",
+                            "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
+                            "-Xmx768m",
+                            "-Xss2m",
+                            "-XX:CompileThreshold=1500"
+                        ],
+                        "version": "1.11.11"
+                    }
+                """.trimIndent()
+                res.body(embeddedBootstrap)
                 null
             } catch (e: Exception) {
                 println("[REST API] EXCEPTION in bootstrap.json handler: ${e.message}")
                 e.printStackTrace()
                 res.status(500)
-                res.body("{\"error\": \"Error serving bootstrap.json: ${e.message}\", \"stack\": \"${e.stackTraceToString()}\"}")
+                res.body("{\"error\": \"Error serving bootstrap.json: ${e.message}\"}")
                 null
             }
         }
         println("[REST API] /bootstrap.json route registered successfully!")
+        } catch (e: Exception) {
+            println("[REST API] ERROR registering /bootstrap.json route: ${e.message}")
+            e.printStackTrace()
+            throw e
+        }
+
+        // RuneLite WorldService endpoint - returns JSON world list
+        println("[REST API] Registering /worlds route...")
+        try {
+            get("/worlds") { req, res ->
+            res.type("application/json")
+            try {
+                val worldJsonPath = Paths.get("data/cfg/world.json")
+                val worldEntries: List<Map<String, Any?>> = if (Files.exists(worldJsonPath)) {
+                    Files.newBufferedReader(worldJsonPath).use { reader ->
+                        val jsonList: List<Map<String, Any>> = Gson().fromJson(reader, object : TypeToken<List<Map<String, Any>>>() {}.type)
+                        jsonList.map { json ->
+                            // Convert to RuneLite WorldService format
+                            mapOf<String, Any?>(
+                                "id" to json["id"],
+                                "types" to json["types"],
+                                "address" to json["address"],
+                                "activity" to json["activity"],
+                                "location" to json["location"],
+                                "players" to json["players"]
+                            )
+                        }
+                    }
+                } else {
+                    emptyList()
+                }
+                res.body(Gson().toJson(worldEntries))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                res.status(500)
+                res.body("""{"error": "Error loading world list: ${e.message}"}""")
+            }
+            null
+        }
+        println("[REST API] /worlds route registered successfully!")
+        } catch (e: Exception) {
+            println("[REST API] ERROR registering /worlds route: ${e.message}")
+            e.printStackTrace()
+            throw e
+        }
 
         get("/players") {
                 req, res ->
@@ -89,15 +225,14 @@ class RestApiRoutes {
         get("/jav_config.ws") { req, res ->
             res.type("application/octet-stream")
             try {
-                // Use server's LAN IP - clients will connect via this IP
-                // For LAN access, use the server's actual LAN IP
-                val serverIp = "192.168.0.13"
-                val serverPort = 8080
-                val worldListUrl = "http://$serverIp:$serverPort/world_list.ws"
+                // Use hostname for world_list URL to match codebase hostname (for RSProx matching)
+                // RSProx needs consistent hostname usage for codebase replacement world matching
+                val worldListUrl = "http://$serverHostname:$serverPort/world_list.ws"
 
                 // Codebase: For RuneLite/RuneAvion clients, must include port for gamepack download
                 // The codebase URL points to where the gamepack JAR file is hosted
-                val codebaseUrl = "http://$serverIp:$serverPort/"
+                // Use hostname for RSProx codebase matching (RSProx maps hostname -> IP)
+                val codebaseUrl = "http://$serverHostname:$serverPort/"
                 
                 // Generate custom jav_config.ws that points to our world_list.ws
                 val javConfig = buildString {
@@ -201,6 +336,9 @@ class RestApiRoutes {
                                 WorldType.valueOf(typeName)
                             }
                             val location = WorldLocation.valueOf(json["location"] as String)
+                            // World address should be IP address - RSProx matches codebase IP with world address IP
+                            // Codebase: http://192.168.0.13:8080/ -> IP: 192.168.0.13
+                            // World address: 192.168.0.13 -> Direct IP match!
                             WorldEntry(
                                 id = (json["id"] as Double).toInt(),
                                 types = EnumSet.copyOf(types),
@@ -316,6 +454,37 @@ class RestApiRoutes {
                 res.status(500)
                 res.body("Error serving gamepack: ${e.message}")
             }
+            null
+        }
+
+        // RuneLite Item Prices endpoint - returns empty prices (client will work without prices)
+        get("/item/prices.js") { req, res ->
+            res.type("application/javascript")
+            // Return empty prices object - client will work without item prices
+            res.body("""define([], function() { return {}; });""")
+            null
+        }
+
+        // RuneLite External Plugins manifest - return empty manifest (disable external plugins)
+        get("/manifest.js") { req, res ->
+            res.type("application/javascript")
+            // Return empty manifest - no external plugins
+            res.body("""define([], function() { return []; });""")
+            null
+        }
+
+        // RuneLite Session ping endpoint - return success
+        get("/session") { req, res ->
+            res.type("application/json")
+            // Return a simple success response
+            res.body("""{"success":true}""")
+            null
+        }
+
+        // RuneLite Session ping POST endpoint
+        post("/session") { req, res ->
+            res.type("application/json")
+            res.body("""{"success":true}""")
             null
         }
     }
