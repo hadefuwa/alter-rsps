@@ -358,32 +358,3 @@ java.lang.IllegalArgumentException: bound must be positive
 [2025-11-16 16:43:35.821] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
 [2025-11-16 17:22:05.625] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
 [2025-11-16 17:22:10.997] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 18:12:23.919] WARN  o.a.game.model.interf.InterfaceSet - Interface 860 is not visible and cannot be closed.
-[2025-11-16 18:27:41.972] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 18:27:47.702] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 18:34:42.683] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 18:34:48.594] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 18:43:35.642] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 18:43:41.150] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 18:46:41.920] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 18:46:49.173] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 18:49:39.939] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 18:49:45.541] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:02:26.429] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:02:32.310] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:08:37.470] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:08:43.184] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:12:01.386] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:12:06.970] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:44:08.752] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:44:14.476] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:44:18.134] ERROR o.alter.game.plugin.PluginRepository - Item on Item pair is already bound to a plugin: [item1=227, item2=249]
-[2025-11-16 19:46:59.172] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:47:05.156] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:49:31.767] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 19:49:37.718] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 19:50:20.346] WARN  o.a.game.model.interf.InterfaceSet - No interface visible in pane ({}, {}). 162 566
-[2025-11-16 20:00:33.511] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 20:00:39.129] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
-[2025-11-16 20:04:20.187] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
-[2025-11-16 20:04:26.364] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]

@@ -1,0 +1,96 @@
+[
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 1,
+    "experience": 10.0,
+    "fish": [
+      { "item": "item.raw_shrimps", "weight": 100.0 }
+    ],
+    "tool": "item.small_fishing_net",
+    "animation": 621
+  },
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 5,
+    "experience": 20.0,
+    "fish": [
+      { "item": "item.raw_sardine", "weight": 100.0 }
+    ],
+    "tool": "item.fishing_rod",
+    "bait": "item.fishing_bait",
+    "animation": 622
+  },
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 20,
+    "experience": 50.0,
+    "fish": [
+      { "item": "item.raw_trout", "weight": 70.0 },
+      { "item": "item.raw_salmon", "weight": 30.0 }
+    ],
+    "tool": "item.fishing_rod",
+    "bait": "item.fishing_bait",
+    "animation": 622
+  },
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 40,
+    "experience": 90.0,
+    "fish": [
+      { "item": "item.raw_tuna", "weight": 100.0 }
+    ],
+    "tool": "item.harpoon",
+    "animation": 618
+  },
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 50,
+    "experience": 100.0,
+    "fish": [
+      { "item": "item.raw_lobster", "weight": 100.0 }
+    ],
+    "tool": "item.lobster_pot",
+    "animation": 619
+  },
+  {
+    "objects": [
+      "object.fishing_spot_42",
+      "object.fishing_spot_44",
+      "object.fishing_spot_45",
+      "object.fishing_spot_46"
+    ],
+    "level": 76,
+    "experience": 110.0,
+    "fish": [
+      { "item": "item.raw_swordfish", "weight": 100.0 }
+    ],
+    "tool": "item.harpoon",
+    "animation": 618
+  }
+]
+
