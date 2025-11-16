@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/runelite-client/cache/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/cache/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-jshell/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-jshell/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-maven-plugin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/runelite-maven-plugin/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/runelite-client/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

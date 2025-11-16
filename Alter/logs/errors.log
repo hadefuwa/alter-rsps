@@ -1,0 +1,166 @@
+[2025-11-16 00:00:53.416] WARN  o.a.game.model.interf.InterfaceSet - No interface visible in pane ({}, {}). 161 16
+[2025-11-16 00:00:58.219] WARN  o.a.game.model.interf.InterfaceSet - Interface 335 is not visible and cannot be closed.
+[2025-11-16 00:01:04.810] WARN  o.a.game.model.interf.InterfaceSet - Interface 334 is not visible and cannot be closed.
+[2025-11-16 00:01:19.813] WARN  o.a.game.model.interf.InterfaceSet - Interface 334 is not visible and cannot be closed.
+[2025-11-16 00:32:25.834] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:32:31.072] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:37:07.483] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:37:12.764] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:41:11.744] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:41:17.025] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:49:17.092] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:49:22.431] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:55:27.378] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:55:32.670] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:04:44.799] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/skills/thieving/pickpocket/PickpocketPlugin$1$1$1$1$1
+	at org.alter.plugins.content.skills.thieving.pickpocket.PickpocketPlugin.lambda$3$lambda$2$lambda$1$lambda$0(PickpocketPlugin.kt:43)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeNpc(PluginRepository.kt:1585)
+	at org.alter.game.model.move.PawnPathAction.walk(PawnPathAction.kt:129)
+	at org.alter.game.model.move.PawnPathAction.access$walk(PawnPathAction.kt:12)
+	at org.alter.game.model.move.PawnPathAction$walk$1.invokeSuspend(PawnPathAction.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.skills.thieving.pickpocket.PickpocketPlugin$1$1$1$1$1
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 20 common frames omitted
+[2025-11-16 01:05:09.317] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:05:14.714] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:18:01.178] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/interfaces/bank/ExtensionsKt
+	at org.alter.plugins.content.objects.bankbooth.BankBoothsPlugin.lambda$2$lambda$0(BankBoothsPlugin.kt:73)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeObject(PluginRepository.kt:1554)
+	at org.alter.game.model.move.ObjectPathAction.objectInteractPlugin$lambda$3$lambda$2(ObjectPathAction.kt:110)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invokeSuspend(ObjectPathAction.kt:50)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.interfaces.bank.ExtensionsKt
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 20 common frames omitted
+[2025-11-16 01:18:04.187] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/interfaces/bank/ExtensionsKt
+	at org.alter.plugins.content.objects.bankbooth.BankBoothsPlugin.lambda$2$lambda$0(BankBoothsPlugin.kt:73)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeObject(PluginRepository.kt:1554)
+	at org.alter.game.model.move.ObjectPathAction.objectInteractPlugin$lambda$3$lambda$2(ObjectPathAction.kt:110)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invokeSuspend(ObjectPathAction.kt:50)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.interfaces.bank.ExtensionsKt
+	... 22 common frames omitted
+[2025-11-16 01:18:07.788] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/interfaces/bank/ExtensionsKt
+	at org.alter.plugins.content.objects.bankbooth.BankBoothsPlugin.lambda$2$lambda$0(BankBoothsPlugin.kt:73)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeObject(PluginRepository.kt:1554)
+	at org.alter.game.model.move.ObjectPathAction.objectInteractPlugin$lambda$3$lambda$2(ObjectPathAction.kt:110)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invokeSuspend(ObjectPathAction.kt:50)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.interfaces.bank.ExtensionsKt
+	... 22 common frames omitted
+[2025-11-16 01:18:08.988] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/interfaces/bank/ExtensionsKt
+	at org.alter.plugins.content.objects.bankbooth.BankBoothsPlugin.lambda$2$lambda$0(BankBoothsPlugin.kt:73)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeObject(PluginRepository.kt:1554)
+	at org.alter.game.model.move.ObjectPathAction.objectInteractPlugin$lambda$3$lambda$2(ObjectPathAction.kt:110)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invokeSuspend(ObjectPathAction.kt:50)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.move.ObjectPathAction$walk$1.invoke(ObjectPathAction.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.interfaces.bank.ExtensionsKt
+	... 22 common frames omitted
+[2025-11-16 01:18:43.569] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:18:48.784] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:18:51.919] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 2814 [opt=1]
+[2025-11-16 01:18:51.959] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 2814 [opt=1]
+[2025-11-16 01:18:51.971] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 2814 [opt=1]
+[2025-11-16 01:19:45.759] WARN  o.a.game.model.interf.InterfaceSet - No interface visible in pane ({}, {}). 162 566
+[2025-11-16 01:27:33.985] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:27:39.265] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:33:05.502] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:33:10.984] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:42:03.072] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:42:08.409] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:42:11.355] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 6816 [opt=1]
+[2025-11-16 01:42:11.360] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 3223 [opt=1]
+[2025-11-16 01:42:11.369] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 3105 [opt=1]
+[2025-11-16 01:42:11.387] ERROR o.alter.game.plugin.PluginRepository - Npc is already bound to a plugin: 4851 [opt=1]
+[2025-11-16 01:45:58.294] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:46:03.632] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]

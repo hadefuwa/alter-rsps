@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/Alter" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/Alter" />
+            <option value="$PROJECT_DIR$/Alter/game-api" />
+            <option value="$PROJECT_DIR$/Alter/game-plugins" />
+            <option value="$PROJECT_DIR$/Alter/game-server" />
+            <option value="$PROJECT_DIR$/Alter/plugins" />
+            <option value="$PROJECT_DIR$/Alter/plugins/filestore" />
+            <option value="$PROJECT_DIR$/Alter/plugins/rscm" />
+            <option value="$PROJECT_DIR$/Alter/plugins/tools" />
+            <option value="$PROJECT_DIR$/Alter/util" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/alterrsps-openosrs" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/openosrs-client" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
