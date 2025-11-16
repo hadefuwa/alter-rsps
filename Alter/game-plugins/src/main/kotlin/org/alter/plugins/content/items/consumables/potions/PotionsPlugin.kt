@@ -182,15 +182,20 @@ class PotionsPlugin(
                 player.getSkills().setCurrentLevel(Skills.PRAYER, newPrayer)
                 
                 // Restore all combat stats
-                Skills.values.forEach { skill ->
-                    if (skill != Skills.HITPOINTS && skill != Skills.PRAYER) {
-                        val current = player.getSkills().getCurrentLevel(skill)
-                        val base = player.getSkills().getBaseLevel(skill)
-                        if (current < base) {
-                            val restoreAmount = (base / 4) + 8
-                            val newLevel = (current + restoreAmount).coerceAtMost(base)
-                            player.getSkills().setCurrentLevel(skill, newLevel)
-                        }
+                val combatSkills = listOf(
+                    Skills.ATTACK,
+                    Skills.STRENGTH,
+                    Skills.DEFENCE,
+                    Skills.RANGED,
+                    Skills.MAGIC
+                )
+                combatSkills.forEach { skill ->
+                    val current = player.getSkills().getCurrentLevel(skill)
+                    val base = player.getSkills().getBaseLevel(skill)
+                    if (current < base) {
+                        val restoreAmount = (base / 4) + 8
+                        val newLevel = (current + restoreAmount).coerceAtMost(base)
+                        player.getSkills().setCurrentLevel(skill, newLevel)
                     }
                 }
             }

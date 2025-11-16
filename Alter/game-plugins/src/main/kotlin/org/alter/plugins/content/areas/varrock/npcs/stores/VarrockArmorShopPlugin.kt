@@ -91,12 +91,6 @@ class VarrockArmorShopPlugin(
         addArmor("karils_crossbow", 100000000)
         addArmor("karils_armour_set", 95000000)
         
-        // Ranged Armor - 10m-20m
-        addArmor("rune_arrow", 1000)
-        addArmor("rune_bolts", 1200)
-        addArmor("rune_dart", 1200)
-        addArmor("rune_knife", 1500)
-        
         // Magic Armor - 15m-30m
         addArmor("mystic_robe_top", 300000)
         addArmor("mystic_robe_bottom", 300000)
@@ -104,6 +98,8 @@ class VarrockArmorShopPlugin(
         // Bandos Armor - 200m-300m
         addArmor("bandos_chestplate", 200000000)
         addArmor("bandos_tassets", 200000000)
+        addArmor("antidragon_shield", 10000000)
+        addArmor("dragonfire_shield", 100000000)
     }
 
     init {

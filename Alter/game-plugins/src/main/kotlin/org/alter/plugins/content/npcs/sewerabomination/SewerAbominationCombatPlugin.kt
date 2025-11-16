@@ -47,18 +47,9 @@ class SewerAbominationCombatPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
 
-    /**
-     * Timer key for minion aggro checks
-     */
-    private val MINION_AGGRO_TIMER = TimerKey()
 
-    /**
-     * Cached list of valid item IDs from the entire game item table.
-     * This is built once when the plugin initializes to avoid rebuilding it on every minion death.
-     */
-    private val validItemIds: List<Int> by lazy {
-        buildValidItemList()
-    }
+
+
 
     init {
         // Using Cerberus NPC model (5862) as the Sewer Abomination
@@ -70,7 +61,7 @@ class SewerAbominationCombatPlugin(
 
         // Custom combat handlers for minions to ensure they hit hard
         // Only apply to minions spawned by the boss (they don't respawn)
-        onNpcCombat("npc.zombie") {
+        onNpcCombat("npc.gnome_driver") {
             val npc = ctx as Npc
             if (!npc.respawns) {
                 npc.queue {
@@ -79,7 +70,7 @@ class SewerAbominationCombatPlugin(
             }
         }
         
-        onNpcCombat("npc.goblin") {
+        onNpcCombat("npc.gnome_archer") {
             val npc = ctx as Npc
             if (!npc.respawns) {
                 npc.queue {
@@ -88,7 +79,7 @@ class SewerAbominationCombatPlugin(
             }
         }
         
-        onNpcCombat("npc.dark_wizard") {
+        onNpcCombat("npc.gnome_mage") {
             val npc = ctx as Npc
             if (!npc.respawns) {
                 npc.queue {
@@ -97,26 +88,16 @@ class SewerAbominationCombatPlugin(
             }
         }
 
-        // Aggro timer for minions
-        onTimer(MINION_AGGRO_TIMER) {
-            val npc = ctx as Npc
-            if (!npc.respawns && npc.isActive() && npc.lock.canAttack() && !npc.isAttacking()) {
-                // Manually check for players in radius and attack
-                checkMinionAggro(npc)
-            }
-            // Reset timer
-            if (npc.isActive()) {
-                npc.timers[MINION_AGGRO_TIMER] = 1
-            }
-        }
+        // Let the default NPC aggression system handle aggression
+        // The minions are configured with alwaysAggro() in CombatConfigPlugin.kt
 
         // Override unwanted NPC options for minions (they should only be attackable)
         // Only register handlers for options that actually exist on these NPCs
-        // Goblins should only have "Attack" option, so no need to override anything
+        // Archers should only have "Attack" option, so no need to override anything
         
-        // Check if dark_wizard has "talk-to" option and override it if it exists
-        if (npcHasOption("npc.dark_wizard", "talk-to")) {
-            onNpcOption("npc.dark_wizard", option = "talk-to") {
+        // Check if gnome_mage has "talk-to" option and override it if it exists
+        if (npcHasOption("npc.gnome_mage", "talk-to")) {
+            onNpcOption("npc.gnome_mage", option = "talk-to") {
                 val npc = ctx as Npc
                 // If this is a minion (doesn't respawn), redirect to attack instead
                 if (!npc.respawns) {
@@ -126,183 +107,15 @@ class SewerAbominationCombatPlugin(
             }
         }
 
-        // Guaranteed random item drop for minions when they die
-        // Use onAnyNpcDeath as a catch-all to ensure we catch all minion deaths
-        onAnyNpcDeath {
-            val npc = ctx as Npc
-            val zombieId = getRSCM("npc.zombie")
-            val goblinId = getRSCM("npc.goblin")
-            val wizardId = getRSCM("npc.dark_wizard")
-            
-            // Check if this is a minion spawned by the boss (doesn't respawn)
-            // and is one of the minion types
-            if (!npc.respawns && (npc.id == zombieId || npc.id == goblinId || npc.id == wizardId)) {
-                println("DEBUG: Minion death detected - NPC ${npc.id}, respawns: ${npc.respawns}, zombieId=$zombieId, goblinId=$goblinId, wizardId=$wizardId")
-                dropGuaranteedRandomItem(npc)
-            }
-        }
+        // Minions will get random drops through the main NpcLootDropPlugin system
+        // based on their combat level defined in CombatConfigPlugin.kt
     }
 
-    /**
-     * Builds a list of valid item IDs from the entire game item table.
-     * Filters out placeholders, null names, and empty names.
-     */
-    private fun buildValidItemList(): List<Int> {
-        val validItems = mutableListOf<Int>()
-        
-        for (itemId in 0 until itemSize()) {
-            try {
-                val def = getItem(itemId)
-                // Filter out invalid items: placeholders, null names, and empty names
-                if (!def.isPlaceholder && def.name.isNotBlank() && def.name.lowercase() != "null") {
-                    validItems.add(itemId)
-                }
-            } catch (e: Exception) {
-                // Skip items that can't be loaded
-                continue
-            }
-        }
-        
-        return validItems.toList()
-    }
 
-    /**
-     * Converts a clue scroll item ID to its corresponding clue casket item ID.
-     * Returns the original item ID if it's not a clue scroll.
-     */
-    private fun convertClueScrollToCasket(itemId: Int): Int {
-        try {
-            val itemDef = getItem(itemId)
-            val itemName = itemDef.name.lowercase()
-            
-            // Check if this is a clue scroll item
-            if (itemName.contains("clue") && itemName.contains("scroll") && (
-                itemName.contains("easy") || 
-                itemName.contains("medium") || 
-                itemName.contains("hard") || 
-                itemName.contains("elite") || 
-                itemName.contains("master") ||
-                itemName.contains("beginner")
-            )) {
-                // Try to find the corresponding clue casket
-                val casketName = when {
-                    itemName.contains("beginner") -> "item.casket_easy"
-                    itemName.contains("easy") -> "item.casket_easy"
-                    itemName.contains("medium") -> "item.casket_medium"
-                    itemName.contains("hard") -> "item.casket_hard"
-                    itemName.contains("elite") -> "item.casket_elite"
-                    itemName.contains("master") -> "item.casket_master"
-                    else -> null
-                }
-                
-                if (casketName != null) {
-                    try {
-                        return getRSCM(casketName)
-                    } catch (e: Exception) {
-                        // Fall through to return original item ID
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            // If we can't get item definition, just return original ID
-        }
-        
-        // Not a clue scroll or conversion failed, return original item ID
-        return itemId
-    }
 
-    /**
-     * Drops a guaranteed random item from the entire game item table for minions.
-     * This uses the same system as the server's random drop feature but is always guaranteed.
-     * Also drops bones.
-     */
-    private fun dropGuaranteedRandomItem(npc: Npc) {
-        try {
-            // Get the killer (player who dealt the most damage)
-            // Try to get killer from attribute first
-            var killer = npc.attr[KILLER_ATTR]?.get() as? Player
-            
-            // If no killer from attribute, try to get from damage map
-            if (killer == null) {
-                val maxHp = npc.getMaxHp()
-                val mostDamage = npc.damageMap.getMostDamagePercentage(maxHp)
-                killer = mostDamage as? Player
-            }
-            
-            if (killer == null) {
-                println("DEBUG: No killer found for minion ${npc.id} - dropping item without owner")
-                // Continue anyway - drop item without owner (public immediately)
-            }
 
-            // Drop bones first
-            try {
-                val bonesId = getRSCM("item.bones")
-                val bonesGroundItem = GroundItem(
-                    item = bonesId,
-                    amount = 1,
-                    tile = npc.tile,
-                    owner = killer
-                )
-                bonesGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE
-                bonesGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
-                bonesGroundItem.ownerShipType = 1
-                npc.world.spawn(bonesGroundItem)
-            } catch (e: Exception) {
-                println("DEBUG: Error dropping bones for minion: ${e.message}")
-            }
 
-            // Use the cached valid item list
-            if (validItemIds.isEmpty()) {
-                println("DEBUG: No valid items in cache for minion drop")
-                return
-            }
 
-            // Randomly select one item from the valid items
-            val randomItemId = validItemIds[Random.nextInt(validItemIds.size)]
-            
-            // Convert clue scrolls to clue caskets before dropping
-            val itemIdToDrop = convertClueScrollToCasket(randomItemId)
-            val finalItemDef = getItem(itemIdToDrop)
-
-            // Determine amount (1 for most items, random 1-100 for stackable items)
-            val amount = if (finalItemDef.stackable) {
-                Random.nextInt(1, 101) // 1-100 for stackable items
-            } else {
-                1 // Single item for non-stackable
-            }
-
-            // Create and spawn the random item
-            val randomGroundItem = GroundItem(
-                item = itemIdToDrop,
-                amount = amount,
-                tile = npc.tile,
-                owner = killer // Can be null - item will be public immediately
-            )
-
-            // Set timers based on whether we have a killer
-            if (killer != null) {
-                // Killer sees for 1 minute, then everyone for 3 minutes
-                randomGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE // 100 cycles = 1 minute
-                randomGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
-                randomGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
-            } else {
-                // No owner - item is public immediately
-                randomGroundItem.timeUntilPublic = 0
-                randomGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
-                randomGroundItem.ownerShipType = 0 // Public
-            }
-
-            npc.world.spawn(randomGroundItem)
-            println("DEBUG: Spawned random item ${amount}x ${finalItemDef.name} (ID: $itemIdToDrop) at ${npc.tile}")
-
-            // Notify the player about the random drop if we have a killer
-            killer?.message("Minion drops: ${amount}x ${finalItemDef.name}")
-
-        } catch (e: Exception) {
-            println("Error dropping guaranteed random item for minion ${npc.id}: ${e.message}")
-            e.printStackTrace()
-        }
-    }
 
     private suspend fun Npc.combat(it: QueueTask) {
         var target = getCombatTarget() ?: return
@@ -723,48 +536,12 @@ class SewerAbominationCombatPlugin(
         }
     }
 
-    /**
-     * Checks for players in radius and makes minion attack them
-     */
-    private fun checkMinionAggro(npc: Npc) {
-        val radius = 10 // Aggro radius for minions
-        
-        for (x in -radius..radius) {
-            for (z in -radius..radius) {
-                val tile = npc.tile.transform(x, z)
-                val chunk = npc.world.chunks.get(tile, createIfNeeded = false) ?: continue
-                
-                val players = chunk.getEntities<Player>(tile, EntityType.PLAYER, EntityType.CLIENT)
-                if (players.isEmpty()) {
-                    continue
-                }
-                
-                // Filter players that can be attacked (online, visible, and aggro check passes)
-                val targets = players.filter { player ->
-                    if (!player.isOnline || player.invisible) {
-                        false
-                    } else {
-                        // Check if aggro check allows attacking this player
-                        npc.aggroCheck == null || npc.aggroCheck?.invoke(npc, player) == true
-                    }
-                }
-                
-                if (targets.isEmpty()) {
-                    continue
-                }
-                
-                val target = targets.random()
-                if (npc.getCombatTarget() != target) {
-                    npc.attack(target)
-                }
-                return
-            }
-        }
-    }
+
 
     /**
      * Spawns a minion near the boss based on type
      * Minions are temporary and will not respawn after death
+     * Only one minion of each type can exist at a time
      */
     private fun Npc.spawnMinion(type: String) {
         // Visual effect at boss location
@@ -775,10 +552,22 @@ class SewerAbominationCombatPlugin(
 
         // Determine which NPC to spawn based on type
         val npcName = when (type) {
-            "melee" -> "npc.zombie"      // Melee fighter
-            "ranged" -> "npc.goblin"     // Ranged attacker (goblin with attack option)
-            "mage" -> "npc.dark_wizard"  // Magic user
+            "melee" -> "npc.gnome_driver"      // Melee fighter (Gnome Driver)
+            "ranged" -> "npc.gnome_archer"     // Ranged attacker (Gnome Archer)
+            "mage" -> "npc.gnome_mage"  // Magic user (Gnome Mage)
             else -> return
+        }
+        
+        val minionId = getRSCM(npcName)
+        
+        // Check if a minion of this type already exists (doesn't respawn = our minion)
+        val existingMinion = world.npcs.firstOrNull { checkNpc ->
+            checkNpc.id == minionId && !checkNpc.respawns && checkNpc.isActive()
+        }
+        
+        // If a minion of this type already exists, don't spawn another one
+        if (existingMinion != null) {
+            return
         }
 
         // Find a spawn location near the boss (1-2 tiles away)
@@ -790,11 +579,8 @@ class SewerAbominationCombatPlugin(
         // Create and spawn the minion
         val minion = Npc(getRSCM(npcName), spawnTile, world)
         minion.respawns = false // Minions don't respawn - they're temporary
-        minion.walkRadius = 0 // Minions stay in place
+        minion.walkRadius = 5 // Allow minions to move to attack players
         minion.setActive(true)
-
-        // Set up aggro to always attack players
-        minion.aggroCheck = { _, _ -> true }
         
         // Set combat class based on minion type
         when (type) {
@@ -805,9 +591,9 @@ class SewerAbominationCombatPlugin(
 
         // Spawn the minion in the world
         world.spawn(minion)
-
-        // Set up aggro timer for minion to continuously check for players
-        minion.timers[MINION_AGGRO_TIMER] = 1
+        
+        // The default aggression system will handle aggression automatically
+        // since minions are configured with alwaysAggro() in CombatConfigPlugin.kt
 
         // Use a queue task to ensure minion is fully initialized before attacking
         minion.queue {

@@ -25,7 +25,7 @@ class VarrockPotionsShopPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.shop_assistant_2826"
+    private val shopkeeper = "npc.shop_assistant_2885"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",

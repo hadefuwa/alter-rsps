@@ -295,59 +295,41 @@ class NpcLootDropPlugin(
     
     /**
      * Drops a random item from the entire game item table.
-     * This provides an additional bonus drop for NPCs with loot tables.
-     * The chance scales based on the NPC's combat level.
+     * Gnome minions (6097, 6098, 6099) get a guaranteed random drop.
+     * Other NPCs get a chance based on combat level.
      */
     private fun dropRandomItemFromGameTable(npc: Npc, killer: Player) {
         try {
-            // Get NPC combat level
-            val combatLevel = npc.def.combatLevel
-            if (combatLevel < 0) {
-                // If combat level is invalid, use default low chance
-                println("DEBUG: Invalid combat level for NPC ${npc.id}, skipping random drop")
-                return
-            }
+            // Gnome minions get guaranteed random drop
+            val isGnomeMinion = npc.id == 6097 || npc.id == 6098 || npc.id == 6099
             
-            // Get the drop chance denominator based on combat level
-            val chanceDenominator = getRandomDropChanceDenominator(combatLevel)
-            
-            // Roll for the random drop
-            val roll = Random.nextInt(chanceDenominator)
-            // For level 300-399, we want 2/3 chance (succeed on 0 or 1 out of 0-2)
-            // For all other tiers, succeed only on 0 (1/denominator chance)
-            val shouldDrop = if (combatLevel >= 300 && combatLevel < 400) {
-                roll <= 1  // 2/3 chance: succeed on 0 or 1
-            } else {
-                roll == 0  // 1/denominator chance: succeed only on 0
-            }
-            
-            if (!shouldDrop) {
-                // Didn't roll the drop
-                val chanceDesc = if (combatLevel >= 300 && combatLevel < 400) {
-                    "2/3"
-                } else {
-                    "1/$chanceDenominator"
+            if (!isGnomeMinion) {
+                // For other NPCs, use the level-based chance system
+                val combatLevel = npc.def.combatLevel
+                if (combatLevel < 0) {
+                    return
                 }
-                println("DEBUG: Random drop roll failed for NPC ${npc.id} (level $combatLevel, chance $chanceDesc)")
-                return
+                
+                val chanceDenominator = getRandomDropChanceDenominator(combatLevel)
+                val roll = Random.nextInt(chanceDenominator)
+                val shouldDrop = if (combatLevel >= 300 && combatLevel < 400) {
+                    roll <= 1
+                } else {
+                    roll == 0
+                }
+                
+                if (!shouldDrop) {
+                    return
+                }
             }
             
             // Use the cached valid item list
             if (validItemIds.isEmpty()) {
-                println("DEBUG: No valid items found in game item table")
                 return
             }
             
             // Randomly select one item from the valid items
             val randomItemId = validItemIds[Random.nextInt(validItemIds.size)]
-            val itemDef = getItem(randomItemId)
-            
-            val chanceDesc = if (combatLevel >= 300 && combatLevel < 400) {
-                "2/3"
-            } else {
-                "1/$chanceDenominator"
-            }
-            println("DEBUG: Random drop roll succeeded for NPC ${npc.id} (level $combatLevel, chance $chanceDesc)")
             
             // Convert clue scrolls to clue caskets before dropping
             val itemIdToDrop = convertClueScrollToCasket(randomItemId)
@@ -369,13 +351,10 @@ class NpcLootDropPlugin(
             )
             
             // Set timers: killer sees for 1 minute, then everyone for 3 minutes
-            // timeUntilPublic: 1 minute (100 cycles) - only killer can see initially
-            // timeUntilDespawn: 4 minutes (400 cycles) total - 1 min private + 3 min public
-            randomGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE // 100 cycles = 1 minute
-            randomGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
-            randomGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
+            randomGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE
+            randomGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
+            randomGroundItem.ownerShipType = 1
             
-            println("DEBUG: Dropping random bonus item ${itemIdToDrop} (${finalItemDef.name}) x${amount} at ${npc.tile}")
             npc.world.spawn(randomGroundItem)
             
             // Notify the player about the bonus drop

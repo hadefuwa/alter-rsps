@@ -14,28 +14,28 @@ import org.alter.plugins.content.mechanics.shops.CoinCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 /**
- * Varrock Weapons Shop
+ * Varrock Jewelry Shop
  * 
- * A shop in the center of Varrock that sells weapons.
- * Located at Varrock center (3216, 3425).
+ * A shop in the center of Varrock that sells jewelry.
+ * Located at Varrock center (3218, 3425).
  */
-class VarrockWeaponsShopPlugin(
+class VarrockJewelryShopPlugin(
     r: PluginRepository,
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.shop_assistant_2824"
+    private val shopkeeper = "npc.shop_assistant_2826"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
         "No thanks.",
     )
     
-    // Build shop items with weapons (1k-10k range)
+    // Build shop items with jewelry
     private val storeItems: List<ShopItem> = buildList {
-        // Helper function to add weapon with pricing
-        fun addWeapon(itemName: String, price: Int) {
+        // Helper function to add jewelry with pricing
+        fun addJewelry(itemName: String, price: Int) {
             try {
                 val itemId = getRSCM("item.$itemName")
                 if (itemId != -1) {
@@ -46,41 +46,26 @@ class VarrockWeaponsShopPlugin(
             }
         }
         
-        // Dragon Weapons - 40m-70m
-        addWeapon("dragon_scimitar", 7000000)
-        addWeapon("dragon_dagger", 6000000)
-        addWeapon("dragon_sword", 6500000)
-        addWeapon("dragon_warhammer", 65000000)
+        // Amulet of Glory - 10m
+        addJewelry("amulet_of_glory", 10000000)
         
-        // Special Weapons - 80m-100m
-        addWeapon("abyssal_whip", 100000000)
-        addWeapon("abyssal_dagger", 90000000)
+        // Amulet of Fury - 100m
+        addJewelry("amulet_of_fury", 100000000)
         
-        // Ranged Weapons - 10m-30m
-        addWeapon("rune_crossbow", 10000000)
-        addWeapon("dragon_crossbow", 30000000)
-        addWeapon("armadyl_crossbow", 100000000)
+        // Blood Fury - 200m
+        addJewelry("amulet_of_blood_fury", 200000000)
         
-        // Magic Weapons - 15m-40m
-        addWeapon("staff_of_air", 15000000)
-        addWeapon("staff_of_water", 15000000)
-        addWeapon("staff_of_earth", 15000000)
-        addWeapon("staff_of_fire", 15000000)
-        addWeapon("mystic_air_staff", 30000000)
-        addWeapon("mystic_water_staff", 30000000)
-        addWeapon("mystic_earth_staff", 30000000)
-        addWeapon("mystic_fire_staff", 30000000)
-        addWeapon("battlestaff", 20000000)
-        addWeapon("lava_battlestaff", 40000000)
+        // Amulet of Rancour - 120m
+        addJewelry("amulet_of_rancour", 300000000)
     }
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        spawnNpc(shopkeeper, 3216, 3425, 0, 0, Direction.SOUTH)
+        spawnNpc(shopkeeper, 3218, 3425, 0, 0, Direction.SOUTH)
 
-        // Create the weapons shop
+        // Create the jewelry shop
         createShop(
-            name = "Varrock Weapons Shop",
+            name = "Varrock Jewelry Shop",
             currency = CoinCurrency(),
             stockSize = 50,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
@@ -102,10 +87,10 @@ class VarrockWeaponsShopPlugin(
         }
     }
 
-    fun Player.shop() = this.openShop("Varrock Weapons Shop")
+    fun Player.shop() = this.openShop("Varrock Jewelry Shop")
 
     suspend fun QueueTask.dialog(player: Player) {
-        chatNpc(player, "Welcome to the Varrock Weapons Shop! We have the finest weapons in all of Gielinor.")
+        chatNpc(player, "Welcome to the Varrock Jewelry Shop! We have the finest jewelry in all of Gielinor.")
         chatNpc(player, "Would you like to see what we have for sale?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

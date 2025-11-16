@@ -48,7 +48,12 @@ class VarrockShopPlugin(
         spawnNpc("npc.shop_keeper_2817", 3217, 3415, 0, 3, Direction.SOUTH)
         spawnNpc("npc.shop_assistant_2818", 3218, 3415, 0, 3, Direction.SOUTH)
 
-        createShop("Varrock General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_ALL) {
+        createShop(
+            name = "Varrock General Store",
+            currency = CoinCurrency(),
+            stockSize = 100,
+            purchasePolicy = PurchasePolicy.BUY_ALL
+        ) {
             storeItems.forEachIndexed { index, item ->
                 items[index] = item
             }
