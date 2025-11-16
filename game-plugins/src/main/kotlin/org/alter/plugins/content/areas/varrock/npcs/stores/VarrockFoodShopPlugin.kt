@@ -39,18 +39,35 @@ class VarrockFoodShopPlugin(
             try {
                 val itemId = getRSCM(food.item)
                 if (itemId != -1) {
-                    // Price based on heal amount (roughly 10-20 coins per HP)
-                    val price = when {
-                        food.heal <= 5 -> food.heal * 2  // Cheap foods: 2 coins per HP
-                        food.heal <= 10 -> food.heal * 3  // Mid-tier: 3 coins per HP
-                        food.heal <= 15 -> food.heal * 4  // High-tier: 4 coins per HP
-                        else -> food.heal * 5  // Premium: 5 coins per HP
-                    }
-                    // Special pricing for combo foods and overheal foods
-                    val finalPrice = when {
-                        food.comboFood -> price * 2  // Combo foods cost more
-                        food.overheal -> price * 3   // Overheal foods cost even more
-                        else -> price
+                    // Special case: anglerfish is always 100k
+                    val finalPrice = if (food == Food.ANGLERFISH) {
+                        100_000
+                    } else {
+                        // Scale price from 10k to 100k based on heal amount
+                        // Heal amounts range from 1 (potato) to 22 (dark crab)
+                        // Formula: price = 10000 + (heal - 1) * (100000 - 10000) / (22 - 1)
+                        val minHeal = 1
+                        val maxHeal = 22
+                        val minPrice = 10_000
+                        val maxPrice = 100_000
+                        
+                        // Ensure heal is within valid range
+                        val heal = food.heal.coerceIn(minHeal, maxHeal)
+                        
+                        // Linear scaling: 1 HP = 10k, 22 HP = 100k
+                        val price = if (heal == minHeal) {
+                            minPrice
+                        } else if (heal == maxHeal) {
+                            maxPrice
+                        } else {
+                            minPrice + ((heal - minHeal) * (maxPrice - minPrice) / (maxHeal - minHeal))
+                        }
+                        
+                        // Apply multipliers for special food types
+                        when {
+                            food.comboFood -> (price * 1.2).toInt()  // Combo foods cost 20% more
+                            else -> price
+                        }
                     }
                     
                     // Stock: 100 of each food, restock to 50

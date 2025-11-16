@@ -283,3 +283,78 @@ Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.skills.th
 [2025-11-16 03:30:09.662] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
 [2025-11-16 03:34:03.734] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
 [2025-11-16 03:34:08.902] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 03:38:17.054] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 03:38:22.972] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 03:42:49.342] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 03:42:54.692] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 04:02:30.333] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 04:02:35.664] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 04:09:01.671] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 04:09:07.768] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 04:10:06.113] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.IllegalArgumentException: bound must be positive
+	at java.base/java.util.Random.nextInt(Random.java:322)
+	at org.alter.game.model.World.random(World.kt:583)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.biteAttack(SewerAbominationCombatPlugin.kt:175)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:55)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:28)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+[2025-11-16 12:29:16.515] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 12:29:24.458] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 12:39:20.645] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 12:39:25.759] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 12:42:11.484] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.IllegalArgumentException: bound must be positive
+	at java.base/java.util.Random.nextInt(Random.java:322)
+	at org.alter.game.model.World.random(World.kt:583)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.biteAttack(SewerAbominationCombatPlugin.kt:175)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:55)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:28)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+[2025-11-16 13:06:39.217] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 13:06:44.688] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 13:14:00.647] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 13:14:05.687] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 15:25:23.325] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 15:25:29.253] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 15:31:21.667] WARN  o.a.game.model.interf.InterfaceSet - Interface 860 is not visible and cannot be closed.
+[2025-11-16 15:48:09.669] WARN  o.a.game.model.interf.InterfaceSet - No interface visible in pane ({}, {}). 162 566
+[2025-11-16 15:51:32.679] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 15:51:38.454] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 15:55:52.211] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 15:55:57.753] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 16:07:11.988] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 16:07:17.830] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 16:09:38.213] WARN  o.a.game.model.interf.InterfaceSet - Interface 860 is not visible and cannot be closed.
+[2025-11-16 16:43:30.842] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 16:43:35.821] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 17:22:05.625] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 17:22:10.997] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]

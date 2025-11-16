@@ -56,16 +56,39 @@ class VarrockSuppliesShopPlugin(
         addItem("infernal_pickaxe", 10000)
         addItem("infernal_axe", 10000)
         
-        // Teleportation - 2k-8k
+        // Teleportation - 2k-10k
+        // Basic teleports - 2k-3k
         addItem("varrock_teleport", 2000)
         addItem("lumbridge_teleport", 2000)
         addItem("falador_teleport", 2000)
         addItem("camelot_teleport", 3000)
-        addItem("ardougne_teleport", 4000)
-        addItem("watchtower_teleport", 5000)
+        addItem("ardougne_teleport", 3000)
+        
+        // Mid-tier teleports - 4k-6k
+        addItem("watchtower_teleport", 4000)
+        addItem("rimmington_teleport", 4000)
+        addItem("taverley_teleport", 4000)
+        addItem("yanille_teleport", 4000)
+        addItem("catherby_teleport", 4000)
+        addItem("rellekka_teleport", 5000)
+        addItem("brimhaven_teleport", 5000)
+        addItem("pollnivneach_teleport", 5000)
+        addItem("hosidius_teleport", 5000)
         addItem("trollheim_teleport", 6000)
+        
+        // High-tier teleports - 7k-10k
         addItem("ape_atoll_teleport", 7000)
-        addItem("kourend_castle_teleport", 8000)
+        addItem("kourend_castle_teleport", 7000)
+        addItem("barbarian_teleport", 7000)
+        addItem("fishing_guild_teleport", 7000)
+        addItem("khazard_teleport", 7000)
+        addItem("draynor_manor_teleport", 8000)
+        addItem("mind_altar_teleport", 8000)
+        addItem("barrows_teleport", 9000)
+        addItem("lunar_isle_teleport", 9000)
+        addItem("zulandra_teleport", 10000)
+        addItem("pest_control_teleport", 10000)
+        addItem("piscatoris_teleport", 10000)
         
         // Runes - 1k-3k per 100
         addItem("air_rune", 1000) // per 100
@@ -126,7 +149,7 @@ class VarrockSuppliesShopPlugin(
         createShop(
             name = "Varrock Supplies Shop",
             currency = CoinCurrency(),
-            stockSize = 80,
+            stockSize = 100,  // Increased to accommodate all teleport tabs
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
         ) {
             storeItems.forEachIndexed { index, item ->

@@ -1,5 +1,42 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-XX (Varrock Supplies Shop Teleport Fix)
+
+### Summary
+Fixed teleport tablets purchased from Varrock Supplies Shop not working - players could buy them but couldn't use them to teleport.
+
+### Issue
+The Varrock Supplies Shop was selling 27 different teleport tablets, but 7 of them were missing from the `TeleportTabPlugin.kt` LOCATIONS map. This meant when players tried to use those teleports, there was no handler registered for the "break" option, so nothing happened.
+
+### Root Cause
+The `TeleportTabPlugin.kt` only had handlers registered for teleports in its `LOCATIONS` map. The shop was selling teleports that weren't in this map:
+- `ape_atoll_teleport`
+- `kourend_castle_teleport`
+- `barrows_teleport`
+- `lunar_isle_teleport`
+- `zulandra_teleport`
+- `pest_control_teleport`
+- `piscatoris_teleport`
+
+### Fix Applied
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/teletabs/TeleportTabPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/teletabs/TeleportTabPlugin.kt)
+
+Added the 7 missing teleport locations to the `LOCATIONS` map:
+- `item.ape_atoll_teleport` → Area(2760, 2781, 2763, 2784)
+- `item.kourend_castle_teleport` → Area(1633, 3665, 1639, 3670)
+- `item.barrows_teleport` → Area(3563, 3312, 3566, 3315)
+- `item.lunar_isle_teleport` → Area(2082, 3912, 2085, 3915)
+- `item.zulandra_teleport` → Area(2198, 3056, 2202, 3059)
+- `item.pest_control_teleport` → Area(2657, 2652, 2660, 2655)
+- `item.piscatoris_teleport` → Area(2339, 3689, 2342, 3692)
+
+### Impact
+- ✅ All 27 teleport tablets sold in Varrock Supplies Shop now work correctly
+- ✅ Players can successfully teleport to all locations when using purchased tablets
+- ✅ Teleport functionality is now complete and consistent across all shop items
+
+---
+
 ## Date: 2025-11-16 (Food Eating System)
 
 ### Summary
