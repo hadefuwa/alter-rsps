@@ -115,6 +115,10 @@ class VarrockArmorShopPlugin(
         addArmor("mystic_robe_bottom", 30000000)
         addArmor("mystic_gloves", 15000000)
         addArmor("mystic_boots", 20000000)
+        
+        // Special Shields
+        addArmor("antidragon_shield", 10000000)  // 10m
+        addArmor("dragonfire_shield", 100000000)  // 100m
     }
 
     init {
@@ -125,7 +129,7 @@ class VarrockArmorShopPlugin(
         createShop(
             name = "Varrock Armor Shop",
             currency = CoinCurrency(),
-            stockSize = 60,
+            stockSize = 80,  // Increased to accommodate all items including shields
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
         ) {
             storeItems.forEachIndexed { index, item ->
