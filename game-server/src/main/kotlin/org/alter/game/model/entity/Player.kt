@@ -19,6 +19,7 @@ import net.rsprot.protocol.game.outgoing.sound.SynthSound
 import net.rsprot.protocol.game.outgoing.varp.VarpLarge
 import net.rsprot.protocol.game.outgoing.varp.VarpSmall
 import net.rsprot.protocol.message.OutgoingGameMessage
+import org.alter.game.action.PlayerDeathAction
 import org.alter.game.model.*
 import org.alter.game.model.appearance.Appearance
 import org.alter.game.model.attr.CURRENT_SHOP_ATTR
@@ -346,6 +347,16 @@ open class Player(world: World) : Pawn(world) {
         }
 
         hitsCycle()
+
+        // Safety check: If player is at 0 HP but death hasn't been triggered, force death
+        // This handles cases where HP regeneration or other issues prevented death registration
+        // Check if HP is 0 or negative and player is not locked (death sequence hasn't started)
+        if (getCurrentHp() <= 0 && lock == LockState.NONE) {
+            // Ensure HP is exactly 0
+            setCurrentHp(0)
+            // Trigger death sequence (this will lock the player immediately)
+            executePlugin(PlayerDeathAction.deathPlugin)
+        }
 
         for (i in 0 until varps.maxVarps) {
             if (varps.isDirty(i)) {

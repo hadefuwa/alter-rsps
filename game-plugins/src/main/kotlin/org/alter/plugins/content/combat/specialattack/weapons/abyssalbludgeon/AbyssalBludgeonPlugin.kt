@@ -24,6 +24,8 @@ class AbyssalBludgeonPlugin(
         val SPECIAL_REQUIREMENT = 50
 
         SpecialAttacks.register("item.abyssal_bludgeon", SPECIAL_REQUIREMENT) {
+            val target = this.target ?: return@register
+            
             player.animate(id = 3299)
             player.graphic(id = 1284)
 

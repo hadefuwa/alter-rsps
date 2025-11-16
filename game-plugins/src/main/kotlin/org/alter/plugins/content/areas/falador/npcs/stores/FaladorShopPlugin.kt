@@ -18,7 +18,7 @@ class FaladorShopPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-    private val shopkeepers = listOf("npc.shop_assistant", "npc.shop_keeper")
+    private val shopkeepers = listOf("npc.shop_assistant_2820", "npc.shop_keeper_2819")
 
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -40,9 +40,9 @@ class FaladorShopPlugin(
     )
 
     init {
-        // Falador General Store
-        spawnNpc("npc.shop_keeper", 2955, 3388, 0, 3, Direction.EAST)
-        spawnNpc("npc.shop_assistant", 2956, 3388, 0, 3, Direction.EAST)
+        // Falador General Store - using valid RSCM names
+        spawnNpc("npc.shop_keeper_2819", 2955, 3388, 0, 3, Direction.EAST)
+        spawnNpc("npc.shop_assistant_2820", 2956, 3388, 0, 3, Direction.EAST)
 
         createShop("Falador General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
             storeItems.forEachIndexed { index, item ->

@@ -80,3 +80,8 @@ val BURY_BONE_DELAY = TimerKey()
  * Timer key for delay in between burying bones.
  */
 val BONE_OFFER_DELAY = TimerKey()
+
+/**
+ * Timer key for HP regeneration ticks.
+ */
+val HP_REGENERATION_TIMER = TimerKey()

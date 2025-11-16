@@ -13,6 +13,7 @@ import org.alter.game.model.timer.TimeConstants
 import org.alter.game.model.weightedTableBuilder.roll
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.rscm.RSCM.getRSCM
 import java.lang.ref.WeakReference
 import kotlin.random.Random
 
@@ -50,6 +51,64 @@ class NpcLootDropPlugin(
             val npc = ctx as Npc
             handleNpcLootDrop(npc)
         }
+    }
+    
+    /**
+     * Converts a clue scroll item ID to its corresponding clue casket item ID.
+     * Returns the original item ID if it's not a clue scroll.
+     * 
+     * This function specifically targets clue scrolls (easy, medium, hard, elite, master, beginner)
+     * and converts them to their corresponding clue caskets.
+     * 
+     * @param itemId The item ID to check and potentially convert
+     * @return The clue casket item ID if the input was a clue scroll, otherwise the original item ID
+     */
+    private fun convertClueScrollToCasket(itemId: Int): Int {
+        try {
+            val itemDef = getItem(itemId)
+            val itemName = itemDef.name.lowercase()
+            
+            // Check if this is a clue scroll item
+            // We check for specific patterns to identify clue scrolls
+            if (itemName.contains("clue") && itemName.contains("scroll") && (
+                itemName.contains("easy") || 
+                itemName.contains("medium") || 
+                itemName.contains("hard") || 
+                itemName.contains("elite") || 
+                itemName.contains("master") ||
+                itemName.contains("beginner")
+            )) {
+                // Try to find the corresponding clue casket
+                val casketName = when {
+                    itemName.contains("beginner") -> "item.casket_easy"
+                    itemName.contains("easy") -> "item.casket_easy"
+                    itemName.contains("medium") -> "item.casket_medium"
+                    itemName.contains("hard") -> "item.casket_hard"
+                    itemName.contains("elite") -> "item.casket_elite"
+                    itemName.contains("master") -> "item.casket_master"
+                    else -> null
+                }
+                
+                if (casketName != null) {
+                    try {
+                        val casketId = getRSCM(casketName)
+                        println("DEBUG: Converted clue scroll ${itemDef.name} (ID: $itemId) to clue casket (ID: $casketId)")
+                        return casketId
+                    } catch (e: Exception) {
+                        println("DEBUG: Failed to convert clue scroll ${itemDef.name} (ID: $itemId) to clue casket: ${e.message}")
+                        // Fall through to return original item ID
+                    }
+                } else {
+                    println("DEBUG: Clue scroll ${itemDef.name} (ID: $itemId) matched clue scroll pattern but no casket mapping found")
+                }
+            }
+        } catch (e: Exception) {
+            // If we can't get item definition, just return original ID
+            println("DEBUG: Error checking if item $itemId is a clue scroll: ${e.message}")
+        }
+        
+        // Not a clue scroll or conversion failed, return original item ID
+        return itemId
     }
     
     /**
@@ -106,10 +165,13 @@ class NpcLootDropPlugin(
             
             // Spawn each dropped item on the ground at the NPC's location
             droppedItems.forEach { groundItem ->
+                // Convert clue scrolls to clue caskets before dropping
+                val itemIdToDrop = convertClueScrollToCasket(groundItem.item)
+                
                 // Create a new GroundItem with the correct tile and owner
                 // (Can't modify ownerUID directly as it's internal)
                 val newGroundItem = GroundItem(
-                    item = groundItem.item,
+                    item = itemIdToDrop,
                     amount = groundItem.amount,
                     tile = npc.tile,
                     owner = killer
@@ -122,17 +184,20 @@ class NpcLootDropPlugin(
                 newGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
                 newGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
                 
-                println("DEBUG: Dropping item ${groundItem.item} x${groundItem.amount} at ${npc.tile}")
+                println("DEBUG: Dropping item ${itemIdToDrop} x${groundItem.amount} at ${npc.tile}")
                 npc.world.spawn(newGroundItem)
                 
                 // Optional: Send a message to the player about valuable drops
                 if (groundItem.amount > 100) { // If item value is high, could add more sophisticated value checking
-                    killer.message("${npc.def.name} drops: ${groundItem.amount}x ${getItem(groundItem.item).name}")
+                    killer.message("${npc.def.name} drops: ${groundItem.amount}x ${getItem(itemIdToDrop).name}")
                 }
             }
             
-            // Drop one additional random item from the entire game item table
+            // Drop one additional random item from the entire game item table (chance scales with NPC level)
             dropRandomItemFromGameTable(npc, killer)
+            
+            // Drop coins for wilderness NPCs (10k-300k)
+            dropWildernessCoins(npc, killer)
         } catch (e: Exception) {
             // Log any errors that occur during loot drop processing
             // This prevents the NPC death from breaking if loot tables are misconfigured
@@ -142,11 +207,131 @@ class NpcLootDropPlugin(
     }
     
     /**
+     * Drops coins for all NPCs in the wilderness, scaled by combat level.
+     * This makes wilderness combat more rewarding, with higher level monsters dropping more coins.
+     */
+    private fun dropWildernessCoins(npc: Npc, killer: Player) {
+        try {
+            // Check if NPC is in wilderness
+            val wildernessLevel = npc.tile.getWildernessLevel()
+            if (wildernessLevel <= 0) {
+                // Not in wilderness, no coin drop
+                return
+            }
+            
+            // Get NPC combat level
+            val combatLevel = npc.def.combatLevel
+            if (combatLevel < 0) {
+                // Invalid combat level, use minimum
+                return
+            }
+            
+            // Scale coin amount based on combat level
+            val (minCoins, maxCoins) = when {
+                combatLevel <= 20 -> 10_000 to 50_000      // Low level: 10k-50k
+                combatLevel <= 50 -> 50_000 to 150_000    // Mid-low: 50k-150k
+                combatLevel <= 100 -> 150_000 to 400_000  // Mid: 150k-400k
+                combatLevel <= 150 -> 400_000 to 700_000  // High: 400k-700k
+                else -> 700_000 to 1_000_000              // Very high: 700k-1m
+            }
+            
+            // Generate random coin amount within the scaled range
+            val coinAmount = Random.nextInt(minCoins, maxCoins + 1) // Inclusive range
+            
+            // Coin item ID is 995
+            val coinItemId = 995
+            
+            // Create and spawn the coin drop
+            val coinGroundItem = GroundItem(
+                item = coinItemId,
+                amount = coinAmount,
+                tile = npc.tile,
+                owner = killer
+            )
+            
+            // Set timers: killer sees for 1 minute, then everyone for 3 minutes
+            coinGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE // 100 cycles = 1 minute
+            coinGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
+            coinGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
+            
+            println("DEBUG: Dropping ${coinAmount} coins for wilderness NPC ${npc.id} (${npc.def.name}, level $combatLevel) at ${npc.tile} (range: ${minCoins}-${maxCoins})")
+            npc.world.spawn(coinGroundItem)
+            
+            // Notify the player about the coin drop
+            killer.message("${npc.def.name} drops: ${coinAmount} coins")
+            
+        } catch (e: Exception) {
+            println("Error dropping wilderness coins for NPC ${npc.id}: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+    
+    /**
+     * Gets the drop chance for a random item based on NPC combat level.
+     * Returns the denominator of the chance (e.g., 30 means 1/30 chance).
+     * 
+     * Scaling (tripled rarity):
+     * - Level 1-20: 1/30 chance (~3.33%)
+     * - Level 21-50: 1/15 chance (~6.67%)
+     * - Level 51-100: 1/9 chance (~11.11%)
+     * - Level 101-150: 1/6 chance (~16.67%)
+     * - Level 151-199: 1/3 chance (~33.33%)
+     * - Level 200-299: 1/2 chance (50%)
+     * - Level 300-399: 2/3 chance (~66.67%)
+     * - Level 400+: Guaranteed (100%)
+     */
+    private fun getRandomDropChanceDenominator(combatLevel: Int): Int {
+        return when {
+            combatLevel <= 20 -> 30  // 1/30 chance (~3.33%)
+            combatLevel <= 50 -> 15  // 1/15 chance (~6.67%)
+            combatLevel <= 100 -> 9  // 1/9 chance (~11.11%)
+            combatLevel <= 150 -> 6  // 1/6 chance (~16.67%)
+            combatLevel < 200 -> 3   // 1/3 chance (~33.33%)
+            combatLevel < 300 -> 2   // 1/2 chance (50%)
+            combatLevel < 400 -> 3   // 2/3 chance (~66.67%) - using 3 as denominator, roll 0-2
+            else -> 1                // Guaranteed (100%)
+        }
+    }
+    
+    /**
      * Drops a random item from the entire game item table.
      * This provides an additional bonus drop for NPCs with loot tables.
+     * The chance scales based on the NPC's combat level.
      */
     private fun dropRandomItemFromGameTable(npc: Npc, killer: Player) {
         try {
+            // Get NPC combat level
+            val combatLevel = npc.def.combatLevel
+            if (combatLevel < 0) {
+                // If combat level is invalid, use default low chance
+                println("DEBUG: Invalid combat level for NPC ${npc.id}, skipping random drop")
+                return
+            }
+            
+            // Get the drop chance denominator based on combat level
+            val chanceDenominator = getRandomDropChanceDenominator(combatLevel)
+            
+            // Roll for the random drop
+            val roll = Random.nextInt(chanceDenominator)
+            // For level 300-399, we want 2/3 chance (succeed on 0 or 1 out of 0-2)
+            // For all other tiers, succeed only on 0 (1/denominator chance)
+            val shouldDrop = if (combatLevel >= 300 && combatLevel < 400) {
+                roll <= 1  // 2/3 chance: succeed on 0 or 1
+            } else {
+                roll == 0  // 1/denominator chance: succeed only on 0
+            }
+            
+            if (!shouldDrop) {
+                // Didn't roll the drop
+                val chanceDesc = if (combatLevel >= 300 && combatLevel < 400) {
+                    "2/3"
+                } else {
+                    "1/$chanceDenominator"
+                }
+                println("DEBUG: Random drop roll failed for NPC ${npc.id} (level $combatLevel, chance $chanceDesc)")
+                return
+            }
+            
             // Use the cached valid item list
             if (validItemIds.isEmpty()) {
                 println("DEBUG: No valid items found in game item table")
@@ -157,8 +342,19 @@ class NpcLootDropPlugin(
             val randomItemId = validItemIds[Random.nextInt(validItemIds.size)]
             val itemDef = getItem(randomItemId)
             
+            val chanceDesc = if (combatLevel >= 300 && combatLevel < 400) {
+                "2/3"
+            } else {
+                "1/$chanceDenominator"
+            }
+            println("DEBUG: Random drop roll succeeded for NPC ${npc.id} (level $combatLevel, chance $chanceDesc)")
+            
+            // Convert clue scrolls to clue caskets before dropping
+            val itemIdToDrop = convertClueScrollToCasket(randomItemId)
+            val finalItemDef = getItem(itemIdToDrop)
+            
             // Determine amount (1 for most items, random 1-100 for stackable items)
-            val amount = if (itemDef.stackable) {
+            val amount = if (finalItemDef.stackable) {
                 Random.nextInt(1, 101) // 1-100 for stackable items
             } else {
                 1 // Single item for non-stackable
@@ -166,7 +362,7 @@ class NpcLootDropPlugin(
             
             // Create and spawn the random item
             val randomGroundItem = GroundItem(
-                item = randomItemId,
+                item = itemIdToDrop,
                 amount = amount,
                 tile = npc.tile,
                 owner = killer
@@ -179,11 +375,11 @@ class NpcLootDropPlugin(
             randomGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
             randomGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
             
-            println("DEBUG: Dropping random bonus item ${randomItemId} (${itemDef.name}) x${amount} at ${npc.tile}")
+            println("DEBUG: Dropping random bonus item ${itemIdToDrop} (${finalItemDef.name}) x${amount} at ${npc.tile}")
             npc.world.spawn(randomGroundItem)
             
             // Notify the player about the bonus drop
-            killer.message("Bonus drop: ${amount}x ${itemDef.name}")
+            killer.message("Bonus drop: ${amount}x ${finalItemDef.name}")
             
         } catch (e: Exception) {
             println("Error dropping random item for NPC ${npc.id}: ${e.message}")

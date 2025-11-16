@@ -13,6 +13,7 @@ import org.alter.game.model.entity.AreaSound
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Pawn
 import org.alter.game.model.entity.Player
+import org.alter.game.model.move.walkRoute
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.timer.ACTIVE_COMBAT_TIMER
 import org.alter.game.model.timer.ATTACK_DELAY
@@ -179,7 +180,42 @@ object Combat {
                 areBordering(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
             }
         val withinRange = touching && world.lineValidator.rayCast(start, end, projectile = projectile)
-        return withinRange //|| pawn.walkToInteract(it, target, lineOfSightRange = distance)
+        
+        // If already in range, return true
+        if (withinRange) {
+            return true
+        }
+        
+        // If not in range and this is an NPC, try to move towards the target
+        if (pawn.entityType.isNpc && pawn.lock.canMove()) {
+            val route = world.smartRouteFinder.findRoute(
+                level = pawn.tile.height,
+                srcX = pawn.tile.x,
+                srcZ = pawn.tile.z,
+                destX = target.tile.x,
+                destZ = target.tile.z,
+                locShape = -2,
+                destWidth = target.getSize(),
+                destLength = target.getSize()
+            )
+            
+            // If we found a valid route, walk it
+            if (route.success && route.waypoints.isNotEmpty()) {
+                pawn.walkRoute(route, org.alter.game.model.move.MovementQueue.StepType.NORMAL)
+                // Wait a bit for movement to start, then check if we're in range
+                it.wait(1)
+                val newStart = pawn.tile
+                val newTouching =
+                    if (distance > 1) {
+                        areOverlapping(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
+                    } else {
+                        areBordering(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
+                    }
+                return newTouching && world.lineValidator.rayCast(newStart, end, projectile = projectile)
+            }
+        }
+        
+        return false
     }
 
     fun getProjectileLifespan(

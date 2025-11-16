@@ -18,7 +18,7 @@ class DraynorShopPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-    private val shopkeepers = listOf("npc.shop_assistant", "npc.shop_keeper")
+    private val shopkeepers = listOf("npc.shop_assistant_2822", "npc.shop_keeper_2821")
 
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -39,9 +39,9 @@ class DraynorShopPlugin(
     )
 
     init {
-        // Draynor General Store
-        spawnNpc("npc.shop_keeper", 3079, 3249, 0, 3, Direction.NORTH)
-        spawnNpc("npc.shop_assistant", 3080, 3249, 0, 3, Direction.NORTH)
+        // Draynor General Store - using valid RSCM names
+        spawnNpc("npc.shop_keeper_2821", 3079, 3249, 0, 3, Direction.NORTH)
+        spawnNpc("npc.shop_assistant_2822", 3080, 3249, 0, 3, Direction.NORTH)
 
         createShop("Draynor General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
             storeItems.forEachIndexed { index, item ->

@@ -39,6 +39,14 @@ class TeleportsPlugin(
                 if (!player.lock.canTeleport()) {
                     return@onButton
                 }
+                
+                // Check wilderness level restriction for home teleport
+                val wildernessLevel = player.tile.getWildernessLevel()
+                if (wildernessLevel > 30) {
+                    player.message("A mysterious force blocks your teleport spell!")
+                    player.message("You can't use this teleport after level 30 wilderness.")
+                    return@onButton
+                }
 
                 // Define all teleport locations
                 val allTeleportLocations = listOf(
@@ -187,6 +195,14 @@ class TeleportsPlugin(
             if (!player.lock.canTeleport()) {
                 return@onButton
             }
+            
+            // Check wilderness level restriction for home teleport
+            val wildernessLevel = player.tile.getWildernessLevel()
+            if (wildernessLevel > 30) {
+                player.message("A mysterious force blocks your teleport spell!")
+                player.message("You can't use this teleport after level 30 wilderness.")
+                return@onButton
+            }
 
             val home = world.gameContext.home
             player.prepareForTeleport()
@@ -197,25 +213,31 @@ class TeleportsPlugin(
             val home = world.gameContext.home
             player.moveTo(home)
         }
-        onCommand("edge", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Edgeville") {
+        
+        onCommand("edge", Privilege.ADMIN_POWER, description = "Teleports you to Edgeville") {
             player.moveTo(Tile(x = 3087, z = 3499, height = 0))
         }
 
-        onCommand("varrock", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Varrock") {
+        onCommand("varrock", Privilege.ADMIN_POWER, description = "Teleports you to Varrock") {
             player.moveTo(Tile(x = 3211, z = 3424, height = 0))
         }
-        onCommand("falador", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Falador") {
+        
+        onCommand("falador", Privilege.ADMIN_POWER, description = "Teleports you to Falador") {
             player.moveTo(Tile(x = 2966, z = 3379, height = 0))
         }
-        onCommand("lumbridge", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Lumbridge") {
+        
+        onCommand("lumbridge", Privilege.ADMIN_POWER, description = "Teleports you to Lumbridge") {
             player.moveTo(Tile(x = 3222, z = 3217, height = 0))
         }
-        onCommand("yanille", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Yanille") {
+        
+        onCommand("yanille", Privilege.ADMIN_POWER, description = "Teleports you to Yanille") {
             player.moveTo(Tile(x = 2606, z = 3093, height = 0))
         }
-        onCommand("gnome", Privilege.Companion.ADMIN_POWER, description = "Teleports you to Gnome Stronghold") {
+        
+        onCommand("gnome", Privilege.ADMIN_POWER, description = "Teleports you to Gnome Stronghold") {
             player.moveTo(Tile(x = 2461, z = 3443, height = 0))
         }
+        
         onCommand("thieving", description = "Teleports you to the test thieving") {
             player.moveTo(Tile(x = 2591, z = 4731, height = 0))
         }

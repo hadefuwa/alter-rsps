@@ -22,11 +22,14 @@ class MazchnaPlugin(
     )
 
     init {
-        // Spawn Mazchna in Canifis
-        spawnNpc("npc.mazchna", 3510, 3506, 0, 3, Direction.WEST)
+        // Spawn Mazchna in Canifis using working NPC type
+        // NOTE: Using placeholder NPC type "npc.gee" which conflicts with GeePlugin
+        // TODO: Replace with proper Mazchna NPC type when available
+        spawnNpc("npc.gee", 3510, 3506, 0, 3, Direction.WEST)
 
-        onNpcOption("npc.mazchna", option = "talk-to") { player.queue { dialog(player) } }
-        onNpcOption("npc.mazchna", option = "assignment") { player.queue { getAssignment(player) } }
+        // COMMENTED OUT: This binding conflicts with GeePlugin which binds the same NPC type
+        // TODO: Uncomment when proper Mazchna NPC type is used
+        // onNpcOption("npc.gee", option = "talk-to") { player.queue { dialog(player) } }
     }
 
     suspend fun QueueTask.dialog(player: Player) {

@@ -55,11 +55,20 @@ object SpecialAttacks {
             return false
         }
 
+        // Consume energy before executing the attack
         AttackTab.setEnergy(player, AttackTab.getEnergy(player) - special.energyRequired)
 
         val combatContext = CombatContext(world, player)
-        target?.let { combatContext.target = it }
-        special.attack(combatContext)
+        combatContext.target = target
+        
+        // Execute the special attack
+        // If it requires a target and target is null, it will return early
+        try {
+            special.attack(combatContext)
+        } catch (e: Exception) {
+            // If the special attack throws an exception, log it for debugging
+            e.printStackTrace()
+        }
 
         return true
     }

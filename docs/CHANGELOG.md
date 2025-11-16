@@ -1,5 +1,185 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-16 (Food Eating System)
+
+### Summary
+Fixed and implemented comprehensive food eating system for all food items:
+1. Completely rewrote EatingPlugin to properly bind food items
+2. Fixed item option binding to use correct option number (option 2)
+3. All 51 food types now work correctly including anglerfish with overheal mechanics
+4. Players can eat at any HP level (including full HP)
+5. Food delay timers properly prevent spam-eating
+
+### Technical Details
+**Issue**: Original EatingPlugin attempted to dynamically scan all 30,000+ cache items which caused initialization failures and prevented the plugin from loading.
+
+**Solution**:
+- Rewrote plugin to only bind the 51 foods defined in the Food enum
+- Fixed option binding: Client sends option=2 for "Eat" even though it's at index 0 in interfaceOptions
+- Used direct integer option binding (`onItemOption(food.item, 2)`) instead of string-based binding
+- Removed complex dynamic scanning and caching logic
+
+**Files Modified**:
+- [EatingPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/EatingPlugin.kt) - Complete rewrite
+- [Food.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Food.kt) - No changes (already correct)
+- [Foods.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Foods.kt) - No changes (already correct)
+
+**Working Food Types** (51 total):
+- All fish: shrimps, sardine, herring, mackerel, trout, cod, pike, salmon, tuna, rainbow fish, cave eel, lobster, bass, swordfish, monkfish, karambwan, shark, sea turtle, manta ray, dark crab, anglerfish
+- All meats: chicken, meat, roast beast meat, kebab
+- All baked goods: bread, cakes, pies, pizzas
+- All vegetables/fruits: potato, cabbage, onion, banana, strawberry, watermelon, pineapple, stew, curry, cheese, tomato
+
+---
+
+## Date: 2025-11-16 (HP Regeneration System)
+
+### Summary
+Implemented automatic HP regeneration system that restores 1 HP every 30 seconds for all players:
+1. Added HP regeneration timer system
+2. Players automatically regain 1 HP every 30 seconds when not at full health
+3. Regeneration only occurs when players are alive and below maximum HP
+
+---
+
+## HP Regeneration System
+
+### Feature
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/hpregeneration/HpRegenerationPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/hpregeneration/HpRegenerationPlugin.kt)
+
+**Feature**: Automatic HP regeneration that restores 1 HP every 30 seconds for all players.
+
+**Implementation**:
+- Created new `HpRegenerationPlugin` that extends `KotlinPlugin`
+- Added `HP_REGENERATION_TIMER` to `Timers.kt` for timer management
+- Timer interval: 50 cycles (30 seconds, since 1 cycle = 0.6 seconds)
+- Timer initialized on player login
+- Timer handler regenerates 1 HP and resets timer every 30 seconds
+
+**Functionality**:
+- **Login Initialization**: Timer starts at 50 cycles when player logs in
+- **Automatic Regeneration**: Every 30 seconds, players regain 1 HP if:
+  - Player is alive (not dead)
+  - Current HP is below maximum HP
+- **Safety Checks**:
+  - Skips regeneration if player is dead
+  - Only regenerates if not at full health
+  - Caps HP at maximum (prevents overheal)
+- **Timer Management**: Timer automatically resets after each regeneration cycle
+
+**Timer Key Added**:
+**File**: [game-server/src/main/kotlin/org/alter/game/model/timer/Timers.kt](../game-server/src/main/kotlin/org/alter/game/model/timer/Timers.kt)
+- Added `HP_REGENERATION_TIMER = TimerKey()` for HP regeneration system
+
+**Impact**:
+- Players now passively regenerate health over time
+- Reduces reliance on food for minor health recovery
+- Makes gameplay more forgiving for exploration and non-combat activities
+- Regeneration is slow enough (1 HP per 30 seconds) to not trivialize combat
+
+---
+
+## Date: 2025-11-16 (Food Eating & Bone Burying Systems)
+
+### Summary
+Fixed and enhanced food eating and bone burying systems:
+1. Fixed food eating functionality with proper item handling
+2. Added 30+ additional food types with correct healing values
+3. Implemented comprehensive bone burying for prayer training
+4. Added "Bury" and "Bury-all" options for bones
+
+---
+
+## Food Eating System Fix
+
+### Issue
+Players were unable to eat food items in their inventory.
+
+### Root Cause
+- Item option binding issues similar to bone burying
+- Missing proper queue handling for food consumption
+- Inconsistent item removal logic
+
+### Fixes Applied
+
+#### Food Eating Implementation
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/EatingPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/EatingPlugin.kt)
+
+**Changes**:
+- Refactored food eating logic to use helper function `eatFood()`
+- Added proper item verification before consumption
+- Implemented queue-based eating with animation and sound
+- Fixed item removal to use item ID instead of string
+- Added extensive debug logging for troubleshooting
+
+**Functionality**:
+- Proper cooldown handling (prevents spam eating)
+- Animation (829) and sound (2393) effects
+- Health restoration based on food type
+- Support for overheal (Anglerfish)
+- Support for combo food (Karambwan)
+- Replacement item handling (e.g., empty vials)
+- Attack delay timer after eating
+
+#### Food Types Expansion
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Food.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Food.kt)
+
+**Added Food Categories**:
+- **Seafood** (15 types): Shrimp, Tuna, Lobster, Swordfish, Shark, Manta Ray, Dark Crab, etc.
+- **Meat** (4 types): Cooked Chicken, Cooked Meat, Roast Beast Meat, Ugthanki Kebab
+- **Pastries & Baked Goods** (8 types): Bread, Cakes, Pies, Pizzas (Plain, Meat, Anchovy, Pineapple)
+- **Vegetables & Fruits** (11 types): Potatoes (various preparations), Cabbage, Onion, Banana, Strawberry, Watermelon, Pineapple, etc.
+- **Stews & Soups** (2 types): Stew, Curry
+- **Other** (4 types): Egg, Cheese, Tomato, Sweetcorn
+
+**Total Food Types**: 44+ items with proper OSRS healing values
+
+---
+
+## Date: 2025-11-16 (Bone Burying System)
+
+### Summary
+Implemented complete bone burying functionality for prayer training:
+1. Added bone burying for 30+ bone types with proper prayer XP rewards
+2. Implemented "Bury" and "Bury-all" options for inventory bones
+3. Added support for noted bones
+4. Fixed burying animation, sound effects, and cooldown timers
+
+### Changes
+
+#### Bone Burying Implementation
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/prayer/PrayersPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/prayer/PrayersPlugin.kt)
+
+**Features Added**:
+- Bone burying for all standard OSRS bone types:
+  - Regular bones (4.5 XP)
+  - Big bones (15 XP)
+  - Dragon bones (72 XP)
+  - Baby dragon bones (30 XP)
+  - Superior dragon bones (150 XP)
+  - Lava dragon bones (85 XP)
+  - Wyvern bones (72 XP)
+  - Dagannoth bones (125 XP)
+  - Ourg/Fayrg/Raurg bones (140/84/96 XP)
+  - Hydra/Wyrm/Drake bones (110/50/80 XP)
+  - Monkey bones variants (5-18 XP)
+  - And 20+ more bone types
+
+**Functionality**:
+- Option 1: "Bury" - Buries a single bone with animation and sound
+- Option 2: "Bury-all" - Buries all bones of that type in inventory (for select valuable bones)
+- Noted bone support - Can bury noted bones (converts and buries one at a time)
+- Cooldown timer (3 ticks) to prevent spam
+- Proper animation (827) and sound (2738) effects
+- XP rewards match OSRS values
+
+**Helper Functions**:
+- `buryBone()` - Handles single bone burial
+- `buryNotedBone()` - Handles noted bone burial
+- `buryAllBones()` - Handles mass bone burial
+
+---
+
 ## Date: 2025-01-XX (Drop Visibility Timer System)
 
 ### Summary

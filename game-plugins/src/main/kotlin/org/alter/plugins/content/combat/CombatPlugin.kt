@@ -79,6 +79,7 @@ class CombatPlugin(
             locShape = -2
         )
         if (!reached) {
+            var movementAdded = false
             when (routeLogic) {
                 1 -> {
                     val route = world.smartRouteFinder.findRoute(
@@ -91,7 +92,47 @@ class CombatPlugin(
                         destWidth = target.getSize(),
                         destLength = target.getSize()
                     )
-                    pawn.walkRoute(route, StepType.NORMAL)
+                    // Only walk if route is successful and has waypoints
+                    if (route.success && route.waypoints.isNotEmpty()) {
+                        pawn.walkRoute(route, StepType.NORMAL)
+                        movementAdded = true
+                    } else {
+                        // Fallback to dumb route finder if smart route finder fails
+                        val fallbackRoute = LinkedList<Tile>()
+                        val destination = world.dumbRouteFinder.naiveDestination(
+                            sourceX = pawn.tile.x,
+                            sourceZ = pawn.tile.z,
+                            sourceWidth = pawn.getSize(),
+                            sourceLength = pawn.getSize(),
+                            targetX = target.tile.x,
+                            targetZ = target.tile.z,
+                            targetWidth = target.getSize(),
+                            targetLength = target.getSize()
+                        )
+                        val dx = destination.x - pawn.tile.x
+                        val dz = destination.z - pawn.tile.z
+                        // Try diagonal move (both x and z)
+                        val diagonalMove = Tile(pawn.tile.x + dx.coerceIn(-1, 1), pawn.tile.z + dz.coerceIn(-1, 1))
+                        if (!world.canTraverse(pawn.tile, Direction.between(pawn.tile, diagonalMove), pawn, pawn.getSize())) {
+                            // If diagonal blocked, try horizontal (east/west)
+                            val horizontalMove = Tile(pawn.tile.x + dx.coerceIn(-1, 1), pawn.tile.z)
+                            if (!world.canTraverse(pawn.tile, Direction.between(pawn.tile, horizontalMove), pawn, pawn.getSize())) {
+                                // If horizontal blocked, try vertical (north/south)
+                                val verticalMove = Tile(pawn.tile.x, pawn.tile.z + dz.coerceIn(-1, 1))
+                                if (world.canTraverse(pawn.tile, Direction.between(pawn.tile, verticalMove), pawn, pawn.getSize())) {
+                                    fallbackRoute.add(verticalMove)
+                                }
+                            } else {
+                                fallbackRoute.add(horizontalMove)
+                            }
+                        } else {
+                            fallbackRoute.add(diagonalMove)
+                        }
+                        if (fallbackRoute.isNotEmpty()) {
+                            pawn.walkRoute(fallbackRoute, stepType = StepType.NORMAL)
+                            movementAdded = true
+                        }
+                    }
                 }
                 0 -> {
                     val route = LinkedList<Tile>()
@@ -124,24 +165,61 @@ class CombatPlugin(
                     } else {
                         route.add(diagonalMove)
                     }
+                    // If all primary directions are blocked, try any valid adjacent tile towards the target
                     if (route.isEmpty()) {
-                        pawn.forceChat("Broke")
-                        return true
+                        // Try all 8 directions, prioritizing those closer to target
+                        val directions = listOf(
+                            Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST,
+                            Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST
+                        )
+                        val bestDirection = directions.minByOrNull { dir ->
+                            val testTile = pawn.tile.step(dir)
+                            if (world.canTraverse(pawn.tile, dir, pawn, pawn.getSize())) {
+                                testTile.getDistance(target.tile)
+                            } else {
+                                Int.MAX_VALUE
+                            }
+                        }
+                        bestDirection?.let { dir ->
+                            val testTile = pawn.tile.step(dir)
+                            if (world.canTraverse(pawn.tile, dir, pawn, pawn.getSize())) {
+                                route.add(testTile)
+                            }
+                        }
                     }
-                    pawn.walkRoute(route, stepType = StepType.NORMAL)
+                    if (route.isNotEmpty()) {
+                        pawn.walkRoute(route, stepType = StepType.NORMAL)
+                        movementAdded = true
+                    }
                 }
             }
+            // If no movement was added and we're not in attack range, wait a bit and try again
+            if (!movementAdded && pawn.tile.getDistance(target.tile) > attackRange + target.getSize()) {
+                queue.wait(1)
+                return cycle(pawn, queue)
+            }
         }
+        // Check if we're in attack range
         if (pawn.tile.getDistance(target.tile) <= attackRange + target.getSize()) {
             reached = true
             pawn.stopMovement()
         }
-        while (pawn.hasMoveDestination() || !reached) {
+        // Wait for movement to complete, or if we're not in range and have no movement, try again
+        while (pawn.hasMoveDestination() || (!reached && pawn.tile.getDistance(target.tile) > attackRange + target.getSize())) {
             queue.wait(1)
             if (!target.isAlive()) {
                 return false
             }
-            return cycle(pawn, queue)
+            // Re-check if we reached the target during movement
+            if (pawn.tile.getDistance(target.tile) <= attackRange + target.getSize()) {
+                reached = true
+                pawn.stopMovement()
+                break
+            }
+            // If we have no movement destination and we're still not in range, try to move again
+            if (!pawn.hasMoveDestination() && !reached) {
+                return cycle(pawn, queue)
+            }
         }
         if (!Combat.canEngage(pawn, target)) {
             Combat.reset(pawn)

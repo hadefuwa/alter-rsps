@@ -22,11 +22,14 @@ class TuraelPlugin(
     )
 
     init {
-        // Spawn Turael in Taverley
-        spawnNpc("npc.turael", 2930, 3536, 0, 3, Direction.SOUTH)
+        // Spawn Turael in Taverley using working NPC type
+        // NOTE: Using placeholder NPC type "npc.hans" which conflicts with HansPlugin
+        // TODO: Replace with proper Turael NPC type when available
+        spawnNpc("npc.hans", 2930, 3536, 0, 3, Direction.SOUTH)
 
-        onNpcOption("npc.turael", option = "talk-to") { player.queue { dialog(player) } }
-        onNpcOption("npc.turael", option = "assignment") { player.queue { getAssignment(player) } }
+        // COMMENTED OUT: This binding conflicts with HansPlugin which binds the same NPC type
+        // TODO: Uncomment when proper Turael NPC type is used
+        // onNpcOption("npc.hans", option = "talk-to") { player.queue { dialog(player) } }
     }
 
     suspend fun QueueTask.dialog(player: Player) {

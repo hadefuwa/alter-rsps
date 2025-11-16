@@ -18,7 +18,7 @@ class VarrockShopPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-    private val shopkeepers = listOf("npc.shop_assistant", "npc.shop_keeper")
+    private val shopkeepers = listOf("npc.shop_assistant_2818", "npc.shop_keeper_2817")
 
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -44,9 +44,9 @@ class VarrockShopPlugin(
     )
 
     init {
-        // Varrock General Store (main square)
-        spawnNpc("npc.shop_keeper", 3217, 3415, 0, 3, Direction.SOUTH)
-        spawnNpc("npc.shop_assistant", 3218, 3415, 0, 3, Direction.SOUTH)
+        // Varrock General Store (main square) - using valid RSCM names
+        spawnNpc("npc.shop_keeper_2817", 3217, 3415, 0, 3, Direction.SOUTH)
+        spawnNpc("npc.shop_assistant_2818", 3218, 3415, 0, 3, Direction.SOUTH)
 
         createShop("Varrock General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
             storeItems.forEachIndexed { index, item ->

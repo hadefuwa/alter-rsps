@@ -165,6 +165,16 @@ object MagicCombatFormula : CombatFormula {
             val multiplier = 1.0 + (pawn.getMagicDamageBonus() / 100.0)
             hit *= multiplier
             hit = Math.floor(hit)
+            
+            // Apply protection prayer reduction for NPC magic attacks, with 50% bypass chance for wilderness NPCs
+            if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+                val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
+                // 50% chance to bypass protection prayer for wilderness NPCs
+                if (!isWildernessNpc || !pawn.world.chance(1, 2)) {
+                    hit *= 0.6
+                    hit = Math.floor(hit)
+                }
+            }
         }
 
         hit *= getDamageDealMultiplier(pawn)
@@ -187,6 +197,10 @@ object MagicCombatFormula : CombatFormula {
         var maxRoll = a * (b + 64.0)
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, maxRoll)
+        }
+        // Apply 10x accuracy multiplier for wilderness NPCs
+        if (pawn is Npc && pawn.tile.getWildernessLevel() > 0) {
+            maxRoll *= 10.0
         }
         return maxRoll.toInt()
     }

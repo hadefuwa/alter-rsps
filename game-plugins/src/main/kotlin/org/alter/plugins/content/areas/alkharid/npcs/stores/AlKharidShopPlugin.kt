@@ -18,7 +18,7 @@ class AlKharidShopPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-    private val shopkeepers = listOf("npc.shop_assistant", "npc.shop_keeper")
+    private val shopkeepers = listOf("npc.shop_assistant_2816", "npc.shop_keeper_2815")
 
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -36,13 +36,12 @@ class AlKharidShopPlugin(
         ShopItem(getRSCM("item.chisel"), 2, 1, 0),
         ShopItem(getRSCM("item.hammer"), 5, 1, 0),
         ShopItem(getRSCM("item.rope"), 5, 18, 11),
-        ShopItem(getRSCM("item.waterskin_4"), 10, 30, 18),
     )
 
     init {
-        // Al Kharid General Store
-        spawnNpc("npc.shop_keeper", 3315, 3179, 0, 3, Direction.WEST)
-        spawnNpc("npc.shop_assistant", 3315, 3180, 0, 3, Direction.WEST)
+        // Al Kharid General Store - using valid RSCM names
+        spawnNpc("npc.shop_keeper_2815", 3315, 3179, 0, 3, Direction.WEST)
+        spawnNpc("npc.shop_assistant_2816", 3315, 3180, 0, 3, Direction.WEST)
 
         createShop("Al Kharid General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
             storeItems.forEachIndexed { index, item ->

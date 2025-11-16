@@ -130,7 +130,7 @@ abstract class Pawn(val world: World) : Entity() {
      */
     abstract fun cycle()
 
-    fun isDead(): Boolean = getCurrentHp() == 0
+    fun isDead(): Boolean = getCurrentHp() <= 0
 
     fun isAlive(): Boolean = !isDead()
 
@@ -329,13 +329,17 @@ abstract class Pawn(val world: World) : Entity() {
                      * health enabled.
                      */
                     if (INFINITE_VARS_STORAGE.get(this, InfiniteVarsType.HP) == 0) {
-                        setCurrentHp(hp - hitmark.damage)
+                        val newHp = hp - hitmark.damage
+                        // Clamp HP to 0 minimum to prevent negative values
+                        setCurrentHp(maxOf(0, newHp))
                     }
                     /*
                      * If the pawn has less than or equal to 0 health,
                      * terminate all queues and begin the death logic.
                      */
                     if (getCurrentHp() <= 0) {
+                        // Ensure HP is exactly 0 (not negative) when death is detected
+                        setCurrentHp(0)
                         hit.actions.forEach { action -> action(hit) }
                         if (entityType.isPlayer) {
                             executePlugin(PlayerDeathAction.deathPlugin)

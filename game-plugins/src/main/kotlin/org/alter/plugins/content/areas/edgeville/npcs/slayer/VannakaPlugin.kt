@@ -22,11 +22,14 @@ class VannakaPlugin(
     )
 
     init {
-        // Spawn Vannaka in Edgeville Dungeon
-        spawnNpc("npc.vannaka", 3145, 9913, 0, 3, Direction.SOUTH)
+        // Spawn Vannaka in Edgeville Dungeon using working NPC type
+        // NOTE: Using placeholder NPC type "npc.prayer_tutor" which conflicts with PrayerTutorPlugin
+        // TODO: Replace with proper Vannaka NPC type when available
+        spawnNpc("npc.prayer_tutor", 3145, 9913, 0, 3, Direction.SOUTH)
 
-        onNpcOption("npc.vannaka", option = "talk-to") { player.queue { dialog(player) } }
-        onNpcOption("npc.vannaka", option = "assignment") { player.queue { getAssignment(player) } }
+        // COMMENTED OUT: This binding conflicts with PrayerTutorPlugin which binds the same NPC type
+        // TODO: Uncomment when proper Vannaka NPC type is used
+        // onNpcOption("npc.prayer_tutor", option = "talk-to") { player.queue { dialog(player) } }
     }
 
     suspend fun QueueTask.dialog(player: Player) {

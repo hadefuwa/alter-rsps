@@ -43,14 +43,46 @@ enum class Food(
     KEBAB(item = "item.ugthanki_kebab", heal = 19),
 
     /**
-     * Pastries.
+     * Pastries & Baked Goods.
      */
     BREAD(item = "item.bread", heal = 5),
-
+    CAKE(item = "item.cake", heal = 4),
+    CHOCOLATE_CAKE(item = "item.chocolate_cake", heal = 5),
+    MEAT_PIE(item = "item.meat_pie", heal = 6),
+    APPLE_PIE(item = "item.apple_pie", heal = 7),
+    PIZZA(item = "item.plain_pizza", heal = 7),
+    MEAT_PIZZA(item = "item.meat_pizza", heal = 8),
+    ANCHOVY_PIZZA(item = "item.anchovy_pizza", heal = 9),
+    PINEAPPLE_PIZZA(item = "item.pineapple_pizza", heal = 11),
+    
     /**
-     * Other.
+     * Vegetables & Fruits.
      */
+    POTATO(item = "item.potato", heal = 1),
+    BAKED_POTATO(item = "item.baked_potato", heal = 4),
+    POTATO_WITH_BUTTER(item = "item.potato_with_butter", heal = 14),
+    POTATO_WITH_CHEESE(item = "item.potato_with_cheese", heal = 16),
+    CABBAGE(item = "item.cabbage", heal = 1),
     ONION(item = "item.onion", heal = 1),
+    BANANA(item = "item.banana", heal = 2),
+    STRAWBERRY(item = "item.strawberry", heal = 6),
+    WATERMELON(item = "item.watermelon_slice", heal = 5),
+    PINEAPPLE_CHUNKS(item = "item.pineapple_chunks", heal = 2),
+    PINEAPPLE_RING(item = "item.pineapple_ring", heal = 2),
+    
+    /**
+     * Stews & Soups.
+     */
+    STEW(item = "item.stew", heal = 11),
+    CURRY(item = "item.curry", heal = 19),
+    
+    /**
+     * Other Foods.
+     */
+    EGG(item = "item.egg", heal = 3),
+    CHEESE(item = "item.cheese", heal = 2),
+    TOMATO(item = "item.tomato", heal = 2),
+    SWEETCORN(item = "item.sweetcorn", heal = 10),
     ;
 
     companion object {

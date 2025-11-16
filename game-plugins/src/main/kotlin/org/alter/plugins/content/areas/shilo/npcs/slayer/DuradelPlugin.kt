@@ -22,11 +22,10 @@ class DuradelPlugin(
     )
 
     init {
-        // Spawn Duradel in Shilo Village
-        spawnNpc("npc.duradel", 2851, 2914, 0, 3, Direction.WEST)
+        // Spawn Duradel in Shilo Village using working NPC type
+        spawnNpc("npc.shop_keeper_2823", 2851, 2914, 0, 3, Direction.WEST)
 
-        onNpcOption("npc.duradel", option = "talk-to") { player.queue { dialog(player) } }
-        onNpcOption("npc.duradel", option = "assignment") { player.queue { getAssignment(player) } }
+        onNpcOption("npc.shop_keeper_2823", option = "talk-to") { player.queue { dialog(player) } }
     }
 
     suspend fun QueueTask.dialog(player: Player) {

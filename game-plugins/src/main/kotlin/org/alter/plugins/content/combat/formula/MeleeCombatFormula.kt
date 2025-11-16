@@ -51,6 +51,18 @@ object MeleeCombatFormula : CombatFormula {
         var base = Math.floor(0.5 + a * (b + 64.0) / 640.0).toInt()
         if (pawn is Player) {
             base = applyStrengthSpecials(pawn, target, base, specialAttackMultiplier, specialPassiveMultiplier)
+        } else if (pawn is Npc && target is Player) {
+            // Apply protection prayer reduction for NPC attacks, with 50% bypass chance for wilderness NPCs
+            var hit = base.toDouble()
+            if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+                val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
+                // 50% chance to bypass protection prayer for wilderness NPCs
+                if (!isWildernessNpc || !pawn.world.chance(1, 2)) {
+                    hit *= 0.6
+                    hit = Math.floor(hit)
+                }
+            }
+            base = hit.toInt()
         }
         return base
     }
@@ -62,6 +74,10 @@ object MeleeCombatFormula : CombatFormula {
         var maxRoll = a * (b + 64.0)
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, target, maxRoll, specialAttackMultiplier)
+        }
+        // Apply 10x accuracy multiplier for wilderness NPCs
+        if (pawn is Npc && pawn.tile.getWildernessLevel() > 0) {
+            maxRoll *= 10.0
         }
         return maxRoll.toInt()
     }

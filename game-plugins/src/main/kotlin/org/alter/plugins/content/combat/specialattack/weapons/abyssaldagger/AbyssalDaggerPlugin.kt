@@ -27,6 +27,8 @@ class AbyssalDaggerPlugin(
             "item.abyssal_dagger_p_13271"
         )) {
             SpecialAttacks.register(item, SPECIAL_REQUIREMENT) {
+                val target = this.target ?: return@register
+                
                 player.animate(id = 3300)
                 player.graphic(id = 1283)
                 world.spawn(AreaSound(tile = player.tile, id = 2537, radius = 10, volume = 1))

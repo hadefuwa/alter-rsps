@@ -20,6 +20,8 @@ class ArmadylGodswordPlugin(
         val SPECIAL_REQUIREMENT = 50
 
         SpecialAttacks.register("item.armadyl_godsword", SPECIAL_REQUIREMENT) {
+            val target = this.target ?: return@register
+            
             player.animate(id = 7644)
             player.graphic(id = 1211)
 
@@ -33,6 +35,8 @@ class ArmadylGodswordPlugin(
         }
 
         SpecialAttacks.register("item.armadyl_godsword_or", SPECIAL_REQUIREMENT) {
+            val target = this.target ?: return@register
+            
             player.animate(id = 7644)
             player.graphic(id = 1211)
             world.spawn(AreaSound(tile = player.tile, id = 3869, radius = 10, volume = 1))

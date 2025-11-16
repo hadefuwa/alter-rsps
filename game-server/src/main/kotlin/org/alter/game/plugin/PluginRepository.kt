@@ -1314,6 +1314,11 @@ class PluginRepository(
         exitChunkPlugins[chunkHash]?.forEach { logic -> p.executePlugin(logic) }
     }
 
+    fun isItemBound(id: Int, opt: Int): Boolean {
+        val optMap = itemPlugins[id] ?: return false
+        return optMap.containsKey(opt)
+    }
+
     fun bindItem(
         id: Int,
         opt: Int,

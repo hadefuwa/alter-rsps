@@ -42,7 +42,9 @@ object NpcDeathAction {
         val deathSound = npc.combatDef.defaultDeathSound
         val respawnDelay = npc.combatDef.respawnDelay
         var killer: Pawn? = null
-        npc.damageMap.getMostDamage()?.let {
+        // Use damage percentage to determine the killer (person who did the most damage %)
+        val maxHp = npc.getMaxHp()
+        npc.damageMap.getMostDamagePercentage(maxHp)?.let {
             if (it is Player) {
                 killer = it
                 world.getService(LoggerService::class.java, searchSubclasses = true)?.logNpcKill(it, npc)

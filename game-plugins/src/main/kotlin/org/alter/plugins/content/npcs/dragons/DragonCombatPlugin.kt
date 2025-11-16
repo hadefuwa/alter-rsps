@@ -96,8 +96,8 @@ class DragonCombatPlugin(
         while (canEngageCombat(target)) {
             facePawn(target)
             if (moveToAttackRange(it, target, distance = 2, projectile = true) && isAttackDelayReady()) {
-                // 50% chance for fire breath, 50% for melee
-                if (this.world.chance(1, 2)) {
+                // 75% chance for fire breath, 25% for melee (more aggressive with fire)
+                if (this.world.chance(3, 4)) {
                     this.dragonFireBreath(target)
                 } else {
                     this.dragonMeleeAttack(target)
@@ -121,8 +121,8 @@ class DragonCombatPlugin(
         while (canEngageCombat(target)) {
             facePawn(target)
             if (moveToAttackRange(it, target, distance = 3, projectile = true) && isAttackDelayReady()) {
-                // 60% chance for fire breath, 40% for melee (more aggressive)
-                if (this.world.chance(3, 5)) {
+                // 80% chance for fire breath, 20% for melee (very aggressive with fire)
+                if (this.world.chance(4, 5)) {
                     this.dragonFireBreath(target, brutal = true)
                 } else {
                     this.dragonMeleeAttack(target)
