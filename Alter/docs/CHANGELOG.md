@@ -1,6 +1,63 @@
 # Changelog - Server Setup and Path Fixes
 
-## Date: 2025-01-XX (Bone Burying System)
+## Date: 2025-11-16 (Food Eating & Bone Burying Systems)
+
+### Summary
+Fixed and enhanced food eating and bone burying systems:
+1. Fixed food eating functionality with proper item handling
+2. Added 30+ additional food types with correct healing values
+3. Implemented comprehensive bone burying for prayer training
+4. Added "Bury" and "Bury-all" options for bones
+
+---
+
+## Food Eating System Fix
+
+### Issue
+Players were unable to eat food items in their inventory.
+
+### Root Cause
+- Item option binding issues similar to bone burying
+- Missing proper queue handling for food consumption
+- Inconsistent item removal logic
+
+### Fixes Applied
+
+#### Food Eating Implementation
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/EatingPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/EatingPlugin.kt)
+
+**Changes**:
+- Refactored food eating logic to use helper function `eatFood()`
+- Added proper item verification before consumption
+- Implemented queue-based eating with animation and sound
+- Fixed item removal to use item ID instead of string
+- Added extensive debug logging for troubleshooting
+
+**Functionality**:
+- Proper cooldown handling (prevents spam eating)
+- Animation (829) and sound (2393) effects
+- Health restoration based on food type
+- Support for overheal (Anglerfish)
+- Support for combo food (Karambwan)
+- Replacement item handling (e.g., empty vials)
+- Attack delay timer after eating
+
+#### Food Types Expansion
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Food.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/food/Food.kt)
+
+**Added Food Categories**:
+- **Seafood** (15 types): Shrimp, Tuna, Lobster, Swordfish, Shark, Manta Ray, Dark Crab, etc.
+- **Meat** (4 types): Cooked Chicken, Cooked Meat, Roast Beast Meat, Ugthanki Kebab
+- **Pastries & Baked Goods** (8 types): Bread, Cakes, Pies, Pizzas (Plain, Meat, Anchovy, Pineapple)
+- **Vegetables & Fruits** (11 types): Potatoes (various preparations), Cabbage, Onion, Banana, Strawberry, Watermelon, Pineapple, etc.
+- **Stews & Soups** (2 types): Stew, Curry
+- **Other** (4 types): Egg, Cheese, Tomato, Sweetcorn
+
+**Total Food Types**: 44+ items with proper OSRS healing values
+
+---
+
+## Date: 2025-11-16 (Bone Burying System)
 
 ### Summary
 Implemented complete bone burying functionality for prayer training:

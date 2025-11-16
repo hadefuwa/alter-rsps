@@ -62,14 +62,7 @@ class WildernessObeliskPlugin(
         /**
          * Wilderness obelisk teleport type - allows teleports up to level 30 wilderness
          */
-        private val OBELISK_TELEPORT_TYPE = TeleportType(
-            animation = Animation.OBELISK_TELEPORT,
-            graphic = Graphic.WILDERNESS_OBELISK,
-            endAnimation = null,
-            endGraphic = null,
-            teleportDelay = 4, // 4 game ticks (2.4 seconds)
-            wildLvlRestriction = 30 // Can't teleport after level 30 wilderness
-        )
+        private val OBELISK_TELEPORT_TYPE = TeleportType.GLORY
         
         /**
          * Timer key for obelisk activation cooldown
@@ -90,8 +83,8 @@ class WildernessObeliskPlugin(
         val area: Area
     ) {
         fun getRandomTile(): Tile {
-            val x = area.bottomLeftX + world.random(area.width)
-            val z = area.bottomLeftZ + world.random(area.height)
+            val x = area.bottomLeftX + (0..3).random() // Random offset within 4x4 area
+            val z = area.bottomLeftY + (0..3).random() // Random offset within 4x4 area
             return Tile(x, z, 0)
         }
     }
@@ -110,7 +103,7 @@ class WildernessObeliskPlugin(
         
         // Bind activate option for all obelisk objects
         obeliskIds.forEach { obeliskId ->
-            onObjectOption(obj = obeliskId, option = "activate") {
+            onObjOption(obj = obeliskId, option = "activate") {
                 activateObelisk(player)
             }
         }
@@ -130,9 +123,6 @@ class WildernessObeliskPlugin(
             player.message("The obelisk is still recharging its magical energy...")
             return
         }
-        
-        // Get current wilderness level for messaging
-        val currentWildLevel = player.tile.getWildernessLevel()
         
         // Select random destination
         val destination = OBELISK_LOCATIONS.random()
