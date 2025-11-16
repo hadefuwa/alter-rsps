@@ -15,7 +15,8 @@
       "Bash(mkdir:*)",
       "Bash(./gradlew:*)",
       "Bash(gradle :game-plugins:build:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(./gradlew.bat :game-plugins:build --console=plain)"
     ],
     "deny": [],
     "ask": []

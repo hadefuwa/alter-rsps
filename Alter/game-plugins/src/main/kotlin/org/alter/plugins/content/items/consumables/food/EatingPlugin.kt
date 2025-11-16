@@ -20,15 +20,21 @@ class EatingPlugin(
 
     init {
         // Bind all foods from the Food enum
-        // Note: Using option 2 because the client sends option=2 for "Eat"
-        // even though it's at index 0 in interfaceOptions
+        // Client sends option=2 for "Eat" even though it's at index 0 in interfaceOptions
         Food.values.forEach { food ->
             try {
                 onItemOption(food.item, 2) {
                     handleEat(player, food)
                 }
             } catch (e: Exception) {
-                // Skip items not found in RSCM or items without eat option
+                // If option 2 doesn't exist for this item, try option 1
+                try {
+                    onItemOption(food.item, 1) {
+                        handleEat(player, food)
+                    }
+                } catch (e2: Exception) {
+                    println("WARNING: Failed to bind eating handler for ${food.item}")
+                }
             }
         }
     }

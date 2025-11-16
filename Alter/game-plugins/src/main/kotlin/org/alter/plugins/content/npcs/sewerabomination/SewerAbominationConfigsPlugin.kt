@@ -51,19 +51,19 @@ class SewerAbominationConfigsPlugin(
 
             stats {
                 hitpoints = 180
-                attack = 140
-                strength = 150
+                attack = 250  // Increased from 200
+                strength = 280  // Increased from 220
                 defence = 100
-                magic = 120
-                ranged = 100
+                magic = 220  // Increased from 180
+                ranged = 200  // Increased from 160
             }
 
             bonuses {
                 attackStab = 0
                 attackSlash = 0
-                attackCrush = 50
-                attackMagic = 40
-                attackRanged = 30
+                attackCrush = 80  // Increased from 50
+                attackMagic = 100  // Increased from 70
+                attackRanged = 80  // Increased from 60
 
                 defenceStab = 40
                 defenceSlash = 50
@@ -71,10 +71,10 @@ class SewerAbominationConfigsPlugin(
                 defenceMagic = 20
                 defenceRanged = 30
 
-                attackBonus = 60
-                strengthBonus = 55
-                rangedStrengthBonus = 0
-                magicDamageBonus = 0
+                attackBonus = 150  // Increased from 100
+                strengthBonus = 130  // Increased from 90
+                rangedStrengthBonus = 60  // Increased from 40
+                magicDamageBonus = 50  // Increased from 30
             }
 
             anims {
@@ -136,5 +136,10 @@ class SewerAbominationConfigsPlugin(
                 }
             }
         }
+
+        // Note: Minion combat definitions are not set here because these NPCs
+        // (zombie, archer, dark_wizard) already have combat definitions set elsewhere.
+        // The guaranteed random item drop for minions is handled in SewerAbominationCombatPlugin
+        // via onNpcDeath handlers that check if the NPC doesn't respawn (boss minions).
     }
 }

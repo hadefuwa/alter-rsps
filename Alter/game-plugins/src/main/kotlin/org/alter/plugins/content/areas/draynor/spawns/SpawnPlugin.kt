@@ -96,6 +96,14 @@ class SpawnPlugin(
          */
         spawnNpc(npc = "npc.dark_wizard", x = 3083, z = 3240, walkRadius = 3, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.dark_wizard", x = 3088, z = 3237, walkRadius = 3, direction = Direction.SOUTH)
+        
+        /**
+         * Jail Guards
+         * 
+         * Guards at the Draynor jail (coordinates from AutoSpawn.cfg.txt)
+         */
+        spawnNpc(npc = "npc.jailer", x = 3124, z = 3249, walkRadius = 3, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.jailer", x = 3127, z = 3252, walkRadius = 3, direction = Direction.SOUTH)
+
     }
 }
-

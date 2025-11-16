@@ -387,3 +387,251 @@ java.lang.IllegalArgumentException: bound must be positive
 [2025-11-16 20:00:39.129] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
 [2025-11-16 20:04:20.187] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
 [2025-11-16 20:04:26.364] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:11:30.059] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:11:35.261] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:12:50.193] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:12:55.743] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:16:30.235] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:16:35.525] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:20:56.323] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:21:01.627] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:32:38.770] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:32:44.422] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:32:47.211] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 20:32:47.483] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 20:32:47.493] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 1581 [opt=1]
+[2025-11-16 20:38:00.725] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:38:06.069] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:38:08.932] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 20:38:09.198] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 20:57:36.623] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 20:57:41.871] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 20:57:44.702] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 20:57:44.978] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:07:42.455] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:07:47.933] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:07:51.007] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:07:51.315] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:14:48.575] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/combat/strategy/MagicCombatStrategy
+	at org.alter.plugins.content.combat.CombatConfigs.getCombatStrategy(CombatConfigs.kt:76)
+	at org.alter.plugins.content.combat.CombatPlugin.cycle(CombatPlugin.kt:70)
+	at org.alter.plugins.content.combat.CombatPlugin$1$2.invokeSuspend(CombatPlugin.kt:41)
+	at org.alter.plugins.content.combat.CombatPlugin$1$2.invoke(CombatPlugin.kt)
+	at org.alter.plugins.content.combat.CombatPlugin$1$2.invoke(CombatPlugin.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.combat.strategy.MagicCombatStrategy
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 19 common frames omitted
+[2025-11-16 21:16:12.585] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/npcs/sewerabomination/SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.plagueBreathAttack(SewerAbominationCombatPlugin.kt:322)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:103)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:38)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 18 common frames omitted
+[2025-11-16 21:17:56.380] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/npcs/sewerabomination/SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.plagueBreathAttack(SewerAbominationCombatPlugin.kt:322)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:103)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:38)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$plagueBreathAttack$1
+	... 18 common frames omitted
+[2025-11-16 21:19:54.580] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/npcs/sewerabomination/SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.plagueBreathAttack(SewerAbominationCombatPlugin.kt:322)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:103)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:38)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$plagueBreathAttack$1
+	... 18 common frames omitted
+[2025-11-16 21:24:38.976] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/npcs/sewerabomination/SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.plagueBreathAttack(SewerAbominationCombatPlugin.kt:322)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:103)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:38)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invokeSuspend(SewerAbominationCombatPlugin.kt:48)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invoke(SewerAbominationCombatPlugin.kt)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invoke(SewerAbominationCombatPlugin.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$plagueBreathAttack$1
+	... 20 common frames omitted
+[2025-11-16 21:25:39.769] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:25:45.293] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:25:47.956] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:25:48.240] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:28:49.701] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/npcs/sewerabomination/SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.plagueBreathAttack(SewerAbominationCombatPlugin.kt:322)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:103)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:38)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$plagueBreathAttack$1
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 18 common frames omitted
+[2025-11-16 21:29:28.230] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:29:33.578] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:29:36.722] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:29:37.074] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:33:14.590] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.IllegalArgumentException: NPC Avatar with index 365 is already allocated!
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarRepository.getOrAlloc(NpcAvatarRepository.kt:105)
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarFactory.alloc(NpcAvatarFactory.kt:113)
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarFactory.alloc$default(NpcAvatarFactory.kt:83)
+	at org.alter.game.model.World.spawn(World.kt:393)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.spawnMinion(SewerAbominationCombatPlugin.kt:544)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:228)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:43)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invokeSuspend(SewerAbominationCombatPlugin.kt:61)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invoke(SewerAbominationCombatPlugin.kt)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$1$1.invoke(SewerAbominationCombatPlugin.kt)
+	at org.alter.game.model.queue.QueueTaskSet$queue$suspendBlock$1.invokeSuspend(QueueTaskSet.kt:27)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:25)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+[2025-11-16 21:35:11.583] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.IllegalArgumentException: NPC Avatar with index 368 is already allocated!
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarRepository.getOrAlloc(NpcAvatarRepository.kt:105)
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarFactory.alloc(NpcAvatarFactory.kt:113)
+	at net.rsprot.protocol.game.outgoing.info.npcinfo.NpcAvatarFactory.alloc$default(NpcAvatarFactory.kt:83)
+	at org.alter.game.model.World.spawn(World.kt:393)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.spawnMinion(SewerAbominationCombatPlugin.kt:544)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.combat(SewerAbominationCombatPlugin.kt:228)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin.access$combat(SewerAbominationCombatPlugin.kt:43)
+	at org.alter.plugins.content.npcs.sewerabomination.SewerAbominationCombatPlugin$combat$1.invokeSuspend(SewerAbominationCombatPlugin.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.NpcCycleTask.execute$lambda$0(NpcCycleTask.kt:18)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.NpcCycleTask.execute(NpcCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+[2025-11-16 21:35:16.001] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:35:21.403] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:35:24.625] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:35:24.885] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:40:31.784] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:40:37.273] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:40:40.055] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:40:40.330] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:46:53.164] WARN  o.a.game.model.interf.InterfaceSet - Interface 860 is not visible and cannot be closed.
+[2025-11-16 21:48:27.011] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:48:32.148] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:48:35.202] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:48:35.491] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:53:55.376] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:54:00.657] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:54:03.589] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:54:03.989] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]
+[2025-11-16 21:58:34.423] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 21:58:39.606] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 21:58:42.529] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 26761 [opt=1]
+[2025-11-16 21:58:42.806] ERROR o.alter.game.plugin.PluginRepository - Object is already bound to a plugin: 39547 [opt=1]

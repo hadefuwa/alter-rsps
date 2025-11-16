@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.nexusportal
 
+import net.rsprot.protocol.game.incoming.resumed.ResumePauseButton
 import org.alter.api.*
 import org.alter.api.ext.*
 import org.alter.game.*
@@ -85,31 +86,40 @@ class NexusPortalPlugin(
             "object.magic_portal",         // 2156
             "object.magic_portal_2157",    // 2157
             "object.portal_4525",          // 4525
-            "object.portal_nexus_33354",   // 33354 - Portal Nexus from POH
+            "object.carving",              // 22706 - Gilded Portal Nexus (carving)
+            "object.portal_nexus_33354",   // 33354 - Portal Nexus from POH (backup)
         )
 
-        // Common portal interaction options
-        val portalOptions = listOf("enter", "teleport", "use", "operate")
+        // Common portal interaction options - try all common OSRS portal options
+        val portalOptions = listOf("enter", "teleport", "use", "operate", "activate", "quick-start", "configure")
 
         portalObjects.forEach { portalId ->
-            portalOptions.forEach { option ->
-                try {
-                    // Check if the object has this option before binding
-                    if (objHasOption(portalId, option)) {
-                        onObjOption(obj = portalId, option = option) {
-                            if (!player.lock.canTeleport()) {
-                                player.message("You cannot teleport right now.")
-                                return@onObjOption
-                            }
+            var boundCount = 0
 
-                            player.queue(TaskPriority.STRONG) {
-                                openTeleportMenu(player)
-                            }
+            // Try binding to numeric option slots 1-5 directly without checking
+            for (optionSlot in 1..5) {
+                try {
+                    onObjOption(obj = portalId, option = optionSlot) {
+                        if (!player.lock.canTeleport()) {
+                            player.message("You cannot teleport right now.")
+                            return@onObjOption
+                        }
+
+                        player.queue(TaskPriority.STRONG) {
+                            openTeleportMenu(player)
                         }
                     }
+                    boundCount++
+                    println("Successfully bound portal $portalId to option slot $optionSlot")
                 } catch (e: Exception) {
-                    // Option not available for this portal, skip it
+                    // This option slot doesn't exist, continue to next
                 }
+            }
+
+            if (boundCount == 0) {
+                println("WARNING: Failed to bind any options for portal $portalId")
+            } else {
+                println("Bound $boundCount option(s) for portal $portalId")
             }
 
             // Right-click examine
@@ -128,6 +138,7 @@ class NexusPortalPlugin(
     /**
      * Opens the paginated teleport menu for the player
      * This is a suspend function that runs within a QueueTask context
+     * Uses a full-screen interface (187) with the crystalline portal nexus item display
      */
     private suspend fun QueueTask.openTeleportMenu(p: Player) {
         val locationsPerPage = 5
@@ -155,14 +166,27 @@ class NexusPortalPlugin(
                 options.add("Next Page →")
             }
 
-            val title = "Portal Nexus (Page ${currentPage + 1}/$totalPages)"
-            val selected = options(p, *options.toTypedArray(), title = title)
+            val title = "Crystalline Portal Nexus (Page ${currentPage + 1}/$totalPages)"
 
-            if (selected <= 0) {
+            // Open the full-screen interface menu (interface 187)
+            p.openInterface(187, InterfaceDestination.MAIN_SCREEN)
+
+            // The INTERFACE_MENU script may accept an item ID as a third parameter
+            // Try passing the crystalline portal nexus item ID (22707)
+            p.runClientScript(CommonClientScripts.INTERFACE_MENU, title, options.joinToString("|"), 22707)
+            p.setInterfaceEvents(interfaceId = 187, component = 3, from = 0, to = options.size, setting = 1)
+
+            terminateAction = { p.closeInterface(187) }
+            waitReturnValue()
+            terminateAction!!(this)
+
+            val selected = (requestReturnValue as? ResumePauseButton)?.sub ?: -1
+
+            if (selected < 0) {
                 break // Player closed menu
             }
 
-            val selectedOption = options[selected - 1]
+            val selectedOption = options[selected]
 
             when {
                 selectedOption == "← Previous Page" -> {

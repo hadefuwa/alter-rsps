@@ -47,16 +47,8 @@ class VarrockArmorShopPlugin(
         }
         
         // Rune Armor - 10m-30m
-        addArmor("rune_full_helm", 15000000)
-        addArmor("rune_med_helm", 12000000)
-        addArmor("rune_platebody", 30000000)
-        addArmor("rune_chainbody", 25000000)
-        addArmor("rune_platelegs", 25000000)
-        addArmor("rune_plateskirt", 25000000)
-        addArmor("rune_boots", 15000000)
         addArmor("rune_gloves", 10000000)
-        addArmor("rune_kiteshield", 20000000)
-        addArmor("rune_sq_shield", 18000000)
+
         
         // Dragon Armor - 40m-70m
         addArmor("dragon_full_helm", 70000000)
@@ -80,11 +72,7 @@ class VarrockArmorShopPlugin(
         addArmor("guthans_platebody", 100000000)
         addArmor("guthans_platelegs", 90000000)
         addArmor("guthans_warspear", 100000000)
-        
-        addArmor("torags_helm", 85000000)
-        addArmor("torags_platebody", 100000000)
-        addArmor("torags_platelegs", 90000000)
-        addArmor("torags_hammers", 100000000)
+    
         
         addArmor("veracs_helm", 85000000)
         addArmor("veracs_brassard", 100000000)
@@ -104,17 +92,18 @@ class VarrockArmorShopPlugin(
         addArmor("karils_armour_set", 95000000)
         
         // Ranged Armor - 10m-20m
-        addArmor("rune_arrow", 10000000)
-        addArmor("rune_bolts", 12000000)
-        addArmor("rune_dart", 12000000)
-        addArmor("rune_knife", 15000000)
+        addArmor("rune_arrow", 1000)
+        addArmor("rune_bolts", 1200)
+        addArmor("rune_dart", 1200)
+        addArmor("rune_knife", 1500)
         
         // Magic Armor - 15m-30m
-        addArmor("mystic_hat", 20000000)
-        addArmor("mystic_robe_top", 30000000)
-        addArmor("mystic_robe_bottom", 30000000)
-        addArmor("mystic_gloves", 15000000)
-        addArmor("mystic_boots", 20000000)
+        addArmor("mystic_robe_top", 300000)
+        addArmor("mystic_robe_bottom", 300000)
+
+        // Bandos Armor - 200m-300m
+        addArmor("bandos_chestplate", 200000000)
+        addArmor("bandos_tassets", 200000000)
     }
 
     init {
@@ -157,4 +146,3 @@ class VarrockArmorShopPlugin(
         }
     }
 }
-

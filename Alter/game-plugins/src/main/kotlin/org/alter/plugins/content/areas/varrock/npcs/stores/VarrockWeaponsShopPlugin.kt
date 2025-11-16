@@ -46,17 +46,6 @@ class VarrockWeaponsShopPlugin(
             }
         }
         
-        // Rune Weapons - 10m-30m
-        addWeapon("rune_dagger", 10000000)
-        addWeapon("rune_longsword", 30000000)
-        addWeapon("rune_scimitar", 30000000)
-        addWeapon("rune_battleaxe", 30000000)
-        addWeapon("rune_mace", 20000000)
-        addWeapon("rune_sword", 25000000)
-        addWeapon("rune_2h_sword", 35000000)
-        addWeapon("rune_warhammer", 25000000)
-        addWeapon("rune_halberd", 30000000)
-        
         // Dragon Weapons - 40m-70m
         addWeapon("dragon_longsword", 70000000)
         addWeapon("dragon_scimitar", 70000000)
@@ -66,7 +55,6 @@ class VarrockWeaponsShopPlugin(
         addWeapon("dragon_sword", 65000000)
         addWeapon("dragon_2h_sword", 70000000)
         addWeapon("dragon_warhammer", 65000000)
-        addWeapon("dragon_halberd", 68000000)
         
         // Special Weapons - 80m-100m
         addWeapon("abyssal_whip", 100000000)
@@ -74,11 +62,6 @@ class VarrockWeaponsShopPlugin(
         
         // Ranged Weapons - 10m-30m
         addWeapon("rune_crossbow", 30000000)
-        addWeapon("rune_knife", 15000000)
-        addWeapon("rune_dart", 12000000)
-        addWeapon("rune_arrow", 10000000)
-        addWeapon("rune_thrownaxe", 20000000)
-        addWeapon("rune_javelin", 18000000)
         
         // Magic Weapons - 15m-40m
         addWeapon("staff_of_air", 15000000)

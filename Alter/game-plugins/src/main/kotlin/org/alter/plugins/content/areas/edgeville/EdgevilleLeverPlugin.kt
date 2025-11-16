@@ -6,10 +6,12 @@ import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.Tile
 import org.alter.game.model.World
+import org.alter.game.model.move.moveTo
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.Plugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.plugins.content.magic.prepareForTeleport
 
 /**
  * Edgeville Lever Plugin

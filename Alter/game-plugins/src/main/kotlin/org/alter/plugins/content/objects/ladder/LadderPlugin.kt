@@ -94,6 +94,8 @@ class LadderPlugin(
         // Teleports to Edgeville dungeon entrance (near hill giants area)
         // Edgeville surface location: around 3096, 3468
         // Dungeon entrance location: 3110, 9830 (height 0, underground)
+        // Note: Only using RSCM name to avoid conflict with TrapdoorPlugin
+        // Object 1581 only has "Climb-down" and "Close" options, no "climb-up"
         
         onObjOption("object.trapdoor_1581", option = "climb-down") {
             player.queue {
@@ -110,7 +112,7 @@ class LadderPlugin(
                     player.message("You find yourself in the Edgeville dungeon.")
                     player.unlock()
                 } else {
-                    // In dungeon, go to surface
+                    // In dungeon, go to surface (using climb-down from dungeon perspective)
                     player.message("You climb up the ladder.")
                     player.animate(828) // Climb up animation
                     player.lock()
@@ -120,54 +122,6 @@ class LadderPlugin(
                     player.unlock()
                 }
             }
-        }
-        
-        // Also handle by object ID directly
-        onObjOption(obj = 1581, option = "climb-down") {
-            player.queue {
-                val playerTile = player.tile
-                if (playerTile.z < 5000) {
-                    // On surface, go to dungeon
-                    player.message("You climb down the trapdoor.")
-                    player.animate(827)
-                    player.lock()
-                    wait(2)
-                    player.moveTo(3110, 9830, 0)
-                    player.message("You find yourself in the Edgeville dungeon.")
-                    player.unlock()
-                } else {
-                    // In dungeon, go to surface
-                    player.message("You climb up the ladder.")
-                    player.animate(828)
-                    player.lock()
-                    wait(2)
-                    player.moveTo(3096, 3468, 0)
-                    player.message("You climb out of the dungeon.")
-                    player.unlock()
-                }
-            }
-        }
-        
-        // Handle "climb-up" option for ladder in dungeon
-        onObjOption(obj = 1581, option = "climb-up") {
-            player.queue {
-                player.message("You climb up the ladder.")
-                player.animate(828)
-                player.lock()
-                wait(2)
-                player.moveTo(3096, 3468, 0) // Edgeville surface
-                player.message("You climb out of the dungeon.")
-                player.unlock()
-            }
-        }
-        
-        // Handle "open" option if trapdoor needs to be opened first
-        onObjOption("object.trapdoor_1581", option = "open") {
-            player.message("You open the trapdoor.")
-        }
-        
-        onObjOption(obj = 1581, option = "open") {
-            player.message("You open the trapdoor.")
         }
     }
 

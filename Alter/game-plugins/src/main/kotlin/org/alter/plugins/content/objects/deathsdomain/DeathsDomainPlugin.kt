@@ -5,10 +5,12 @@ import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.Tile
 import org.alter.game.model.World
+import org.alter.game.model.move.moveTo
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.Plugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.plugins.content.magic.prepareForTeleport
 
 /**
  * Death's Domain Plugin
@@ -73,10 +75,10 @@ class DeathsDomainPlugin(
                 // Option might not exist, continue
             }
             
-            // Also handle by object ID directly
+            // Also handle by object ID directly (using RSCM name)
             try {
-                if (objHasOption(obj = 39547, option = option)) {
-                    onObjOption(obj = 39547, option = option, logic = enterDeathsDomain)
+                if (objHasOption("object.deaths_domain_39547", option)) {
+                    onObjOption(obj = "object.deaths_domain_39547", option = option, logic = enterDeathsDomain)
                 }
             } catch (e: Exception) {
                 // Option might not exist, that's okay
@@ -91,11 +93,7 @@ class DeathsDomainPlugin(
                 }
             }
             
-            if (objHasOption(obj = 39547, option = "examine")) {
-                onObjOption(obj = 39547, option = "examine") {
-                    player.message("It looks like a coffin, but somehow different...")
-                }
-            }
+            // Also handle examine with RSCM name (already handled above, but keeping for consistency)
         } catch (e: Exception) {
             // Examine option might not exist
         }

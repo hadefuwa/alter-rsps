@@ -3,7 +3,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.shop.PurchasePolicy
@@ -65,7 +67,15 @@ class VarrockFoodShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
+        val shopkeeperTile = Tile(x = 3212, z = 3425, height = 0)
         spawnNpc(shopkeeper, 3212, 3425, 0, 0, Direction.SOUTH)
+        
+        // Set custom name for the shopkeeper when it spawns
+        onNpcSpawn(shopkeeper) {
+            if (npc.tile == shopkeeperTile) {
+                NpcInfo(npc).setTempName("Food Shopkeeper")
+            }
+        }
 
         // Create the food shop with enough space for all food items
         // Using stockSize of 100 to accommodate all foods (there are ~50+ food items)

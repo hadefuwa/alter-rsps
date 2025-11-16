@@ -27,16 +27,16 @@ class NexusPortalSpawnsPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
-        // Portal object ID - using portal nexus from RSCM
-        val portalObjId = "object.portal_nexus_33354"
+        // Portal object ID - using carving object (ID 22706 in cache)
+        val portalObjId = "object.carving"
 
         // Spawn portals at key locations
 
-        // 1. Varrock Centre (center of Varrock)
+        // 1. Varrock Centre (center of Varrock) - updated coordinates
         spawnObj(
             obj = portalObjId,
             x = 3212,
-            z = 3429,
+            z = 3433,
             height = 0,
             type = 10,
             rot = 0
