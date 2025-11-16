@@ -1,0 +1,43 @@
+[2025-11-16 00:00:53.416] WARN  o.a.game.model.interf.InterfaceSet - No interface visible in pane ({}, {}). 161 16
+[2025-11-16 00:00:58.219] WARN  o.a.game.model.interf.InterfaceSet - Interface 335 is not visible and cannot be closed.
+[2025-11-16 00:01:04.810] WARN  o.a.game.model.interf.InterfaceSet - Interface 334 is not visible and cannot be closed.
+[2025-11-16 00:01:19.813] WARN  o.a.game.model.interf.InterfaceSet - Interface 334 is not visible and cannot be closed.
+[2025-11-16 00:32:25.834] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:32:31.072] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:37:07.483] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:37:12.764] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:41:11.744] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:41:17.025] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:49:17.092] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:49:22.431] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 00:55:27.378] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 00:55:32.670] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]
+[2025-11-16 01:04:44.799] ERROR o.alter.game.model.queue.QueueTask - Error with plugin!
+java.lang.NoClassDefFoundError: org/alter/plugins/content/skills/thieving/pickpocket/PickpocketPlugin$1$1$1$1$1
+	at org.alter.plugins.content.skills.thieving.pickpocket.PickpocketPlugin.lambda$3$lambda$2$lambda$1$lambda$0(PickpocketPlugin.kt:43)
+	at org.alter.game.model.entity.Pawn.executePlugin(Pawn.kt:536)
+	at org.alter.game.plugin.PluginRepository.executeNpc(PluginRepository.kt:1585)
+	at org.alter.game.model.move.PawnPathAction.walk(PawnPathAction.kt:129)
+	at org.alter.game.model.move.PawnPathAction.access$walk(PawnPathAction.kt:12)
+	at org.alter.game.model.move.PawnPathAction$walk$1.invokeSuspend(PawnPathAction.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlin.coroutines.SafeContinuation.resumeWith(SafeContinuationJvm.kt:41)
+	at org.alter.game.model.queue.QueueTask.cycle$game_server(QueueTask.kt:63)
+	at org.alter.game.model.queue.impl.PawnQueueTaskSet.cycle(PawnQueueTaskSet.kt:28)
+	at org.alter.game.task.PlayerCycleTask.execute$lambda$2(PlayerCycleTask.kt:23)
+	at org.alter.game.model.PawnList.forEach(PawnList.kt:35)
+	at org.alter.game.task.PlayerCycleTask.execute(PlayerCycleTask.kt:17)
+	at org.alter.game.service.GameService.cycle(GameService.kt:192)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.lang.ClassNotFoundException: org.alter.plugins.content.skills.thieving.pickpocket.PickpocketPlugin$1$1$1$1$1
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 20 common frames omitted
+[2025-11-16 01:05:09.317] WARN  d.o.c.u.c.DecompressionContext - BZIP2 Compression found - replace to improve read performance.
+[2025-11-16 01:05:14.714] WARN  n.rsprot.protocol.common.RSProtFlags - Unknown network logging option: false, expected values: [off, trace, debug, info, warn, error]

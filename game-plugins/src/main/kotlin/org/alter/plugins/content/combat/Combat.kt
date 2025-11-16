@@ -96,15 +96,16 @@ object Combat {
                     target.world.spawn(
                         AreaSound(target.tile, npcDefs.defaultBlockSound, npcDefs.defaultBlockSoundRadius, npcDefs.defaultBlockSoundVolume),
                     )
-                } else {
-                    (pawn as Player).playSound(npcDefs.defaultBlockSound, npcDefs.defaultBlockSoundVolume)
+                } else if (pawn is Player) {
+                    pawn.playSound(npcDefs.defaultBlockSound, npcDefs.defaultBlockSoundVolume)
                 }
             }
         }
 
         if (target.lock.canAttack()) {
             if (target.entityType.isNpc) {
-                if (!target.attr.has(COMBAT_TARGET_FOCUS_ATTR) || target.attr[COMBAT_TARGET_FOCUS_ATTR]!!.get() != pawn) {
+                val targetFocus = target.attr[COMBAT_TARGET_FOCUS_ATTR]?.get()
+                if (targetFocus == null || targetFocus != pawn) {
                     target.attack(pawn)
                 }
             } else if (target is Player) {

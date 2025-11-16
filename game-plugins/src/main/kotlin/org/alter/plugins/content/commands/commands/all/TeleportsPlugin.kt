@@ -99,76 +99,76 @@ class TeleportsPlugin(
                     "Jatizso" to Tile(x = 2400, z = 3808, height = 0),
                 )
 
-                // Pagination settings
-                val locationsPerPage = 8
+                // Pagination settings - 3 locations per page (5 total options: Prev + 3 locations + Next)
+                val locationsPerPage = 3
                 val totalPages = (allTeleportLocations.size + locationsPerPage - 1) / locationsPerPage
 
                 player.queue(TaskPriority.STRONG) {
                     var currentPage = 0
-                    
+
                     while (true) {
                         val startIndex = currentPage * locationsPerPage
                         val endIndex = minOf(startIndex + locationsPerPage, allTeleportLocations.size)
                         val pageLocations = allTeleportLocations.subList(startIndex, endIndex)
-                        
+
                         // Build options list for current page
-                        // Structure: [Previous Page/First Page] -> [Locations] -> [Next Page/Last Page] -> [Cancel]
+                        // Structure: [Previous Page] -> [Locations (3 max)] -> [Next Page]
+                        // Total: 5 options maximum
                         val pageOptions = mutableListOf<String>()
-                        
-                        // Add navigation options at top and bottom (always visible for consistent UI)
+
+                        // Check if we have previous/next pages available
                         val hasPrevious = currentPage > 0
                         val hasNext = currentPage < totalPages - 1
-                        
-                        // Top option: Previous Page (or "First Page" if on first page)
-                        if (hasPrevious) {
-                            pageOptions.add("Previous Page")
-                        } else {
-                            pageOptions.add("First Page") // Shows but does nothing when clicked
-                        }
-                        
-                        // Add location options in the middle
+
+                        // Option 1: Previous Page (always shown as 1st option)
+                        pageOptions.add("Previous Page")
+
+                        // Options 2-4: Add location options (3 locations max)
                         pageOptions.addAll(pageLocations.map { it.first })
-                        
-                        // Bottom option: Next Page (or "Last Page" if on last page)
-                        if (hasNext) {
-                            pageOptions.add("Next Page")
-                        } else {
-                            pageOptions.add("Last Page") // Shows but does nothing when clicked
-                        }
-                        
-                        // Cancel is always last
-                        pageOptions.add("Cancel")
-                        
+
+                        // Option 5: Next Page (always shown as last option)
+                        pageOptions.add("Next Page")
+
                         val title = "Teleport Menu (Page ${currentPage + 1}/$totalPages)"
                         val selected = options(player, *pageOptions.toTypedArray(), title = title)
-                        
+
                         if (selected <= 0) {
                             break // Invalid selection
                         }
-                        
+
                         // selected is 1-based (1 = first option, 2 = second option, etc.)
                         // Convert to 0-based index for easier array access
                         val optionIndex = selected - 1
                         val locationCount = pageLocations.size
-                        
+
                         // Handle the selected option based on its position in the menu
-                        // Menu structure: [0: Nav Top] [1-N: Locations] [N+1: Nav Bottom] [N+2: Cancel]
-                        
-                        // Option 0 is always the top navigation (Previous Page or First Page)
+                        // Menu structure: [0: Previous Page] [1-3: Locations] [4: Next Page]
+
+                        // Option 0: Previous Page
                         if (optionIndex == 0) {
                             if (hasPrevious) {
                                 // User clicked "Previous Page" - go back one page
                                 currentPage--
-                                continue // Restart the loop to show the previous page
                             }
-                            // User clicked "First Page" but we're already on first page
-                            // Just continue the loop to re-show the same page (does nothing)
+                            // If no previous page, just ignore and re-show current page
                             continue
                         }
-                        
+
+                        // Check if it's the last option (Next Page)
+                        // Last option is at index: 1 (prev button) + locationCount (locations)
+                        val nextPageIndex = 1 + locationCount
+                        if (optionIndex == nextPageIndex) {
+                            if (hasNext) {
+                                // User clicked "Next Page" - go forward one page
+                                currentPage++
+                            }
+                            // If no next page, just ignore and re-show current page
+                            continue
+                        }
+
                         // Check if it's a location selection
-                        // Locations are at indices 1 to locationCount (after the first nav option)
-                        // Example: If there are 8 locations, they're at indices 1, 2, 3, 4, 5, 6, 7, 8
+                        // Locations are at indices 1 to locationCount (after the Previous Page button)
+                        // Example: If there are 3 locations, they're at indices 1, 2, 3
                         if (optionIndex >= 1 && optionIndex <= locationCount) {
                             // Convert to 0-based index for the pageLocations list
                             // optionIndex 1 becomes locationIndex 0 (first location)
@@ -177,29 +177,6 @@ class TeleportsPlugin(
                             player.prepareForTeleport()
                             player.moveTo(destination)
                             break // Exit the loop - player is teleporting
-                        }
-                        
-                        // Check if it's the bottom navigation option (Next Page or Last Page)
-                        // This is at index: 1 (top nav) + locationCount (locations) = locationCount + 1
-                        // Example: If there are 8 locations, Next Page is at index 9 (1 + 8)
-                        val nextPageIndex = 1 + locationCount
-                        if (optionIndex == nextPageIndex) {
-                            if (hasNext) {
-                                // User clicked "Next Page" - go forward one page
-                                currentPage++
-                                continue // Restart the loop to show the next page
-                            }
-                            // User clicked "Last Page" but we're already on last page
-                            // Just continue the loop to re-show the same page (does nothing)
-                            continue
-                        }
-                        
-                        // Cancel is always the last option
-                        // Index: 1 (top nav) + locationCount (locations) + 1 (bottom nav) = locationCount + 2
-                        // Example: If there are 8 locations, Cancel is at index 10 (1 + 8 + 1)
-                        val cancelIndex = 1 + locationCount + 1
-                        if (optionIndex == cancelIndex) {
-                            break // Exit the loop - user cancelled
                         }
                     }
                 }

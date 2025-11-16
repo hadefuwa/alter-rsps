@@ -46,6 +46,20 @@ class GuthanPlugin(
                 block = 2079
                 death = 2925
             }
+            
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 500, max = 2000, weight = 30)
+                    add("item.death_rune", min = 20, max = 50, weight = 25)
+                    add("item.blood_rune", min = 15, max = 40, weight = 20)
+                    add("item.chaos_rune", min = 30, max = 60, weight = 15)
+                    add("item.mind_rune", min = 50, max = 100, weight = 10)
+                }
+            }
         }
     }
 }

@@ -61,6 +61,20 @@ class TradingPlugin(
                 return@onPlayerOption
             }
 
+            // Verify partner is still in the world
+            if (!world.players.contains(partner)) {
+                player.message("That player is no longer available.")
+                return@onPlayerOption
+            }
+
+            // Check if players are close enough to trade (within 15 tiles, same level)
+            val distance = player.tile.getDistance(partner.tile)
+            val sameLevel = player.tile.height == partner.tile.height
+            if (distance > 15 || !sameLevel) {
+                player.message("You need to be closer to trade with that player.")
+                return@onPlayerOption
+            }
+
             // If the player is already in a trade
             if (partner.getTradeSession() != null || partner.isLocked()) {
                 player.message("Other player is busy at the moment.")

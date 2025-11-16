@@ -38,6 +38,9 @@ import org.alter.game.saving.formats.SaveFormatType
  * @param preloadMaps if true, all map data will be be loaded on start-up instead
  * of on-demand.
  *
+ * @param autoSaveInterval how often to auto-save players, in game cycles.
+ * Default is 100 cycles (60 seconds at 600ms cycle time).
+ *
  * @author Tom <rspsmods@gmail.com>
  */
 data class GameContext(
@@ -54,4 +57,5 @@ data class GameContext(
     val gItemPublicDelay: Int,
     val gItemDespawnDelay: Int,
     val preloadMaps: Boolean,
+    val autoSaveInterval: Int,
 )

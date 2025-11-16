@@ -107,11 +107,17 @@ class BankTabsPlugin(
             dstInterfaceId = BANK_INTERFACE_ID,
             dstComponent = BANK_TABLIST_ID,
         ) {
-            val srcComponent = player.attr[INTERACTING_COMPONENT_CHILD]!!
+            val srcComponent = player.attr[INTERACTING_COMPONENT_CHILD] ?: run {
+                player.message("Invalid bank operation.")
+                return@onComponentToComponentItemSwap
+            }
             if (srcComponent == BANK_TABLIST_ID) { // attempting to drop tab on bank!!
                 return@onComponentToComponentItemSwap
             } else { // perform drop to tab
-                val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR]!!
+                val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR] ?: run {
+                    player.message("Invalid destination slot.")
+                    return@onComponentToComponentItemSwap
+                }
                 dropToTab(player, dstSlot - 10)
             }
         }
@@ -126,8 +132,14 @@ class BankTabsPlugin(
             dstComponent = BANK_TABLIST_ID,
         ) {
             val container = player.bank
-            val srcTab = player.attr[INTERACTING_ITEM_SLOT]!!
-            val dstTab = player.attr[OTHER_ITEM_SLOT_ATTR]!!
+            val srcTab = player.attr[INTERACTING_ITEM_SLOT] ?: run {
+                player.message("Invalid source tab.")
+                return@onComponentToComponentItemSwap
+            }
+            val dstTab = player.attr[OTHER_ITEM_SLOT_ATTR] ?: run {
+                player.message("Invalid destination tab.")
+                return@onComponentToComponentItemSwap
+            }
             if (dstTab == 0) {
                 var item = startPoint(player, srcTab)
                 var end = insertionPoint(player, srcTab)

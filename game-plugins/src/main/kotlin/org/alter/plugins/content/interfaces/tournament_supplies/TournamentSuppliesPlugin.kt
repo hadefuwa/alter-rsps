@@ -32,7 +32,7 @@ class TournamentSuppliesPlugin(
         }
 
         onButton(interfaceId = Tournament_Supplies.TOURNAMENT_SUPPLIES_INTERFACE, component = 4) {
-            val itemid = player.attr[INTERACTING_ITEM_ID]!!
+            val itemid = player.attr[INTERACTING_ITEM_ID] ?: return@onButton
             val option = player.getInteractingOption()
             if (option == 9) {
                 world.sendExamine(player, itemid, type = ExamineEntityType.ITEM)
@@ -66,25 +66,39 @@ class TournamentSuppliesPlugin(
         }
 
         onButton(interfaceId = Tournament_Supplies.TOURNAMENT_SUPPLIES_INVENTORY_INTERFACE, component = 0) {
-            try {
-                val opt = player.getInteractingOption()
-                val slot = player.attr[INTERACTING_SLOT_ATTR]!!
-                if (opt == 9) {
-                    world.sendExamine(player, player.inventory[slot]!!.id, type = ExamineEntityType.ITEM)
-                    return@onButton
-                }
-                var amount =
-                    when (opt) {
-                        1 -> player.inventory.getItemCount(player.inventory[slot]!!.id)
-                        else -> 1
-                    }
-                if (getItem(player.inventory[slot]!!.id).stackable) {
-                    amount = player.inventory.getItemCount(player.inventory[slot]!!.id)
-                }
-                player.inventory.remove(item = player.inventory[slot]!!.id, amount = amount, beginSlot = slot)
-            } catch (e: NullPointerException) {
-                e.printStackTrace()
+            val opt = player.getInteractingOption()
+            val slot = player.attr[INTERACTING_SLOT_ATTR] ?: run {
+                player.message("Invalid inventory slot.")
+                return@onButton
             }
+
+            // Validate slot bounds
+            if (slot !in 0 until player.inventory.capacity) {
+                player.message("Invalid inventory slot.")
+                return@onButton
+            }
+
+            val item = player.inventory[slot] ?: run {
+                player.message("There is no item in that slot.")
+                return@onButton
+            }
+
+            if (opt == 9) {
+                world.sendExamine(player, item.id, type = ExamineEntityType.ITEM)
+                return@onButton
+            }
+
+            var amount =
+                when (opt) {
+                    1 -> player.inventory.getItemCount(item.id)
+                    else -> 1
+                }
+
+            if (getItem(item.id).stackable) {
+                amount = player.inventory.getItemCount(item.id)
+            }
+
+            player.inventory.remove(item = item.id, amount = amount, beginSlot = slot)
         }
     }
 }

@@ -11,6 +11,7 @@ import org.alter.game.model.entity.DynamicObject
 import org.alter.game.model.entity.GameObject
 import org.alter.game.model.entity.GroundItem
 import org.alter.game.model.entity.Player
+import org.alter.game.model.move.hasMoveDestination
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
@@ -58,26 +59,90 @@ class StallThievingPlugin(
             return
         }
 
-        if (!canReceiveLoot(player, entry)) {
-            player.message("You need some inventory space to steal from this $stallName.")
-            return
+        // Continuously steal from stall until inventory is full
+        var stolenCount = 0
+        val startTile = player.tile // Track starting position to detect movement
+        
+        // Helper function to check if we should stop stealing
+        fun shouldStop(): Boolean {
+            return !player.isOnline || 
+                   player.hasMoveDestination() || 
+                   !player.tile.sameAs(startTile)
         }
-
-        player.faceTile(obj.tile)
-        player.lock()
-        try {
-            player.animate(Animation.THIEVING_STALL)
-            task.wait(2)
-
+        
+        // Helper function to interrupt and stop stealing
+        fun interruptStealing() {
+            player.interruptQueues() // Interrupt any queued tasks to stop stealing
+        }
+        
+        while (true) {
+            // Check if player has moved or has movement queued - allow breaking out
+            if (shouldStop()) {
+                interruptStealing()
+                break
+            }
+            
             if (!obj.isSpawned(world)) {
-                player.message("There's nothing here to steal from right now.")
+                if (stolenCount == 0) {
+                    player.message("There's nothing here to steal from right now.")
+                }
+                break
+            }
+
+            if (!canReceiveLoot(player, entry)) {
+                if (stolenCount == 0) {
+                    player.message("You need some inventory space to steal from this $stallName.")
+                }
+                break
+            }
+
+            // Check one more time before proceeding - if player is trying to move, stop
+            if (shouldStop()) {
+                interruptStealing()
                 return
             }
 
+            player.faceTile(obj.tile)
+            
+            // Check again right before animation
+            if (shouldStop()) {
+                break
+            }
+            
+            player.animate(Animation.THIEVING_STALL)
+            
+            // Check during animation delay - allow breaking out every tick
+            var interrupted = false
+            for (i in 0 until 2) {
+                if (shouldStop()) {
+                    interrupted = true
+                    break
+                }
+                task.wait(1)
+            }
+            
+            if (interrupted) {
+                break
+            }
+
+            // Final check before rewarding
+            if (shouldStop() || !obj.isSpawned(world)) {
+                break
+            }
+
             rewardPlayer(player, entry, stallName)
-            replaceWithEmpty(player.world, obj, entry)
-        } finally {
-            player.unlock()
+            stolenCount++
+            
+            // Small delay between steals with interruption check (unlocked)
+            if (shouldStop()) {
+                interruptStealing()
+                return
+            }
+            task.wait(1)
+        }
+        
+        if (stolenCount > 1) {
+            player.message("You stole from the $stallName ${stolenCount} times.")
         }
     }
 

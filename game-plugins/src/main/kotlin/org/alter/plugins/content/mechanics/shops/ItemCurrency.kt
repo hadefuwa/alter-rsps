@@ -146,16 +146,19 @@ open class ItemCurrency(
         }
 
         if (add.completed > 0 && shopItem.amount != Int.MAX_VALUE) {
-            shop.items[slot]!!.currentAmount -= add.completed
+            val currentShopItem = shop.items[slot]
+            if (currentShopItem != null) {
+                currentShopItem.currentAmount -= add.completed
 
-            /*
-             * Check if the item is temporary and should be removed from the shop.
-             */
-            if (shop.items[slot]?.amount == 0 && shop.items[slot]?.isTemporary == true) {
-                shop.items[slot] = null
+                /*
+                 * Check if the item is temporary and should be removed from the shop.
+                 */
+                if (currentShopItem.amount == 0 && currentShopItem.isTemporary == true) {
+                    shop.items[slot] = null
+                }
+
+                shop.refresh(p.world)
             }
-
-            shop.refresh(p.world)
         }
     }
 
@@ -195,12 +198,16 @@ open class ItemCurrency(
         val add = p.inventory.add(item = currencyItem, amount = compensation, assureFullInsertion = true)
         if (add.requested > 0 && add.completed > 0 || compensation == 0) {
             if (shopSlot != -1) {
-                shop.items[shopSlot]!!.currentAmount += amount
+                val existingShopItem = shop.items[shopSlot]
+                if (existingShopItem != null) {
+                    existingShopItem.currentAmount += amount
+                }
             } else {
                 val freeSlot = shop.items.indexOfFirst { it == null }
                 check(freeSlot != -1)
-                shop.items[freeSlot] = ShopItem(unnoted, amount = 0)
-                shop.items[freeSlot]!!.currentAmount = amount
+                val newShopItem = ShopItem(unnoted, amount = 0)
+                shop.items[freeSlot] = newShopItem
+                newShopItem.currentAmount = amount
             }
             shop.refresh(p.world)
         } else {

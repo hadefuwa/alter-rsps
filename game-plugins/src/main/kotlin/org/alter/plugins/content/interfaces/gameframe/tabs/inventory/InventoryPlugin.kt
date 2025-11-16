@@ -83,8 +83,14 @@ class InventoryPlugin(
          * Logic for swapping items in inventory.
          */
         onComponentToComponentItemSwap(srcInterfaceId = 149, srcComponent = 0, dstInterfaceId = 149, 0) {
-            val srcSlot = player.attr[INTERACTING_ITEM_SLOT]!!
-            val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR]!!
+            val srcSlot = player.attr[INTERACTING_ITEM_SLOT] ?: run {
+                player.message("Invalid source slot.")
+                return@onComponentToComponentItemSwap
+            }
+            val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR] ?: run {
+                player.message("Invalid destination slot.")
+                return@onComponentToComponentItemSwap
+            }
 
             val container = player.inventory
 

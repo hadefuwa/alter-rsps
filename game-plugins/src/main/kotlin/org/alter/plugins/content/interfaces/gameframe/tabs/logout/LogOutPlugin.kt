@@ -30,10 +30,15 @@ class LogOutPlugin(
     init {
         onButton(interfaceId = 182, component = 8) {
             if (!player.timers.has(ACTIVE_COMBAT_TIMER)) {
+                // Request logout - this sets pendingLogout flag
                 player.requestLogout()
+                // Send logout packet to client
                 player.write(Logout)
+                // Request session close
                 player.session?.requestClose()
+                // Flush channel to ensure logout packet is sent
                 player.channelFlush()
+                // Logout will be processed in the next game cycle
             } else {
                 player.message("You can't log out until 10 seconds after the end of combat.")
             }

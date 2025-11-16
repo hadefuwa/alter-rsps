@@ -294,53 +294,57 @@ object MeleeCombatFormula : CombatFormula {
     private fun getDamageTakeMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_TAKE_MULTIPLIER] ?: 1.0
 
     private fun isDemon(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.DEMON)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.DEMON)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isShade(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.SHADE)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.SHADE)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isKalphite(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.KALPHITE)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.KALPHITE)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isScarab(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.SCARAB)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.SCARAB)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isWearingDharok(pawn: Pawn): Boolean {
-        if (pawn.entityType.isPlayer) {
-            val player = pawn as Player
-            return player.hasEquipped(EquipmentType.HEAD, "item.dharoks_helm", "item.dharoks_helm_25", "item.dharoks_helm_50", "item.dharoks_helm_75", "item.dharoks_helm_100")
-                    && player.hasEquipped(EquipmentType.WEAPON, "item.dharoks_greataxe", "item.dharoks_greataxe_25", "item.dharoks_greataxe_50", "item.dharoks_greataxe_75", "item.dharoks_greataxe_100")
-                    && player.hasEquipped(EquipmentType.CHEST, "item.dharoks_platebody", "item.dharoks_platebody_25", "item.dharoks_platebody_50", "item.dharoks_platebody_75", "item.dharoks_platebody_100")
-                    && player.hasEquipped(EquipmentType.LEGS, "item.dharoks_platelegs", "item.dharoks_platelegs_25", "item.dharoks_platelegs_50", "item.dharoks_platelegs_75", "item.dharoks_platelegs_100")
+        return if (pawn is Player) {
+            pawn.hasEquipped(EquipmentType.HEAD, "item.dharoks_helm", "item.dharoks_helm_25", "item.dharoks_helm_50", "item.dharoks_helm_75", "item.dharoks_helm_100")
+                    && pawn.hasEquipped(EquipmentType.WEAPON, "item.dharoks_greataxe", "item.dharoks_greataxe_25", "item.dharoks_greataxe_50", "item.dharoks_greataxe_75", "item.dharoks_greataxe_100")
+                    && pawn.hasEquipped(EquipmentType.CHEST, "item.dharoks_platebody", "item.dharoks_platebody_25", "item.dharoks_platebody_50", "item.dharoks_platebody_75", "item.dharoks_platebody_100")
+                    && pawn.hasEquipped(EquipmentType.LEGS, "item.dharoks_platelegs", "item.dharoks_platelegs_25", "item.dharoks_platelegs_50", "item.dharoks_platelegs_75", "item.dharoks_platelegs_100")
+        } else {
+            false
         }
-        return false
     }
 
     private fun isWearingVerac(pawn: Pawn): Boolean {
-        if (pawn.entityType.isPlayer) {
-            val player = pawn as Player
-            return player.hasEquipped(EquipmentType.HEAD, "item.veracs_helm", "item.veracs_helm_25", "item.veracs_helm_50", "item.veracs_helm_75", "item.veracs_helm_100")
-                    && player.hasEquipped(EquipmentType.WEAPON, "item.veracs_flail", "item.veracs_flail_25", "item.veracs_flail_50", "item.veracs_flail_75", "item.veracs_flail_100")
-                    && player.hasEquipped(EquipmentType.CHEST, "item.veracs_brassard", "item.veracs_brassard_25", "item.veracs_brassard_50", "item.veracs_brassard_75", "item.veracs_brassard_100")
-                    && player.hasEquipped(EquipmentType.LEGS, "item.veracs_plateskirt", "item.veracs_plateskirt_25", "item.veracs_plateskirt_50", "item.veracs_plateskirt_75", "item.veracs_plateskirt_100")
+        return if (pawn is Player) {
+            pawn.hasEquipped(EquipmentType.HEAD, "item.veracs_helm", "item.veracs_helm_25", "item.veracs_helm_50", "item.veracs_helm_75", "item.veracs_helm_100")
+                    && pawn.hasEquipped(EquipmentType.WEAPON, "item.veracs_flail", "item.veracs_flail_25", "item.veracs_flail_50", "item.veracs_flail_75", "item.veracs_flail_100")
+                    && pawn.hasEquipped(EquipmentType.CHEST, "item.veracs_brassard", "item.veracs_brassard_25", "item.veracs_brassard_50", "item.veracs_brassard_75", "item.veracs_brassard_100")
+                    && pawn.hasEquipped(EquipmentType.LEGS, "item.veracs_plateskirt", "item.veracs_plateskirt_25", "item.veracs_plateskirt_50", "item.veracs_plateskirt_75", "item.veracs_plateskirt_100")
+        } else {
+            false
         }
-        return false
     }
 
     private fun isWearingTorag(player: Player): Boolean {

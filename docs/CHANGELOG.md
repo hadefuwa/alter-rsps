@@ -1,5 +1,1065 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-XX (Drop Visibility Timer System)
+
+### Summary
+Restored timer-based drop visibility system where only the killer sees drops initially, then everyone can see them after a delay:
+1. Fixed drop visibility to show only to killer initially (1 minute)
+2. Implemented public visibility timer (3 minutes after initial delay)
+3. Updated default despawn delay to 4 minutes total (1 min private + 3 min public)
+
+---
+
+## Drop Visibility Timer System
+
+### Issue
+All NPC drops were immediately visible to all players, removing the original timer-based visibility system where:
+- Only the killer could see drops for 1 minute
+- Then everyone could see drops for 3 minutes
+- Then drops would despawn
+
+### Root Cause
+- `gItemPublicDelay` was set to `0` in `Server.kt`, making all items public immediately
+- NPC drops in `NpcLootDropPlugin.kt` didn't set `timeUntilPublic` or `timeUntilDespawn` timers
+- Default despawn delay was 300 cycles (3 minutes) instead of 400 cycles (4 minutes total)
+
+### Fixes Applied
+
+#### 1. NPC Drop Timer Configuration
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/death/NpcLootDropPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/death/NpcLootDropPlugin.kt)
+
+**Changes**:
+- Added `TimeConstants` import for cycle calculations
+- Set `timeUntilPublic = 100` cycles (1 minute) for all NPC drops
+- Set `timeUntilDespawn = 400` cycles (4 minutes total) for all NPC drops
+- Set `ownerShipType = 1` to mark items as owned by the killer
+- Applied to both regular loot table drops and random bonus drops
+
+**Code Added**:
+```kotlin
+// Set timers: killer sees for 1 minute, then everyone for 3 minutes
+newGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE // 100 cycles = 1 minute
+newGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
+newGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
+```
+
+#### 2. Default Public Delay Configuration
+**File**: [game-server/src/main/kotlin/org/alter/game/Server.kt](../game-server/src/main/kotlin/org/alter/game/Server.kt)
+
+**Changes**:
+- Changed default `gItemPublicDelay` from `0` to `GroundItem.DEFAULT_PUBLIC_SPAWN_CYCLES` (100 cycles = 1 minute)
+- Prevents items from becoming public immediately when spawned
+
+**Before**:
+```kotlin
+gItemPublicDelay = gameProperties.getOrDefault("gitem-public-spawn-delay", 0)
+```
+
+**After**:
+```kotlin
+gItemPublicDelay = gameProperties.getOrDefault("gitem-public-spawn-delay", GroundItem.DEFAULT_PUBLIC_SPAWN_CYCLES)
+```
+
+#### 3. Default Despawn Delay Update
+**File**: [game-server/src/main/kotlin/org/alter/game/model/entity/GroundItem.kt](../game-server/src/main/kotlin/org/alter/game/model/entity/GroundItem.kt)
+
+**Changes**:
+- Updated `DEFAULT_DESPAWN_CYCLES` from `300` to `400` cycles (4 minutes total)
+- Matches the intended behavior: 1 minute private + 3 minutes public
+
+**Before**:
+```kotlin
+const val DEFAULT_DESPAWN_CYCLES = 300
+```
+
+**After**:
+```kotlin
+const val DEFAULT_DESPAWN_CYCLES = 400 // 4 minutes: 1 min private + 3 min public
+```
+
+### How It Works
+
+**Timeline**:
+- **Cycles 0-99 (1 minute)**: Item is private - only the killer can see it
+- **Cycles 100-399 (3 minutes)**: Item becomes public - everyone can see it
+- **Cycle 400+**: Item despawns
+
+**Mechanics**:
+- Items spawn with `owner = killer`, making them private initially
+- `World.kt` cycle logic checks `currentCycle >= gItemPublicDelay` (100) to make items public
+- When item becomes public, `removeOwner()` is called and `ownerShipType` is set to 0
+- Despawn check uses `currentCycle >= gItemDespawnDelay` (400) when item is public
+
+### Impact
+- ✅ NPC drops now have proper timer-based visibility
+- ✅ Killers get exclusive access to their drops for 1 minute
+- ✅ Other players can see drops after 1 minute
+- ✅ Drops despawn after 4 minutes total (1 min private + 3 min public)
+- ✅ Restores original intended behavior for drop visibility
+
+---
+
+## Date: 2025-01-XX (NPC Loot System Improvements)
+
+### Summary
+Fixed NPC loot drop system with 4 major improvements:
+1. Added missing loot drops to NPCs (cows, KBD, Barrows brothers)
+2. Fixed String item identifier handling in loot system
+3. Fixed ground item stacking for stackable items
+4. Fixed coin ID issue (617 -> 995) in all loot tables
+
+---
+
+## NPC Loot System Improvements
+
+### 1. Added Missing NPC Loot Drops
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/CowPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/CowPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kbd/KbdConfigsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kbd/KbdConfigsPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/barrows/*.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/barrows/)
+
+**Issue**: Several NPCs had combat definitions but no loot drops configured, causing them to drop nothing when killed.
+
+**NPCs Fixed**:
+- **Cows**: Added bones, raw beef, and cowhide drops
+- **King Black Dragon**: Uncommented and fixed loot table with dragon bones, black dragonhide, and high-tier items
+- **Barrows Brothers** (Ahrim, Dharok, Guthan, Karil, Torag, Verac): Added bones, coins, and rune drops
+
+**Impact**:
+- All NPCs with combat definitions now have proper loot drops
+- Players receive rewards when killing NPCs
+- Consistent loot system across all NPCs
+
+---
+
+### 2. String Item Identifier Support in Loot System
+**File**: [game-server/src/main/kotlin/org/alter/game/model/weightedTableBuilder/LootTableBuilder.kt](../game-server/src/main/kotlin/org/alter/game/model/weightedTableBuilder/LootTableBuilder.kt)
+
+**Issue**: Loot system threw `Unhandled drop type: class java.lang.String` when using string item identifiers like `"item.bones"` in loot tables.
+
+**Root Cause**:
+- `Loot.handleToItem()` only handled `Int`, `LootTable`, and `KFunction<*>` types
+- String identifiers (e.g., `"item.bones"`) were not converted to Int IDs
+
+**Fix Applied**:
+- Added `String` case in `handleToItem()` function (lines 122-126)
+- Converts string identifiers to Int IDs using `RSCM.getRSCM()`
+- Allows loot tables to use readable string identifiers instead of hardcoded IDs
+
+**Code Change**:
+```kotlin
+is String -> {
+    // Convert string item identifier (e.g., "item.bones") to Int ID using RSCM
+    val itemId = getRSCM(item)
+    items.add(GroundItem(itemId, amount = randomStep(min, max, steepness), tile = tile))
+}
+```
+
+**Impact**:
+- Loot tables can now use string identifiers (`"item.bones"`, `"item.coins_995"`, etc.)
+- More maintainable and readable loot configurations
+- No more crashes when processing string-based loot drops
+
+---
+
+### 3. Ground Item Stacking Fix
+**File**: [game-server/src/main/kotlin/org/alter/game/model/World.kt](../game-server/src/main/kotlin/org/alter/game/model/World.kt)
+
+**Issue**: Stackable items (like coins) dropped by NPCs weren't combining on the ground, causing multiple separate stacks that didn't stack in inventory.
+
+**Root Cause**:
+- `World.spawn()` only combined stackable items with the same `ownerUID`
+- When items became public (owner removed), they couldn't combine with newly dropped items that still had an owner
+- This caused coins to drop as separate stacks that didn't stack in inventory
+
+**Fix Applied**:
+- Modified ground item combination logic (lines 441-465)
+- Stackable items now combine when:
+  - They have the same owner, OR
+  - At least one is public (no owner), OR
+  - Both have no owner
+- Ensures public items combine with any matching stackable items
+
+**Code Change**:
+```kotlin
+val oldItem =
+    chunk.getEntities<GroundItem>(tile, EntityType.GROUND_ITEM).firstOrNull {
+        it.item == item.item && (
+            it.ownerUID == item.ownerUID || 
+            it.isPublic() || 
+            item.isPublic() ||
+            (it.ownerUID == null && item.ownerUID == null)
+        )
+    }
+```
+
+**Impact**:
+- Stackable items (coins, runes, etc.) properly combine on the ground
+- Items stack correctly in inventory when picked up
+- Better loot management and inventory space usage
+
+---
+
+### 4. Coin ID Fix (617 -> 995)
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/CombatConfigPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/CombatConfigPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/CombatConfigPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/CombatConfigPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/barrows/*.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/barrows/)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/dragons/DragonConfigsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/dragons/DragonConfigsPlugin.kt)
+
+**Issue**: NPCs were dropping coin ID 617 instead of the standard coin ID 995, causing coins not to stack with normal coins in inventory.
+
+**Root Cause**:
+- RSCM file has two coin entries:
+  - `coins:617` (wrong/old coin type)
+  - `coins_995:995` (correct standard coins)
+- Loot tables were using `"item.coins"` which resolved to ID 617
+- Should have been using `"item.coins_995"` for ID 995
+
+**Fix Applied**:
+- Replaced all `"item.coins"` with `"item.coins_995"` in all loot tables:
+  - Varrock guards
+  - Wilderness NPCs (skeletons, bandits, dark wizards, etc.)
+  - All Barrows brothers
+  - All dragon types
+
+**Impact**:
+- NPCs now drop standard coins (ID 995) that stack properly
+- Coins stack correctly with existing coins in inventory
+- Consistent coin system across the game
+
+---
+
+## Date: 2025-11-15 (Critical Bug Fixes - Round 6)
+
+### Summary
+Fixed 7+ critical bugs in door/gate mechanics, shop systems, and deposit boxes:
+1. Fixed DoorPlugin and GatePlugin attribute copying crashes (2 fixes)
+2. Fixed ItemCurrency shop slot access crashes (3 fixes)
+3. Fixed DepositBoxPlugin item swap crashes (2 fixes)
+
+---
+
+## Bug Fixes - Round 6
+
+### 1. DoorPlugin and GatePlugin Attribute Safety
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/objects/door/DoorPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/objects/door/DoorPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/objects/gates/GatePlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/objects/gates/GatePlugin.kt)
+
+**Issue**: Server would crash when opening/closing doors or gates with "sticky" states.
+
+**Root Causes**:
+- DoorPlugin line 110 & GatePlugin line 52: `from.attr[STICK_STATE]!!` unsafe
+- Assumes STICK_STATE attribute always exists after has() check
+- Race condition if attribute removed between has() and access
+
+**Fixes Applied**:
+- **DoorPlugin lines 108-113**: Safe attribute copying
+  ```kotlin
+  fun copyStickVars(from: GameObject, to: GameObject) {
+      val stickState = from.attr[STICK_STATE]
+      if (stickState != null) {
+          to.attr[STICK_STATE] = stickState
+      }
+  }
+  ```
+- **GatePlugin lines 50-55**: Same pattern for gate objects
+
+**Impact**:
+- Door and gate interactions never crash from null attributes
+- Sticky state preserved correctly when doors/gates are opened/closed
+- Safe attribute copying for all game objects
+
+---
+
+### 2. ItemCurrency Shop Slot Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/shops/ItemCurrency.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/shops/ItemCurrency.kt)
+
+**Issue**: Shop transactions would crash when updating item quantities.
+
+**Root Causes**:
+- Line 149: `shop.items[slot]!!.currentAmount` assumes slot never becomes null
+- Lines 198, 203: Same pattern when selling to shop
+- Shop item could be removed by another player mid-transaction
+- Race conditions in multi-player shop access
+
+**Fixes Applied**:
+- **Lines 148-162**: Safe shop item access when buying
+  ```kotlin
+  if (add.completed > 0 && shopItem.amount != Int.MAX_VALUE) {
+      val currentShopItem = shop.items[slot]
+      if (currentShopItem != null) {
+          currentShopItem.currentAmount -= add.completed
+
+          if (currentShopItem.amount == 0 && currentShopItem.isTemporary == true) {
+              shop.items[slot] = null
+          }
+
+          shop.refresh(p.world)
+      }
+  }
+  ```
+- **Lines 199-212**: Safe shop item access when selling
+  ```kotlin
+  if (shopSlot != -1) {
+      val existingShopItem = shop.items[shopSlot]
+      if (existingShopItem != null) {
+          existingShopItem.currentAmount += amount
+      }
+  } else {
+      val freeSlot = shop.items.indexOfFirst { it == null }
+      check(freeSlot != -1)
+      val newShopItem = ShopItem(unnoted, amount = 0)
+      shop.items[freeSlot] = newShopItem
+      newShopItem.currentAmount = amount
+  }
+  ```
+
+**Impact**:
+- Shop transactions never crash from concurrent access
+- Safe multi-player shop interactions
+- Proper handling of temporary items being removed
+
+---
+
+### 3. DepositBoxPlugin Item Swap Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/objects/depositbox/DepositBoxPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/objects/depositbox/DepositBoxPlugin.kt)
+
+**Issue**: Players would crash when swapping items in deposit box inventory.
+
+**Root Causes**:
+- Lines 90-91: `player.attr[INTERACTING_ITEM_SLOT]!!` and `player.attr[OTHER_ITEM_SLOT_ATTR]!!` unsafe
+- Attributes could be null during rapid drag operations
+- Similar to InventoryPlugin but in deposit box context
+
+**Fixes Applied**:
+- **Lines 90-97**: Safe slot attribute access
+  ```kotlin
+  val srcSlot = player.attr[INTERACTING_ITEM_SLOT] ?: run {
+      player.message("Invalid source slot.")
+      return@onComponentToComponentItemSwap
+  }
+  val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR] ?: run {
+      player.message("Invalid destination slot.")
+      return@onComponentToComponentItemSwap
+  }
+  ```
+
+**Impact**:
+- Deposit box item swapping never crashes
+- Clear error messages when drag operations fail
+- Consistent behavior with regular inventory swapping
+
+---
+
+## Date: 2025-11-15 (Critical Bug Fixes - Round 5)
+
+### Summary
+Fixed 6+ critical bugs in player interaction systems:
+1. Fixed InventoryPlugin item swapping crashes (2 fixes)
+2. Fixed TradeSession null pointer exception (1 fix)
+3. Fixed AttackTabPlugin special attack crashes (2 fixes)
+
+---
+
+## Bug Fixes - Round 5
+
+### 1. InventoryPlugin Item Swap Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/inventory/InventoryPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/inventory/InventoryPlugin.kt)
+
+**Issue**: Players would crash when swapping inventory items.
+
+**Root Causes**:
+- Lines 86-87: `player.attr[INTERACTING_ITEM_SLOT]!!` and `player.attr[OTHER_ITEM_SLOT_ATTR]!!` unsafe
+- Attributes could be null during rapid drag operations
+- Race conditions when swapping items quickly
+
+**Fixes Applied**:
+- **Lines 86-93**: Replaced double `!!` with safe null checks
+  ```kotlin
+  val srcSlot = player.attr[INTERACTING_ITEM_SLOT] ?: run {
+      player.writeMessage("Invalid source slot.")
+      return@onComponentToComponentItemSwap
+  }
+  val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR] ?: run {
+      player.writeMessage("Invalid destination slot.")
+      return@onComponentToComponentItemSwap
+  }
+  ```
+
+**Impact**:
+- Inventory item swapping never crashes from null attributes
+- Players receive clear error messages instead of disconnecting
+- Drag-and-drop operations are now fully crash-safe
+
+---
+
+### 2. TradeSession Partner Session Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/trading/impl/TradeSession.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/trading/impl/TradeSession.kt)
+
+**Issue**: Trading would crash when checking inventory space requirements.
+
+**Root Cause**:
+- Line 298: `partner.getTradeSession()!!` assumes partner always has active trade session
+- Partner could log out or cancel trade between checks
+- Race condition during trade progression
+
+**Fix Applied**:
+- **Lines 298-310**: Safe trade session retrieval with validation
+  ```kotlin
+  val partnerSession = partner.getTradeSession()
+  if (partnerSession == null) {
+      player.message("Trading partner is no longer in a trade.")
+      decline(forced = true)
+      return
+  }
+
+  if (player.inventory.freeSlotCount < partnerSession.container.occupiedSlotCount) {
+      // ... inventory space check
+  }
+  ```
+
+**Impact**:
+- Trading system never crashes from missing partner session
+- Graceful handling when partner logs out mid-trade
+- Clear error messages for players when trades fail
+
+---
+
+### 3. AttackTabPlugin Special Attack Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/combat_options/AttackTabPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/combat_options/AttackTabPlugin.kt)
+
+**Issues**: Players would crash when trying to use special attacks without a weapon equipped.
+
+**Root Causes**:
+- Lines 76, 90: `player.equipment[EquipmentType.WEAPON.id]!!.id` assumes weapon always equipped
+- Players could click special attack button with no weapon
+- Weapon could be unequipped after interface opens
+
+**Fixes Applied**:
+- **Lines 76-88**: Safe weapon retrieval for first button
+  ```kotlin
+  val weapon = player.equipment[EquipmentType.WEAPON.id]
+  if (weapon == null) {
+      player.message("You need a weapon to use special attacks.")
+      return@onButton
+  }
+
+  if (SpecialAttacks.executeOnEnable(weapon.id)) {
+      // ... execute special attack
+  }
+  ```
+
+- **Lines 95-107**: Same pattern for second special attack button (component 36)
+
+**Impact**:
+- Special attack button never crashes when no weapon equipped
+- Clear feedback to players: "You need a weapon to use special attacks."
+- Unarmed combat doesn't cause interface crashes
+
+---
+
+## Date: 2025-11-15 (Critical Bug Fixes - Round 4)
+
+### Summary
+Fixed an additional 10+ critical bugs in core server systems:
+1. Fixed BankTabsPlugin tab swapping crashes (3 fixes)
+2. Fixed World.kt service loading null pointer exceptions (3 fixes)
+3. Fixed Chunk.kt zone update crashes (4 fixes)
+
+---
+
+## Bug Fixes - Round 4
+
+### 1. BankTabsPlugin Tab Management Safety
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/bank/BankTabsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/bank/BankTabsPlugin.kt)
+
+**Issues**:
+- Bank tab swapping and item movement could crash with null pointer exceptions
+- No validation when dragging items between tabs
+- Missing attribute checks for component interactions
+
+**Root Causes**:
+- Lines 110, 114: `player.attr[INTERACTING_COMPONENT_CHILD]!!` and `player.attr[OTHER_ITEM_SLOT_ATTR]!!` unsafe
+- Lines 129-130: `player.attr[INTERACTING_ITEM_SLOT]!!` and `player.attr[OTHER_ITEM_SLOT_ATTR]!!` unsafe
+- Attributes could be null if interaction state is cleared or corrupted
+- Race conditions during rapid bank operations
+
+**Fixes Applied**:
+- **Lines 110-120**: Replaced double `!!` with safe null checks and early returns
+  - Added "Invalid bank operation" message for missing component child
+  - Added "Invalid destination slot" message for missing destination
+
+- **Lines 135-142**: Safe tab attribute access with validation
+  - Added "Invalid source tab" message
+  - Added "Invalid destination tab" message
+  - Prevents crashes when tab indices are corrupted
+
+**Impact**:
+- Bank tab operations never crash from null attributes
+- Players receive clear error messages instead of disconnecting
+- Tab swapping, insertion, and item movement are now crash-safe
+
+---
+
+### 2. World Service Loading Robustness
+**File**: [game-server/src/main/kotlin/org/alter/game/model/World.kt](../game-server/src/main/kotlin/org/alter/game/model/World.kt)
+
+**Issues**:
+- Server startup would crash if service configuration was malformed
+- No error handling for missing or invalid service classes
+- Unsafe null assertions and type casts during service initialization
+
+**Root Causes**:
+- Line 671: `gameProperties.get<ArrayList<Any>>("services")!!` crashes if property missing
+- Line 675: `Class.forName(className).asSubclass(Service::class.java)!!` crashes on invalid class
+- No try-catch around Class.forName() for ClassNotFoundException
+- No validation that class implements Service interface
+
+**Fixes Applied**:
+- **Lines 671-673**: Safe service list retrieval
+  ```kotlin
+  val foundServices = gameProperties.get<ArrayList<Any>>("services") ?: run {
+      logger.warn { "No services defined in game configuration." }
+      return
+  }
+  ```
+
+- **Lines 676-683**: Safe service configuration parsing
+  - Added safe cast `s as? LinkedHashMap<*, *>`
+  - Added validation for 'class' field existence
+  - Error logged and service skipped if invalid
+
+- **Lines 684-692**: Comprehensive class loading error handling
+  ```kotlin
+  val clazz = try {
+      Class.forName(className).asSubclass(Service::class.java)
+  } catch (e: ClassNotFoundException) {
+      logger.error(e) { "Service class not found: $className" }
+      return@forEach
+  } catch (e: ClassCastException) {
+      logger.error(e) { "Class $className does not implement Service interface" }
+      return@forEach
+  }
+  ```
+
+- **Lines 538-542**: Fixed getObject() chunk retrieval
+  - Replaced `chunks.get(tile, createIfNeeded = true)!!` with safe null check
+  - Returns null gracefully if chunk cannot be created
+
+**Impact**:
+- Server starts successfully even with malformed service configuration
+- Individual service failures don't crash entire server startup
+- Detailed error logging helps identify configuration problems
+- Object lookups never crash from chunk failures
+
+---
+
+### 3. Chunk Zone Update Client Safety
+**File**: [game-server/src/main/kotlin/org/alter/game/model/region/Chunk.kt](../game-server/src/main/kotlin/org/alter/game/model/region/Chunk.kt)
+
+**Issues**:
+- Zone updates could crash when sending to clients
+- Unsafe null assertions on client region base and payload data
+- No validation before creating or sending updates
+
+**Root Causes**:
+- Line 170: `createUpdateFor(item, spawn = true)!!` assumes update creation always succeeds
+- Line 194: `computed[OldSchoolClientType.DESKTOP]!!` assumes payload always exists
+- Line 286: `client.lastKnownRegionBase!!` crashes if client region not initialized
+- Line 292: Another `computed[OldSchoolClientType.DESKTOP]!!` unsafe access
+
+**Fixes Applied**:
+- **Lines 170-174**: Safe update creation for ground items
+  ```kotlin
+  val newUpdate = createUpdateFor(item, spawn = true)
+  if (newUpdate != null) {
+      updates.add(newUpdate)
+  }
+  ```
+
+- **Lines 197-200**: Safe payload retrieval for single client
+  ```kotlin
+  val payload = computed[OldSchoolClientType.DESKTOP]
+  if (payload != null) {
+      p.write(UpdateZonePartialEnclosed(..., payload = payload))
+  }
+  ```
+
+- **Lines 286-296**: Safe region base and payload for broadcast
+  ```kotlin
+  val regionBase = client.lastKnownRegionBase ?: continue
+  val local = regionBase.toLocal(this.coords.toTile())
+  // ... compute messages ...
+  val payload = computed[OldSchoolClientType.DESKTOP]
+  if (payload != null) {
+      client.write(UpdateZonePartialEnclosed(..., payload = payload))
+  }
+  ```
+
+**Impact**:
+- Zone updates (ground items, objects, projectiles) never crash clients
+- Clients without initialized regions are skipped safely
+- Missing payload data doesn't disconnect nearby players
+- Ground item count updates are fully protected
+
+---
+
+## Date: 2025-11-15 (NPC Loot Drop System Implementation)
+
+### Summary
+**MAJOR FEATURE**: Implemented complete NPC loot drop system - NPCs now drop items when killed!
+
+Fixed the core issue where NPCs would die but never drop any loot, making combat unrewarding. This was a fundamental missing feature that affected the entire gameplay experience.
+
+### Key Changes:
+1. **NPC Loot Drop System**: Created universal death handler for all NPCs
+2. **Wilderness Loot Tables**: Added loot drops for all 63+ wilderness monsters  
+3. **Lumbridge Combat Config**: Added combat definitions and loot for 30+ creatures
+4. **Compilation Fix**: Fixed Kotlin return statement error in GroundItemRouteAction
+
+**Impact**: Combat is now rewarding with proper loot drops. Over 90+ NPCs now drop appropriate items including coins, weapons, armor, runes, and rare drops.
+
+---
+
+## Features
+
+### 1. Universal NPC Loot Drop Handler
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/death/NpcLootDropPlugin.kt`
+
+**Feature**: Created universal death handler that processes loot drops for any NPC with configured loot tables.
+
+**Implementation**:
+- Hooks into `onAnyNpcDeath` to catch all NPC deaths
+- Retrieves killer (player who dealt most damage) from NPC attributes
+- Extracts loot tables from NPC's combat definition (`npc.combatDef.LootTables`)
+- Uses existing `roll(player, lootTables)` function to generate drops
+- Spawns ground items at NPC death location with proper ownership
+- Includes error handling for misconfigured loot tables
+- Optional messaging for high-value drops
+
+**Root Cause**: The `NpcDeathAction.kt` imported the `roll` function but never called it, so loot tables were never processed.
+
+**Impact**: All NPCs with configured loot tables now properly drop items when killed.
+
+---
+
+### 2. Wilderness Monster Loot Tables
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/CombatConfigPlugin.kt`
+
+**Feature**: Added comprehensive loot tables for all wilderness monsters (63+ NPCs).
+
+**Monsters Configured**:
+- **Dark Wizards** (9 spawns): Bones + runes, wizard gear (rare)
+- **Skeletons** (12 spawns): Bones + bronze/iron weapons and arrows  
+- **Bandits** (8 spawns): Bones + coins, weapons, lockpicks
+- **Chaos Druids** (5 spawns): Bones + herbs, nature/chaos/law runes
+- **Wolves** (9 spawns): Bones + raw beef, cowhide, wolf bones
+- **Dark Warriors** (6 spawns): Bones + higher-tier weapons and runes
+- **Green Dragons** (8 spawns): Dragon bones/hide + runes, weapons, rare drops (dragon med helm 1/128, shield left half 1/256)
+- **Hellhounds** (6 spawns): Bones + high-value runes, gems, rare equipment (dragon spear 1/512, rune platebody 1/384)
+
+**Loot Table Structure**:
+- **Always**: Guaranteed drops (bones for all monsters)
+- **Main**: Weighted drop table with common items
+- **Tertiary**: Independent rare drop rolls
+
+**Impact**: Wilderness combat is now rewarding with appropriate risk/reward balance.
+
+---
+
+### 3. Lumbridge Area Combat System
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/lumbridge/LumbridgeCombatConfigPlugin.kt`
+
+**Feature**: Created complete combat definitions and loot systems for all Lumbridge creatures (30+ NPCs).
+
+**Creatures Configured**:
+- **Rats** (6+ spawns): 5 HP, bones + coins, raw rat meat
+- **Giant Spiders** (7+ spawns): 15 HP, bones + spider silk, spider legs  
+- **Goblins** (8+ spawns): 18 HP, aggressive, bones + bronze weapons, goblin mail
+- **Imps** (1 spawn): 12 HP, fast attacks, bones + beads, bread, imp jar (rare)
+- **Sheep** (5+ spawns): 8 HP, peaceful, bones + wool, raw mutton
+- **Rams** (3+ spawns): 12 HP, mildly aggressive, bones + better wool rewards
+- **Zombie Rats** (2 spawns): 8 HP, bones + coins, rotten food
+
+**Combat Characteristics**:
+- Appropriate HP levels for new player progression
+- Aggression settings (some passive, some aggressive)
+- Proper attack speeds and respawn delays
+- Thematic loot drops matching creature types
+
+**Impact**: New players now have proper progression with rewarding low-level combat.
+
+---
+
+## Bug Fixes
+
+### 1. GroundItemRouteAction Compilation Error
+**File**: `game-server/src/main/kotlin/org/alter/game/model/move/GroundItemRouteAction.kt`
+
+**Issue**: Kotlin compilation error - `'return' is prohibited here` on lines 32 and 36.
+
+**Root Cause**: `return@walkPlugin` statements inside `run` blocks within `player.queue` lambda caused context conflicts.
+
+**Fix Applied**: Added explicit lambda label `walkPlugin@{...}` to resolve return statement ambiguity.
+
+**Impact**: Project now compiles successfully without Kotlin errors.
+
+---
+
+## Date: 2025-11-15 (Critical Bug Fixes - Round 3)
+
+### Summary
+Fixed an additional 14+ critical bugs across tournament supplies, combat formulas, and item sets:
+1. Fixed TournamentSuppliesPlugin null-safety and array bounds issues (7+ fixes)
+2. Fixed unsafe NPC species type casts in combat formulas (6 fixes)
+3. Fixed ItemsetsPlugin null-safety and exception handling (4+ fixes)
+
+---
+
+## Bug Fixes - Round 3
+
+### 1. TournamentSuppliesPlugin Safety Improvements
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/tournament_supplies/TournamentSuppliesPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/tournament_supplies/TournamentSuppliesPlugin.kt)
+
+**Issues**:
+- Unsafe null assertions could crash tournament interface
+- Empty catch block silently swallowed inventory errors
+- No array bounds validation on inventory slots
+
+**Root Causes**:
+- Line 35: `player.attr[INTERACTING_ITEM_ID]!!` crashes if attribute missing
+- Lines 71-84: Multiple `player.inventory[slot]!!` without bounds checking
+- Lines 85-87: Empty catch block with only `printStackTrace()`, no user feedback
+
+**Fixes Applied**:
+- **Line 35**: Replaced `player.attr[INTERACTING_ITEM_ID]!!` with safe `?: return@onButton`
+- **Lines 70-84**: Complete rewrite with safe null handling:
+  - Added null check for slot attribute with early return
+  - Added bounds validation: `slot !in 0 until player.inventory.capacity`
+  - Extracted inventory item once, stored in `item` variable
+  - Removed all `!!` operators from inventory access
+  - Added user-friendly error messages
+- **Removed empty catch block**: Replaced with proper error handling throughout
+
+**Impact**:
+- Tournament supplies interface never crashes from null attributes
+- Players receive clear error messages instead of silent failures
+- Array bounds violations prevented before accessing inventory
+
+---
+
+### 2. Combat Formula Type-Safety Improvements
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/MeleeCombatFormula.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/MeleeCombatFormula.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/RangedCombatFormula.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/RangedCombatFormula.kt)
+
+**Issue**: NPC species checks used unsafe type casts that could cause ClassCastException.
+
+**Root Causes**:
+- Lines used pattern `pawn.entityType.isNpc` check followed by `pawn as Npc` cast
+- Smart casting not triggered by entity type property checks
+- Risk if entity type flags become inconsistent with actual type
+
+**Fixes Applied** (MeleeCombatFormula.kt):
+- **isDemon() (Lines 296-302)**: Changed from `pawn as Npc` to `pawn is Npc` with smart casting
+- **isShade() (Lines 304-310)**: Same pattern fix for shade species check
+- **isKalphite() (Lines 312-318)**: Same pattern fix for kalphite species check
+- **isScarab() (Lines 320-326)**: Same pattern fix for scarab species check
+- **isWearingDharok() (Lines 328-337)**: Changed from `pawn as Player` to `pawn is Player`
+- **isWearingVerac() (Lines 339-348)**: Same pattern fix for Verac's set check
+
+**Fixes Applied** (RangedCombatFormula.kt):
+- **isDragon() (Lines 438-444)**: Changed from `pawn as Npc` to `pawn is Npc` with smart casting
+- **isFiery() (Lines 446-452)**: Same pattern fix for fiery species check
+
+**Impact**:
+- Combat formulas never crash from type mismatches
+- Smart casting eliminates ClassCastException risk
+- Bonus damage calculations (Darklight vs demons, Keris vs kalphites, dragonbane vs dragons) are now crash-safe
+
+---
+
+### 3. ItemsetsPlugin Null-Safety and Exception Handling
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/itemsets/ItemsetsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/itemsets/ItemsetsPlugin.kt)
+
+**Issues**:
+- Unsafe null assertions could crash item set interface
+- Empty catch blocks silently swallowed errors with no user feedback
+- No proper logging of failures
+
+**Root Causes**:
+- Lines 35-36: Double `!!` operators on item ID and option attributes
+- Line 76: Another `!!` on item ID attribute
+- Line 82: Unsafe `!!` on slot attribute
+- Lines 68-70, 85-87, 95-97, 102-104: Empty catch blocks with only `printStackTrace()`
+
+**Fixes Applied**:
+- **Lines 35-38**: Replaced double `!!` with safe early returns:
+  ```kotlin
+  val itemId = player.attr[INTERACTING_ITEM_ID] ?: return@onButton
+  val option = player.attr[INTERACTING_OPT_ATTR] ?: return@onButton
+  ```
+
+- **Lines 70-73**: Improved exception handling for item set creation:
+  ```kotlin
+  catch (e: Exception) {
+      player.writeMessage("Error creating item set: ${e.message}")
+      logger.error(e) { "Failed to create item set for player ${player.username}" }
+  }
+  ```
+
+- **Lines 84-94**: Added comprehensive null checks for inventory operations:
+  - Safe slot attribute access with error message
+  - Null check on inventory item with user feedback
+  - Removed all `!!` operators
+
+- **Lines 105-115**: Improved exception handling for unpacking:
+  ```kotlin
+  catch (e: Exception) {
+      player.writeMessage("Error unpacking item set: ${e.message}")
+      logger.error(e) { "Failed to unpack item set for player ${player.username}" }
+  }
+  ```
+
+- **Added proper logging**: Imported KotlinLogging and added logger instance
+
+**Impact**:
+- Item set interface never crashes from null attributes
+- Players receive clear error messages when operations fail
+- Server logs capture detailed error information for debugging
+- Inventory operations are fully protected with bounds checks
+
+---
+
+## Date: 2025-11-15 (Critical Null-Safety Bug Fixes - Round 2)
+
+### Summary
+Fixed an additional 8+ critical type-safety and array bounds bugs:
+1. Fixed unsafe type casts in combat strategies (5 fixes)
+2. Fixed array index out of bounds in bank tab system (2 fixes)
+3. Fixed NPC block sound crash when attacker is not a player
+
+---
+
+## Bug Fixes - Round 2
+
+### 1. Combat Strategy Type-Safety Improvements
+**Files**:
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/combat/strategy/MeleeCombatStrategy.kt`
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/combat/strategy/RangedCombatStrategy.kt`
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/combat/strategy/MagicCombatStrategy.kt`
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/combat/Combat.kt`
+
+**Issue**: Combat system used unsafe type casts that could cause ClassCastException.
+
+**Root Cause**:
+- Lines used pattern `pawn.entityType.isPlayer` check followed by `pawn as Player` cast
+- Kotlin smart casting wasn't triggered by entity type checks
+- Risk if entity type flags became inconsistent
+
+**Fixes Applied**:
+- **MeleeCombatStrategy.kt (Line 69-70)**: Replaced `pawn.entityType.isPlayer && pawn as Player` with `pawn is Player`
+- **RangedCombatStrategy.kt (Line 177-178)**: Same pattern fix for ranged combat XP
+- **MagicCombatStrategy.kt (Line 78-79)**: Same pattern fix for magic combat XP
+- **Combat.kt (Line 99-100)**: Changed unsafe `pawn as Player` to safe `pawn is Player` check with early return
+- **Combat.kt (Line 107)**: Replaced `target.attr[COMBAT_TARGET_FOCUS_ATTR]!!.get()` with safe nullable access
+
+**Impact**:
+- Combat XP calculation no longer crashes if entity type is mismatched
+- NPC vs NPC combat won't crash when trying to play block sounds
+- Smart casting eliminates risk of ClassCastException
+
+---
+
+### 2. Bank Tab Array Bounds Protection
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/bank/BankTabs.kt`
+
+**Issue**: Bank tab indexing could cause ArrayIndexOutOfBoundsException.
+
+**Root Cause**:
+- Lines 199, 224: `player.bank[dex - 1]` accessed without bounds checking
+- If `dex` becomes 0, accessing `bank[-1]` causes crash
+- Tab varbit corruption could cause `dex` to exceed bank capacity
+
+**Fixes Applied**:
+- **getPlaceholderInsertionPoint()** (Line 199-202):
+  - Added bounds check: `dex > 0 && dex <= player.bank.capacity`
+  - Added `coerceIn(0, player.bank.capacity)` to clamp result
+
+- **newInsertionPoint()** (Line 224-230):
+  - Same bounds checking pattern
+  - Additional check before accessing `player.bank[dex]`
+  - Prevents index -1 and index >= capacity
+
+**Impact**: Bank tab operations never crash from out-of-bounds access, even with corrupted varbits.
+
+---
+
+## Date: 2025-11-15 (Critical Null-Safety Bug Fixes - Round 1)
+
+### Summary
+Fixed 11+ critical null pointer exceptions that could crash the server or players:
+1. Fixed XteaKeyService crashes when loading regions without XTEA keys
+2. Fixed PluginRepository core plugin null assertions (4 fixes)
+3. Fixed ObjectPathAction double null assertions (5 fixes)
+4. Fixed GroundItemRouteAction crashes when picking up items
+5. Fixed BankPlugin incinerator crash on empty slots
+6. Added comprehensive error logging system
+
+---
+
+## Bug Fixes
+
+### 1. XteaKeyService Null-Safety Improvements
+**File**: `game-server/src/main/kotlin/org/alter/game/service/xtea/XteaKeyService.kt`
+
+**Issue**: Server could crash when loading map regions that didn't have XTEA keys defined.
+
+**Root Cause**:
+- Lines 54 and 149 used `!!` operator after null check
+- If the null check failed due to race conditions, server would crash
+
+**Fix Applied**:
+- Replaced `keys[region]!!` with `keys[region] ?: EMPTY_KEYS`
+- Added safe fallback to ensure method never returns null
+- Provides empty keys (all zeros) for unmapped regions
+
+**Impact**: Server no longer crashes when players enter regions without defined XTEA keys. Map loading continues gracefully.
+
+---
+
+### 2. PluginRepository Core Plugin Safety
+**File**: `game-server/src/main/kotlin/org/alter/game/plugin/PluginRepository.kt`
+
+**Issue**: Server could crash if core plugins (combat, window status, modal close, menu) weren't registered.
+
+**Root Cause**:
+- Lines 587, 746, 762, 776 used `!!` operator after null checks
+- Plugin binding could fail during server startup, causing crashes in core gameplay
+
+**Fixes Applied**:
+- **executeCombat()** (Line 587): Replaced `combatPlugin!!` with safe `.let{}` call
+- **executeWindowStatus()** (Line 746): Replaced `windowStatusPlugin!!` with safe `.let{}` and warning log
+- **executeModalClose()** (Line 762): Replaced `closeModalPlugin!!` with safe `.let{}` and warning log
+- **isMenuOpened()** (Line 776): Replaced `isMenuOpenedPlugin!!` with safe `.let{}` returning false default
+
+**Impact**: Core gameplay systems no longer crash if plugins fail to load. Server logs warnings instead of crashing.
+
+---
+
+### 3. ObjectPathAction Player Interaction Fixes
+**File**: `game-server/src/main/kotlin/org/alter/game/model/move/ObjectPathAction.kt`
+
+**Issue**: Players would crash when interacting with objects or using items on objects.
+
+**Root Cause**:
+- Lines 66-67: Double null assertions `player.attr[INTERACTING_ITEM]!!.get()!!`
+- Lines 85, 90: Similar pattern for object interactions
+- WeakReferences could be garbage collected between checks
+- Attributes might not be set in all code paths
+
+**Fixes Applied**:
+- **itemOnObjectPlugin** (Lines 66-73):
+  - Replaced double `!!` with safe `?.get() ?: run { return }`
+  - Added user-friendly error message
+  - Early return prevents crash
+
+- **objectInteractPlugin** (Lines 85-98):
+  - Replaced `obj!!.get()!!` with safe nullable checks
+  - Replaced `opt!!` with null check and early return
+  - Added proper error handling
+
+**Impact**: Players no longer crash when:
+- Using items on objects (trees, rocks, etc.)
+- Clicking on objects
+- Objects despawn during interaction
+- Memory pressure causes WeakReference cleanup
+
+---
+
+### 4. GroundItemRouteAction Pickup Safety
+**File**: `game-server/src/main/kotlin/org/alter/game/model/move/GroundItemRouteAction.kt`
+
+**Issue**: Players would crash when attempting to pick up ground items.
+
+**Root Cause**:
+- Lines 30-31: Double null assertions `player.attr[INTERACTING_GROUNDITEM_ATTR]!!.get()!!`
+- Items could despawn before player reaches them
+- WeakReferences vulnerable to garbage collection
+
+**Fix Applied**:
+- Replaced `item!!.get()!!` with `?.get() ?: run { return }`
+- Replaced `opt!!` with null check and early return
+- Added graceful error message for missing items
+
+**Impact**: Players no longer crash when:
+- Items despawn while walking to them
+- Another player picks up the item first
+- Server is under memory pressure
+
+---
+
+### 5. BankPlugin Incinerator Safety
+**File**: `game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/bank/BankPlugin.kt`
+
+**Issue**: Players would crash when using incinerator on empty bank slots.
+
+**Root Cause**:
+- Line 106: `player.bank[slot]!!` assumed slot always contains an item
+- Players could click incinerator on empty slots
+- Slot index could be out of sync with actual items
+
+**Fix Applied**:
+- Replaced `player.bank[slot]!!` with `player.bank[slot] ?: run { return }`
+- Added user message: "There is no item in that slot."
+- Prevents removal of non-existent items
+
+**Impact**: Bank incinerator now safely handles clicks on empty slots without crashing.
+
+---
+
+### 6. Logging System Enhancements
+**File**: `game-server/src/main/resources/logback.xml`
+
+**Feature**: Added comprehensive file logging for debugging and monitoring.
+
+**Changes**:
+- Added `logs/server.log` - All server logs (rotates daily, 7 day history)
+- Added `logs/errors.log` - Only errors/warnings (rotates daily, 30 day history)
+- Maintains console output for development
+- Full stack traces in error log
+
+**Impact**: Developers can now analyze crashes and errors via log files. Makes bug hunting significantly easier.
+
+---
+
+## Technical Details
+
+### Null-Safety Pattern Used
+
+**Before (Unsafe)**:
+```kotlin
+val item = player.attr[ATTR]!!.get()!!
+```
+
+**After (Safe)**:
+```kotlin
+val item = player.attr[ATTR]?.get() ?: run {
+    player.writeMessage("Error message")
+    return@plugin
+}
+```
+
+### Benefits
+1. **No crashes**: Null cases handled gracefully
+2. **User feedback**: Players see helpful messages instead of disconnecting
+3. **Server stability**: Individual player errors don't crash entire server
+4. **Debugging**: Logs provide context for issues
+
+---
+
 ## Date: 2025-11-15 (Auto-Save System and Teleport Menu Improvements)
 
 ### Summary

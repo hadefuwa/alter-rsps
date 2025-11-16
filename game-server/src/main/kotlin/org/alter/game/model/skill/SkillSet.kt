@@ -127,14 +127,19 @@ class SkillSet(val maxSkills: Int) {
         check(capValue == 0 || capValue < 0 && value < 0 || capValue > 0 && value >= 0) {
             "Cap value and alter value must always be the same signum (+ or -)."
         }
+        val curLevel = getCurrentLevel(skill)
+        val baseLevel = getBaseLevel(skill)
         val altered =
             when {
-                capValue > 0 -> Math.min(getCurrentLevel(skill) + value, getBaseLevel(skill) + capValue)
-                capValue < 0 -> Math.max(getCurrentLevel(skill) + value, getBaseLevel(skill) + capValue)
-                else -> Math.min(getBaseLevel(skill), getCurrentLevel(skill) + value)
+                capValue > 0 -> Math.min(curLevel + value, baseLevel + capValue)
+                capValue < 0 -> Math.max(curLevel + value, baseLevel + capValue)
+                else -> {
+                    // When capValue is 0, allow healing up to base level
+                    val targetLevel = curLevel + value
+                    Math.min(baseLevel, Math.max(0, targetLevel))
+                }
             }
         val newLevel = Math.max(0, altered)
-        val curLevel = getCurrentLevel(skill)
 
         if (newLevel != curLevel) {
             setCurrentLevel(skill = skill, level = newLevel)

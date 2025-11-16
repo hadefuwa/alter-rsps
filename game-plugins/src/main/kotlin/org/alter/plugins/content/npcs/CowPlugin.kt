@@ -87,6 +87,17 @@ class CowPlugin(
                     blockSound = Sound.COW_HIT
                     deathSound = Sound.COW_DEATH
                 }
+                
+                drops {
+                    always {
+                        add("item.bones", 1)
+                        add("item.raw_beef", 1)
+                    }
+                    
+                    main(weight = 100) {
+                        add("item.cowhide", min = 1, weight = 100)
+                    }
+                }
             }
         }
     }

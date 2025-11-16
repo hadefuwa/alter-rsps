@@ -103,7 +103,10 @@ class BankPlugin(
 
         onButton(interfaceId = BANK_INTERFACE_ID, component = 47) {
             val slot = player.getInteractingSlot() - 1
-            val destroyItems = player.bank[slot]!!
+            val destroyItems = player.bank[slot] ?: run {
+                player.message("There is no item in that slot.")
+                return@onButton
+            }
             val tabAffected = getCurrentTab(player, slot)
 
             player.playSound(Sound.FIREBREATH)

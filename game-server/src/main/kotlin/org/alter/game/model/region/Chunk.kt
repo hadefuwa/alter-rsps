@@ -167,7 +167,10 @@ class Chunk(val coords: ChunkCoords) {
         sendUpdate(world, update)
 
         if (updates.removeIf { it.entity == item }) {
-            updates.add(createUpdateFor(item, spawn = true)!!)
+            val newUpdate = createUpdateFor(item, spawn = true)
+            if (newUpdate != null) {
+                updates.add(newUpdate)
+            }
         }
     }
 
@@ -191,7 +194,10 @@ class Chunk(val coords: ChunkCoords) {
         val local = lastKnownRegionBase.toLocal(coords.toTile())
         val computed = zonePartialEnclosedCacheBuffer.computeZone(messages)
         if (messages.isNotEmpty()) {
-            p.write(UpdateZonePartialEnclosed(zoneX = local.x, zoneZ = local.z, level = local.height, payload = computed[OldSchoolClientType.DESKTOP]!!))
+            val payload = computed[OldSchoolClientType.DESKTOP]
+            if (payload != null) {
+                p.write(UpdateZonePartialEnclosed(zoneX = local.x, zoneZ = local.z, level = local.height, payload = payload))
+            }
         }
     }
 
@@ -277,13 +283,17 @@ class Chunk(val coords: ChunkCoords) {
                 if (!canBeViewed(client, update.entity)) {
                     continue
                 }
-                val local = client.lastKnownRegionBase!!.toLocal(this.coords.toTile())
+                val regionBase = client.lastKnownRegionBase ?: continue
+                val local = regionBase.toLocal(this.coords.toTile())
                 val messages = ObjectArrayList<ZoneProt>()
                 messages.add(update.toMessage())
                 val computed = zonePartialEnclosedCacheBuffer.computeZone(messages)
                 if (messages.isNotEmpty()) {
-                    // Was not added from here MAP_PROJECTILE @TODO
-                    client.write(UpdateZonePartialEnclosed(zoneX = local.x, zoneZ = local.z, level = local.height, payload = computed[OldSchoolClientType.DESKTOP]!!))
+                    val payload = computed[OldSchoolClientType.DESKTOP]
+                    if (payload != null) {
+                        // Was not added from here MAP_PROJECTILE @TODO
+                        client.write(UpdateZonePartialEnclosed(zoneX = local.x, zoneZ = local.z, level = local.height, payload = payload))
+                    }
                 }
             }
         }

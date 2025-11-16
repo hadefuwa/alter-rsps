@@ -125,6 +125,7 @@ class GameService : Service {
     }
 
     private fun populateTasks() {
+        val autoSaveInterval = world.gameContext.autoSaveInterval
         tasks.addAll(
             arrayOf(
                 MessageHandlerTask(),
@@ -134,8 +135,15 @@ class GameService : Service {
                 ChunkCreationTask(),
                 WorldRemoveTask(),
                 SequentialSynchronizationTask(),
+                AutoSaveTask(autoSaveInterval), // Auto-save all online players periodically
             ),
         )
+        if (autoSaveInterval > 0) {
+            val intervalSeconds = (autoSaveInterval * world.gameContext.cycleTime) / 1000
+            logger.info { "Auto-save configured: saving player positions every $autoSaveInterval cycles (~${intervalSeconds}s)" }
+        } else {
+            logger.warn { "Auto-save is DISABLED - player positions will only be saved on logout!" }
+        }
     }
 
     /**

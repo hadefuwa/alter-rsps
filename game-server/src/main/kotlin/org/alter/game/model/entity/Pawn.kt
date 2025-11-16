@@ -498,8 +498,20 @@ abstract class Pawn(val world: World) : Entity() {
         attr.remove(COMBAT_TARGET_FOCUS_ATTR)
         attr.remove(INTERACTING_NPC_ATTR)
         attr.remove(INTERACTING_PLAYER_ATTR)
-        attr.remove(FOLLOWING_TARGET_ATTR)
+        // Don't remove FOLLOWING_TARGET_ATTR here - it should persist through interactions
+        // so that follow continues even when other interactions are reset
         resetFacePawn()
+    }
+
+    /**
+     * Stops following another player and cleans up follow state.
+     */
+    fun stopFollowing() {
+        if (attr.has(FOLLOWING_TARGET_ATTR)) {
+            attr.remove(FOLLOWING_TARGET_ATTR)
+            // Interrupt queues to stop any ongoing follow tasks
+            interruptQueues()
+        }
     }
 
     fun queue(

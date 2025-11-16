@@ -73,8 +73,13 @@ class AttackTabPlugin(
         }
 
         onButton(interfaceId = 160, component = 35) {
-            val weaponId = player.equipment[EquipmentType.WEAPON.id]!!.id
-            if (SpecialAttacks.executeOnEnable(weaponId)) {
+            val weapon = player.equipment[EquipmentType.WEAPON.id]
+            if (weapon == null) {
+                player.message("You need a weapon to use special attacks.")
+                return@onButton
+            }
+
+            if (SpecialAttacks.executeOnEnable(weapon.id)) {
                 if (!SpecialAttacks.execute(player, null, world)) {
                     player.message("You don't have enough power left.")
                 }
@@ -87,8 +92,13 @@ class AttackTabPlugin(
          * Toggle special attack.
          */
         onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 36) {
-            val weaponId = player.equipment[EquipmentType.WEAPON.id]!!.id
-            if (SpecialAttacks.executeOnEnable(weaponId)) {
+            val weapon = player.equipment[EquipmentType.WEAPON.id]
+            if (weapon == null) {
+                player.message("You need a weapon to use special attacks.")
+                return@onButton
+            }
+
+            if (SpecialAttacks.executeOnEnable(weapon.id)) {
                 if (!SpecialAttacks.execute(player, null, world)) {
                     player.message("You don't have enough power left.")
                 }

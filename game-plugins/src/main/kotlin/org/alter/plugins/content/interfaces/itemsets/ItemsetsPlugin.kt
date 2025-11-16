@@ -2,6 +2,7 @@ package org.alter.plugins.content.interfaces.itemsets
 
 import dev.openrune.cache.CacheManager.getEnum
 import dev.openrune.cache.CacheManager.getItem
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.alter.api.*
 import org.alter.api.cfg.*
 import org.alter.api.dsl.*
@@ -29,11 +30,15 @@ class ItemsetsPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-        
+
+    private val logger = KotlinLogging.logger {}
+
     init {
         onButton(ItemSets.ITEMSETS_INTERFACE, 2) {
-            val Item = getEnum(Enums.ITEM_SETS).getInt(player.attr[INTERACTING_ITEM_ID]!!)
-            if (player.attr[INTERACTING_OPT_ATTR]!! == 1) {
+            val itemId = player.attr[INTERACTING_ITEM_ID] ?: return@onButton
+            val option = player.attr[INTERACTING_OPT_ATTR] ?: return@onButton
+            val Item = getEnum(Enums.ITEM_SETS).getInt(itemId)
+            if (option == 1) {
                 var missing = 0
                 val message: StringBuilder = StringBuilder()
                 val itemEnum = getEnum(Item)
@@ -66,45 +71,54 @@ class ItemsetsPlugin(
                             }
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        player.message("Error creating item set: ${e.message}")
+                        logger.error(e) { "Failed to create item set for player ${player.username}" }
                     }
                 } else {
                     player.message("This set consist of: ")
                     player.message(message.toString())
                 }
             } else {
-                world.sendExamine(player, player.attr[INTERACTING_ITEM_ID]!!, ExamineEntityType.ITEM)
+                world.sendExamine(player, itemId, ExamineEntityType.ITEM)
             }
         }
 
         onButton(ItemSets.ITEMSETS_INVENTORY, 0) {
+            val itemId = player.attr[INTERACTING_ITEM_ID] ?: return@onButton
+
             if (player.getInteractingOption() == 1) {
-                val slot = player.attr[INTERACTING_SLOT_ATTR]!!
-                val sitem = player.inventory[slot]?.id
+                val slot = player.attr[INTERACTING_SLOT_ATTR] ?: run {
+                    player.message("Invalid inventory slot.")
+                    return@onButton
+                }
+                val sitem = player.inventory[slot]?.id ?: run {
+                    player.message("There is no item in that slot.")
+                    return@onButton
+                }
+
                 getEnum(Enums.ITEM_SETS).values.filter { it.key == sitem }.firstNotNullOf {
                     try {
                         val setOfItems = getEnum(it.value as Int)
                         if (player.inventory.freeSlotCount >= setOfItems.getSize()) {
                             try {
-                                if (sitem != null) {
-                                    player.inventory.remove(sitem, 1, beginSlot = player.getInteractingSlot())
-                                    setOfItems.values.filter {it.key != -1 }.forEach {
-                                        player.inventory.add(it.value as Int, 1)
-                                    }
+                                player.inventory.remove(sitem, 1, beginSlot = player.getInteractingSlot())
+                                setOfItems.values.filter {it.key != -1 }.forEach {
+                                    player.inventory.add(it.value as Int, 1)
                                 }
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                player.message("Error unpacking item set: ${e.message}")
+                                logger.error(e) { "Failed to unpack item set for player ${player.username}" }
                             }
                         } else {
                             player.message("You need ${setOfItems.getSize()} free spaces to unpack this set.")
                         }
-
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        player.message("Error processing item set: ${e.message}")
+                        logger.error(e) { "Failed to process item set for player ${player.username}" }
                     }
                 }
             } else {
-                world.sendExamine(player, player.attr[INTERACTING_ITEM_ID]!!, ExamineEntityType.ITEM)
+                world.sendExamine(player, itemId, ExamineEntityType.ITEM)
             }
         }
 

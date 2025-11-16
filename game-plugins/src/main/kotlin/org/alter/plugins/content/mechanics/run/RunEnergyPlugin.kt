@@ -7,6 +7,7 @@ import org.alter.api.ext.*
 import org.alter.game.*
 import org.alter.game.model.*
 import org.alter.game.model.attr.*
+import org.alter.game.model.bits.*
 import org.alter.game.model.container.*
 import org.alter.game.model.container.key.*
 import org.alter.game.model.entity.*
@@ -24,6 +25,8 @@ class RunEnergyPlugin(
         
     init {
         onLogin {
+            // Enable infinite run energy for all players
+            player.setStorageBit(INFINITE_VARS_STORAGE, InfiniteVarsType.RUN, 1)
             player.timers[RunEnergy.RUN_DRAIN] = 1
         }
 

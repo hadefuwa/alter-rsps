@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "types": ["FREE"],
+    "types": ["MEMBERS"],
     "address": "192.168.0.13",
     "activity": "Skilling",
     "location": "UNITED_STATES",
@@ -9,7 +9,7 @@
   },
   {
     "id": 2,
-    "types": ["PVP"],
+    "types": ["MEMBERS", "PVP"],
     "address": "192.168.0.13",
     "activity": "Combat",
     "location": "UNITED_KINGDOM",

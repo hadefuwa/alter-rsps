@@ -72,37 +72,35 @@ class KbdConfigsPlugin(
             //    xp = 258.0
             //}
 
-//    drops {
-//        position = Tile(x = 3222, z = 3222)
-//
-//        always {
-//            add(Items.DRAGON_BONES, 1)
-//            add(Items.BLACK_DRAGON_LEATHER, 1)
-//        }
-//
-//        main(tableWeight = 128) {
-//            add(itemid = Items.RUNE_LONGSWORD, min = 1, weight = 10)
-//            add(itemid = Items.ADAMANT_PLATEBODY, min = 1, weight = 9)
-//            add(itemid = Items.ADAMANT_KITESHIELD, min = 1, weight = 3)
-//            add(itemid = Items.DRAGON_MED_HELM, min = 1, weight = 1)
-//            add(itemid = Items.FIRE_RUNE, min = 300, weight = 5)
-//            add(itemid = Items.AIR_RUNE, min = 300, weight = 10)
-//            add(itemid = Items.IRON_ARROW, min = 690, weight = 10)
-//            add(itemid = Items.RUNITE_BOLTS, min = 10, weight = 10)
-//            add(itemid = Items.LAW_RUNE, min = 30, weight = 5)
-//            add(itemid = Items.BLOOD_RUNE, min = 30, weight = 5)
-//            add(itemid = Items.YEW_LOGS_NOTED, min = 150, weight = 10)
-//            add(itemid = Items.ADAMANTITE_BAR, min = 3, weight = 5)
-//            add(itemid = Items.RUNITE_BAR, min = 1, weight = 3)
-//            add(itemid = Items.GOLD_ORE_NOTED, min = 100, weight = 2)
-//            add(itemid = Items.AMULET_OF_POWER, min = 1, weight = 7)
-//            add(itemid = Items.DRAGON_ARROWTIPS, min = 5, weight = 5)
-//            add(itemid = Items.DRAGON_DART_TIP, min = 5, weight = 5)
-//            add(itemid = Items.DRAGON_JAVELIN_HEADS, min = 15, weight = 5)
-//            add(itemid = Items.RUNITE_LIMBS, min = 1, weight = 4)
-//            add(itemid = Items.SHARK, min = 4, weight = 4)
-//        }
-//    }
+            drops {
+                always {
+                    add("item.dragon_bones", 1)
+                    add("item.black_dragonhide", 1)
+                }
+                
+                main(weight = 128) {
+                    add("item.rune_longsword", min = 1, weight = 10)
+                    add("item.adamant_platebody", min = 1, weight = 9)
+                    add("item.adamant_kiteshield", min = 1, weight = 3)
+                    add("item.dragon_med_helm", min = 1, weight = 1)
+                    add("item.fire_rune", min = 300, weight = 5)
+                    add("item.air_rune", min = 300, weight = 10)
+                    add("item.iron_arrow", min = 690, weight = 10)
+                    add("item.runite_bolts", min = 10, weight = 10)
+                    add("item.law_rune", min = 30, weight = 5)
+                    add("item.blood_rune", min = 30, weight = 5)
+                    add("item.yew_logs", min = 150, weight = 10)
+                    add("item.adamantite_bar", min = 3, weight = 5)
+                    add("item.runite_bar", min = 1, weight = 3)
+                    add("item.gold_ore", min = 100, weight = 2)
+                    add("item.amulet_of_power", min = 1, weight = 7)
+                    add("item.dragon_arrowtips", min = 5, weight = 5)
+                    add("item.dragon_dart_tip", min = 5, weight = 5)
+                    add("item.dragon_javelin_heads", min = 15, weight = 5)
+                    add("item.runite_limbs", min = 1, weight = 4)
+                    add("item.shark", min = 4, weight = 4)
+                }
+            }
         }
     }
 }

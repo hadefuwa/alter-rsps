@@ -60,11 +60,21 @@ object ObjectPathAction {
         }
     }
 
-    val itemOnObjectPlugin: Plugin.() -> Unit = {
+    val itemOnObjectPlugin: Plugin.() -> Unit = itemOnObjectPlugin@{
         val player = ctx as Player
 
-        val item = player.attr[INTERACTING_ITEM]!!.get()!!
-        val obj = player.attr[INTERACTING_OBJ_ATTR]!!.get()!!
+        val item = player.attr[INTERACTING_ITEM]?.get()
+        if (item == null) {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@itemOnObjectPlugin
+        }
+        
+        val obj = player.attr[INTERACTING_OBJ_ATTR]?.get()
+        if (obj == null) {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@itemOnObjectPlugin
+        }
+        
         val lineOfSightRange = player.world.plugins.getObjInteractionDistance(obj.id)
 
         walk(player, obj, lineOfSightRange) {
@@ -79,15 +89,25 @@ object ObjectPathAction {
         }
     }
 
-    val objectInteractPlugin: Plugin.() -> Unit = {
+    val objectInteractPlugin: Plugin.() -> Unit = objectInteractPlugin@{
         val player = ctx as Player
 
-        val obj = player.attr[INTERACTING_OBJ_ATTR]!!.get()!!
+        val obj = player.attr[INTERACTING_OBJ_ATTR]?.get()
+        if (obj == null) {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@objectInteractPlugin
+        }
+        
         val opt = player.attr[INTERACTING_OPT_ATTR]
+        if (opt == null) {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@objectInteractPlugin
+        }
+        
         val lineOfSightRange = player.world.plugins.getObjInteractionDistance(obj.id)
 
         walk(player, obj, lineOfSightRange) {
-            if (!player.world.plugins.executeObject(player, obj.getTransform(player), opt!!)) {
+            if (!player.world.plugins.executeObject(player, obj.getTransform(player), opt)) {
                 player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
                 if (player.world.devContext.debugObjects) {
                     player.writeMessage(

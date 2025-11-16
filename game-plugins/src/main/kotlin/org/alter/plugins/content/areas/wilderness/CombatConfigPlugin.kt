@@ -8,7 +8,6 @@ import org.alter.game.*
 import org.alter.game.model.*
 import org.alter.game.model.attr.*
 import org.alter.game.model.container.*
-import org.alter.game.model.container.key.*
 import org.alter.game.model.entity.*
 import org.alter.game.model.item.*
 import org.alter.game.model.queue.*
@@ -116,6 +115,14 @@ class CombatConfigPlugin(
                 // Without this, monsters might stop being aggressive after a certain time
                 alwaysAggro()
             }
+            
+            // Add loot drops for Dark Wizards
+            drops {
+                always {
+                    add(526, 1) // bones
+                    add(995, 10) // 10 coins always for testing
+                }
+            }
         }
         
         /**
@@ -143,6 +150,23 @@ class CombatConfigPlugin(
                 radius = 7        // Same detection radius
                 searchDelay = 3   // Same search frequency
                 alwaysAggro()     // Always aggressive
+            }
+            
+            // Add loot drops for Skeletons
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 3, max = 12, weight = 45)
+                    add("item.bronze_arrow", min = 5, max = 15, weight = 25)
+                    add("item.iron_arrow", min = 2, max = 8, weight = 15)
+                    add("item.bronze_axe", min = 1, weight = 5)
+                    add("item.bronze_sword", min = 1, weight = 5)
+                    add("item.bronze_dagger", min = 1, weight = 8)
+                    add("item.iron_dagger", min = 1, weight = 3)
+                }
             }
         }
         
@@ -174,6 +198,25 @@ class CombatConfigPlugin(
                 searchDelay = 3
                 alwaysAggro()
             }
+            
+            // Add loot drops for Bandits
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 8, max = 2500, weight = 35)
+                    add("item.bread", min = 1, weight = 20)
+                    add("item.beer", min = 1, weight = 15)
+                    add("item.iron_dagger", min = 1, weight = 10)
+                    add("item.iron_sword", min = 1, weight = 8)
+                    add("item.steel_dagger", min = 1, weight = 5)
+                    add("item.leather_boots", min = 1, weight = 10)
+                    add("item.leather_gloves", min = 1, weight = 8)
+                    add("item.lockpick", min = 1, weight = 3)
+                }
+            }
         }
         
         /**
@@ -200,6 +243,26 @@ class CombatConfigPlugin(
                 radius = 7
                 searchDelay = 3
                 alwaysAggro()
+            }
+            
+            // Add loot drops for Chaos Druids
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 6, max = 18, weight = 30)
+                    add("item.grimy_guam", min = 1, weight = 20)
+                    add("item.grimy_marrentill", min = 1, weight = 15)
+                    add("item.grimy_tarromin", min = 1, weight = 12)
+                    add("item.grimy_harralander", min = 1, weight = 10)
+                    add("item.grimy_ranarr", min = 1, weight = 8)
+                    add("item.grimy_irit", min = 1, weight = 6)
+                    add("item.nature_rune", min = 1, max = 3, weight = 10)
+                    add("item.law_rune", min = 1, max = 2, weight = 8)
+                    add("item.chaos_rune", min = 2, max = 5, weight = 12)
+                }
             }
         }
         
@@ -229,6 +292,20 @@ class CombatConfigPlugin(
                 searchDelay = 3
                 alwaysAggro()
             }
+            
+            // Add loot drops for Wolves
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 2, max = 8, weight = 40)
+                    add("item.raw_beef", min = 1, weight = 25)
+                    add("item.cowhide", min = 1, weight = 20)
+                    add("item.wolf_bones", min = 1, weight = 15)
+                }
+            }
         }
         
         /**
@@ -256,6 +333,27 @@ class CombatConfigPlugin(
                 searchDelay = 3
                 alwaysAggro()
             }
+            
+            // Add loot drops for Dark Warriors
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 15, max = 40, weight = 30)
+                    add("item.iron_dagger", min = 1, weight = 15)
+                    add("item.iron_sword", min = 1, weight = 12)
+                    add("item.steel_dagger", min = 1, weight = 10)
+                    add("item.steel_sword", min = 1, weight = 8)
+                    add("item.mithril_dagger", min = 1, weight = 5)
+                    add("item.iron_chainbody", min = 1, weight = 8)
+                    add("item.steel_chainbody", min = 1, weight = 5)
+                    add("item.iron_platebody", min = 1, weight = 3)
+                    add("item.blood_rune", min = 1, max = 3, weight = 6)
+                    add("item.death_rune", min = 1, max = 2, weight = 4)
+                }
+            }
         }
         
         /**
@@ -281,6 +379,9 @@ class CombatConfigPlugin(
                 block = 89    // Dragon block animation
                 death = 92    // Dragon death animation
             }
+            species {
+                +NpcSpecies.BASIC_DRAGON
+            }
             aggro {
                 // radius = 10 means dragons detect players from further away (10 tiles vs 7)
                 // This makes them more dangerous because they'll attack sooner
@@ -291,6 +392,31 @@ class CombatConfigPlugin(
                 searchDelay = 2
                 
                 alwaysAggro()
+            }
+            
+            // Add loot drops for Green Dragons
+            drops {
+                always {
+                    add("item.dragon_bones", 1)
+                    add("item.green_dragonhide", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 50, max = 150, weight = 25)
+                    add("item.nature_rune", min = 15, max = 30, weight = 20)
+                    add("item.law_rune", min = 3, max = 8, weight = 15)
+                    add("item.air_rune", min = 30, max = 60, weight = 18)
+                    add("item.fire_rune", min = 25, max = 50, weight = 16)
+                    add("item.adamant_arrow", min = 10, max = 25, weight = 12)
+                    add("item.mithril_sword", min = 1, weight = 6)
+                    add("item.adamant_dagger", min = 1, weight = 4)
+                    add("item.rune_dagger", min = 1, weight = 2)
+                }
+                
+                tertiary(weight = 256) {
+                    add("item.dragon_med_helm", min = 1, weight = 128)
+                    add("item.shield_left_half", min = 1, weight = 256)
+                }
             }
         }
         
@@ -328,6 +454,34 @@ class CombatConfigPlugin(
                 radius = 10
                 searchDelay = 2
                 alwaysAggro()
+            }
+            
+            // Add loot drops for Hellhounds
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 75, max = 200, weight = 20)
+                    add("item.blood_rune", min = 5, max = 15, weight = 18)
+                    add("item.death_rune", min = 3, max = 10, weight = 15)
+                    add("item.soul_rune", min = 2, max = 8, weight = 12)
+                    add("item.nature_rune", min = 8, max = 20, weight = 16)
+                    add("item.law_rune", min = 5, max = 12, weight = 14)
+                    add("item.rune_dagger", min = 1, weight = 6)
+                    add("item.rune_sword", min = 1, weight = 4)
+                    add("item.adamant_platebody", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.uncut_emerald", min = 1, max = 3, weight = 8)
+                    add("item.uncut_ruby", min = 1, max = 2, weight = 5)
+                    add("item.uncut_diamond", min = 1, weight = 3)
+                }
+                
+                tertiary(weight = 512) {
+                    add("item.dragon_spear", min = 1, weight = 512)
+                    add("item.rune_platebody", min = 1, weight = 384)
+                }
             }
         }
     }

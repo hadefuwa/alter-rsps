@@ -13,7 +13,7 @@ import org.alter.game.model.timer.ATTACK_DELAY
 import org.alter.game.model.timer.COMBO_FOOD_DELAY
 import org.alter.game.model.timer.FOOD_DELAY
 import org.alter.game.model.timer.POTION_DELAY
-import org.alter.plugins.content.items.food.Food
+import org.alter.plugins.content.items.consumables.food.Food
 
 /**
  * @author Tom <rspsmods@gmail.com>

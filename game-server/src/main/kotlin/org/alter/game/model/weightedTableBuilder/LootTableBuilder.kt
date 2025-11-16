@@ -3,6 +3,7 @@ package org.alter.game.model.weightedTableBuilder
 import org.alter.game.model.Tile
 import org.alter.game.model.entity.GroundItem
 import org.alter.game.model.entity.Player
+import org.alter.rscm.RSCM.getRSCM
 import kotlin.random.Random
 import kotlin.reflect.KFunction
 import kotlin.reflect.typeOf
@@ -47,7 +48,7 @@ data class LootTable(
                             i += it.weight
                         }
                     }
-                    check(tableWeight >= i) { "Why be so retarded?" }
+                    check(tableWeight >= i) { "Table weight ($tableWeight) must be greater than or equal to the sum of all item weights ($i) for table type $tableType" }
                 }
             }
         }
@@ -81,8 +82,8 @@ fun LootTable.mainRoll(): Loot {
             }
         }
     }
-    // should never happen unless ur table is broken
-    throw IllegalStateException("fix ur code idiot")
+    // should never happen unless the table is misconfigured
+    throw IllegalStateException("Failed to roll loot from table: tableWeight=$tableWeight, totalItemWeights=$cur, roll=$roll. Table configuration is invalid.")
 }
 fun LootTable.preRoll(): Loot? {
     for (loot in drops) {
@@ -117,6 +118,11 @@ fun Loot.handleToItem(p: Player) : List<GroundItem> {
         when (item) {
             is Int -> {
                 items.add(GroundItem(item, amount = randomStep(min, max, steepness), tile = tile))
+            }
+            is String -> {
+                // Convert string item identifier (e.g., "item.bones") to Int ID using RSCM
+                val itemId = getRSCM(item)
+                items.add(GroundItem(itemId, amount = randomStep(min, max, steepness), tile = tile))
             }
             is LootTable -> {
                 items.addAll(roll(p, setOf(item)))

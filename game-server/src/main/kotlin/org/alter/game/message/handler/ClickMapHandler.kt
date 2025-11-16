@@ -14,6 +14,10 @@ class ClickMapHandler : MessageHandler<MoveGameClick> {
     ) {
         log(client, "Click map: x=%d, y=%d, type=%d", message.x, message.z, message.keyCombination)
         client.attr[CLIENT_KEY_COMBINATION] = message.keyCombination
+        
+        // Stop following when manually clicking to move
+        client.stopFollowing()
+        
         client.walkTo(message.x, message.z, stepType = MovementQueue.StepType.NORMAL)
     }
 }

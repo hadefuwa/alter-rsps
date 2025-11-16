@@ -66,8 +66,8 @@ object MeleeCombatStrategy : CombatStrategy {
 
         val damage = pawn.dealHit(target = target, maxHit = maxHit, landHit = landHit, delay = 1).hit.hitmarks.sumOf { it.damage }
 
-        if (damage > 0 && pawn.entityType.isPlayer) {
-            addCombatXp(pawn as Player, target, damage)
+        if (damage > 0 && pawn is Player) {
+            addCombatXp(pawn, target, damage)
         }
     }
 

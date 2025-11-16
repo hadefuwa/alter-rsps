@@ -109,10 +109,11 @@ class Server {
                 gItemPublicDelay =
                     gameProperties.getOrDefault(
                         "gitem-public-spawn-delay",
-                        GroundItem.DEFAULT_PUBLIC_SPAWN_CYCLES,
+                        GroundItem.DEFAULT_PUBLIC_SPAWN_CYCLES, // 100 cycles = 1 minute - killer sees first, then everyone
                     ),
                 gItemDespawnDelay = gameProperties.getOrDefault("gitem-despawn-delay", GroundItem.DEFAULT_DESPAWN_CYCLES),
                 preloadMaps = gameProperties.getOrDefault("preload-maps", false),
+                autoSaveInterval = gameProperties.getOrDefault("auto-save-interval", 100),
             )
 
         val devContext =

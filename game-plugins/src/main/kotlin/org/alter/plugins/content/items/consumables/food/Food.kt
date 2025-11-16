@@ -1,4 +1,4 @@
-package org.alter.plugins.content.items.food
+package org.alter.plugins.content.items.consumables.food
 
 
 enum class Food(

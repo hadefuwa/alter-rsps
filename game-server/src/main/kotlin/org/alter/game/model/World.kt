@@ -282,10 +282,10 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
                  * despawn delay set by our game, we add it to our removal queue.
                  */
                 groundItemRemoval.add(groundItem)
-            } else if (!groundItem.isPublic() && groundItem.currentCycle >= gameContext.gItemPublicDelay) {
+            } else if (!groundItem.isPublic() && (gameContext.gItemPublicDelay == 0 || groundItem.currentCycle >= gameContext.gItemPublicDelay)) {
                 /*
                  * If the ground item is not public, but its cycle count has
-                 * reached the public delay set by our game, we make it public.
+                 * reached the public delay set by our game (or delay is 0 for instant visibility), we make it public.
                  */
                 groundItem.removeOwner()
                 groundItem.ownerShipType = 0
@@ -439,19 +439,38 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
         val chunk = chunks.getOrCreate(tile)
         val def = getItem(item.item)
         if (def.stackable) {
+            // For stackable items, try to combine with existing items of the same type
+            // Combine if: same item ID AND (same owner OR at least one is public)
             val oldItem =
                 chunk.getEntities<GroundItem>(tile, EntityType.GROUND_ITEM).firstOrNull {
-                    it.item == item.item && it.ownerUID == item.ownerUID
+                    it.item == item.item && (
+                        it.ownerUID == item.ownerUID || 
+                        it.isPublic() || 
+                        item.isPublic() ||
+                        (it.ownerUID == null && item.ownerUID == null)
+                    )
                 }
             if (oldItem != null) {
                 val oldAmount = oldItem.amount
                 val newAmount = Math.min(Int.MAX_VALUE.toLong(), item.amount.toLong() + oldItem.amount.toLong()).toInt()
                 oldItem.amount = newAmount
+                // If the new item is public or the old item is public, make sure both are public
+                if (item.isPublic() || oldItem.isPublic()) {
+                    oldItem.removeOwner()
+                    oldItem.ownerShipType = 0
+                    oldItem.timeUntilPublic = 0
+                }
                 chunk.updateGroundItem(this, item, oldAmount, newAmount)
                 return
             }
         }
         groundItems.add(item)
+        // If public delay is 0, make item instantly public
+        if (gameContext.gItemPublicDelay == 0 && !item.isPublic()) {
+            item.removeOwner()
+            item.ownerShipType = 0
+            item.timeUntilPublic = 0
+        }
         chunk.addEntity(this, item, tile)
     }
 
@@ -534,13 +553,12 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     fun getObject(
         tile: Tile,
         type: Int,
-    ): GameObject? =
-        chunks.get(
-            tile,
-            createIfNeeded = true,
-        )!!.getEntities<GameObject>(tile, EntityType.STATIC_OBJECT, EntityType.DYNAMIC_OBJECT).firstOrNull {
+    ): GameObject? {
+        val chunk = chunks.get(tile, createIfNeeded = true) ?: return null
+        return chunk.getEntities<GameObject>(tile, EntityType.STATIC_OBJECT, EntityType.DYNAMIC_OBJECT).firstOrNull {
             it.type == type
         }
+    }
 
     fun getPlayerForName(username: String): Player? {
         for (i in 0 until players.capacity) {
@@ -668,11 +686,28 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
         gameProperties: ServerProperties,
     ) {
         val stopwatch = Stopwatch.createUnstarted()
-        val foundServices = gameProperties.get<ArrayList<Any>>("services")!!
+        val foundServices = gameProperties.get<ArrayList<Any>>("services") ?: run {
+            logger.warn { "No services defined in game configuration." }
+            return
+        }
         foundServices.forEach { s ->
-            val values = s as LinkedHashMap<*, *>
-            val className = values["class"] as String
-            val clazz = Class.forName(className).asSubclass(Service::class.java)!!
+            val values = s as? LinkedHashMap<*, *> ?: run {
+                logger.error { "Invalid service configuration: $s" }
+                return@forEach
+            }
+            val className = values["class"] as? String ?: run {
+                logger.error { "Service configuration missing 'class' field: $values" }
+                return@forEach
+            }
+            val clazz = try {
+                Class.forName(className).asSubclass(Service::class.java)
+            } catch (e: ClassNotFoundException) {
+                logger.error(e) { "Service class not found: $className" }
+                return@forEach
+            } catch (e: ClassCastException) {
+                logger.error(e) { "Class $className does not implement Service interface" }
+                return@forEach
+            }
             val service = clazz.getDeclaredConstructor().newInstance()
 
             val properties = hashMapOf<String, Any>()

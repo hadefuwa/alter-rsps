@@ -436,17 +436,19 @@ object RangedCombatFormula : CombatFormula {
     private fun getDamageTakeMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_TAKE_MULTIPLIER] ?: 1.0
 
     private fun isDragon(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.DRACONIC)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.DRACONIC)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isFiery(pawn: Pawn): Boolean {
-        if (pawn.entityType.isNpc) {
-            return (pawn as Npc).isSpecies(NpcSpecies.FIERY)
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.FIERY)
+        } else {
+            false
         }
-        return false
     }
 
     private fun isWearingTorag(player: Player): Boolean {

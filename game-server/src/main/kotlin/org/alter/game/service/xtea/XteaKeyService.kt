@@ -51,7 +51,7 @@ class XteaKeyService : Service, XteaProvider {
             logger.trace { "No XTEA keys found for region $region." }
             keys[region] = EMPTY_KEYS
         }
-        return keys[region]!!
+        return keys[region] ?: EMPTY_KEYS // Safe fallback
     }
 
     private fun loadKeys(world: World) {
@@ -146,6 +146,6 @@ class XteaKeyService : Service, XteaProvider {
             logger.trace { "No XTEA keys found for region $region." }
             keys[region] = EMPTY_KEYS
         }
-        return XteaKey(keys[region]!!)
+        return XteaKey(keys[region] ?: EMPTY_KEYS) // Safe fallback
     }
 }

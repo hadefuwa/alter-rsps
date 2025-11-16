@@ -16,6 +16,10 @@ import org.alter.game.model.item.*
 import org.alter.game.model.queue.*
 import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
+import org.alter.game.model.move.MovementQueue.StepType
+import org.alter.game.model.move.hasMoveDestination
+import org.alter.game.model.move.walkRoute
+import org.alter.game.model.move.toTileQueue
 import org.alter.game.plugin.*
 import java.lang.ref.WeakReference
 
@@ -85,6 +89,7 @@ class OSRSPlugin(
                 player.openDefaultInterfaces()
                 setVarbit(Varbit.COMBAT_LEVEL_VARBIT, combatLevel)
                 setVarbit(Varbit.CHATBOX_UNLOCKED, 1)
+                setVarbit(Varbit.HIDE_ROOFS, 1) // Disable all roofs in the game
                 runClientScript(CommonClientScripts.INTRO_MUSIC_RESTORE)
                 if (getVarp(Varp.PLAYER_HAS_DISPLAY_NAME) == 0 && username.isNotBlank()) {
                     syncVarp(Varp.PLAYER_HAS_DISPLAY_NAME)
@@ -118,33 +123,50 @@ class OSRSPlugin(
          * When a player clicks "Follow" on another player, they will continuously follow them.
          */
         onPlayerOption("Follow") {
-            val target = player.attr[INTERACTING_PLAYER_ATTR]?.get() ?: return@onPlayerOption
+            // Get the target from INTERACTING_PLAYER_ATTR (set by walk plugin)
+            val target = player.attr[INTERACTING_PLAYER_ATTR]?.get() ?: run {
+                player.message("Unable to find player to follow.")
+                return@onPlayerOption
+            }
             
             // Don't allow following yourself
             if (target == player) {
                 return@onPlayerOption
             }
             
+            // Verify target is still in the world
+            if (!world.players.contains(target)) {
+                player.message("That player is no longer available.")
+                return@onPlayerOption
+            }
+            
             // Stop any existing follow
-            player.attr[FOLLOWING_TARGET_ATTR]?.get()?.let {
+            if (player.attr.has(FOLLOWING_TARGET_ATTR)) {
                 player.attr.remove(FOLLOWING_TARGET_ATTR)
             }
             
             // Set the new follow target
             player.attr[FOLLOWING_TARGET_ATTR] = WeakReference(target)
+            player.message("Following ${target.username}.")
             
-            // Start the continuous follow loop
-            player.queue(TaskPriority.STANDARD) {
+            // Start the continuous follow loop with higher priority to run after walk completes
+            player.queue(TaskPriority.WEAK) {
                 terminateAction = {
                     // Clean up when follow is stopped
                     player.attr.remove(FOLLOWING_TARGET_ATTR)
                 }
                 
+                // Wait for the initial walk to target to complete
+                while (player.hasMoveDestination()) {
+                    wait(1)
+                }
+                
+                // Start continuous following
                 while (true) {
                     val followTarget = player.attr[FOLLOWING_TARGET_ATTR]?.get()
                     
                     // If no target or target is invalid, stop following
-                    if (followTarget == null || followTarget !in world.players) {
+                    if (followTarget == null || !world.players.contains(followTarget)) {
                         player.attr.remove(FOLLOWING_TARGET_ATTR)
                         break
                     }
@@ -155,7 +177,7 @@ class OSRSPlugin(
                     
                     if (distance <= 1 && sameLevel) {
                         // Already close, just wait and check again
-                        wait(1)
+                        wait(2)
                         continue
                     }
                     
@@ -178,13 +200,13 @@ class OSRSPlugin(
                     
                     // Only walk if we have a valid route
                     if (route.success) {
-                        player.walkRoute(route.toTileQueue(), stepType = MovementQueue.StepType.NORMAL)
+                        player.walkRoute(route.toTileQueue(), stepType = StepType.NORMAL)
                         
                         // Wait for movement to complete, checking periodically if we should stop
                         while (player.hasMoveDestination()) {
                             // Check if we should stop following (target moved too far, player manually moved, etc.)
                             val currentTarget = player.attr[FOLLOWING_TARGET_ATTR]?.get()
-                            if (currentTarget == null || currentTarget !in world.players) {
+                            if (currentTarget == null || !world.players.contains(currentTarget)) {
                                 player.attr.remove(FOLLOWING_TARGET_ATTR)
                                 return@queue
                             }
@@ -199,7 +221,7 @@ class OSRSPlugin(
                         }
                     } else {
                         // No valid route, wait a bit before trying again
-                        wait(1)
+                        wait(2)
                     }
                     
                     // Small delay before next follow check

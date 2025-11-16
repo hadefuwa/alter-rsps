@@ -1,5 +1,6 @@
 package org.alter.game.saving.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.alter.game.model.Tile
 import org.alter.game.model.entity.Client
 import org.alter.game.model.interf.DisplayMode
@@ -23,6 +24,10 @@ import org.bson.Document
  * - Save/load privilege level, run energy, and display mode settings
  */
 class DetailSerialisation(override val name: String = "details") : DocumentHandler {
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 
     /**
      * Deserialize player details from a saved document.
@@ -57,13 +62,26 @@ class DetailSerialisation(override val name: String = "details") : DocumentHandl
         val tileData = try {
             // doc.getList() tries to get a list from the saved document
             // "tile" is the name of the field we're looking for
-            // Int::class.java tells it we expect a list of integers
-            // If this works, tileData will contain the list [x, z, height]
-            doc.getList("tile", Int::class.java)
+            // BSON may store integers as Long or Number, so we need to handle type conversion
+            val tileList = doc.getList("tile", Any::class.java)
+            if (tileList != null && tileList.size >= 3) {
+                // Convert to integers safely - BSON might store as Long, Integer, or Number
+                listOf(
+                    (tileList[0] as? Number)?.toInt() ?: (tileList[0] as? Int) ?: throw ClassCastException("Cannot convert tile[0] to int"),
+                    (tileList[1] as? Number)?.toInt() ?: (tileList[1] as? Int) ?: throw ClassCastException("Cannot convert tile[1] to int"),
+                    (tileList[2] as? Number)?.toInt() ?: (tileList[2] as? Int) ?: throw ClassCastException("Cannot convert tile[2] to int")
+                )
+            } else {
+                null
+            }
         } catch (e: Exception) {
             // If anything goes wrong (field missing, wrong type, etc.), catch the error
             // and set tileData to null instead of crashing
             // null means "nothing" or "empty" in programming
+            // Log a warning so we know positions aren't being loaded
+            logger.warn { 
+                "Failed to load tile position for player ${client.loginUsername}: ${e.message}. Falling back to home location." 
+            }
             null
         }
         
@@ -95,6 +113,10 @@ class DetailSerialisation(override val name: String = "details") : DocumentHandl
             // This runs if tileData is null OR doesn't have enough numbers
             // We send the player to their home location (usually Lumbridge) as a safe fallback
             // client.world.gameContext.home gets the home location from the game settings
+            // Log a warning so we know positions aren't being loaded
+            logger.warn { 
+                "Player ${client.loginUsername} position not found in save file (tile data: ${tileData?.size ?: "null"}), spawning at home location" 
+            }
             client.world.gameContext.home
         }
         

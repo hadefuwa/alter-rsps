@@ -584,8 +584,8 @@ class PluginRepository(
     }
 
     fun executeCombat(pawn: Pawn) {
-        if (combatPlugin != null) {
-            pawn.executePlugin(combatPlugin!!)
+        combatPlugin?.let { plugin ->
+            pawn.executePlugin(plugin)
         }
     }
 
@@ -742,11 +742,9 @@ class PluginRepository(
     }
 
     fun executeWindowStatus(p: Player) {
-        if (windowStatusPlugin != null) {
-            p.executePlugin(windowStatusPlugin!!)
-        } else {
-            logger.warn { "Window status is not bound to a plugin." }
-        }
+        windowStatusPlugin?.let { plugin ->
+            p.executePlugin(plugin)
+        } ?: logger.warn { "Window status is not bound to a plugin." }
     }
 
     fun bindModalClose(plugin: Plugin.() -> Unit) {
@@ -758,11 +756,9 @@ class PluginRepository(
     }
 
     fun executeModalClose(p: Player) {
-        if (closeModalPlugin != null) {
-            p.executePlugin(closeModalPlugin!!)
-        } else {
-            logger.warn { "Modal close is not bound to a plugin." }
-        }
+        closeModalPlugin?.let { plugin ->
+            p.executePlugin(plugin)
+        } ?: logger.warn { "Modal close is not bound to a plugin." }
     }
 
     fun setMenuOpenedCheck(plugin: Plugin.() -> Boolean) {
@@ -773,7 +769,7 @@ class PluginRepository(
         isMenuOpenedPlugin = plugin
     }
 
-    fun isMenuOpened(p: Player): Boolean = if (isMenuOpenedPlugin != null) p.executePlugin(isMenuOpenedPlugin!!) else false
+    fun isMenuOpened(p: Player): Boolean = isMenuOpenedPlugin?.let { plugin -> p.executePlugin(plugin) } ?: false
 
     fun <T : Event> bindEvent(
         event: Class<T>,

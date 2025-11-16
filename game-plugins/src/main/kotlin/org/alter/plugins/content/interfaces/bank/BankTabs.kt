@@ -196,10 +196,10 @@ object BankTabs {
         }
 
         // truncate empty spots, but stay in current tab
-        while (dex != 0 && player.bank[dex - 1] == null && dex > prevDex) {
+        while (dex > 0 && dex <= player.bank.capacity && player.bank[dex - 1] == null && dex > prevDex) {
             dex--
         }
-        return dex
+        return dex.coerceIn(0, player.bank.capacity)
     }
 
     /**
@@ -221,10 +221,11 @@ object BankTabs {
         }
 
         // truncate empty spots, but stay in current tab
-        while (dex != 0 && player.bank[dex - 1] == null && dex > prevDex) {
+        while (dex > 0 && dex <= player.bank.capacity && player.bank[dex - 1] == null && dex > prevDex) {
             dex--
         }
-        if (player.bank[dex] == null) {
+        dex = dex.coerceIn(0, player.bank.capacity - 1)
+        if (dex < player.bank.capacity && player.bank[dex] == null) {
             state = true
         }
         return Pair(dex, state)

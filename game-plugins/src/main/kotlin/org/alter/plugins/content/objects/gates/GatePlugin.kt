@@ -48,8 +48,9 @@ class GatePlugin(
     }
 
     fun copyStickVars(from: GameObject, to: GameObject) {
-        if (from.attr.has(STICK_STATE)) {
-            to.attr[STICK_STATE] = from.attr[STICK_STATE]!!
+        val stickState = from.attr[STICK_STATE]
+        if (stickState != null) {
+            to.attr[STICK_STATE] = stickState
         }
     }
 

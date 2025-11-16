@@ -25,10 +25,16 @@ object GroundItemRouteAction {
      * ground item plugins when destination is reached.
      */
     internal const val ITEM_ON_GROUND_ITEM_OPTION = -1
-    val walkPlugin: Plugin.() -> Unit = {
+    val walkPlugin: Plugin.() -> Unit = walkPlugin@{
         val player = ctx as Player
-        val item = player.attr[INTERACTING_GROUNDITEM_ATTR]!!.get()!!
-        val opt = player.attr[INTERACTING_OPT_ATTR]!!
+        val item = player.attr[INTERACTING_GROUNDITEM_ATTR]?.get() ?: run {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@walkPlugin
+        }
+        val opt = player.attr[INTERACTING_OPT_ATTR] ?: run {
+            player.writeMessage(Entity.NOTHING_INTERESTING_HAPPENS)
+            return@walkPlugin
+        }
         player.queue(TaskPriority.WEAK) {
             terminateAction = {
                 player.stopMovement()

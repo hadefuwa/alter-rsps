@@ -95,7 +95,9 @@ object PawnPathAction {
         }
 
         if (pawn is Player) {
-            if (pawn.attr[FACING_PAWN_ATTR]?.get() != other) {
+            // For player-to-player interactions, we should still execute the option
+            // even if the player isn't facing the target (e.g., for Follow)
+            if (other is Npc && pawn.attr[FACING_PAWN_ATTR]?.get() != other) {
                 return
             }
             if (other is Npc) {
@@ -136,6 +138,11 @@ object PawnPathAction {
             }
 
             if (other is Player) {
+                // Ensure INTERACTING_PLAYER_ATTR is set before executing the option handler
+                // This is important because handlers may rely on this attribute
+                if (pawn.attr[INTERACTING_PLAYER_ATTR]?.get() != other) {
+                    pawn.attr[INTERACTING_PLAYER_ATTR] = WeakReference(other)
+                }
                 val option = pawn.options[opt - 1]
                 if (option != null) {
                     val handled = world.plugins.executePlayerOption(pawn, option)

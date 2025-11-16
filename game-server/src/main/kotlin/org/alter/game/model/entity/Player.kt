@@ -269,10 +269,17 @@ open class Player(world: World) : Pawn(world) {
             val forceLogout = timers.exists(FORCE_DISCONNECTION_TIMER) && !timers.has(FORCE_DISCONNECTION_TIMER)
 
             if (!stopLogout || forceLogout) {
-                if (lock.canLogout()) {
-                    handleLogout()
-                    return
+                // If player explicitly requested logout, allow it even if lock state would normally prevent it
+                // This ensures players can always logout when they click the logout button
+                if (!lock.canLogout()) {
+                    // Temporarily set lock to allow logout
+                    lock = LockState.FULL_WITH_LOGOUT
                 }
+                handleLogout()
+                return
+            } else {
+                // Logout is being blocked - this is expected behavior during combat
+                // The player will be able to logout once combat ends and timer expires
             }
         }
 

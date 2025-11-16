@@ -14,6 +14,10 @@ class ClickMinimapHandler : MessageHandler<MoveMinimapClick> {
     ) {
        log(client, "Click minimap: x=%d, y=%d, type=%d", message.x, message.z, message.keyCombination)
        client.attr[CLIENT_KEY_COMBINATION] = message.keyCombination
+       
+       // Stop following when manually clicking to move on minimap
+       client.stopFollowing()
+       
        client.walkTo(message.x, message.z, MovementQueue.StepType.NORMAL)
     }
 }

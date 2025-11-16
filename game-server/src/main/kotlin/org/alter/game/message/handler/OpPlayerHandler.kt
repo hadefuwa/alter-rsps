@@ -37,6 +37,12 @@ class OpPlayerHandler : MessageHandler<OpPlayer> {
         client.closeInterfaceModal()
         client.interruptQueues()
         client.resetInteractions()
+        
+        // Stop following if starting a new interaction (unless it's another follow)
+        val optionName = client.options[optionIndex]
+        if (optionName != "Follow") {
+            client.stopFollowing()
+        }
 
         client.attr[INTERACTING_PLAYER_ATTR] = WeakReference(other)
         client.attr[INTERACTING_OPT_ATTR] = option
