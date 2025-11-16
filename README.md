@@ -193,9 +193,265 @@ The server provides the following HTTP endpoints:
 
 ## Development
 
-### Adding Custom Content
+### Plugin System Architecture
 
-Content is added via plugins in `game-plugins/src/main/kotlin/org/alter/plugins/content/`. See existing plugins for examples.
+The server uses a plugin-based architecture where all game content is implemented as **KotlinPlugin** classes. Plugins are automatically discovered and loaded at server startup.
+
+#### How Plugins Work
+
+1. **Plugin Discovery**: The server scans the classpath for all classes extending `KotlinPlugin`
+2. **Auto-Loading**: Plugins are instantiated automatically - no registration needed
+3. **Event Binding**: Plugins bind to game events (NPC clicks, item usage, etc.) in their `init {}` block
+
+### Creating Your First Plugin
+
+#### Basic Plugin Structure
+
+```kotlin
+package org.alter.plugins.content.areas.myarea
+
+import org.alter.game.Server
+import org.alter.game.model.World
+import org.alter.game.plugin.KotlinPlugin
+import org.alter.game.plugin.PluginRepository
+
+class MyPlugin(
+    r: PluginRepository,
+    world: World,
+    server: Server
+) : KotlinPlugin(r, world, server) {
+
+    init {
+        // Bind events here
+    }
+}
+```
+
+### Common Plugin Patterns
+
+#### 1. Creating NPCs
+
+```kotlin
+init {
+    // Spawn an NPC at coordinates (x, z, height)
+    spawnNpc("npc.shop_keeper", x = 3211, z = 3424, height = 0, walkRadius = 3)
+
+    // Handle NPC interactions
+    onNpcOption("npc.shop_keeper", "Talk-to") {
+        player.queue {
+            chatNpc(player, "Hello! How can I help you?")
+        }
+    }
+
+    onNpcOption("npc.shop_keeper", "Trade") {
+        player.openShop("My Shop")
+    }
+}
+```
+
+**RSCM Names**: NPCs, items, and objects use RSCM (RuneScape Config Manager) identifiers like `"npc.shop_keeper"` or `"item.bread"`. These are defined in the cache.
+
+#### 2. Creating Shops
+
+```kotlin
+init {
+    // Spawn the shopkeeper
+    spawnNpc("npc.shop_keeper_2825", 3212, 3425, 0, 0, Direction.SOUTH)
+
+    // Create the shop
+    createShop(
+        name = "Food Shop",
+        currency = CoinCurrency(),
+        stockSize = 50,
+        purchasePolicy = PurchasePolicy.BUY_TRADEABLES
+    ) {
+        // Add items to shop
+        items[0] = ShopItem(getRSCM("item.bread"), 100, 10, 50) // ID, stock, price, restock amount
+        items[1] = ShopItem(getRSCM("item.cake"), 100, 50, 50)
+    }
+
+    // Bind NPC to shop
+    onNpcOption("npc.shop_keeper_2825", "Trade") {
+        player.openShop("Food Shop")
+    }
+}
+```
+
+#### 3. Handling Item Interactions
+
+```kotlin
+init {
+    // Click item in inventory (option number based on right-click menu)
+    onItemOption("item.bread", 2) {  // Option 2 = "Eat"
+        player.message("You eat the bread.")
+        player.heal(5, 0)
+        player.inventory.remove(player.getInteractingItemSlot(), 1)
+    }
+
+    // Use item on another item
+    onItemOnItem("item.chisel", "item.diamond") {
+        player.message("You cut the diamond.")
+    }
+
+    // Use item on object
+    onItemOnObj("obj.altar", "item.bones") {
+        player.message("You offer the bones to the gods.")
+    }
+}
+```
+
+**Item Option Numbers**:
+- Option 1: Usually first custom action
+- Option 2: Common actions like "Eat", "Drink", "Wield"
+- Option 3-4: Additional actions
+- Option 5: Usually "Drop"
+
+#### 4. Handling Object Interactions
+
+```kotlin
+init {
+    // Click object (ladder, door, etc.)
+    onObjOption("obj.ladder_17385", "Climb-up") {
+        player.moveTo(x = 3210, z = 3424, height = 1)
+    }
+
+    // Spawn custom objects
+    spawnObj("obj.ladder_17385", x = 3210, z = 3424, height = 0, type = 10, rot = 0)
+}
+```
+
+#### 5. Creating Food Items
+
+```kotlin
+// Add to Food.kt enum
+LOBSTER(item = "item.lobster", heal = 12)
+
+// The EatingPlugin automatically binds all Food enum entries
+// No additional code needed!
+```
+
+#### 6. Player Dialogs
+
+```kotlin
+onNpcOption("npc.shopkeeper", "Talk-to") {
+    player.queue {
+        chatNpc(player, "Welcome to my shop!")
+        chatNpc(player, "Would you like to see what I have for sale?")
+
+        when (options(player, "Yes please.", "No thanks.")) {
+            1 -> player.openShop("My Shop")
+            2 -> chatPlayer(player, "No thanks.")
+        }
+    }
+}
+```
+
+### Finding RSCM IDs
+
+RSCM IDs are string identifiers for game objects. To find them:
+
+1. **Check existing plugins** - Look at similar content in `game-plugins/`
+2. **Use the cache** - The game cache contains all definitions
+3. **Common patterns**:
+   - NPCs: `"npc.name_id"` (e.g., `"npc.shop_keeper_2825"`)
+   - Items: `"item.name"` (e.g., `"item.bread"`, `"item.lobster"`)
+   - Objects: `"obj.name_id"` (e.g., `"obj.ladder_17385"`)
+
+### Project Structure for Plugins
+
+```
+game-plugins/src/main/kotlin/org/alter/plugins/content/
+├── areas/                    # Area-specific content
+│   ├── lumbridge/
+│   │   └── npcs/
+│   │       └── stores/
+│   │           └── LumbridgeShopPlugin.kt
+│   └── varrock/
+│       └── npcs/
+│           └── stores/
+│               └── VarrockFoodShopPlugin.kt
+├── items/                    # Item interactions
+│   └── consumables/
+│       └── food/
+│           ├── Food.kt      # Food definitions
+│           ├── Foods.kt     # Food mechanics
+│           └── EatingPlugin.kt
+├── mechanics/                # Game mechanics
+│   ├── prayer/
+│   └── hpregeneration/
+├── npcs/                     # Global NPC handlers
+├── objects/                  # Object interactions
+│   └── trapdoor/
+└── skills/                   # Skill implementations
+    └── agility/
+```
+
+### Configuration Files
+
+#### Defining Custom Data
+
+You can define custom content in JSON files under `data/cfg/`:
+
+**Example: `data/cfg/trapdoors/trapdoors.json`**
+```json
+[
+  {
+    "objectId": 1579,
+    "destinationX": 3209,
+    "destinationY": 9616,
+    "destinationZ": 0
+  }
+]
+```
+
+**Loading in Plugin:**
+```kotlin
+class TrapdoorService : Service {
+    override fun init(server: Server, world: World, serviceManager: ServiceManager) {
+        val file = File("./data/cfg/trapdoors/trapdoors.json")
+        val trapdoors = gson.fromJson(file.readText(), Array<Trapdoor>::class.java)
+        // Use trapdoors...
+    }
+}
+```
+
+### Best Practices
+
+1. **Organization**: Place plugins in appropriate folders (`areas/`, `items/`, `skills/`, etc.)
+2. **RSCM Usage**: Always use RSCM identifiers, never hardcode numeric IDs
+3. **Error Handling**: Wrap RSCM lookups in try-catch to handle missing items gracefully
+4. **Player Feedback**: Always message the player so they know something happened
+5. **Testing**: Test with multiple scenarios (full inventory, missing items, etc.)
+
+### Common Helper Functions
+
+```kotlin
+// Player extensions
+player.message("Hello!")              // Send chat message
+player.moveTo(x, z, height)          // Teleport player
+player.heal(amount, overheal)        // Heal HP
+player.animate(animId)               // Play animation
+player.playSound(soundId)            // Play sound
+player.openShop("Shop Name")         // Open shop interface
+player.getInteractingItemSlot()      // Get clicked item slot
+
+// Inventory
+player.inventory.add(itemId, amount)
+player.inventory.remove(slot, amount)
+player.inventory.contains(itemId)
+
+// Skills
+player.getSkills().getCurrentLevel(Skills.HITPOINTS)
+player.getSkills().getBaseLevel(Skills.ATTACK)
+
+// Timers
+player.timers[FOOD_DELAY] = 3       // Set timer (game ticks)
+player.timers.has(FOOD_DELAY)        // Check if timer active
+
+// RSCM lookups
+val itemId = getRSCM("item.bread")   // Get item ID
+val itemDef = getItem(itemId)        // Get item definition
+```
 
 ### Debugging
 
@@ -206,6 +462,23 @@ debug-examines: true
 debug-objects: true
 debug-packets: true
 ```
+
+**Console Logging:**
+```kotlin
+// Use System.err for console output (shows in IntelliJ/terminal)
+System.err.println("Debug: Plugin loaded")
+
+// Or write to files for persistent debugging
+java.io.File("debug.txt").appendText("Event triggered\n")
+```
+
+### Example: Complete Shop Plugin
+
+See [VarrockFoodShopPlugin.kt](game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/npcs/stores/VarrockFoodShopPlugin.kt) for a complete example of:
+- Spawning NPCs
+- Creating shops with dynamic pricing
+- Handling NPC dialogs
+- Using the Food enum
 
 ## Troubleshooting
 
