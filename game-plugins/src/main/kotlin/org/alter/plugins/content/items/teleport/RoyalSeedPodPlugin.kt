@@ -1,6 +1,5 @@
 package org.alter.plugins.content.items.teleport
 
-import org.alter.api.cfg.Items
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.World
@@ -33,20 +32,13 @@ class RoyalSeedPodPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     companion object {
-        private const val ROYAL_SEED_POD = 19564
+        private const val ROYAL_SEED_POD_ITEM = "item.royal_seed_pod"
         private const val ALLOWED_USERNAME = "pnda"
     }
 
     init {
-        // Handle "Teleport" option on Royal Seed Pod
-        onItemOption(item = Items.ROYAL_SEED_POD, option = "teleport") {
-            player.queue(TaskPriority.STRONG) {
-                player.handleCustomTeleport(this)
-            }
-        }
-
-        // Also handle direct item ID as fallback
-        onItemOption(item = ROYAL_SEED_POD, option = "teleport") {
+        // Handle "Teleport" option on Royal Seed Pod using RSCM name
+        onItemOption(item = ROYAL_SEED_POD_ITEM, option = "teleport") {
             player.queue(TaskPriority.STRONG) {
                 player.handleCustomTeleport(this)
             }
