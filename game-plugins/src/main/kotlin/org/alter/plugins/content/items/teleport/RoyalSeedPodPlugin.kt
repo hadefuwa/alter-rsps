@@ -19,7 +19,7 @@ import org.alter.plugins.content.magic.teleport
  * by entering X and Y values through the chatbox.
  *
  * Usage:
- * 1. Click "Teleport" on the Royal Seed Pod
+ * 1. Right-click the Royal Seed Pod and select "Commune"
  * 2. Enter X coordinate when prompted
  * 3. Enter Y coordinate when prompted
  * 4. Optionally enter height/plane (0-3)
@@ -37,8 +37,9 @@ class RoyalSeedPodPlugin(
     }
 
     init {
-        // Handle "Teleport" option on Royal Seed Pod using RSCM name
-        onItemOption(item = ROYAL_SEED_POD_ITEM, option = "teleport") {
+        // Handle "Commune" option on Royal Seed Pod using RSCM name
+        // The actual item options are: [Commune, Destroy]
+        onItemOption(item = ROYAL_SEED_POD_ITEM, option = "commune") {
             player.queue(TaskPriority.STRONG) {
                 player.handleCustomTeleport(this)
             }
