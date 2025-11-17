@@ -26,20 +26,38 @@ class GatePlugin(
         onWorldInit {
             world.getService(GateService::class.java)?.let { service ->
                 service.gates.forEach { gate ->
-                    onObjOption(obj = gate.closed.hinge, option = "open", lineOfSightDistance = 1) {
-                        openGate(player, player.getInteractingGameObj(), gate)
+                    // Register "open" option for closed gates
+                    try {
+                        onObjOption(obj = gate.closed.hinge, option = "open", lineOfSightDistance = 1) {
+                            openGate(player, player.getInteractingGameObj(), gate)
+                        }
+                    } catch (e: Exception) {
+                        // Option doesn't exist for this object
                     }
 
-                    onObjOption(obj = gate.closed.extension, option = "open", lineOfSightDistance = 1) {
-                        openGate(player, player.getInteractingGameObj(), gate)
+                    try {
+                        onObjOption(obj = gate.closed.extension, option = "open", lineOfSightDistance = 1) {
+                            openGate(player, player.getInteractingGameObj(), gate)
+                        }
+                    } catch (e: Exception) {
+                        // Option doesn't exist for this object
                     }
 
-                    onObjOption(obj = gate.opened.hinge, option = "close", lineOfSightDistance = 1) {
-                        closeGate(player, player.getInteractingGameObj(), gate)
+                    // Register "close" option for opened gates
+                    try {
+                        onObjOption(obj = gate.opened.hinge, option = "close", lineOfSightDistance = 1) {
+                            closeGate(player, player.getInteractingGameObj(), gate)
+                        }
+                    } catch (e: Exception) {
+                        // Option doesn't exist for this object
                     }
 
-                    onObjOption(obj = gate.opened.extension, option = "close", lineOfSightDistance = 1) {
-                        closeGate(player, player.getInteractingGameObj(), gate)
+                    try {
+                        onObjOption(obj = gate.opened.extension, option = "close", lineOfSightDistance = 1) {
+                            closeGate(player, player.getInteractingGameObj(), gate)
+                        }
+                    } catch (e: Exception) {
+                        // Option doesn't exist for this object
                     }
                 }
             }
