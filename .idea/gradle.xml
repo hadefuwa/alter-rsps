@@ -4,27 +4,21 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/Alter" />
-        <option name="gradleJvm" value="temurin-17" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/Alter" />
-            <option value="$PROJECT_DIR$/Alter/game-api" />
-            <option value="$PROJECT_DIR$/Alter/game-plugins" />
-            <option value="$PROJECT_DIR$/Alter/game-server" />
-            <option value="$PROJECT_DIR$/Alter/plugins" />
-            <option value="$PROJECT_DIR$/Alter/plugins/filestore" />
-            <option value="$PROJECT_DIR$/Alter/plugins/rscm" />
-            <option value="$PROJECT_DIR$/Alter/plugins/tools" />
-            <option value="$PROJECT_DIR$/Alter/util" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/game-api" />
+            <option value="$PROJECT_DIR$/game-plugins" />
+            <option value="$PROJECT_DIR$/game-server" />
+            <option value="$PROJECT_DIR$/plugins" />
+            <option value="$PROJECT_DIR$/plugins/filestore" />
+            <option value="$PROJECT_DIR$/plugins/rscm" />
+            <option value="$PROJECT_DIR$/plugins/tools" />
+            <option value="$PROJECT_DIR$/util" />
           </set>
         </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/alterrsps-openosrs" />
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/openosrs-client" />
       </GradleProjectSettings>
     </option>
   </component>

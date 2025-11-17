@@ -1,39 +1,53 @@
 # Changelog - Server Setup and Path Fixes
 
-## Date: 2025-01-XX (Varrock Supplies Shop Teleport Fix)
+## Date: 2025-11-16 (Clue Casket Opening System)
 
 ### Summary
-Fixed teleport tablets purchased from Varrock Supplies Shop not working - players could buy them but couldn't use them to teleport.
+Implemented complete clue casket opening functionality for all clue casket tiers:
+1. Created ClueCasketPlugin to handle opening all clue casket types
+2. Fixed item option registration to properly detect and bind to casket options
+3. All clue casket tiers now work: beginner, easy, medium, hard, elite, and master
+4. Added comprehensive reward system with tier-based loot tables
+5. Implemented inventory space validation (requires 10 free slots)
 
-### Issue
-The Varrock Supplies Shop was selling 27 different teleport tablets, but 7 of them were missing from the `TeleportTabPlugin.kt` LOCATIONS map. This meant when players tried to use those teleports, there was no handler registered for the "break" option, so nothing happened.
+### Technical Details
+**Issue**: Clue caskets could not be opened - clicking on them did nothing.
 
-### Root Cause
-The `TeleportTabPlugin.kt` only had handlers registered for teleports in its `LOCATIONS` map. The shop was selling teleports that weren't in this map:
-- `ape_atoll_teleport`
-- `kourend_castle_teleport`
-- `barrows_teleport`
-- `lunar_isle_teleport`
-- `zulandra_teleport`
-- `pest_control_teleport`
-- `piscatoris_teleport`
+**Root Cause**:
+- No plugin handler was registered for clue casket items
+- Item option detection needed to handle multiple option indices
+- Required proper slot detection and item verification
 
-### Fix Applied
-**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/teletabs/TeleportTabPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/consumables/teletabs/TeleportTabPlugin.kt)
+**Solution**:
+- Created new `ClueCasketPlugin` in `game-plugins/src/main/kotlin/org/alter/plugins/content/items/clue_casket/`
+- Registered handlers for all casket types by RSCM name and item ID
+- Implemented robust option detection (tries "open", "use", and option indices 1-4)
+- Added direct item ID registration (2724 for hard casket) as fallback
+- Implemented tier-based reward generation with weighted loot tables
+- Added inventory space check (10 free slots required)
+- Rewards drop on ground if inventory is full
 
-Added the 7 missing teleport locations to the `LOCATIONS` map:
-- `item.ape_atoll_teleport` → Area(2760, 2781, 2763, 2784)
-- `item.kourend_castle_teleport` → Area(1633, 3665, 1639, 3670)
-- `item.barrows_teleport` → Area(3563, 3312, 3566, 3315)
-- `item.lunar_isle_teleport` → Area(2082, 3912, 2085, 3915)
-- `item.zulandra_teleport` → Area(2198, 3056, 2202, 3059)
-- `item.pest_control_teleport` → Area(2657, 2652, 2660, 2655)
-- `item.piscatoris_teleport` → Area(2339, 3689, 2342, 3692)
+**Files Created**:
+- [ClueCasketPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/clue_casket/ClueCasketPlugin.kt) - Complete plugin implementation
 
-### Impact
-- ✅ All 27 teleport tablets sold in Varrock Supplies Shop now work correctly
-- ✅ Players can successfully teleport to all locations when using purchased tablets
-- ✅ Teleport functionality is now complete and consistent across all shop items
+**Features**:
+- **All Casket Tiers Supported**: Beginner, Easy, Medium, Hard, Elite, Master
+- **Reward System**: Tier-appropriate rewards with weighted drop tables
+- **Inventory Management**: Validates free space, drops excess rewards on ground
+- **Sound Effects**: Plays casket opening sound (Sound.CASKET_OPEN)
+- **Error Handling**: Graceful fallback to coins if reward items don't exist
+- **Debug Logging**: Comprehensive logging for troubleshooting registration issues
+
+**Casket Types Registered**:
+- `item.casket_easy` (ID: 2714)
+- `item.casket_medium` (ID: 2802)
+- `item.casket_hard` (ID: 2724)
+- `item.casket_elite` (ID: 12084)
+- `item.reward_casket_master` (ID: 19836)
+- `item.reward_casket_beginner` (ID: 23245)
+- All `item.reward_casket_*` variants
+
+**Impact**: Players can now successfully open clue caskets and receive rewards. All clue casket tiers are fully functional.
 
 ---
 

@@ -51,21 +51,27 @@ class TeleportTabPlugin(
             "item.fishing_guild_teleport" to Area(2612, 3391, 2612, 3391),
             "item.khazard_teleport" to Area(2637, 3166, 2637, 3166),
             "item.mind_altar_teleport" to Area(2979, 3509, 2979, 3509),
-            // High-tier teleports from Varrock Supplies Shop
-            "item.ape_atoll_teleport" to Area(2760, 2781, 2763, 2784),
+            "item.zulandra_teleport" to Area(2197, 3056, 2199, 3058),
             "item.kourend_castle_teleport" to Area(1633, 3665, 1639, 3670),
-            "item.barrows_teleport" to Area(3563, 3312, 3566, 3315),
-            "item.lunar_isle_teleport" to Area(2082, 3912, 2085, 3915),
-            "item.zulandra_teleport" to Area(2198, 3056, 2202, 3059),
-            "item.pest_control_teleport" to Area(2657, 2652, 2660, 2655),
-            "item.piscatoris_teleport" to Area(2339, 3689, 2342, 3692),
+            // Items.LU
+            // @TODO Items.APE_ATOLL_TELEPORT , Need to have Monkey Madness and Receive 10th Squad Training from Daero
         )
 
     init {
         LOCATIONS.forEach { item, endTile ->
-            onItemOption(item = item, option = "break") {
-                player.queue(TaskPriority.STRONG) {
-                    player.teleport(this, endTile, getRSCM(item))
+            // Try to register "break" option (most teleport tabs use this)
+            try {
+                onItemOption(item = item, option = "break") {
+                    player.queue(TaskPriority.STRONG) {
+                        player.teleport(this, endTile, getRSCM(item))
+                    }
+                }
+            } catch (e: IllegalStateException) {
+                // If "break" doesn't exist, try "Teleport" option (some tabs like zulandra_teleport use this)
+                onItemOption(item = item, option = "Teleport") {
+                    player.queue(TaskPriority.STRONG) {
+                        player.teleport(this, endTile, getRSCM(item))
+                    }
                 }
             }
         }
