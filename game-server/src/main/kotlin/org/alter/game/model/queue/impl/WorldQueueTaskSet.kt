@@ -11,6 +11,7 @@ import kotlin.coroutines.resume
  */
 class WorldQueueTaskSet : QueueTaskSet() {
     override fun cycle() {
+        val tasksToRemove = mutableListOf<QueueTask>()
         val iterator = queue.iterator()
         while (iterator.hasNext()) {
             val task = iterator.next()
@@ -25,10 +26,13 @@ class WorldQueueTaskSet : QueueTaskSet() {
             if (!task.suspended()) {
                 /*
                  * Task is no longer in a suspended state, which means its job is
-                 * complete.
+                 * complete. Collect it for removal after iteration to avoid
+                 * ConcurrentModificationException.
                  */
-                iterator.remove()
+                tasksToRemove.add(task)
             }
         }
+        // Remove completed tasks after iteration to avoid concurrent modification
+        tasksToRemove.forEach { queue.remove(it) }
     }
 }

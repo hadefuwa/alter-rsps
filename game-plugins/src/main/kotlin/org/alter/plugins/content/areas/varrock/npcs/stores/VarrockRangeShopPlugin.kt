@@ -16,45 +16,60 @@ import org.alter.plugins.content.mechanics.shops.CoinCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 /**
- * Varrock Skilling Supplies Shop
+ * Varrock Range Shop
  * 
- * A shop in the center of Varrock that sells tools and supplies for various skills.
- * Located at Varrock center (3204, 3425).
+ * A shop in the center of Varrock that sells ranged equipment and supplies.
+ * Located at Varrock center (3210, 3425).
  */
-class VarrockSkillingSuppliesShopPlugin(
+class VarrockRangeShopPlugin(
     r: PluginRepository,
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.shop_keeper_7913"
+    private val shopkeeper = "npc.fairy_shop_keeper"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
         "No thanks.",
     )
     
-    // Skilling supplies shop items - starting with 2 items, user will populate the rest
+    // Range shop items 
+    // first number is quantity, second is price, third is buy price, fourth is sell price
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.rune_pickaxe"), 50, 5000, 25),
-        ShopItem(getRSCM("item.rune_axe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.bronze_bolts"), 5000, 10, 25),
+        ShopItem(getRSCM("item.iron_bolts"), 5000, 10, 25),
+        ShopItem(getRSCM("item.adamant_bolts"), 5000, 1000, 25),
+        ShopItem(getRSCM("item.runite_bolts"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.shortbow"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.maple_shortbow"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.magic_shortbow"), 5000, 5000000, 25),
+        ShopItem(getRSCM("item.crossbow"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.dorgeshuun_crossbow"), 5000, 1000000, 25),
+        ShopItem(getRSCM("item.bone_bolts"), 5000, 100, 25),
+        ShopItem(getRSCM("item.green_dhide_body"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.green_dhide_chaps"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.green_dhide_vambraces"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.bronze_knife"), 5000, 10, 25),
+        ShopItem(getRSCM("item.iron_knife"), 5000, 20, 25),
+        ShopItem(getRSCM("item.rune_knife"), 5000, 10000, 25),       
     )
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3204, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3204, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3210, z = 3425, height = 0)
+        spawnNpc(shopkeeper, 3210, 3425, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
             if (npc.tile == shopkeeperTile) {
-                NpcInfo(npc).setTempName("Skilling Supplies Shopkeeper")
+                NpcInfo(npc).setTempName("Range Shopkeeper")
             }
         }
 
-        // Create the skilling supplies shop with enough space for items
+        // Create the range shop with enough space for items
         createShop(
-            name = "Varrock Skilling Supplies Shop",
+            name = "Moosa's Range Shop",
             currency = CoinCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
@@ -76,10 +91,10 @@ class VarrockSkillingSuppliesShopPlugin(
         }
     }
 
-    fun Player.shop() = this.openShop("Varrock Skilling Supplies Shop")
+    fun Player.shop() = this.openShop("Varrock Range Shop")
 
     suspend fun QueueTask.dialog(player: Player) {
-        chatNpc(player, "Welcome to the Varrock Skilling Supplies Shop! We have all the tools you need for your skills.")
+        chatNpc(player, "Welcome to the Varrock Range Shop! We have all kinds of ranged equipment and supplies.")
         chatNpc(player, "Would you like to see what we have for sale?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

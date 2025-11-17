@@ -16,45 +16,58 @@ import org.alter.plugins.content.mechanics.shops.CoinCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 /**
- * Varrock Skilling Supplies Shop
+ * Varrock Mage Shop
  * 
- * A shop in the center of Varrock that sells tools and supplies for various skills.
- * Located at Varrock center (3204, 3425).
+ * A shop in the center of Varrock that sells magic equipment and supplies.
+ * Located at Varrock center (3214, 3425).
  */
-class VarrockSkillingSuppliesShopPlugin(
+class VarrockMageShopPlugin(
     r: PluginRepository,
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.shop_keeper_7913"
+    private val shopkeeper = "npc.gnome_shop_keeper"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
         "No thanks.",
     )
     
-    // Skilling supplies shop items - starting with 2 items, user will populate the rest
+    // Mage shop items - starting with 2 items, user will populate the rest
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.rune_pickaxe"), 50, 5000, 25),
-        ShopItem(getRSCM("item.rune_axe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.fire_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.water_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.air_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.earth_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.body_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.cosmic_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.chaos_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.law_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.death_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.blood_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.soul_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.mind_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.wrath_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.ancient_staff"), 50000, 2000000, 25),
+        ShopItem(getRSCM("item.mind_shield"), 50000, 1000000, 25)
     )
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3204, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3204, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3214, z = 3425, height = 0)
+        spawnNpc(shopkeeper, 3214, 3425, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
             if (npc.tile == shopkeeperTile) {
-                NpcInfo(npc).setTempName("Skilling Supplies Shopkeeper")
+                NpcInfo(npc).setTempName("Mage Shopkeeper")
             }
         }
 
-        // Create the skilling supplies shop with enough space for items
+        // Create the mage shop with enough space for items
         createShop(
-            name = "Varrock Skilling Supplies Shop",
+            name = "Muhammad's Mage Shop",
             currency = CoinCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
@@ -76,10 +89,10 @@ class VarrockSkillingSuppliesShopPlugin(
         }
     }
 
-    fun Player.shop() = this.openShop("Varrock Skilling Supplies Shop")
+    fun Player.shop() = this.openShop("Varrock Mage Shop")
 
     suspend fun QueueTask.dialog(player: Player) {
-        chatNpc(player, "Welcome to the Varrock Skilling Supplies Shop! We have all the tools you need for your skills.")
+        chatNpc(player, "Welcome to the Varrock Mage Shop! We have all kinds of magical equipment and supplies.")
         chatNpc(player, "Would you like to see what we have for sale?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

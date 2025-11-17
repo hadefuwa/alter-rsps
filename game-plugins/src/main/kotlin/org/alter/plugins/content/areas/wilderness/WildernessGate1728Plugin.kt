@@ -90,66 +90,78 @@ class WildernessGate1728Plugin(
         }
 
         // Handle gate 1728 (closed state) - open action
+        // Track registered options to avoid duplicates
+        val registeredOpenOptions = mutableSetOf<String>()
+        
         try {
             val gateDef = getObject(CLOSED_GATE)
             val gateOptions: List<String> = gateDef.actions.filterNotNull().map { it.toLowerCase() }
 
             gateOptions.forEach { option: String ->
-                if (option == "open" || option == "operate") {
+                if ((option == "open" || option == "operate") && !registeredOpenOptions.contains(option)) {
                     onObjOption(obj = CLOSED_GATE, option = option, lineOfSightDistance = 1) {
                         openGate(this)
                     }
+                    registeredOpenOptions.add(option)
                 }
             }
         } catch (e: Exception) {
             // Object might not exist in cache, use RSCM name instead
         }
 
-        // Handle using RSCM name for closed gate
+        // Handle using RSCM name for closed gate (only if not already registered)
         try {
-            if (objHasOption("object.gate_1728", "open")) {
+            if (objHasOption("object.gate_1728", "open") && !registeredOpenOptions.contains("open")) {
                 onObjOption(obj = "object.gate_1728", option = "open", lineOfSightDistance = 1) {
                     openGate()
                 }
+                registeredOpenOptions.add("open")
             }
             
-            if (objHasOption("object.gate_1728", "operate")) {
+            if (objHasOption("object.gate_1728", "operate") && !registeredOpenOptions.contains("operate")) {
                 onObjOption(obj = "object.gate_1728", option = "operate", lineOfSightDistance = 1) {
                     openGate()
                 }
+                registeredOpenOptions.add("operate")
             }
         } catch (e: Exception) {
             // Options might not exist
         }
 
         // Handle gate 1729 (opened state) - close action
+        // Track registered options to avoid duplicates
+        val registeredCloseOptions = mutableSetOf<String>()
+        
         try {
             val gateDef = getObject(OPENED_GATE)
             val gateOptions: List<String> = gateDef.actions.filterNotNull().map { it.toLowerCase() }
 
             gateOptions.forEach { option: String ->
-                if (option == "close" || option == "operate") {
+                if ((option == "close" || option == "operate") && !registeredCloseOptions.contains(option)) {
                     onObjOption(obj = OPENED_GATE, option = option, lineOfSightDistance = 1) {
                         closeGate(this)
                     }
+                    registeredCloseOptions.add(option)
                 }
             }
         } catch (e: Exception) {
             // Object might not exist in cache, use RSCM name instead
         }
 
-        // Handle using RSCM name for opened gate (if it exists)
+        // Handle using RSCM name for opened gate (only if not already registered)
         try {
-            if (objHasOption("object.null_1729", "close")) {
+            if (objHasOption("object.null_1729", "close") && !registeredCloseOptions.contains("close")) {
                 onObjOption(obj = "object.null_1729", option = "close", lineOfSightDistance = 1) {
                     closeGate()
                 }
+                registeredCloseOptions.add("close")
             }
             
-            if (objHasOption("object.null_1729", "operate")) {
+            if (objHasOption("object.null_1729", "operate") && !registeredCloseOptions.contains("operate")) {
                 onObjOption(obj = "object.null_1729", option = "operate", lineOfSightDistance = 1) {
                     closeGate()
                 }
+                registeredCloseOptions.add("operate")
             }
         } catch (e: Exception) {
             // Options might not exist

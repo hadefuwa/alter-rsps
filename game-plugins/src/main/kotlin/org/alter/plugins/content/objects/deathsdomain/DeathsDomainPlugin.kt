@@ -65,23 +65,18 @@ class DeathsDomainPlugin(
         // Common interaction options for Death's Domain
         val domainOptions = listOf("enter", "teleport", "use", "operate", "climb-into", "climb-into-coffin", "climb-down")
         
+        // Track which options we've already registered to avoid duplicates
+        val registeredOptions = mutableSetOf<String>()
+        
         domainOptions.forEach { option ->
-            // Try using RSCM name first
+            // Try using RSCM name
             try {
-                if (objHasOption("object.deaths_domain_39547", option)) {
+                if (objHasOption("object.deaths_domain_39547", option) && !registeredOptions.contains(option)) {
                     onObjOption(obj = "object.deaths_domain_39547", option = option, logic = enterDeathsDomain)
+                    registeredOptions.add(option)
                 }
             } catch (e: Exception) {
                 // Option might not exist, continue
-            }
-            
-            // Also handle by object ID directly (using RSCM name)
-            try {
-                if (objHasOption("object.deaths_domain_39547", option)) {
-                    onObjOption(obj = "object.deaths_domain_39547", option = option, logic = enterDeathsDomain)
-                }
-            } catch (e: Exception) {
-                // Option might not exist, that's okay
             }
         }
 
