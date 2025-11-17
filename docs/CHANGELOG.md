@@ -1,5 +1,142 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-17 (Guard Pickpocketing Fix, Royal Seed Pod Teleporter & Teleport Guide)
+
+### Summary
+Fixed guard pickpocketing system and added custom teleportation features:
+1. Fixed guard pickpocketing - guards were not pickpocketable due to NPC ID mismatch
+2. Created Royal Seed Pod custom coordinate teleporter (Pnda character only)
+3. Created comprehensive teleport locations guide in markdown format
+4. Removed character save data from gitignore for git tracking
+
+### Key Changes:
+
+#### 1. Guard Pickpocketing Fix
+**Issue**: Guards in Varrock were not pickpocketable despite having pickpocket configuration.
+
+**Root Cause**:
+- Varrock spawn plugin was spawning guards 11912-11915
+- Pickpocket configuration was set for guards 397-400
+- The spawned guard NPCs (11912-11915) don't have "pickpocket" option in OSRS cache
+- Guards 3010-3011 are confirmed to have the pickpocket option in cache
+
+**Fix Applied**:
+- Updated [data/cfg/thieving/pickpockets.json](../data/cfg/thieving/pickpockets.json):
+  - Changed NPC list from guards 397-400 to guards 3010-3011
+  - Kept level 40 requirement, 46.8 XP, and coin loot (30-60)
+- Updated [game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/spawns/SpawnPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/spawns/SpawnPlugin.kt):
+  - Changed all guard spawns to use guard_3010 and guard_3011
+  - Updated Varrock Square guards (3 spawns)
+  - Updated Castle Entrance guards (4 spawns)
+  - Updated Castle Courtyard guards (4 spawns)
+  - Updated Castle Interior guards (2 spawns)
+  - Updated Upper Floor guards (2 spawns)
+
+**Impact**: Guards in Varrock can now be pickpocketed successfully by players with 40+ Thieving.
+
+---
+
+#### 2. Royal Seed Pod Custom Coordinate Teleporter
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/teleport/RoyalSeedPodPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/teleport/RoyalSeedPodPlugin.kt) (NEW)
+
+**Feature**: Created custom teleportation system using Royal Seed Pod (item ID 19564) that allows the player "Pnda" to teleport to any coordinates by entering X, Y, and Height values.
+
+**Implementation**:
+- Item restriction: Only works for username "pnda" (case-insensitive)
+- Prompts player to enter X coordinate via chatbox input
+- Prompts player to enter Y coordinate via chatbox input
+- Prompts player to enter height/plane (0-3, defaults to 0)
+- Validates coordinates (X/Y must be 0-16383, height must be 0-3)
+- Uses TeleportType.MODERN for teleportation animation
+- Provides feedback messages during each step
+
+**Usage**:
+1. Get Royal Seed Pod: `::item 19564`
+2. Click "Teleport" option on the item
+3. Enter X coordinate when prompted
+4. Enter Y coordinate when prompted
+5. Enter height (0-3) or leave blank for ground level
+6. Player teleports to the specified location
+
+**Security**: Other players receive message "The Royal Seed Pod glows briefly, but nothing happens..." when trying to use it.
+
+**Impact**: Provides Pnda character with admin-level teleportation capabilities for server management and testing.
+
+---
+
+#### 3. Teleport Locations Reference Guide
+**File**: [guides/TELEPORT_LOCATIONS.md](../guides/TELEPORT_LOCATIONS.md) (NEW)
+
+**Feature**: Created comprehensive markdown reference guide for all teleport locations in the server.
+
+**Content**:
+- **Main Cities** (8 locations): Varrock, Lumbridge, Falador, Edgeville, Yanille, Gnome Stronghold, Camelot, Ardougne
+- **Wilderness & PvP Areas** (8 locations): Mage Bank, Lava Dragon Isle, Wilderness Volcano, Graveyard of Shadows, Dark Warriors' Fortress, Chaos Temple, Bandit Camp, Resource Area
+- **Dungeons & Caves** (8 locations): Taverley Dungeon, Brimhaven Dungeon, Ancient Cavern, God Wars Dungeon, Slayer Tower, Stronghold of Security, TzHaar City
+- **Skilling Locations** (8 locations): Seers' Village, Catherby, Fishing Guild, Mining Guild, Crafting Guild, Rimmington, Port Sarim, Draynor Village
+- **Desert Cities & Towns** (6 locations): Al Kharid, Duel Arena, Shantay Pass, Pollnivneach, Nardah, Sophanem
+- **Special & Island Locations** (4 locations): Karamja, Ape Atoll, TzHaar Fight Cave, TzHaar Fight Pit
+- **Northern Locations** (6 locations): Barbarian Outpost, Barbarian Village, Burthorpe, Taverley, Rellekka, Jatizso
+- **Test & Special Areas** (1 location): Thieving Test Area
+- **Wilderness Obelisk Locations** (6 obelisk zones with coordinate ranges)
+
+**Additional Features**:
+- Usage instructions for Royal Seed Pod coordinate teleporter
+- Quick command reference for admin teleport commands
+- Coordinate system explanation (X/Y range, height levels)
+- All coordinates organized in markdown tables with X, Y, Height, and Notes columns
+
+**Total Locations**: 50+ teleport destinations documented
+
+**Impact**: Provides quick reference for all available teleport coordinates, useful for both admins and the Royal Seed Pod custom teleporter.
+
+---
+
+#### 4. Character Save Data Git Tracking
+**File**: [.gitignore](../.gitignore)
+
+**Change**: Removed `/data/saves/` from .gitignore to enable git tracking of player save data.
+
+**Reason**: User requested character save data to be tracked by git going forward to prevent data loss.
+
+**Impact**: Future character saves will be committed to git repository. Previous save data was already lost (not recoverable as it was never tracked).
+
+---
+
+#### 5. Wilderness Gate Compilation Fix
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/WildernessGate1728Plugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/WildernessGate1728Plugin.kt)
+
+**Issue**: Compilation errors in WildernessGate1728Plugin.kt preventing build.
+
+**Errors Fixed**:
+- Added missing import: `import dev.openrune.cache.CacheManager.getObject`
+- Changed `.lowercase()` to `.toLowerCase()` (Kotlin compatibility)
+- Added explicit type annotations to resolve overload ambiguity
+- Fixed lambda context by changing `openGate()` to `openGate(this)` and `closeGate()` to `closeGate(this)`
+
+**Impact**: Wilderness gate (object 1728) now compiles and functions correctly.
+
+---
+
+### Git Changes
+- Committed all fixes with message: "Fix guard pickpocketing and add Royal Seed Pod teleporter"
+- Created tag: **v1.0.1**
+- Pushed to remote repository
+
+---
+
+### Files Modified
+- `.gitignore` - Removed /data/saves/ entry
+- `data/cfg/thieving/pickpockets.json` - Changed guard NPCs to 3010-3011
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/varrock/spawns/SpawnPlugin.kt` - Changed all guard spawns to 3010-3011
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/areas/wilderness/WildernessGate1728Plugin.kt` - Fixed compilation errors
+
+### Files Created
+- `game-plugins/src/main/kotlin/org/alter/plugins/content/items/teleport/RoyalSeedPodPlugin.kt` - Royal Seed Pod custom teleporter
+- `guides/TELEPORT_LOCATIONS.md` - Comprehensive teleport locations guide
+
+---
+
 ## Date: 2025-11-16 (Clue Casket Opening System)
 
 ### Summary
