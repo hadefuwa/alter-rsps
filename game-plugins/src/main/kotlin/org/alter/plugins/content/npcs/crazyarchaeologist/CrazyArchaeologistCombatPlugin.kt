@@ -44,9 +44,9 @@ class CrazyArchaeologistCombatPlugin(
         private const val BOOK_RAIN_ATTACK_CHANCE_NUMERATOR = 1  // 1 in BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR
         private const val BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR = 2  // 50% chance when conditions are met (increased from 25%)
         
-        private const val UNEQUIP_ATTACK_MIN_COUNT = 5  // Minimum attacks before unequip can trigger
+        private const val UNEQUIP_ATTACK_MIN_COUNT = 4  // Minimum attacks before unequip can trigger (reduced from 5)
         private const val UNEQUIP_ATTACK_CHANCE_NUMERATOR = 1  // 1 in UNEQUIP_ATTACK_CHANCE_DENOMINATOR
-        private const val UNEQUIP_ATTACK_CHANCE_DENOMINATOR = 4  // 25% chance when conditions are met
+        private const val UNEQUIP_ATTACK_CHANCE_DENOMINATOR = 3  // 33% chance when conditions are met (increased from 25%)
         
         /**
          * Special effect chance constants.
@@ -302,58 +302,102 @@ class CrazyArchaeologistCombatPlugin(
                     if (nearbyPlayers.isNotEmpty() && isAlive()) {
                         postAttackLogic(nearbyPlayers.first())
                     }
-                } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT && 
-                    this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
-                    // Teleport a random player
-                    if (isAlive()) {  // Check before executing special attack
-                        val randomPlayer = nearbyPlayers.random()
-                        teleportAttack(randomPlayer)
-                        attackCount = 0
-                    }
-                } else if (attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT && 
-                          this.world.chance(BOOK_RAIN_ATTACK_CHANCE_NUMERATOR, BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR)) {
-                    // Book rain on center of all players
-                    if (isAlive()) {  // Check before executing special attack
-                        val centerTile = if (nearbyPlayers.size == 1) {
-                            nearbyPlayers.first().tile
-                        } else {
-                            // Calculate center tile of all players
-                            val avgX = nearbyPlayers.sumOf { it.tile.x } / nearbyPlayers.size
-                            val avgZ = nearbyPlayers.sumOf { it.tile.z } / nearbyPlayers.size
-                            Tile(avgX, avgZ, this.tile.height)
-                        }
-                        bookRainAttackAtTile(centerTile)
-                        attackCount = 0
-                    }
-                } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT && 
-                          this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
-                    // Unequip attack on a random player
-                    if (isAlive()) {  // Check before executing special attack
-                        val randomPlayer = nearbyPlayers.random()
-                        unequipAttack(randomPlayer)
-                        attackCount = 0
-                    }
                 } else {
-                    // Regular magic attacks - attack ALL nearby players simultaneously
-                    // These are nullified by Protect from Missiles prayer
-                    if (isAlive()) {  // Check before executing regular attacks
-                        val bookType = when (this.world.random(3)) {
-                            0 -> BookType.NORMAL
-                            1 -> BookType.EXPLOSIVE
-                            2 -> BookType.FREEZE
-                            else -> BookType.NORMAL
+                    // When multiple players are present, prioritize book rain attack (AOE is more effective)
+                    val hasMultiplePlayers = nearbyPlayers.size > 1
+                    
+                    // Check book rain first if multiple players are present, otherwise check teleport first
+                    // With multiple players, book rain has higher chance (guaranteed if conditions met)
+                    if (hasMultiplePlayers && attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT) {
+                        // With multiple players, book rain triggers more often - check with higher probability
+                        val bookRainChance = if (attackCount >= 5) {
+                            // After 5 attacks, 75% chance (3 in 4)
+                            this.world.chance(3, 4)
+                        } else {
+                            // After 3-4 attacks, 50% chance (1 in 2)
+                            this.world.chance(BOOK_RAIN_ATTACK_CHANCE_NUMERATOR, BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR)
                         }
                         
-                        // Attack all players at once
-                        nearbyPlayers.forEach { player ->
-                            if (isAlive()) {  // Check before each attack
-                                bookAttack(player, bookType)
+                        if (bookRainChance) {
+                            // Book rain on center of all players (multiple players present)
+                            if (isAlive()) {  // Check before executing special attack
+                                // Calculate center tile of all players
+                                val avgX = nearbyPlayers.sumOf { it.tile.x } / nearbyPlayers.size
+                                val avgZ = nearbyPlayers.sumOf { it.tile.z } / nearbyPlayers.size
+                                val centerTile = Tile(avgX, avgZ, this.tile.height)
+                                bookRainAttackAtTile(centerTile)
+                                attackCount = 0
+                            }
+                        } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT && 
+                            this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
+                            // Teleport a random player (only if book rain didn't trigger)
+                            if (isAlive()) {  // Check before executing special attack
+                                val randomPlayer = nearbyPlayers.random()
+                                teleportAttack(randomPlayer)
+                                attackCount = 0
+                            }
+                        } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT &&
+                          this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
+                            // Unequip attack on a random player (multiple players scenario)
+                            if (isAlive()) {  // Check before executing special attack
+                                val randomPlayer = nearbyPlayers.random()
+                                unequipAttack(randomPlayer)
+                                attackCount = 0
                             }
                         }
-                        
-                        // Post attack logic for first player (for timing)
-                        if (nearbyPlayers.isNotEmpty() && isAlive()) {
-                            postAttackLogic(nearbyPlayers.first())
+                    } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT && 
+                        this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
+                        // Teleport a random player (single player scenario)
+                        if (isAlive()) {  // Check before executing special attack
+                            val randomPlayer = nearbyPlayers.random()
+                            teleportAttack(randomPlayer)
+                            attackCount = 0
+                        }
+                    } else if (attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT && 
+                              this.world.chance(BOOK_RAIN_ATTACK_CHANCE_NUMERATOR, BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR)) {
+                        // Book rain on center of all players (single player or fallback)
+                        if (isAlive()) {  // Check before executing special attack
+                            val centerTile = if (nearbyPlayers.size == 1) {
+                                nearbyPlayers.first().tile
+                            } else {
+                                // Calculate center tile of all players
+                                val avgX = nearbyPlayers.sumOf { it.tile.x } / nearbyPlayers.size
+                                val avgZ = nearbyPlayers.sumOf { it.tile.z } / nearbyPlayers.size
+                                Tile(avgX, avgZ, this.tile.height)
+                            }
+                            bookRainAttackAtTile(centerTile)
+                            attackCount = 0
+                        }
+                    } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT && 
+                          this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
+                        // Unequip attack on a random player (single player scenario)
+                        if (isAlive()) {  // Check before executing special attack
+                            val randomPlayer = nearbyPlayers.random()
+                            unequipAttack(randomPlayer)
+                            attackCount = 0
+                        }
+                    } else {
+                        // Regular magic attacks - attack ALL nearby players simultaneously
+                        // These are nullified by Protect from Missiles prayer
+                        if (isAlive()) {  // Check before executing regular attacks
+                            val bookType = when (this.world.random(3)) {
+                                0 -> BookType.NORMAL
+                                1 -> BookType.EXPLOSIVE
+                                2 -> BookType.FREEZE
+                                else -> BookType.NORMAL
+                            }
+                            
+                            // Attack all players at once
+                            nearbyPlayers.forEach { player ->
+                                if (isAlive()) {  // Check before each attack
+                                    bookAttack(player, bookType)
+                                }
+                            }
+                            
+                            // Post attack logic for first player (for timing)
+                            if (nearbyPlayers.isNotEmpty() && isAlive()) {
+                                postAttackLogic(nearbyPlayers.first())
+                            }
                         }
                     }
                 }
