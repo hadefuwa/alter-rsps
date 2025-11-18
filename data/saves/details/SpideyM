@@ -1,0 +1,437 @@
+{
+  "loginUsername": "SpideyM",
+  "passwordHash": "$2a$16$cYdpEx0CuNm2FO0ejzEfCuLHRPFkzN5FObwlck1PrFlkNSJf1XaHi",
+  "previousXteas": [
+    -228799331,
+    1329181647,
+    1784758148,
+    -1792646898
+  ],
+  "attributes": {
+    "details": {
+      "tile": [
+        3211,
+        3424,
+        0
+      ],
+      "privilege": "PLAYER",
+      "runEnergy": 10000.0,
+      "displayMode": "FIXED"
+    },
+    "appearance": {
+      "looks": [
+        15,
+        9,
+        3,
+        8,
+        0,
+        3,
+        1
+      ],
+      "colors": [
+        0,
+        27,
+        9,
+        0,
+        0
+      ],
+      "gender": "MALE"
+    },
+    "skills": {
+      "attack": {
+        "id": 0,
+        "level": 76,
+        "xp": 1338992.1
+      },
+      "defence": {
+        "id": 1,
+        "level": 75,
+        "xp": 1257832.1
+      },
+      "strength": {
+        "id": 2,
+        "level": 75,
+        "xp": 1237392.1
+      },
+      "hitpoints": {
+        "id": 3,
+        "level": 75,
+        "xp": 1279124.4000000001
+      },
+      "ranged": {
+        "id": 4,
+        "level": 1,
+        "xp": 0.0
+      },
+      "prayer": {
+        "id": 5,
+        "level": 47,
+        "xp": 78000.0
+      },
+      "magic": {
+        "id": 6,
+        "level": 1,
+        "xp": 0.0
+      },
+      "cooking": {
+        "id": 7,
+        "level": 1,
+        "xp": 0.0
+      },
+      "woodcutting": {
+        "id": 8,
+        "level": 1,
+        "xp": 0.0
+      },
+      "fletching": {
+        "id": 9,
+        "level": 1,
+        "xp": 0.0
+      },
+      "fishing": {
+        "id": 10,
+        "level": 1,
+        "xp": 0.0
+      },
+      "firemaking": {
+        "id": 11,
+        "level": 1,
+        "xp": 0.0
+      },
+      "crafting": {
+        "id": 12,
+        "level": 1,
+        "xp": 0.0
+      },
+      "smithing": {
+        "id": 13,
+        "level": 1,
+        "xp": 0.0
+      },
+      "mining": {
+        "id": 14,
+        "level": 1,
+        "xp": 0.0
+      },
+      "herblore": {
+        "id": 15,
+        "level": 1,
+        "xp": 0.0
+      },
+      "agility": {
+        "id": 16,
+        "level": 1,
+        "xp": 0.0
+      },
+      "thieving": {
+        "id": 17,
+        "level": 1,
+        "xp": 0.0
+      },
+      "slayer": {
+        "id": 18,
+        "level": 1,
+        "xp": 0.0
+      },
+      "farming": {
+        "id": 19,
+        "level": 1,
+        "xp": 0.0
+      },
+      "runecraft": {
+        "id": 20,
+        "level": 1,
+        "xp": 0.0
+      },
+      "hunter": {
+        "id": 21,
+        "level": 1,
+        "xp": 0.0
+      },
+      "construction": {
+        "id": 22,
+        "level": 1,
+        "xp": 0.0
+      },
+      "skill": {
+        "id": 24,
+        "level": 1,
+        "xp": 0.0
+      }
+    },
+    "attribute": {
+      "appearance_set": false,
+      "poison_ticks_left": 23,
+      "inf_vars": 1
+    },
+    "timers": {},
+    "containers": {
+      "bank": {
+        "0": {
+          "id": 1201,
+          "amount": 2
+        },
+        "1": {
+          "id": 892,
+          "amount": 182
+        },
+        "2": {
+          "id": 13038,
+          "amount": 1
+        },
+        "3": {
+          "id": 113,
+          "amount": 47
+        },
+        "4": {
+          "id": 1042,
+          "amount": 1
+        },
+        "5": {
+          "id": 3024,
+          "amount": 48
+        },
+        "6": {
+          "id": 30537,
+          "amount": 1
+        },
+        "7": {
+          "id": 2428,
+          "amount": 50
+        },
+        "8": {
+          "id": 1333,
+          "amount": 3
+        },
+        "9": {
+          "id": 29790,
+          "amount": 1
+        },
+        "10": {
+          "id": 9185,
+          "amount": 1
+        },
+        "11": {
+          "id": 1093,
+          "amount": 1
+        },
+        "12": {
+          "id": 13108,
+          "amount": 1
+        },
+        "13": {
+          "id": 1347,
+          "amount": 1
+        },
+        "14": {
+          "id": 29562,
+          "amount": 1
+        },
+        "15": {
+          "id": 4708,
+          "amount": 1
+        },
+        "16": {
+          "id": 4087,
+          "amount": 1
+        },
+        "17": {
+          "id": 13318,
+          "amount": 1
+        },
+        "18": {
+          "id": 1127,
+          "amount": 1
+        },
+        "19": {
+          "id": 4890,
+          "amount": 1
+        },
+        "20": {
+          "id": 652,
+          "amount": 1
+        },
+        "21": {
+          "id": 1044,
+          "amount": 1
+        },
+        "22": {
+          "id": 2513,
+          "amount": 1
+        },
+        "23": {
+          "id": 4718,
+          "amount": 1
+        },
+        "24": {
+          "id": 26223,
+          "amount": 1
+        },
+        "25": {
+          "id": 229,
+          "amount": 8
+        },
+        "26": {
+          "id": 115,
+          "amount": 1
+        },
+        "27": {
+          "id": 1113,
+          "amount": 1
+        },
+        "28": {
+          "id": 565,
+          "amount": 23
+        },
+        "29": {
+          "id": 13356,
+          "amount": 1
+        },
+        "30": {
+          "id": 561,
+          "amount": 53
+        },
+        "31": {
+          "id": 532,
+          "amount": 3
+        },
+        "32": {
+          "id": 141,
+          "amount": 1
+        },
+        "33": {
+          "id": 4587,
+          "amount": 1
+        },
+        "34": {
+          "id": 1147,
+          "amount": 1
+        },
+        "35": {
+          "id": 11019,
+          "amount": 1
+        }
+      },
+      "equipment": {
+        "0": {
+          "id": 1149,
+          "amount": 1
+        },
+        "2": {
+          "id": 1712,
+          "amount": 1
+        },
+        "3": {
+          "id": 29796,
+          "amount": 1
+        },
+        "4": {
+          "id": 4720,
+          "amount": 1
+        },
+        "7": {
+          "id": 4730,
+          "amount": 1
+        },
+        "9": {
+          "id": 7460,
+          "amount": 1
+        },
+        "10": {
+          "id": 19927,
+          "amount": 1
+        }
+      },
+      "inventory": {
+        "0": {
+          "id": 28540,
+          "amount": 1
+        },
+        "1": {
+          "id": 995,
+          "amount": 52438729
+        },
+        "2": {
+          "id": 229,
+          "amount": 1
+        },
+        "3": {
+          "id": 229,
+          "amount": 1
+        },
+        "4": {
+          "id": 2434,
+          "amount": 1
+        },
+        "5": {
+          "id": 1113,
+          "amount": 1
+        },
+        "6": {
+          "id": 560,
+          "amount": 65
+        },
+        "7": {
+          "id": 11212,
+          "amount": 57
+        },
+        "8": {
+          "id": 892,
+          "amount": 121
+        },
+        "9": {
+          "id": 1442,
+          "amount": 1
+        },
+        "10": {
+          "id": 4131,
+          "amount": 1
+        },
+        "11": {
+          "id": 861,
+          "amount": 1
+        },
+        "12": {
+          "id": 9143,
+          "amount": 161
+        },
+        "13": {
+          "id": 2434,
+          "amount": 1
+        },
+        "14": {
+          "id": 11283,
+          "amount": 1
+        },
+        "15": {
+          "id": 1305,
+          "amount": 1
+        },
+        "16": {
+          "id": 2434,
+          "amount": 1
+        },
+        "23": {
+          "id": 4984,
+          "amount": 1
+        }
+      }
+    },
+    "varps": {
+      "100": "2920",
+      "1": "173",
+      "-1": "262",
+      "1000": "300",
+      "12": "843",
+      "60817531": "904",
+      "32": "1021",
+      "259": "1075",
+      "1543503872": "1105",
+      "-2147483648": "3074",
+      "2": "1306",
+      "8": "1666",
+      "256": "3190",
+      "100663296": "3417"
+    }
+  }
+}
