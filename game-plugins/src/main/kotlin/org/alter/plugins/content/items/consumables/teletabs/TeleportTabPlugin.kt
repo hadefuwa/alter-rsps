@@ -54,6 +54,12 @@ class TeleportTabPlugin(
             "item.mind_altar_teleport" to Area(2979, 3509, 2979, 3509),
             "item.zulandra_teleport" to Area(2197, 3056, 2199, 3058),
             "item.kourend_castle_teleport" to Area(1633, 3665, 1639, 3670),
+            
+            // Ancient teleport tabs (missing from original list)
+            "item.annakarl_teleport" to Area(3293, 3885, 3297, 3888),
+            "item.kharyrll_teleport" to Area(3491, 3476, 3494, 3478),
+            "item.senntisten_teleport" to Area(3346, 3343, 3350, 3346),
+            "item.dareeyak_teleport" to Area(2965, 3693, 2969, 3697),
             // Items.LU
             // @TODO Items.APE_ATOLL_TELEPORT , Need to have Monkey Madness and Receive 10th Squad Training from Daero
         )
@@ -80,12 +86,15 @@ class TeleportTabPlugin(
             if (!world.plugins.isItemBound(itemId, 2)) {
                 if (interfaceOptions.size >= 2 && interfaceOptions[1] != null) {
                     try {
+                        // Use onItemOption which is the public API
                         onItemOption(item = item, option = 2) {
                             player.queue(TaskPriority.STRONG) {
                                 player.teleport(this, endTile, tabId)
                             }
                         }
                         return // Successfully registered, exit
+                    } catch (e: IllegalStateException) {
+                        // Option already bound (race condition)
                     } catch (e: Exception) {
                         // Option 2 registration failed, try other options
                     }
@@ -103,7 +112,7 @@ class TeleportTabPlugin(
                         }
                         return
                     } catch (e: Exception) {
-                        // Option 1 registration failed
+                        // Failed to register option 1
                     }
                 }
             }
@@ -118,7 +127,7 @@ class TeleportTabPlugin(
                     }
                     return
                 } catch (e: Exception) {
-                    // "break" option registration failed
+                    // Failed to register 'break' option
                 }
             }
             
@@ -132,7 +141,7 @@ class TeleportTabPlugin(
                     }
                     return
                 } catch (e: Exception) {
-                    // "Teleport" option registration failed
+                    // Failed to register 'Teleport' option
                 }
             }
             
@@ -148,7 +157,7 @@ class TeleportTabPlugin(
                         }
                         return
                     } catch (e: Exception) {
-                        // This option name failed, try next
+                        // Failed to register option
                     }
                 }
             }
@@ -165,15 +174,13 @@ class TeleportTabPlugin(
                             }
                             return
                         } catch (e: Exception) {
-                            // This option index failed
+                            // Failed to register option
                         }
                     }
                 }
             }
-            
-            println("Warning: Could not register any handler for teleport tab $item (ID: $itemId)")
         } catch (e: Exception) {
-            println("Error registering teleport tab $item: ${e.message}")
+            // Error registering teleport tab
         }
     }
 
@@ -185,19 +192,37 @@ class TeleportTabPlugin(
         endArea: Area,
         tab: Int,
     ) {
-        if (canTeleport(TeleportType.MODERN) && inventory.contains(tab)) {
-            inventory.remove(item = tab)
-            prepareForTeleport()
-            lock = LockState.FULL_WITH_DAMAGE_IMMUNITY
-            animate(id = 4069, delay = 16)
-            playSound(id = 965, volume = 1, delay = 15)
-            it.wait(cycles = 3)
-            graphic(id = 678)
-            animate(id = 4071)
-            it.wait(cycles = 2)
-            animate(id = -1)
-            unlock()
-            moveTo(tile = endArea.randomTile)
+        // Check if player can teleport
+        if (!canTeleport(TeleportType.MODERN)) {
+            message("You cannot teleport right now.")
+            return
         }
+        
+        // Check if player has the teleport tab
+        if (!inventory.contains(tab)) {
+            message("You don't have that teleport tab.")
+            return
+        }
+        
+        // Remove the tab
+        val removeResult = inventory.remove(item = tab, amount = 1)
+        if (!removeResult.hasSucceeded()) {
+            message("Failed to use the teleport tab.")
+            return
+        }
+        
+        // Perform teleportation
+        prepareForTeleport()
+        lock = LockState.FULL_WITH_DAMAGE_IMMUNITY
+        animate(id = 4069, delay = 16)
+        playSound(id = 965, volume = 1, delay = 15)
+        it.wait(cycles = 3)
+        graphic(id = 678)
+        animate(id = 4071)
+        it.wait(cycles = 2)
+        animate(id = -1)
+        unlock()
+        val destination = endArea.randomTile
+        moveTo(tile = destination)
     }
 }

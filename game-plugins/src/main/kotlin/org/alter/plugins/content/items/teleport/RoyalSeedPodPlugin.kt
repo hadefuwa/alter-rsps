@@ -56,10 +56,8 @@ class RoyalSeedPodPlugin(
                         }
                     }
                     registered = true
-                    println("RoyalSeedPodPlugin: Successfully registered string option '$optionName'")
                     break
                 } catch (e: Throwable) {
-                    println("RoyalSeedPodPlugin: Failed to register option '$optionName': ${e.message}")
                     // Continue to next option
                 }
             }
@@ -74,13 +72,10 @@ class RoyalSeedPodPlugin(
                         player.handleCustomTeleport(this)
                     }
                 }
-                println("RoyalSeedPodPlugin: Successfully registered option 2 (Commune)")
                 registered = true
             } catch (e: Throwable) {
-                println("RoyalSeedPodPlugin: Failed to register option 2: ${e.message}")
+                // Failed to register option 2
             }
-        } else {
-            println("RoyalSeedPodPlugin: Option 2 already bound, skipping registration")
         }
         
         // Also register option 1 as a backup, but only if it's not already bound
@@ -91,17 +86,13 @@ class RoyalSeedPodPlugin(
                         player.handleCustomTeleport(this)
                     }
                 }
-                println("RoyalSeedPodPlugin: Successfully registered option 1 (backup)")
             } catch (e: Throwable) {
-                println("RoyalSeedPodPlugin: Failed to register option 1: ${e.message}")
+                // Failed to register option 1
             }
-        } else {
-            println("RoyalSeedPodPlugin: Option 1 already bound, skipping registration")
         }
     }
 
     private suspend fun Player.handleCustomTeleport(it: QueueTask) {
-        println("RoyalSeedPodPlugin: handleCustomTeleport called for player ${username}")
         // Check if player is Pnda
         if (!username.equals(ALLOWED_USERNAME, ignoreCase = true)) {
             message("The Royal Seed Pod glows briefly, but nothing happens...")

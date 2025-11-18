@@ -35,9 +35,7 @@ class BountyCratePlugin(
     
     init {
         // Pre-build the valid item list
-        println("BountyCratePlugin: Building valid item list...")
         val itemCount = validItemIds.size
-        println("BountyCratePlugin: Found $itemCount valid items")
         
         // Register item 28094 with option 2
         r.bindItem(28094, 2) {

@@ -66,17 +66,28 @@ class BankBoothsPlugin(
                 // BANK_BOOTH_37959,// Has "use" option
                 "object.bank_booth_39238",
                 "object.bank_booth_42837", // has only "bank option"
+                // "object.bank_chest_26707", // Mage bank - handled separately below
             )
 
         BOOTHS.forEach { booth ->
-            onObjOption(obj = booth, option = "bank") {
-                player.openBank()
+            if (objHasOption(booth, "bank")) {
+                onObjOption(obj = booth, option = "bank") {
+                    player.openBank()
+                }
             }
             if (objHasOption(booth, "Collect")) {
                 onObjOption(obj = booth, option = "Collect") {
                     open_collect(player)
                 }
             }
+        }
+        
+        // Handle Mage Bank chest (26707) separately - uses "Use" option instead of "bank"
+        onObjOption(obj = "object.bank_chest_26707", option = "Use") {
+            player.openBank()
+        }
+        onObjOption(obj = "object.bank_chest_26707", option = "Collect") {
+            open_collect(player)
         }
     }
 
