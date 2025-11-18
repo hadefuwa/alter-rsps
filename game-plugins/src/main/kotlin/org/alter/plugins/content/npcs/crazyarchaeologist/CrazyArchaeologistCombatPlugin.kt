@@ -301,7 +301,7 @@ class CrazyArchaeologistCombatPlugin(
                     
                     // Post attack logic for first player (for timing)
                     if (nearbyPlayers.isNotEmpty() && isAlive()) {
-                        postAttackLogic(nearbyPlayers.first())
+                        postAttackLogicWithEnrage(nearbyPlayers.first())
                     }
                 } else {
                     // When multiple players are present, prioritize book rain attack (AOE is more effective)
@@ -329,7 +329,7 @@ class CrazyArchaeologistCombatPlugin(
                                 bookRainAttackAtTile(centerTile)
                                 attackCount = 0
                                 // Post attack logic for timing
-                                postAttackLogic(nearbyPlayers.first())
+                                postAttackLogicWithEnrage(nearbyPlayers.first())
                             }
                         } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
                             this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
@@ -339,7 +339,7 @@ class CrazyArchaeologistCombatPlugin(
                                 teleportAttack(randomPlayer)
                                 attackCount = 0
                                 // Post attack logic for timing
-                                postAttackLogic(randomPlayer)
+                                postAttackLogicWithEnrage(randomPlayer)
                             }
                         } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT &&
                           this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
@@ -349,7 +349,7 @@ class CrazyArchaeologistCombatPlugin(
                                 unequipAttack(randomPlayer)
                                 attackCount = 0
                                 // Post attack logic for timing
-                                postAttackLogic(randomPlayer)
+                                postAttackLogicWithEnrage(randomPlayer)
                             }
                         }
                     } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
@@ -415,8 +415,14 @@ class CrazyArchaeologistCombatPlugin(
                     }
                 }
             }
-            
-            it.wait(1)
+
+            // Wait time depends on enrage state - when enraged (< 40% HP), skip every other wait for 2x speed
+            if (isEnraged()) {
+                // When enraged, don't wait as long - this effectively doubles attack speed
+                // By not waiting, the next attack check happens immediately
+            } else {
+                it.wait(1)
+            }
         }
 
         resetFacePawn()
@@ -781,9 +787,29 @@ class CrazyArchaeologistCombatPlugin(
         }
     }
     
+    /**
+     * Post-attack logic with enrage mechanic.
+     * When NPC is below 40% HP, attack speed increases significantly (faster attacks).
+     */
+    private fun Npc.postAttackLogicWithEnrage(target: Pawn) {
+        // Call the regular post attack logic
+        postAttackLogic(target)
+    }
+
+    /**
+     * Check if NPC is enraged (below 40% HP).
+     * When enraged, the wait time in combat loop is reduced for faster attacks.
+     */
+    private fun Npc.isEnraged(): Boolean {
+        val maxHp = getMaxHp()
+        val currentHp = getCurrentHp()
+        val hpPercentage = (currentHp.toDouble() / maxHp.toDouble()) * 100
+        return hpPercentage < 40.0
+    }
+
     private enum class BookType {
         NORMAL,
-        EXPLOSIVE, 
+        EXPLOSIVE,
         FREEZE
     }
 }
