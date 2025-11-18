@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Cooking Ingredients Shop
  * 
  * A shop in the center of Varrock that sells raw food items and cooking ingredients.
- * Located at Varrock center (3198, 3425).
+ * Located at Varrock center (3219, 3434).
  */
 class VarrockCookingIngredientsShopPlugin(
     r: PluginRepository,
@@ -34,16 +34,56 @@ class VarrockCookingIngredientsShopPlugin(
         "No thanks.",
     )
     
-    // Cooking ingredients shop items - starting with 2 items, user will populate the rest
-    private val storeItems = listOf(
-        ShopItem(getRSCM("item.shrimps"), 100, 5, 2),
-        ShopItem(getRSCM("item.raw_chicken"), 100, 5, 2),
-    )
+    // Cooking ingredients shop items - safely build list, skipping items that don't exist
+    private val storeItems: List<ShopItem> = buildList {
+        // Helper function to safely add items
+        fun addItem(itemName: String, quantity: Int, price: Int, sellPrice: Int) {
+            try {
+                val itemId = getRSCM("item.$itemName")
+                if (itemId != -1) {
+                    add(ShopItem(itemId, quantity, price, sellPrice))
+                }
+            } catch (e: Exception) {
+                // Skip items not found in RSCM
+                println("VarrockCookingIngredientsShopPlugin: Skipping $itemName - not found in RSCM")
+            }
+        }
+        
+        // Raw fish (using raw_ prefix where needed)
+        addItem("raw_shrimps", 500, 5, 2)
+        addItem("raw_sardine", 500, 5, 2)
+        addItem("raw_herring", 500, 10, 5)
+        addItem("raw_mackerel", 500, 10, 5)
+        addItem("raw_trout", 500, 15, 7)
+        addItem("raw_cod", 500, 15, 7)
+        addItem("raw_pike", 500, 20, 10)
+        addItem("raw_salmon", 500, 25, 12)
+        addItem("raw_tuna", 500, 30, 15)
+        addItem("raw_lobster", 500, 50, 25)
+        addItem("raw_bass", 500, 60, 30)
+        addItem("raw_swordfish", 500, 80, 40)
+        addItem("raw_shark", 500, 150, 75)
+        addItem("raw_manta_ray", 500, 200, 100)
+        // Raw meat
+        addItem("raw_chicken", 500, 5, 2)
+        addItem("raw_beef", 500, 10, 5)
+        addItem("raw_rat_meat", 500, 5, 2)
+        addItem("raw_bear_meat", 500, 15, 7)
+        // Other ingredients
+        addItem("bread", 500, 5, 2)
+        addItem("potato", 500, 2, 1)
+        addItem("onion", 500, 2, 1)
+        addItem("cabbage", 500, 2, 1)
+        addItem("tomato", 500, 3, 1)
+        addItem("cheese", 500, 5, 2)
+        addItem("egg", 500, 3, 1)
+        addItem("flour", 500, 5, 2)
+    }
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3198, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3198, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3219, z = 3434, height = 0)
+        spawnNpc(shopkeeper, 3219, 3434, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

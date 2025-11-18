@@ -46,19 +46,35 @@ class RsaService : Service {
         radix = serviceProperties.getOrDefault("radix", 16)
 
         if (!Files.exists(keyPath)) {
-            val scanner = Scanner(System.`in`)
-            println("Private RSA key was not found in path: $keyPath")
-            println("Would you like to create one? (y/n)")
+            // Check if we're in an interactive environment
+            val isInteractive = System.console() != null && System.`in`.available() > 0
+            
+            if (isInteractive) {
+                val scanner = Scanner(System.`in`)
+                println("Private RSA key was not found in path: $keyPath")
+                println("Would you like to create one? (y/n)")
 
-            val create = if (scanner.hasNext()) scanner.nextLine() in arrayOf("yes", "y", "true") else true
-            if (create) {
-                logger.info { "Generating RSA key pair..." }
-                createPair(bitCount = serviceProperties.getOrDefault("bit-count", 2048))
-                println("Please follow the instructions on console and continue once you've done so.")
-                scanner.next()
-                init(server, world, serviceProperties)
+                val input = if (scanner.hasNextLine()) scanner.nextLine() else "y"
+                val create = input.lowercase() in arrayOf("yes", "y", "true", "")
+                
+                if (create) {
+                    logger.info { "Generating RSA key pair..." }
+                    createPair(bitCount = serviceProperties.getOrDefault("bit-count", 2048))
+                    println("Please follow the instructions on console and continue once you've done so.")
+                    if (scanner.hasNext()) {
+                        scanner.next()
+                    }
+                    init(server, world, serviceProperties)
+                } else {
+                    throw RuntimeException("Private RSA key was not found! Please follow the instructions on console.")
+                }
             } else {
-                throw RuntimeException("Private RSA key was not found! Please follow the instructions on console.")
+                // Non-interactive mode: auto-create the key
+                logger.info { "Private RSA key was not found in path: $keyPath" }
+                logger.info { "Auto-generating RSA key pair (non-interactive mode)..." }
+                createPair(bitCount = serviceProperties.getOrDefault("bit-count", 2048))
+                // Re-initialize to load the newly created key
+                init(server, world, serviceProperties)
             }
         }
 
@@ -116,6 +132,12 @@ class RsaService : Service {
         }
 
         try {
+            // Ensure the directory exists before writing
+            val directory = keyPath.parent
+            if (directory != null && !Files.exists(directory)) {
+                Files.createDirectories(directory)
+            }
+            
             PemWriter(Files.newBufferedWriter(keyPath)).use { writer ->
                 writer.writeObject(PemObject("RSA PRIVATE KEY", privateKey.encoded))
             }

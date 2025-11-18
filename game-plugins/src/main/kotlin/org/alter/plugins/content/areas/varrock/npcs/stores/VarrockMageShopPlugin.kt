@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Mage Shop
  * 
  * A shop in the center of Varrock that sells magic equipment and supplies.
- * Located at Varrock center (3214, 3425).
+ * Located at Varrock center (3214, 3438).
  */
 class VarrockMageShopPlugin(
     r: PluginRepository,
@@ -55,8 +55,8 @@ class VarrockMageShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3214, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3214, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3214, z = 3438, height = 0)
+        spawnNpc(shopkeeper, 3214, 3438, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
@@ -67,7 +67,7 @@ class VarrockMageShopPlugin(
 
         // Create the mage shop with enough space for items
         createShop(
-            name = "Muhammad's Mage Shop",
+            name = "Varrock Mage Shop",
             currency = CoinCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES

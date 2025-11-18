@@ -35,6 +35,14 @@ class DamageMap {
         }.values
 
     /**
+     * Clears all damage tracking from the map.
+     * Used when an NPC respawns to reset damage tracking for the new instance.
+     */
+    fun clear() {
+        map.clear()
+    }
+
+    /**
      * Get the total damage from a [pawn].
      *
      * @return

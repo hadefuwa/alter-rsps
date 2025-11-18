@@ -41,6 +41,34 @@ object Combat {
         pawn.attr.remove(COMBAT_TARGET_FOCUS_ATTR)
     }
 
+    /**
+     * Resets combat for all pawns that have [target] as their combat target.
+     * This is used when a pawn dies to ensure all attackers stop targeting them.
+     */
+    fun resetCombatForTarget(target: Pawn) {
+        val world = target.world
+        
+        // Reset combat for all players targeting this pawn
+        world.players.forEach { player ->
+            val combatTarget = player.getCombatTarget()
+            if (combatTarget == target) {
+                reset(player)
+                player.resetFacePawn()
+                player.interruptQueues()
+            }
+        }
+        
+        // Reset combat for all NPCs targeting this pawn
+        world.npcs.forEach { npc ->
+            val combatTarget = npc.getCombatTarget()
+            if (combatTarget == target) {
+                reset(npc)
+                npc.resetFacePawn()
+                npc.interruptQueues()
+            }
+        }
+    }
+
     fun canAttack(
         pawn: Pawn,
         target: Pawn,

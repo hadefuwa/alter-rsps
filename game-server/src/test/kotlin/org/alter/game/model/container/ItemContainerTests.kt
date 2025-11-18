@@ -2,8 +2,11 @@ package org.alter.game.model.container
 
 import dev.openrune.cache.CacheManager
 import dev.openrune.cache.CacheManager.itemSize
+import org.junit.Assume
 import org.junit.BeforeClass
 import org.junit.Test
+import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.*
 
@@ -130,6 +133,17 @@ class ItemContainerTests {
         @JvmStatic
         fun loadCache() {
             val path = Paths.get("..", "data", "cache")
+            
+            // Check if cache directory exists
+            Assume.assumeTrue("Cache directory does not exist: ${path.toAbsolutePath()}", Files.exists(path))
+            
+            // Check if required cache files exist
+            val mainFile = File(path.toFile(), "main_file_cache.dat2")
+            val indexFile = File(path.toFile(), "main_file_cache.idx255")
+            Assume.assumeTrue(
+                "Cache files not found. Expected main_file_cache.dat2 and main_file_cache.idx255 in ${path.toAbsolutePath()}",
+                mainFile.exists() && indexFile.exists()
+            )
 
             CacheManager.init(path, 228)
 

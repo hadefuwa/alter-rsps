@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Cosmetic/Clothing Shop
  * 
  * A shop in the center of Varrock that sells cosmetic items and clothing for fashion.
- * Located at Varrock center (3194, 3425).
+ * Located at Varrock center (3218, 3422).
  */
 class VarrockCosmeticClothingShopPlugin(
     r: PluginRepository,
@@ -42,8 +42,8 @@ class VarrockCosmeticClothingShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3194, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3194, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3218, z = 3422, height = 0)
+        spawnNpc(shopkeeper, 3218, 3422, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

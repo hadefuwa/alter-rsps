@@ -14,6 +14,7 @@ import org.alter.game.model.move.stopMovement
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.model.weightedTableBuilder.roll
+import org.alter.game.model.attr.COMBAT_TARGET_FOCUS_ATTR
 import org.alter.game.plugin.Plugin
 import org.alter.game.service.log.LoggerService
 import java.lang.ref.WeakReference
@@ -32,6 +33,9 @@ object NpcDeathAction {
             npc.lock()
             // Reset combat state immediately to stop ghost combat
             npc.resetInteractions()
+            // Reset combat for all pawns targeting this NPC (players and other NPCs)
+            // This ensures attackers stop targeting the dead NPC and can attack again
+            resetCombatForTarget(npc)
             npc.queue(TaskPriority.STRONG) {
                 death(npc)
             }
@@ -90,6 +94,35 @@ object NpcDeathAction {
         moveTo(spawnTile)
         attr.clear()
         timers.clear()
+        damageMap.clear() // Reset damage tracking for new spawn
         world.setNpcDefaults(this)
+    }
+
+    /**
+     * Resets combat for all pawns that have [target] as their combat target.
+     * This is used when an NPC dies to ensure all attackers stop targeting them.
+     */
+    private fun resetCombatForTarget(target: Npc) {
+        val world = target.world
+        
+        // Reset combat for all players targeting this NPC
+        world.players.forEach { player ->
+            val combatTarget = player.attr[COMBAT_TARGET_FOCUS_ATTR]?.get()
+            if (combatTarget == target) {
+                player.attr.remove(COMBAT_TARGET_FOCUS_ATTR)
+                player.resetFacePawn()
+                player.interruptQueues()
+            }
+        }
+        
+        // Reset combat for all NPCs targeting this NPC
+        world.npcs.forEach { npc ->
+            val combatTarget = npc.attr[COMBAT_TARGET_FOCUS_ATTR]?.get()
+            if (combatTarget == target) {
+                npc.attr.remove(COMBAT_TARGET_FOCUS_ATTR)
+                npc.resetFacePawn()
+                npc.interruptQueues()
+            }
+        }
     }
 }

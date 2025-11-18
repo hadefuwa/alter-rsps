@@ -27,9 +27,9 @@ class NexusPortalSpawnsPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
-        // Portal object ID - using portal nexus from POH (ID 33354) which has interaction options
-        // object.carving (22706) has no interaction options, so we use portal_nexus_33354 instead
-        val portalObjId = "object.portal_nexus_33354"
+        // Portal object ID - using Crystalline portal nexus (ID 33410)
+        // This is the regular Crystalline portal nexus which has proper interaction options
+        val portalObjId = "object.portal_nexus_33410"
 
         // Spawn portals at key locations
 

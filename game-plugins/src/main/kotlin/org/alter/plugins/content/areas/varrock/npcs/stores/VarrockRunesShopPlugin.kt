@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Runes Shop
  * 
  * A shop in the center of Varrock that sells magic runes.
- * Located at Varrock center (3208, 3425).
+ * Located at Varrock center (3208, 3434).
  */
 class VarrockRunesShopPlugin(
     r: PluginRepository,
@@ -42,8 +42,8 @@ class VarrockRunesShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3208, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3208, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3208, z = 3434, height = 0)
+        spawnNpc(shopkeeper, 3208, 3434, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

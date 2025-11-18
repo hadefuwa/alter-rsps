@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Herbs & Seeds Shop
  * 
  * A shop in the center of Varrock that sells herbs and seeds for farming and herblore.
- * Located at Varrock center (3206, 3425).
+ * Located at Varrock center (3209, 3436).
  */
 class VarrockHerbsSeedsShopPlugin(
     r: PluginRepository,
@@ -34,16 +34,44 @@ class VarrockHerbsSeedsShopPlugin(
         "No thanks.",
     )
     
-    // Herbs & Seeds shop items - starting with 2 items, user will populate the rest
+    // Herbs & Seeds shop items
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.guam_leaf"), 100, 100, 50),
-        ShopItem(getRSCM("item.guam_seed"), 100, 50, 25),
+        // Herbs
+        ShopItem(getRSCM("item.guam_leaf"), 500, 100, 50),
+        ShopItem(getRSCM("item.marrentill"), 500, 150, 75),
+        ShopItem(getRSCM("item.tarromin"), 500, 200, 100),
+        ShopItem(getRSCM("item.harralander"), 500, 300, 150),
+        ShopItem(getRSCM("item.ranarr_weed"), 500, 500, 250),
+        ShopItem(getRSCM("item.toadflax"), 500, 600, 300),
+        ShopItem(getRSCM("item.irit_leaf"), 500, 800, 400),
+        ShopItem(getRSCM("item.avantoe"), 500, 1000, 500),
+        ShopItem(getRSCM("item.kwuarm"), 500, 1200, 600),
+        ShopItem(getRSCM("item.snapdragon"), 500, 2000, 1000),
+        ShopItem(getRSCM("item.cadantine"), 500, 1500, 750),
+        ShopItem(getRSCM("item.lantadyme"), 500, 1800, 900),
+        ShopItem(getRSCM("item.dwarf_weed"), 500, 2000, 1000),
+        ShopItem(getRSCM("item.torstol"), 500, 5000, 2500),
+        // Seeds
+        ShopItem(getRSCM("item.guam_seed"), 500, 50, 25),
+        ShopItem(getRSCM("item.marrentill_seed"), 500, 75, 37),
+        ShopItem(getRSCM("item.tarromin_seed"), 500, 100, 50),
+        ShopItem(getRSCM("item.harralander_seed"), 500, 150, 75),
+        ShopItem(getRSCM("item.ranarr_seed"), 500, 250, 125),
+        ShopItem(getRSCM("item.toadflax_seed"), 500, 300, 150),
+        ShopItem(getRSCM("item.irit_seed"), 500, 400, 200),
+        ShopItem(getRSCM("item.avantoe_seed"), 500, 500, 250),
+        ShopItem(getRSCM("item.kwuarm_seed"), 500, 600, 300),
+        ShopItem(getRSCM("item.snapdragon_seed"), 500, 1000, 500),
+        ShopItem(getRSCM("item.cadantine_seed"), 500, 750, 375),
+        ShopItem(getRSCM("item.lantadyme_seed"), 500, 900, 450),
+        ShopItem(getRSCM("item.dwarf_weed_seed"), 500, 1000, 500),
+        ShopItem(getRSCM("item.torstol_seed"), 500, 2500, 1250),
     )
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3206, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3206, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3209, z = 3436, height = 0)
+        spawnNpc(shopkeeper, 3209, 3436, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

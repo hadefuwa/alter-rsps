@@ -20,7 +20,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Food Shop
  * 
  * A shop in the center of Varrock that sells all mapped food items.
- * Located at Varrock center (3211, 3424).
+ * Located at Varrock center (3219, 3426).
  */
 class VarrockFoodShopPlugin(
     r: PluginRepository,
@@ -67,8 +67,8 @@ class VarrockFoodShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3212, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3212, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3219, z = 3426, height = 0)
+        spawnNpc(shopkeeper, 3219, 3426, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
@@ -92,13 +92,17 @@ class VarrockFoodShopPlugin(
             }
         }
 
-        // Set up NPC interactions
+        // Set up NPC interactions - check tile location to avoid conflicts with other shops using same NPC type
         onNpcOption(shopkeeper, option = "talk-to") { 
-            player.queue { dialog(player) } 
+            if (npc.tile == shopkeeperTile) {
+                player.queue { dialog(player) } 
+            }
         }
 
         onNpcOption(shopkeeper, option = "trade") { 
-            player.shop() 
+            if (npc.tile == shopkeeperTile) {
+                player.shop() 
+            }
         }
     }
 

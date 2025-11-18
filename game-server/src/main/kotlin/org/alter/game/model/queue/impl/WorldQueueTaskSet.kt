@@ -1,5 +1,6 @@
 package org.alter.game.model.queue.impl
 
+import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.QueueTaskSet
 import kotlin.coroutines.resume
 
@@ -33,6 +34,6 @@ class WorldQueueTaskSet : QueueTaskSet() {
             }
         }
         // Remove completed tasks after iteration to avoid concurrent modification
-        tasksToRemove.forEach { queue.remove(it) }
+        tasksToRemove.forEach { task -> queue.remove(task) }
     }
 }

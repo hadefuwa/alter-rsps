@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Quest Items Shop
  * 
  * A shop in the center of Varrock that sells common quest items for convenience.
- * Located at Varrock center (3196, 3425).
+ * Located at Varrock center (3205, 3433).
  */
 class VarrockQuestItemsShopPlugin(
     r: PluginRepository,
@@ -42,8 +42,8 @@ class VarrockQuestItemsShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3196, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3196, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3205, z = 3433, height = 0)
+        spawnNpc(shopkeeper, 3205, 3433, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

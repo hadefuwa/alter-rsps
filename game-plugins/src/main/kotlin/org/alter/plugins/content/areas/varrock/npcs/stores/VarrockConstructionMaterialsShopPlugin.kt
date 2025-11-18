@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Construction Materials Shop
  * 
  * A shop in the center of Varrock that sells construction materials like planks and nails.
- * Located at Varrock center (3200, 3425).
+ * Located at Varrock center (3220, 3431).
  */
 class VarrockConstructionMaterialsShopPlugin(
     r: PluginRepository,
@@ -34,16 +34,45 @@ class VarrockConstructionMaterialsShopPlugin(
         "No thanks.",
     )
     
-    // Construction materials shop items - starting with 2 items, user will populate the rest
-    private val storeItems = listOf(
-        ShopItem(getRSCM("item.plank"), 100, 100, 50),
-        ShopItem(getRSCM("item.bronze_nails"), 100, 10, 5),
-    )
+    // Construction materials shop items - safely build list, skipping items that don't exist
+    private val storeItems: List<ShopItem> = buildList {
+        // Helper function to safely add items
+        fun addItem(itemName: String, quantity: Int, price: Int, sellPrice: Int) {
+            try {
+                val itemId = getRSCM("item.$itemName")
+                if (itemId != -1) {
+                    add(ShopItem(itemId, quantity, price, sellPrice))
+                }
+            } catch (e: Exception) {
+                // Skip items not found in RSCM
+                println("VarrockConstructionMaterialsShopPlugin: Skipping $itemName - not found in RSCM")
+            }
+        }
+        
+        // Planks
+        addItem("plank", 1000, 100, 50)
+        addItem("oak_plank", 1000, 250, 125)
+        addItem("teak_plank", 1000, 500, 250)
+        addItem("mahogany_plank", 1000, 1500, 750)
+        // Nails
+        addItem("bronze_nails", 1000, 10, 5)
+        addItem("iron_nails", 1000, 20, 10)
+        addItem("steel_nails", 1000, 40, 20)
+        addItem("mithril_nails", 1000, 80, 40)
+        addItem("adamantite_nails", 1000, 160, 80) // Note: spelled "adamantite" not "adamant"
+        addItem("rune_nails", 1000, 320, 160)
+        // Other materials
+        addItem("soft_clay", 1000, 50, 25)
+        addItem("limestone_brick", 1000, 100, 50)
+        addItem("steel_bar", 1000, 200, 100)
+        addItem("gold_leaf", 500, 5000, 2500)
+        addItem("marble_block", 100, 10000, 5000)
+    }
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3200, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3200, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3220, z = 3431, height = 0)
+        spawnNpc(shopkeeper, 3220, 3431, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

@@ -11,6 +11,7 @@ import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.magic.TeleportType
 import org.alter.plugins.content.magic.teleport
+import org.alter.rscm.RSCM.getRSCM
 
 /**
  * Royal Seed Pod - Custom Coordinate Teleporter (Pnda Only)
@@ -37,16 +38,70 @@ class RoyalSeedPodPlugin(
     }
 
     init {
+        // Get the item ID to check if options are already bound
+        val itemId = getRSCM(ROYAL_SEED_POD_ITEM)
+        
         // Handle "Commune" option on Royal Seed Pod using RSCM name
-        // The actual item options are: [Commune, Destroy]
-        onItemOption(item = ROYAL_SEED_POD_ITEM, option = "commune") {
-            player.queue(TaskPriority.STRONG) {
-                player.handleCustomTeleport(this)
+        // The log shows option=2 is being clicked, so "Commune" is the second option
+        // Try multiple option names in case the exact name doesn't match
+        val optionNames = listOf("commune", "Commune", "use", "Use", "teleport", "Teleport")
+        var registered = false
+        
+        for (optionName in optionNames) {
+            if (itemHasInventoryOption(ROYAL_SEED_POD_ITEM, optionName)) {
+                try {
+                    onItemOption(item = ROYAL_SEED_POD_ITEM, option = optionName) {
+                        player.queue(TaskPriority.STRONG) {
+                            player.handleCustomTeleport(this)
+                        }
+                    }
+                    registered = true
+                    println("RoyalSeedPodPlugin: Successfully registered string option '$optionName'")
+                    break
+                } catch (e: Throwable) {
+                    println("RoyalSeedPodPlugin: Failed to register option '$optionName': ${e.message}")
+                    // Continue to next option
+                }
             }
+        }
+        
+        // The log shows option=2 is being clicked, so register option 2
+        // Check if option 2 is already bound before registering
+        if (!world.plugins.isItemBound(itemId, 2)) {
+            try {
+                onItemOption(item = ROYAL_SEED_POD_ITEM, option = 2) {
+                    player.queue(TaskPriority.STRONG) {
+                        player.handleCustomTeleport(this)
+                    }
+                }
+                println("RoyalSeedPodPlugin: Successfully registered option 2 (Commune)")
+                registered = true
+            } catch (e: Throwable) {
+                println("RoyalSeedPodPlugin: Failed to register option 2: ${e.message}")
+            }
+        } else {
+            println("RoyalSeedPodPlugin: Option 2 already bound, skipping registration")
+        }
+        
+        // Also register option 1 as a backup, but only if it's not already bound
+        if (!world.plugins.isItemBound(itemId, 1)) {
+            try {
+                onItemOption(item = ROYAL_SEED_POD_ITEM, option = 1) {
+                    player.queue(TaskPriority.STRONG) {
+                        player.handleCustomTeleport(this)
+                    }
+                }
+                println("RoyalSeedPodPlugin: Successfully registered option 1 (backup)")
+            } catch (e: Throwable) {
+                println("RoyalSeedPodPlugin: Failed to register option 1: ${e.message}")
+            }
+        } else {
+            println("RoyalSeedPodPlugin: Option 1 already bound, skipping registration")
         }
     }
 
     private suspend fun Player.handleCustomTeleport(it: QueueTask) {
+        println("RoyalSeedPodPlugin: handleCustomTeleport called for player ${username}")
         // Check if player is Pnda
         if (!username.equals(ALLOWED_USERNAME, ignoreCase = true)) {
             message("The Royal Seed Pod glows briefly, but nothing happens...")

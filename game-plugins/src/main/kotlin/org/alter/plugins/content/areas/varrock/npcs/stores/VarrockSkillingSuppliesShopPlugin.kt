@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Skilling Supplies Shop
  * 
  * A shop in the center of Varrock that sells tools and supplies for various skills.
- * Located at Varrock center (3204, 3425).
+ * Located at Varrock center (3216, 3435).
  */
 class VarrockSkillingSuppliesShopPlugin(
     r: PluginRepository,
@@ -42,8 +42,8 @@ class VarrockSkillingSuppliesShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3204, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3204, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3216, z = 3435, height = 0)
+        spawnNpc(shopkeeper, 3216, 3435, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {

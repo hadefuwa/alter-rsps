@@ -44,6 +44,8 @@ class PotionsPlugin(
             "item.super_strength4", "item.super_strength3", "item.super_strength2", "item.super_strength1",
             // Super defence potions
             "item.super_defence4", "item.super_defence3", "item.super_defence2", "item.super_defence1",
+            // Super combat potions
+            "item.super_combat_potion4", "item.super_combat_potion3", "item.super_combat_potion2", "item.super_combat_potion1",
             // Magic potions
             "item.magic_potion4", "item.magic_potion3", "item.magic_potion2", "item.magic_potion1",
             // Agility potions
@@ -241,11 +243,35 @@ class PotionsPlugin(
                 player.getSkills().setCurrentLevel(Skills.STRENGTH, (current + boost).coerceAtMost(base + boost))
             }
             // Super defence potions - boost defence
-            potion.contains("super_defence") -> {
+            potion.contains("super_defence") && !potion.contains("super_combat_potion") -> {
                 val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
                 val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
                 val boost = 5 + (base / 5)
                 player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+            }
+            // Super combat potions - boost attack, strength, and defence
+            potion.contains("super_combat_potion") -> {
+                // Attack boost
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.ATTACK)
+                    val current = player.getSkills().getCurrentLevel(Skills.ATTACK)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.ATTACK, (current + boost).coerceAtMost(base + boost))
+                }
+                // Strength boost
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.STRENGTH)
+                    val current = player.getSkills().getCurrentLevel(Skills.STRENGTH)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.STRENGTH, (current + boost).coerceAtMost(base + boost))
+                }
+                // Defence boost
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                    val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                }
             }
             // Magic potions - boost magic
             potion.contains("magic_potion") -> {

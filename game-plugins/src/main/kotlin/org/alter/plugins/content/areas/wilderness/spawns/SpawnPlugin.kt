@@ -386,6 +386,17 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.black_chinchompa_2912", x = 3152, z = 3767, walkRadius = 4, direction = Direction.EAST)
         
         /**
+         * Ghosts and Ankous - Wilderness
+         *
+         * Additional undead spawns in the wilderness area.
+         *
+         * Spawn Location: Coordinates 2973, 3755
+         * Walk Radius: 4 tiles (relatively stationary)
+         */
+        spawnNpc(npc = "npc.ghost", x = 2973, z = 3755, walkRadius = 4, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 2973, z = 3755, walkRadius = 4, direction = Direction.SOUTH)
+
+        /**
          * Porazdir - Wilderness Boss
          * 
          * A powerful boss monster found in the wilderness. Porazdir is a dangerous

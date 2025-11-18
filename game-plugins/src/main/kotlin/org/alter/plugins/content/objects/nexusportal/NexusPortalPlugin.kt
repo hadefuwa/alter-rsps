@@ -85,6 +85,7 @@ class NexusPortalPlugin(
     init {
         // Portal object IDs from RSCM - using nexus portals and magic portals
         val portalObjects = listOf(
+            "object.portal_nexus_33410",   // 33410 - Crystalline Portal Nexus (Regular) - PRIMARY
             "object.magic_portal",         // 2156
             "object.magic_portal_2157",    // 2157
             "object.portal_4525",          // 4525
@@ -144,31 +145,11 @@ class NexusPortalPlugin(
                 }
             }
 
-            // If no string options worked, try binding to numeric option slots as fallback
-            // This handles objects that have options but not standard names
-            // For POH portal nexus, option 1 is usually the primary interaction (left-click)
+            // If no string options worked, don't try binding to numeric option slots
+            // as this can cause conflicts with other plugins that may use the same object
+            // We should only bind when we find a valid named option
             if (!optionBound) {
-                // Try to bind to option slot 1 first (left-click), then others
-                for (optionSlot in 1..5) {
-                    try {
-                        onObjOption(obj = portalId, option = optionSlot) {
-                            if (!player.lock.canTeleport()) {
-                                player.message("You cannot teleport right now.")
-                                return@onObjOption
-                            }
-
-                            player.queue(TaskPriority.STRONG) {
-                                openTeleportMenu(player)
-                            }
-                        }
-                        println("Successfully bound portal $portalId to option slot $optionSlot")
-                        optionBound = true
-                        break
-                    } catch (e: Exception) {
-                        // This option slot doesn't exist, continue to next
-                        continue
-                    }
-                }
+                println("WARNING: Could not find any valid string options for portal $portalId - skipping numeric slot fallback to avoid conflicts")
             }
 
             if (!optionBound) {

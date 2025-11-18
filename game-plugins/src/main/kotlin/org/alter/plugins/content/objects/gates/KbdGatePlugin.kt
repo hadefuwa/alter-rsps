@@ -33,42 +33,10 @@ class KbdGatePlugin(
     }
 
     init {
-        // Function to teleport player to KBD lair
-        val enterKbdLair: Plugin.() -> Unit = {
-            player.queue {
-                // Check if player can teleport
-                if (!player.lock.canTeleport()) {
-                    player.message("You cannot teleport right now.")
-                    return@queue
-                }
-                
-                player.message("You pass through the gate...")
-                
-                // Wait a moment
-                wait(1)
-                
-                // Teleport to KBD lair
-                player.prepareForTeleport()
-                player.moveTo(KBD_LAIR_LOCATION)
-                player.message("You find yourself in the King Black Dragon's lair.")
-            }
-        }
-
-        // Handle gate 1727 - check what options it has
-        // Common gate options for teleportation: "pass-through", "enter", "use", "operate", "go-through"
-        // Note: "open" is handled by GatePlugin, so we handle other options for teleportation
-        val teleportOptions = listOf("pass-through", "enter", "use", "operate", "go-through", "pass")
-        
-        teleportOptions.forEach { option ->
-            // Try using RSCM name
-            try {
-                if (objHasOption("object.gate_1727", option)) {
-                    onObjOption(obj = "object.gate_1727", option = option, logic = enterKbdLair)
-                }
-            } catch (e: Exception) {
-                // Option might not exist, continue
-            }
-        }
+        // KBD gate teleport behaviour has been disabled so that
+        // object 1727 behaves purely as a normal open/close gate.
+        // If KBD teleporting via a gate is desired in future,
+        // bind it to a different, KBD-specific gate object ID.
     }
 }
 

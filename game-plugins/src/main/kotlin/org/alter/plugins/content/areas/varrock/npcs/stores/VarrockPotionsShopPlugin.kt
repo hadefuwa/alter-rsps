@@ -17,7 +17,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Potions Shop
  * 
  * A shop in the center of Varrock that sells all potions.
- * Located at Varrock center (3214, 3425).
+ * Located at Varrock center (3220, 3427).
  */
 class VarrockPotionsShopPlugin(
     r: PluginRepository,
@@ -100,7 +100,7 @@ class VarrockPotionsShopPlugin(
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
         // Placed next to the food shopkeeper
-        spawnNpc(shopkeeper, 3214, 3425, 0, 0, Direction.SOUTH)
+        spawnNpc(shopkeeper, 3220, 3427, 0, 0, Direction.SOUTH)
 
         // Create the potions shop with enough space for all potions
         createShop(

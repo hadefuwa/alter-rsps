@@ -19,7 +19,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Range Shop
  * 
  * A shop in the center of Varrock that sells ranged equipment and supplies.
- * Located at Varrock center (3210, 3425).
+ * Located at Varrock center (3211, 3438).
  */
 class VarrockRangeShopPlugin(
     r: PluginRepository,
@@ -27,7 +27,7 @@ class VarrockRangeShopPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.fairy_shop_keeper"
+    private val shopkeeper = "npc.lowe"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -57,19 +57,19 @@ class VarrockRangeShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        val shopkeeperTile = Tile(x = 3210, z = 3425, height = 0)
-        spawnNpc(shopkeeper, 3210, 3425, 0, 0, Direction.SOUTH)
+        val shopkeeperTile = Tile(x = 3211, z = 3438, height = 0)
+        spawnNpc(shopkeeper, 3211, 3438, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
             if (npc.tile == shopkeeperTile) {
-                NpcInfo(npc).setTempName("Range Shopkeeper")
+                NpcInfo(npc).setTempName("Lowe")
             }
         }
 
         // Create the range shop with enough space for items
         createShop(
-            name = "Moosa's Range Shop",
+            name = "Varrock Range Shop",
             currency = CoinCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
@@ -81,13 +81,17 @@ class VarrockRangeShopPlugin(
             }
         }
 
-        // Set up NPC interactions
+        // Set up NPC interactions - check tile location to avoid conflicts with other shops using same NPC type
         onNpcOption(shopkeeper, option = "talk-to") { 
-            player.queue { dialog(player) } 
+            if (npc.tile == shopkeeperTile) {
+                player.queue { dialog(player) } 
+            }
         }
 
         onNpcOption(shopkeeper, option = "trade") { 
-            player.shop() 
+            if (npc.tile == shopkeeperTile) {
+                player.shop() 
+            }
         }
     }
 

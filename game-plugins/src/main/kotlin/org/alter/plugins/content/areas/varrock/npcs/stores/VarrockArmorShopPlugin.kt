@@ -17,7 +17,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Armor Shop
  * 
  * A shop in the center of Varrock that sells armor.
- * Located at Varrock center (3210, 3425).
+ * Located at Varrock center (3219, 3421).
  */
 class VarrockArmorShopPlugin(
     r: PluginRepository,
@@ -104,7 +104,7 @@ class VarrockArmorShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        spawnNpc(shopkeeper, 3210, 3425, 0, 0, Direction.SOUTH)
+        spawnNpc(shopkeeper, 3219, 3421, 0, 0, Direction.SOUTH)
 
         // Create the armor shop
         createShop(

@@ -17,7 +17,7 @@ import org.alter.rscm.RSCM.getRSCM
  * Varrock Supplies Shop
  * 
  * A shop in the center of Varrock that sells general supplies and tools.
- * Located at Varrock center (3218, 3425).
+ * Located at Varrock center (3222, 3430).
  */
 class VarrockSuppliesShopPlugin(
     r: PluginRepository,
@@ -120,7 +120,7 @@ class VarrockSuppliesShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
-        spawnNpc(shopkeeper, 3218, 3425, 0, 0, Direction.SOUTH)
+        spawnNpc(shopkeeper, 3222, 3430, 0, 0, Direction.SOUTH)
 
         // Create the supplies shop
         createShop(

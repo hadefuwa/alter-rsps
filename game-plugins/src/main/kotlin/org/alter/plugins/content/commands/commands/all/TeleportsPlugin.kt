@@ -65,7 +65,7 @@ class TeleportsPlugin(
                     "Lava Dragon Isle" to Tile(x = 3200, z = 3856, height = 0),
                     "Wilderness Volcano" to Tile(x = 3369, z = 3930, height = 0),
                     "Graveyard of Shadows" to Tile(x = 2978, z = 3650, height = 0),
-                    "Dark Warriors' Fortress" to Tile(x = 3038, z = 3632, height = 0),
+                    "Dark Warriors' Fortress" to Tile(x = 3038, z = 3642, height = 0),
                     "Chaos Temple" to Tile(x = 2964, z = 3819, height = 0),
                     "Bandit Camp" to Tile(x = 3038, z = 3689, height = 0),
                     "Resource Area" to Tile(x = 3184, z = 3944, height = 0),
