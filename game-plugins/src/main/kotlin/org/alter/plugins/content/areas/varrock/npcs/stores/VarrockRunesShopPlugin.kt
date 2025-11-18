@@ -27,7 +27,7 @@ class VarrockRunesShopPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.gnome_shop_keeper_6083"
+    private val shopkeeper = "npc.scavvo"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",

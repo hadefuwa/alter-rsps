@@ -27,7 +27,7 @@ class VarrockCosmeticClothingShopPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
-    private val shopkeeper = "npc.shop_keeper_2884"
+    private val shopkeeper = "npc.silk_trader"
     
     private val dialogOptions: List<String> = listOf(
         "Yes please. What are you selling?",
@@ -67,12 +67,9 @@ class VarrockCosmeticClothingShopPlugin(
         }
 
         // Set up NPC interactions
+        // Note: silk_trader only has "talk-to" option, not "trade"
         onNpcOption(shopkeeper, option = "talk-to") { 
             player.queue { dialog(player) } 
-        }
-
-        onNpcOption(shopkeeper, option = "trade") { 
-            player.shop() 
         }
     }
 

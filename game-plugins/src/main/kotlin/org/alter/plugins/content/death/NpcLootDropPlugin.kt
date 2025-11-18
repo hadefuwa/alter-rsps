@@ -49,6 +49,34 @@ class NpcLootDropPlugin(
         onAnyNpcDeath {
             println("NpcLootDropPlugin: onAnyNpcDeath triggered")
             val npc = ctx as Npc
+            
+            // Skip NPCs that use shared loot system (handled by SharedLootDropPlugin)
+            // Check if multiple players dealt damage - if so, this NPC likely uses shared loot
+            val playersWhoDamaged = mutableListOf<Player>()
+            npc.world.players.forEach { player ->
+                if (player.initiated && !player.isDead() && npc.damageMap.getDamageFrom(player) > 0) {
+                    playersWhoDamaged.add(player)
+                }
+            }
+            
+            // If multiple players dealt damage, this is likely a shared loot NPC - skip default handler
+            // SharedLootDropPlugin will handle it instead
+            if (playersWhoDamaged.size > 1) {
+                println("NpcLootDropPlugin: Skipping NPC ${npc.id} (${npc.def.name}) - multiple players dealt damage, likely uses shared loot")
+                return@onAnyNpcDeath
+            }
+            
+            // Also check if this is Crazy Archaeologist specifically (known shared loot NPC)
+            try {
+                val crazyArchId = getRSCM("npc.crazy_archaeologist")
+                if (npc.id == crazyArchId) {
+                    println("NpcLootDropPlugin: Skipping Crazy Archaeologist - handled by SharedLootDropPlugin")
+                    return@onAnyNpcDeath
+                }
+            } catch (e: Exception) {
+                // If we can't find the ID, continue with normal handling
+            }
+            
             handleNpcLootDrop(npc)
         }
     }

@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.nexusportal
 
+import dev.openrune.cache.CacheManager.getObject
 import net.rsprot.protocol.game.incoming.resumed.ResumePauseButton
 import org.alter.api.*
 import org.alter.api.ext.*
@@ -12,6 +13,7 @@ import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.plugin.*
 import org.alter.plugins.content.magic.prepareForTeleport
+import org.alter.rscm.RSCM.getRSCM
 
 /**
  * Nexus Portal Teleportation Plugin
@@ -91,35 +93,94 @@ class NexusPortalPlugin(
         )
 
         // Common portal interaction options - try all common OSRS portal options
-        val portalOptions = listOf("enter", "teleport", "use", "operate", "activate", "quick-start", "configure")
+        // Including POH portal nexus options like "Ring-configure"
+        val portalOptions = listOf(
+            "Ring-configure",      // POH portal nexus configure option
+            "configure",           // Standard configure option
+            "enter",               // Standard enter option
+            "teleport",            // Standard teleport option
+            "use",                 // Standard use option
+            "operate",             // Standard operate option
+            "activate",            // Standard activate option
+            "quick-start",         // Quick start option
+            "Tree",                // POH portal nexus tree option
+            "Ring-Zanaris",        // POH portal nexus ring option
+            "Ring-last-destination (AIP)" // POH portal nexus last destination
+        )
 
         portalObjects.forEach { portalId ->
-            var boundCount = 0
+            var optionBound = false
 
-            // Try binding to numeric option slots 1-5 directly without checking
-            for (optionSlot in 1..5) {
+            // First, try to get available options for this object
+            val availableOptions = try {
+                val objDef = getObject(getRSCM(portalId))
+                objDef.actions.filterNotNull().filter { action -> action.length > 0 }
+            } catch (e: Exception) {
+                emptyList()
+            }
+
+            // Try common portal interaction options (similar to obelisk plugin pattern)
+            for (option in portalOptions) {
                 try {
-                    onObjOption(obj = portalId, option = optionSlot) {
-                        if (!player.lock.canTeleport()) {
-                            player.message("You cannot teleport right now.")
-                            return@onObjOption
-                        }
+                    // Check if the object has this option before trying to bind
+                    if (objHasOption(portalId, option)) {
+                        onObjOption(obj = portalId, option = option) {
+                            if (!player.lock.canTeleport()) {
+                                player.message("You cannot teleport right now.")
+                                return@onObjOption
+                            }
 
-                        player.queue(TaskPriority.STRONG) {
-                            openTeleportMenu(player)
+                            player.queue(TaskPriority.STRONG) {
+                                openTeleportMenu(player)
+                            }
                         }
+                        println("Successfully bound portal $portalId with option: $option")
+                        optionBound = true
+                        break // Found a working option, no need to try others
                     }
-                    boundCount++
-                    println("Successfully bound portal $portalId to option slot $optionSlot")
                 } catch (e: Exception) {
-                    // This option slot doesn't exist, continue to next
+                    // Option not available or binding failed, try next
+                    continue
                 }
             }
 
-            if (boundCount == 0) {
+            // If no string options worked, try binding to numeric option slots as fallback
+            // This handles objects that have options but not standard names
+            // For POH portal nexus, option 1 is usually the primary interaction (left-click)
+            if (!optionBound) {
+                // Try to bind to option slot 1 first (left-click), then others
+                for (optionSlot in 1..5) {
+                    try {
+                        onObjOption(obj = portalId, option = optionSlot) {
+                            if (!player.lock.canTeleport()) {
+                                player.message("You cannot teleport right now.")
+                                return@onObjOption
+                            }
+
+                            player.queue(TaskPriority.STRONG) {
+                                openTeleportMenu(player)
+                            }
+                        }
+                        println("Successfully bound portal $portalId to option slot $optionSlot")
+                        optionBound = true
+                        break
+                    } catch (e: Exception) {
+                        // This option slot doesn't exist, continue to next
+                        continue
+                    }
+                }
+            }
+
+            if (!optionBound) {
                 println("WARNING: Failed to bind any options for portal $portalId")
-            } else {
-                println("Bound $boundCount option(s) for portal $portalId")
+                // Try to get available options for debugging
+                try {
+                    val objDef = getObject(getRSCM(portalId))
+                    val availableOptions = objDef.actions.filterNotNull().filter { action -> action.length > 0 }
+                    println("Available options for $portalId: $availableOptions")
+                } catch (e: Exception) {
+                    println("Could not retrieve object definition for $portalId: ${e.message}")
+                }
             }
 
             // Right-click examine

@@ -1,5 +1,102 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-XX (Crazy Archaeologist Combat Improvements & Loot System Updates)
+
+### Summary
+Enhanced the Crazy Archaeologist boss with new combat mechanics, improved loot distribution, and quality-of-life fixes:
+1. Added unequip attack that removes player equipment
+2. Fixed loot drops to appear at player locations instead of NPC location
+3. Reduced attack frequency for better combat pacing
+4. Added automatic unlock system for players stuck in combat
+5. Increased frequency of book rain AOE attack
+6. Fixed loot drop conflicts between shared loot and default loot systems
+
+### Key Changes:
+
+#### 1. Crazy Archaeologist Unequip Attack
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt)
+
+**Feature**: Added new special attack that removes a random equipped item from players and places it in their inventory (if space available).
+
+**Implementation**:
+- Triggers after 5+ attacks with 25% chance (1 in 4)
+- Priority 3 special attack (after teleport and book rain)
+- Fires special unequip projectile (graphic ID 1576)
+- Finds all equipped items and randomly selects one to unequip
+- Only works if player has inventory space
+- Shows disruption graphic and messages to player
+- NPC taunts "Your equipment is mine!" above head when successful
+
+**Impact**: Adds another challenging mechanic to the fight, forcing players to manage inventory space.
+
+---
+
+#### 2. Loot Drops at Player Locations
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/death/SharedLootDropPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/death/SharedLootDropPlugin.kt)
+
+**Issue**: Loot was dropping at the NPC's location, but players can't stand on the same tile as the Crazy Archaeologist due to tile blocking system.
+
+**Fix Applied**:
+- Added `dropAtPlayerLocationNpcIds` set to track NPCs that should drop loot at player locations
+- Modified `handleSharedLootDrop` to check if NPC should drop at player location
+- Updated `dropCoinsForPlayer` and `dropRandomItemForPlayer` to accept `dropTile` parameter
+- All loot (regular drops, 250k coins, random items) now drops at each player's tile
+
+**Impact**: Players can now easily collect their loot without being pushed away from the drop location.
+
+---
+
+#### 3. Reduced Attack Frequency
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistConfigsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistConfigsPlugin.kt)
+
+**Change**: Increased `attackSpeed` from 4 cycles (2.4 seconds) to 6 cycles (3.6 seconds).
+
+**Impact**: Reduces attack frequency by 50%, giving players more time to react and manage combat.
+
+---
+
+#### 4. Automatic Player Unlock System
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt)
+
+**Issue**: Players could get locked/stuck during combat with the Crazy Archaeologist, especially due to tile blocking interactions.
+
+**Fix Applied**:
+- Enhanced tile blocking timer to detect locked players in combat
+- Checks if player is locked, can't move, within combat range, and has dealt damage
+- Finds safe adjacent tile (not NPC's tile) to knock player back to
+- Resets interactions and unlocks player
+- Moves player to safe tile with message "The Crazy Archaeologist's magic knocks you back!"
+- If no safe tile found, still unlocks player with message "You break free from the lock!"
+
+**Impact**: Prevents players from getting permanently stuck during combat, improving combat experience.
+
+---
+
+#### 5. Increased Book Rain Attack Frequency
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/crazyarchaeologist/CrazyArchaeologistCombatPlugin.kt)
+
+**Changes**:
+- Reduced `BOOK_RAIN_ATTACK_MIN_COUNT` from 6 to 3 attacks
+- Increased `BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR` from 4 to 2 (chance increased from 25% to 50%)
+
+**Impact**: Book rain AOE attack now triggers approximately 4x more frequently (from ~1 in 24 attacks to ~1 in 6 attacks).
+
+---
+
+#### 6. Fixed Loot Drop System Conflicts
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/death/NpcLootDropPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/death/NpcLootDropPlugin.kt)
+
+**Issue**: Both `NpcLootDropPlugin` and `SharedLootDropPlugin` were handling Crazy Archaeologist deaths, causing loot to drop at NPC location.
+
+**Fix Applied**:
+- Added check in `NpcLootDropPlugin` to skip NPCs with multiple players who dealt damage
+- Added specific check to skip Crazy Archaeologist (handled by SharedLootDropPlugin)
+- Prevents default loot handler from interfering with shared loot system
+
+**Impact**: Ensures shared loot system works correctly without conflicts from default loot handler.
+
+---
+
 ## Date: 2025-11-17 (Guard Pickpocketing Fix, Royal Seed Pod Teleporter & Teleport Guide)
 
 ### Summary

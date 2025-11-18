@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.altar
 
+import dev.openrune.cache.CacheManager.getItem
 import dev.openrune.cache.CacheManager.getObject
 import org.alter.api.Skills
 import org.alter.api.cfg.Animation
@@ -7,10 +8,15 @@ import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.World
+import org.alter.game.model.attr.INTERACTING_ITEM
+import org.alter.game.model.attr.INTERACTING_ITEM_SLOT
+import org.alter.game.model.attr.INTERACTING_OBJ_ATTR
+import org.alter.game.model.entity.Player
 import org.alter.game.model.timer.BURY_BONE_DELAY
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.Plugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.rscm.RSCM.asRSCM
 import org.alter.rscm.RSCM.getRSCM
 import kotlin.random.Random
 
@@ -107,7 +113,7 @@ class AltarPlugin(
                 if (currentPrayer < maxPrayer) {
                     player.animate(Animation.PRAY_AT_ALTAR_ANIM)
                     player.playSound(Sound.ALTAR_PRAY)
-                    wait(2)
+                    this.wait(cycles = 2)
                     
                     // Restore prayer to maximum
                     player.getSkills().restore(Skills.PRAYER)
@@ -141,6 +147,142 @@ class AltarPlugin(
         onWorldInit {
             // This will be called after world initialization
             // We can add dynamic detection here if needed in the future
+        }
+
+        // Register bone offering for all bone types on all altars
+        ALL_ALTAR_IDS.forEach { altarId ->
+            try {
+                // Convert altar ID to RSCM object name
+                val altarObjName = altarId.asRSCM("object")
+                BONE_XP_MAP.keys.forEach { boneItemName ->
+                    onItemOnObj(obj = altarObjName, item = boneItemName) {
+                        offerBoneOnAltar(player, altarId, boneItemName)
+                    }
+                }
+            } catch (e: Exception) {
+                // Altar might not exist in RSCM, skip it
+                // This is fine - not all altars may be registered
+            }
+        }
+    }
+
+    /**
+     * Handles offering bones on an altar
+     * @param player The player offering the bone
+     * @param altarId The altar object ID
+     * @param boneItemName The bone item name (e.g., "item.dragon_bones")
+     */
+    private fun offerBoneOnAltar(player: Player, altarId: Int, boneItemName: String) {
+        player.queue {
+            // Get the interacting item and object
+            val item = player.attr[INTERACTING_ITEM]?.get() ?: run {
+                player.message("Nothing interesting happens.")
+                return@queue
+            }
+            
+            val obj = player.attr[INTERACTING_OBJ_ATTR]?.get() ?: run {
+                player.message("Nothing interesting happens.")
+                return@queue
+            }
+            
+            // Verify the object matches the altar we're expecting
+            // Check both base ID and transformed ID (in case object has transforms)
+            val objId = obj.getTransform(player)
+            if (objId != altarId && obj.id != altarId) {
+                return@queue
+            }
+            
+            // Verify the item matches the bone we're expecting
+            val expectedItemId = try {
+                getRSCM(boneItemName)
+            } catch (e: Exception) {
+                player.message("Nothing interesting happens.")
+                return@queue
+            }
+            
+            if (item.id != expectedItemId) {
+                return@queue
+            }
+            
+            // Check if player can interact with items
+            if (!player.lock.canItemInteract()) {
+                return@queue
+            }
+            
+            // Get the inventory slot
+            val inventorySlot = player.attr[INTERACTING_ITEM_SLOT] ?: -1
+            if (inventorySlot < 0 || inventorySlot >= player.inventory.capacity) {
+                player.message("You don't have that bone.")
+                return@queue
+            }
+            
+            // Verify the item at the slot matches
+            val slotItem = player.inventory[inventorySlot]
+            if (slotItem?.id != expectedItemId) {
+                player.message("You don't have that bone.")
+                return@queue
+            }
+            
+            // Get base XP for this bone
+            val baseXp = BONE_XP_MAP[boneItemName] ?: run {
+                player.message("Nothing interesting happens.")
+                return@queue
+            }
+            
+            // Determine if this is a chaos altar
+            val isChaosAltar = CHAOS_ALTAR_IDS.contains(altarId)
+            
+            // Calculate XP multiplier (2x for regular altars, 3.5x for chaos altars)
+            val xpMultiplier = if (isChaosAltar) 3.5 else 2.0
+            val xpGained = baseXp * xpMultiplier
+            
+            // Play animation and sound
+            player.animate(Animation.OFFER_BONES_TO_ALTER_ANIM)
+            player.playSound(Sound.ALTAR_PRAY)
+            
+            // Wait for animation
+            this.wait(cycles = 2)
+            
+            // For chaos altars, 50% chance to not consume the bone
+            val shouldConsumeBone = if (isChaosAltar) {
+                Random.nextBoolean()
+            } else {
+                true
+            }
+            
+            // Remove the bone from inventory (unless chaos altar saves it)
+            if (shouldConsumeBone) {
+                val remove = player.inventory.remove(
+                    item = expectedItemId,
+                    amount = 1,
+                    beginSlot = inventorySlot,
+                    assureFullRemoval = false
+                )
+                
+                if (remove.hasSucceeded() && remove.completed > 0) {
+                    // Add prayer experience
+                    player.addXp(Skills.PRAYER, xpGained)
+                    
+                    // Get bone name for message
+                    val boneName = getItem(expectedItemId).name.lowercase()
+                    val bonePlural = if (boneName.endsWith("s", ignoreCase = false)) boneName else "$boneName bones"
+                    
+                    if (isChaosAltar) {
+                        player.message("The gods are very pleased with your $bonePlural offering.")
+                    } else {
+                        player.message("The gods are pleased with your $bonePlural offering.")
+                    }
+                } else {
+                    player.message("You don't have that bone.")
+                }
+            } else {
+                // Chaos altar saved the bone - still give XP but don't remove bone
+                player.addXp(Skills.PRAYER, xpGained)
+                
+                val boneName = getItem(expectedItemId).name.lowercase()
+                val bonePlural = if (boneName.endsWith("s", ignoreCase = false)) boneName else "$boneName bones"
+                player.message("The gods are very pleased with your $bonePlural offering. They don't require the bones.")
+            }
         }
     }
 }

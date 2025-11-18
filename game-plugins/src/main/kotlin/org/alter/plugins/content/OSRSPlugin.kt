@@ -98,9 +98,11 @@ class OSRSPlugin(
                 syncVarp(Varp.NPC_ATTACK_PRIORITY_VARP)
                 syncVarp(Varp.PLAYER_ATTACK_PRIORITY_VARP)
                 // Send player interaction options.
-                sendOption("Follow", 3)
-                sendOption("Trade with", 4)
-                sendOption("Report", 5)
+                // Note: Option slot 1 is typically reserved for "Attack" in PvP/wilderness
+                // So we use slots 2, 3, 4 for Follow, Trade, Report
+                sendOption("Follow", 2)
+                sendOption("Trade with", 3)
+                sendOption("Report", 4)
                 // Game-related logic.
                 sendRunEnergy(player.runEnergy.toInt())
                 message("Welcome to ${world.gameContext.name}.", ChatMessageType.GAME_MESSAGE)

@@ -693,6 +693,9 @@ fun Player.sendOption(
     check(id in 1..options.size) { "Option id must range from [1-${options.size}]" }
     val index = id - 1
     options[index] = option
+    // SetPlayerOp expects 0-based index (array position)
+    // The client sends back option IDs that are 1-based (matching the slot number)
+    // We convert back to index in OpPlayerHandler with (option - 1)
     write(SetPlayerOp(id = index, priority = leftClick, op = option))
 }
 

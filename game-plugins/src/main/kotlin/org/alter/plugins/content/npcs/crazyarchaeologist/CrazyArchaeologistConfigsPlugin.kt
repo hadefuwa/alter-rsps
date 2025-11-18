@@ -31,13 +31,14 @@ class CrazyArchaeologistConfigsPlugin(
 
         setCombatDef("npc.crazy_archaeologist") {
             configs {
-                attackSpeed = 4
-                respawnDelay = 100 // 1 minute respawn delay
+                attackSpeed = 6 // Reduced attack frequency (6 cycles = 3.6 seconds between attacks)
+                respawnDelay = 4 // 2 seconds respawn delay (4 cycles = 2.4 seconds, ensures at least 2 seconds)
             }
 
             aggro {
-                radius = 16
-                searchDelay = 1
+                radius = 25  // Wide range of view - can detect players from 25 tiles away
+                searchDelay = 1  // Check for targets every cycle (very frequent)
+                alwaysAggro()  // Always aggressive - never stops being aggressive
             }
 
             stats {
@@ -45,7 +46,7 @@ class CrazyArchaeologistConfigsPlugin(
                 attack = 204
                 strength = 204
                 defence = 204
-                magic = 240
+                magic = 350  // Increased from 240 to 350 for much higher damage
                 ranged = 1
             }
 
@@ -55,7 +56,7 @@ class CrazyArchaeologistConfigsPlugin(
                 defenceCrush = 40
                 defenceMagic = 100
                 defenceRanged = 40
-                attackMagic = 50
+                attackMagic = 150  // Increased from 50 to 150 for significantly higher magic damage
             }
 
             anims {
@@ -109,14 +110,12 @@ class CrazyArchaeologistConfigsPlugin(
                     
                     // Special drops
                     add("item.archaeologists_diary", min = 1, weight = 1) // Unique drop
-                }
-                
-                // Rare drops table
-                rare(weight = 8) {
-                    add("item.rune_pickaxe", min = 1, weight = 1)
+
+                    // Rare drops - lower weights
+                    add("item.rune_pickaxe", min = 1, weight = 2)
                     add("item.dragon_2h_sword", min = 1, weight = 1)
                     add("item.dragon_pickaxe", min = 1, weight = 1) // Very rare
-                    add("item.clue_scroll_hard", min = 1, weight = 3)
+                    add("item.clue_scroll_hard", min = 1, weight = 4)
                     add("item.clue_scroll_elite", min = 1, weight = 1)
                 }
             }

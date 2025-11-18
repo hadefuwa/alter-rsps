@@ -78,12 +78,9 @@ class VarrockJewelryShopPlugin(
         }
 
         // Set up NPC interactions
+        // Note: gnome_shop_keeper only has "talk-to" option, not "trade"
         onNpcOption(shopkeeper, option = "talk-to") { 
             player.queue { dialog(player) } 
-        }
-
-        onNpcOption(shopkeeper, option = "trade") { 
-            player.shop() 
         }
     }
 

@@ -98,6 +98,23 @@ tasks.register<JavaExec>("runRsaService") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("org.alter.game.service.rsa.RsaService")
     args = listOf("16", "1024", "./data/rsa/key.pem") // radix, bitcount, rsa pem file
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
+}
+tasks.register<JavaExec>("generatePasswordHash") {
+    group = "application"
+    workingDir = rootProject.projectDir
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.alter.game.util.PasswordHashGenerator")
+    args = if (project.hasProperty("password")) {
+        listOf(project.property("password") as String)
+    } else {
+        listOf("ummah123")
+    }
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
 }
 tasks.register<JavaExec>("decryptMap") {
     description = "Will decrypt world map and remove xteas"
@@ -105,6 +122,18 @@ tasks.register<JavaExec>("decryptMap") {
     workingDir = rootProject.projectDir
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("org.alter.game.service.mapdecrypter.decryptMap")
+}
+
+tasks.register<JavaExec>("downloadCache") {
+    description = "Download OSRS cache files automatically"
+    group = "application"
+    workingDir = rootProject.projectDir
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.alter.game.service.cache.CacheDownloader")
+    args = listOf("${rootProject.projectDir}/data/cache", "228")
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
 }
 
 task<Copy>("extractDependencies") {

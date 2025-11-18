@@ -178,14 +178,29 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.dark_warrior", x = 3046, z = 3634, walkRadius = 8, direction = Direction.EAST)
         
         /**
+         * Black Knights - Wilderness
+         * 
+         * Elite warriors clad in black armor that spawn in the wilderness. They are aggressive
+         * melee fighters with high combat stats.
+         * 
+         * Spawn Location: Coordinates 3029, 3852
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.black_knight", x = 3029, z = 3852, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight_517", x = 3027, z = 3850, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.black_knight", x = 3031, z = 3850, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.black_knight_517", x = 3027, z = 3854, walkRadius = 6, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.black_knight", x = 3031, z = 3854, walkRadius = 6, direction = Direction.SOUTH)
+        
+        /**
          * Green Dragons - Level 13-20 Wilderness
          * 
          * Powerful dragons that breathe fire and have high combat stats. They are
          * popular for dragon bone farming and provide excellent combat experience.
          * These are some of the most dangerous monsters in the mid-wilderness.
          * 
-         * Spawn Locations: Higher wilderness levels (coordinates ~3200-3214, ~3856-3862)
-         * Total Spawns: 8 Green Dragons
+         * Spawn Locations: Higher wilderness levels (coordinates ~3094, ~3200-3214, ~3812, ~3856-3862)
+         * Total Spawns: 9 Green Dragons
          * Walk Radius: 5 tiles (dragons are relatively stationary)
          */
         // Green Dragons - powerful monsters, walkRadius = 5 means they don't move much (dragons are territorial)
@@ -197,6 +212,7 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.green_dragon", x = 3210, z = 3856, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.green_dragon", x = 3212, z = 3862, walkRadius = 5, direction = Direction.WEST)
         spawnNpc(npc = "npc.green_dragon", x = 3214, z = 3860, walkRadius = 5, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.green_dragon", x = 3094, z = 3812, walkRadius = 5, direction = Direction.SOUTH)
         
         /**
          * Hellhounds - Level 20+ Wilderness
@@ -240,6 +256,145 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.dark_wizard", x = 3085, z = 3565, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.dark_wizard", x = 3087, z = 3567, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.dark_wizard", x = 3089, z = 3565, walkRadius = 5, direction = Direction.WEST)
+        
+        /**
+         * Greater Demons - Demonic Ruins (Level 40+ Wilderness)
+         * 
+         * Powerful high-level demons that spawn at the Demonic Ruins. These are dangerous
+         * monsters with high combat stats and are aggressive. The Demonic Ruins is a popular
+         * training location for high-level players due to the prayer restoration feature.
+         * 
+         * Spawn Location: Demonic Ruins (coordinates ~3275-3283, ~3876-3884)
+         * Total Spawns: 8 Greater Demons
+         * Walk Radius: 6 tiles (moderate patrol area around ruins)
+         */
+        // Greater Demons at Demonic Ruins - mixing variants for visual variety
+        spawnNpc(npc = "npc.greater_demon", x = 3279, z = 3880, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon_2026", x = 3277, z = 3878, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.greater_demon_2027", x = 3281, z = 3878, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.greater_demon_2028", x = 3275, z = 3880, walkRadius = 6, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.greater_demon_2029", x = 3283, z = 3880, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon_2030", x = 3277, z = 3882, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.greater_demon_2031", x = 3281, z = 3882, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.greater_demon_2032", x = 3279, z = 3884, walkRadius = 6, direction = Direction.NORTH)
+        
+        /**
+         * Lesser Demons - Wilderness
+         * 
+         * Demonic creatures that spawn in the wilderness. They are aggressive melee fighters
+         * with moderate combat stats.
+         * 
+         * Spawn Location: Coordinates 3013, 3846
+         * Total Spawns: 6 Lesser Demons (mixing variants for visual variety)
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.lesser_demon", x = 3013, z = 3846, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon_2006", x = 3011, z = 3844, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.lesser_demon_2007", x = 3015, z = 3844, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.lesser_demon_2008", x = 3011, z = 3848, walkRadius = 6, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.lesser_demon", x = 3015, z = 3848, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon_2018", x = 3013, z = 3844, walkRadius = 6, direction = Direction.EAST)
+        
+        /**
+         * Greater Demons - Lava Maze
+         * 
+         * Greater demons spawn in the lava maze area for additional high-level content.
+         * 
+         * Spawn Location: Lava Maze (coordinates 3084, 3862)
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.greater_demon", x = 3084, z = 3862, walkRadius = 6, direction = Direction.SOUTH)
+        
+        /**
+         * Hill Giant - Lava Maze
+         * 
+         * A hill giant spawn in the lava maze area.
+         * 
+         * Spawn Location: Lava Maze (coordinates 3104, 3869)
+         * Walk Radius: 5 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.hill_giant", x = 3104, z = 3869, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Moss Giants - Wilderness
+         * 
+         * Large giants covered in moss that spawn in the wilderness. They are powerful
+         * melee fighters with high combat stats.
+         * 
+         * Spawn Location: Coordinates 3139, 3807
+         * Total Spawns: 5 Moss Giants (mixing variants for visual variety)
+         * Walk Radius: 5 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.moss_giant", x = 3139, z = 3807, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.moss_giant_2091", x = 3137, z = 3805, walkRadius = 5, direction = Direction.EAST)
+        spawnNpc(npc = "npc.moss_giant_2092", x = 3141, z = 3805, walkRadius = 5, direction = Direction.WEST)
+        spawnNpc(npc = "npc.moss_giant_2093", x = 3137, z = 3809, walkRadius = 5, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.moss_giant", x = 3141, z = 3809, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Elder Chaos Druid (7995) - Wilderness
+         * 
+         * An elder chaos druid spawn in the wilderness area.
+         * 
+         * Spawn Location: Coordinates 2955, 3819
+         * Walk Radius: 5 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 2955, z = 3819, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Ghost - Wilderness
+         * 
+         * A ghost spawn in the wilderness area.
+         * 
+         * Spawn Location: Coordinates 3108, 3691
+         * Walk Radius: 4 tiles (ghosts are relatively stationary)
+         */
+        spawnNpc(npc = "npc.ghost", x = 3108, z = 3691, walkRadius = 4, direction = Direction.SOUTH)
+        
+        /**
+         * Zombies - Graveyard
+         * 
+         * Undead zombies that spawn in the wilderness graveyard area. They are aggressive
+         * melee fighters that attack players on sight.
+         * 
+         * Spawn Location: Graveyard (coordinates ~3166-3170, ~3672-3676)
+         * Total Spawns: 6 Zombies (mixing variants for visual variety)
+         * Walk Radius: 6 tiles (moderate patrol area around graveyard)
+         */
+        spawnNpc(npc = "npc.zombie", x = 3168, z = 3674, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.zombie_27", x = 3166, z = 3672, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.zombie_28", x = 3170, z = 3672, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.zombie_29", x = 3166, z = 3676, walkRadius = 6, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.zombie_30", x = 3170, z = 3676, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.zombie_31", x = 3168, z = 3672, walkRadius = 6, direction = Direction.EAST)
+        
+        /**
+         * Black Chinchompas - Wilderness
+         * 
+         * Small creatures that spawn in the wilderness. They are hunted for their valuable
+         * black chinchompa items, which are used in ranged combat.
+         * 
+         * Spawn Location: Coordinates ~3150-3154, ~3767-3771
+         * Total Spawns: 6 Black Chinchompas
+         * Walk Radius: 4 tiles (small creatures, relatively stationary)
+         */
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3152, z = 3769, walkRadius = 4, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3150, z = 3767, walkRadius = 4, direction = Direction.EAST)
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3154, z = 3767, walkRadius = 4, direction = Direction.WEST)
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3150, z = 3771, walkRadius = 4, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3154, z = 3771, walkRadius = 4, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_chinchompa_2912", x = 3152, z = 3767, walkRadius = 4, direction = Direction.EAST)
+        
+        /**
+         * Porazdir - Wilderness Boss
+         * 
+         * A powerful boss monster found in the wilderness. Porazdir is a dangerous
+         * high-level boss with significant combat stats and special attacks.
+         * 
+         * Spawn Location: Coordinates 3243, 3867
+         * Walk Radius: 5 tiles (boss patrols a small area)
+         */
+        spawnNpc(npc = "npc.porazdir", x = 3243, z = 3867, walkRadius = 5, direction = Direction.SOUTH)
     }
 }
 
