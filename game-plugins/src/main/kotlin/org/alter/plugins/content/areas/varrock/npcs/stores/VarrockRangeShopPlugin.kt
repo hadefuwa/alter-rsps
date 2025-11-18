@@ -63,7 +63,7 @@ class VarrockRangeShopPlugin(
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
             if (npc.tile == shopkeeperTile) {
-                NpcInfo(npc).setTempName("Lowe")
+                NpcInfo(npc).setTempName("Range Shopkeeper")
             }
         }
 
@@ -83,15 +83,29 @@ class VarrockRangeShopPlugin(
 
         // Set up NPC interactions - check tile location to avoid conflicts with other shops using same NPC type
         onNpcOption(shopkeeper, option = "talk-to") { 
+            val npc = player.getInteractingNpc()
             if (npc.tile == shopkeeperTile) {
                 player.queue { dialog(player) } 
             }
         }
 
         onNpcOption(shopkeeper, option = "trade") { 
+            val npc = player.getInteractingNpc()
             if (npc.tile == shopkeeperTile) {
                 player.shop() 
             }
+        }
+        
+        // Also register option 3 (numeric) directly as fallback
+        try {
+            onNpcOption(shopkeeper, option = 3) {
+                val npc = player.getInteractingNpc()
+                if (npc.tile == shopkeeperTile) {
+                    player.shop()
+                }
+            }
+        } catch (e: IllegalStateException) {
+            // Option 3 already bound, skip
         }
     }
 
@@ -107,4 +121,5 @@ class VarrockRangeShopPlugin(
         }
     }
 }
+
 

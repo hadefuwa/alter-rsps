@@ -16,12 +16,12 @@ import org.alter.plugins.content.mechanics.shops.CoinCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 /**
- * Varrock Quest Items Shop
+ * Varrock Crystal Items Shop
  * 
- * A shop in the center of Varrock that sells common quest items for convenience.
+ * A shop in the center of Varrock that sells crystal items for convenience.
  * Located at Varrock center (3205, 3433).
  */
-class VarrockQuestItemsShopPlugin(
+class VarrockCrystalItemsShopPlugin(
     r: PluginRepository,
     world: World,
     server: Server
@@ -34,10 +34,19 @@ class VarrockQuestItemsShopPlugin(
         "No thanks.",
     )
     
-    // Quest items shop items - starting with 2 items, user will populate the rest
+    // Crystal items shop items
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.rope"), 50, 25, 10),
-        ShopItem(getRSCM("item.bucket"), 50, 5, 2),
+        ShopItem(getRSCM("item.corrupted_bow_attuned"), 50, 2000000, 500),
+        ShopItem(getRSCM("item.corrupted_staff_attuned"), 50, 2000000, 500),
+        ShopItem(getRSCM("item.corrupted_halberd_attuned"), 50, 2000000, 500),
+        ShopItem(getRSCM("item.corrupted_bow_perfected"), 50, 10000000, 500),
+        ShopItem(getRSCM("item.corrupted_staff_perfected"), 50, 10000000, 500),
+        ShopItem(getRSCM("item.corrupted_halberd_perfected"), 50, 10000000, 500),
+        ShopItem(getRSCM("item.crystal_helm"), 50, 100000000, 500),
+        ShopItem(getRSCM("item.crystal_body"), 50, 100000000, 500),
+        ShopItem(getRSCM("item.crystal_legs"), 50, 100000000, 500),
+        ShopItem(getRSCM("item.bow_of_faerdhinen"), 50, 20000000, 500),
+        ShopItem(getRSCM("item.bow_of_faerdhinen_c"), 50, 100000000, 500),        
     )
 
     init {
@@ -48,13 +57,13 @@ class VarrockQuestItemsShopPlugin(
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
             if (npc.tile == shopkeeperTile) {
-                NpcInfo(npc).setTempName("Quest Items Shopkeeper")
+                NpcInfo(npc).setTempName("Crystal Items Shopkeeper")
             }
         }
 
-        // Create the quest items shop with enough space for items
+        // Create the crystal items shop with enough space for items
         createShop(
-            name = "Varrock Quest Items Shop",
+            name = "Varrock Crystal Items Shop",
             currency = CoinCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_TRADEABLES
@@ -76,10 +85,10 @@ class VarrockQuestItemsShopPlugin(
         }
     }
 
-    fun Player.shop() = this.openShop("Varrock Quest Items Shop")
+    fun Player.shop() = this.openShop("Varrock Crystal Items Shop")
 
     suspend fun QueueTask.dialog(player: Player) {
-        chatNpc(player, "Welcome to the Varrock Quest Items Shop! We have common quest items for your convenience.")
+        chatNpc(player, "Welcome to the Varrock Crystal Items Shop! We have crystal items for your convenience.")
         chatNpc(player, "Would you like to see what we have for sale?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

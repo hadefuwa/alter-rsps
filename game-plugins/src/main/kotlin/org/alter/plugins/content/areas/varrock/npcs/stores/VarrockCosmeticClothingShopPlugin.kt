@@ -36,8 +36,50 @@ class VarrockCosmeticClothingShopPlugin(
     
     // Cosmetic/Clothing shop items - starting with 2 items, user will populate the rest
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.red_cape"), 50, 100, 25),
-        ShopItem(getRSCM("item.leather_boots"), 50, 50, 10),
+        ShopItem(getRSCM("item.soul_cape"), 50, 100000, 25),
+        ShopItem(getRSCM("item.bunny_ears"), 50, 1000000, 10),
+        // bunny_tail doesn't exist in RSCM, removed
+        ShopItem(getRSCM("item.bunny_feet"), 50, 1000000, 10),
+        ShopItem(getRSCM("item.bunnyman_mask"), 50, 1000000, 10),
+        ShopItem(getRSCM("item.bunny_top"), 50, 1000000, 10),
+        ShopItem(getRSCM("item.bunny_legs"), 50, 1000000, 10),
+        ShopItem(getRSCM("item.bunny_paws"), 50, 1000000, 10),
+        ShopItem(getRSCM("item.flower_crown"), 50, 1000000, 10),
+        // bunny_hat doesn't exist in RSCM, removed
+        ShopItem(getRSCM("item.3rd_age_wand"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_robe"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_boots"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_gloves"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_mask"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_top"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_bottom"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_hat"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.3rd_age_robe_2"), 50, 10000000, 10),
+        ShopItem(getRSCM("item.blue_partyhat"), 50, 100000, 10),
+        ShopItem(getRSCM("item.rainbow_partyhat"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_hat"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_shirt"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_pants"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_boots"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_gloves"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_mask"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_top"), 50, 100000, 10),
+        ShopItem(getRSCM("item.unicorn_bottom"), 50, 100000, 10),
+    
+
+   
+        ShopItem(getRSCM("item.mole_slippers"), 50, 100000, 10),
+       ShopItem(getRSCM("item.pirate_hat"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_shirt"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_pants"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_boots"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_gloves"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_mask"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_top"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_bottom"), 50, 100000, 10),
+        ShopItem(getRSCM("item.pirate_hat"), 50, 100000, 10),
+
+      
     )
 
     init {
@@ -85,4 +127,3 @@ class VarrockCosmeticClothingShopPlugin(
         }
     }
 }
-

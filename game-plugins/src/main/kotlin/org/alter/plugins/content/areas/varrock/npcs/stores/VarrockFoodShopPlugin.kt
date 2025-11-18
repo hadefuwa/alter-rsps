@@ -94,14 +94,34 @@ class VarrockFoodShopPlugin(
 
         // Set up NPC interactions - check tile location to avoid conflicts with other shops using same NPC type
         onNpcOption(shopkeeper, option = "talk-to") { 
+            val npc = player.getInteractingNpc()
             if (npc.tile == shopkeeperTile) {
                 player.queue { dialog(player) } 
             }
         }
 
-        onNpcOption(shopkeeper, option = "trade") { 
-            if (npc.tile == shopkeeperTile) {
-                player.shop() 
+        // Register option 3 (numeric) directly - this is what gets triggered when clicking trade
+        // Register this BEFORE the string "trade" option to avoid conflicts
+        try {
+            onNpcOption(shopkeeper, option = 3) {
+                val npc = player.getInteractingNpc()
+                println("VarrockFoodShopPlugin: Option 3 triggered for NPC at ${npc.tile}, expected tile: $shopkeeperTile")
+                if (npc.tile == shopkeeperTile) {
+                    println("VarrockFoodShopPlugin: Tile match! Opening shop...")
+                    player.shop()
+                } else {
+                    println("VarrockFoodShopPlugin: Tile mismatch - NPC at ${npc.tile.x},${npc.tile.z}, expected ${shopkeeperTile.x},${shopkeeperTile.z}")
+                }
+            }
+            println("VarrockFoodShopPlugin: Successfully registered option 3 for shopkeeper")
+        } catch (e: IllegalStateException) {
+            // Option 3 already bound by another plugin, use string option as fallback
+            println("VarrockFoodShopPlugin: Option 3 already bound, using string 'trade' option")
+            onNpcOption(shopkeeper, option = "trade") { 
+                val npc = player.getInteractingNpc()
+                if (npc.tile == shopkeeperTile) {
+                    player.shop() 
+                }
             }
         }
     }

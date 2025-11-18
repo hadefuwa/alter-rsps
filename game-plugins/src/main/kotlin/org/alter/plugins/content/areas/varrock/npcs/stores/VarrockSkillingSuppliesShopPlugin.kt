@@ -36,8 +36,35 @@ class VarrockSkillingSuppliesShopPlugin(
     
     // Skilling supplies shop items - starting with 2 items, user will populate the rest
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.rune_pickaxe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.iron_pickaxe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.iron_axe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.hammer"), 50, 5000, 25),
         ShopItem(getRSCM("item.rune_axe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.rune_pickaxe"), 50, 5000, 25),
+        ShopItem(getRSCM("item.rope"), 50, 5000, 25),
+        ShopItem(getRSCM("item.feather"), 50, 5000, 25),
+        ShopItem(getRSCM("item.fishing_rod"), 50, 5000, 25),
+        ShopItem(getRSCM("item.fishing_bait"), 50, 5000, 25),
+        ShopItem(getRSCM("item.small_fishing_net"), 50, 5000, 25),
+        ShopItem(getRSCM("item.big_fishing_net"), 50, 5000, 25),
+        ShopItem(getRSCM("item.sandworms"), 50, 5000, 25),
+        ShopItem(getRSCM("item.fly_fishing_rod"), 50, 5000, 25),
+        ShopItem(getRSCM("item.harpoon"), 50, 5000, 25),
+        ShopItem(getRSCM("item.lobster_pot"), 50, 5000, 25),
+        ShopItem(getRSCM("item.dragon_harpoon"), 50, 5000000, 25),
+        ShopItem(getRSCM("item.impling_jar"), 50, 5000, 25),
+        ShopItem(getRSCM("item.rake"), 50, 5000, 25),
+        ShopItem(getRSCM("item.spade"), 50, 5000, 25),
+        ShopItem(getRSCM("item.tinderbox"), 50, 5000, 25),
+        ShopItem(getRSCM("item.bucket"), 50, 5000, 25),
+        ShopItem(getRSCM("item.logs"), 50, 5000, 25),
+        ShopItem(getRSCM("item.oak_logs"), 50, 5000, 25),
+        ShopItem(getRSCM("item.maple_logs"), 50, 5000, 25),
+        ShopItem(getRSCM("item.magic_logs"), 50, 5000, 25),
+        ShopItem(getRSCM("item.rune_essence_noted"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.butterfly_net"), 5000, 5000, 25),
+        ShopItem(getRSCM("item.box_trap"), 5000, 5000, 25),
+        
     )
 
     init {
@@ -88,4 +115,3 @@ class VarrockSkillingSuppliesShopPlugin(
         }
     }
 }
-

@@ -11,6 +11,8 @@ import org.alter.game.model.shop.ShopItem
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.mechanics.shops.CoinCurrency
+import org.alter.plugins.content.mechanics.shops.ShopConstants.M
+import org.alter.plugins.content.mechanics.shops.ShopConstants.B
 import org.alter.rscm.RSCM.getRSCM
 
 /**
@@ -57,21 +59,23 @@ class VarrockWeaponsShopPlugin(
         addWeapon("abyssal_dagger", 90000000)
         
         // Ranged Weapons - 10m-30m
-        addWeapon("rune_crossbow", 10000000)
-        addWeapon("dragon_crossbow", 30000000)
-        addWeapon("armadyl_crossbow", 100000000)
+        addWeapon("rune_crossbow", 10 * M)
+        addWeapon("dragon_crossbow", 30 * M)
+        addWeapon("armadyl_crossbow", 100 * M)
+        addWeapon("dragon_hunter_crossbow", 200 * M)
+        addWeapon("zaryte_crossbow", 1 * B)
         
         // Magic Weapons - 15m-40m
-        addWeapon("staff_of_air", 15000000)
-        addWeapon("staff_of_water", 15000000)
-        addWeapon("staff_of_earth", 15000000)
-        addWeapon("staff_of_fire", 15000000)
-        addWeapon("mystic_air_staff", 30000000)
-        addWeapon("mystic_water_staff", 30000000)
-        addWeapon("mystic_earth_staff", 30000000)
-        addWeapon("mystic_fire_staff", 30000000)
-        addWeapon("battlestaff", 20000000)
-        addWeapon("lava_battlestaff", 40000000)
+        addWeapon("staff_of_air", 150000)
+        addWeapon("staff_of_water", 150000)
+        addWeapon("staff_of_earth", 150000)
+        addWeapon("staff_of_fire", 150000)
+        addWeapon("mystic_air_staff", 300000)
+        addWeapon("mystic_water_staff", 300000)
+        addWeapon("mystic_earth_staff", 300000)
+        addWeapon("mystic_fire_staff", 300000)
+        addWeapon("battlestaff", 200000)
+        addWeapon("lava_battlestaff", 400000)
     }
 
     init {

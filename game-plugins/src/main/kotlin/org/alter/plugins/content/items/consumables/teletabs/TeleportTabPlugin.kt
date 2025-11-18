@@ -1,5 +1,6 @@
 package org.alter.plugins.content.items.consumables.teletabs
 
+import dev.openrune.cache.CacheManager.getItem
 import org.alter.api.*
 import org.alter.api.cfg.*
 import org.alter.api.dsl.*
@@ -59,21 +60,120 @@ class TeleportTabPlugin(
 
     init {
         LOCATIONS.forEach { item, endTile ->
-            // Try to register "break" option (most teleport tabs use this)
-            try {
-                onItemOption(item = item, option = "break") {
-                    player.queue(TaskPriority.STRONG) {
-                        player.teleport(this, endTile, getRSCM(item))
-                    }
-                }
-            } catch (e: IllegalStateException) {
-                // If "break" doesn't exist, try "Teleport" option (some tabs like zulandra_teleport use this)
-                onItemOption(item = item, option = "Teleport") {
-                    player.queue(TaskPriority.STRONG) {
-                        player.teleport(this, endTile, getRSCM(item))
+            registerTeleportTab(item, endTile)
+        }
+    }
+    
+    /**
+     * Register handler for a teleport tab item
+     * Tries multiple registration methods to ensure compatibility
+     */
+    private fun registerTeleportTab(item: String, endTile: Area) {
+        try {
+            val itemId = getRSCM(item)
+            val itemDef = getItem(itemId)
+            val tabId = itemId
+            val interfaceOptions = itemDef.interfaceOptions // Store to avoid naming conflict
+            
+            // Priority 1: Register option 2 (most common - this is what the client sends)
+            // The logs show option=2 is being clicked
+            if (!world.plugins.isItemBound(itemId, 2)) {
+                if (interfaceOptions.size >= 2 && interfaceOptions[1] != null) {
+                    try {
+                        onItemOption(item = item, option = 2) {
+                            player.queue(TaskPriority.STRONG) {
+                                player.teleport(this, endTile, tabId)
+                            }
+                        }
+                        return // Successfully registered, exit
+                    } catch (e: Exception) {
+                        // Option 2 registration failed, try other options
                     }
                 }
             }
+            
+            // Priority 2: Try option 1
+            if (!world.plugins.isItemBound(itemId, 1)) {
+                if (interfaceOptions.size >= 1 && interfaceOptions[0] != null) {
+                    try {
+                        onItemOption(item = item, option = 1) {
+                            player.queue(TaskPriority.STRONG) {
+                                player.teleport(this, endTile, tabId)
+                            }
+                        }
+                        return
+                    } catch (e: Exception) {
+                        // Option 1 registration failed
+                    }
+                }
+            }
+            
+            // Priority 3: Try string option "break" (most teleport tabs use this)
+            if (itemHasInventoryOption(item, "break")) {
+                try {
+                    onItemOption(item = item, option = "break") {
+                        player.queue(TaskPriority.STRONG) {
+                            player.teleport(this, endTile, tabId)
+                        }
+                    }
+                    return
+                } catch (e: Exception) {
+                    // "break" option registration failed
+                }
+            }
+            
+            // Priority 4: Try "Teleport" option (some tabs like zulandra_teleport use this)
+            if (itemHasInventoryOption(item, "Teleport")) {
+                try {
+                    onItemOption(item = item, option = "Teleport") {
+                        player.queue(TaskPriority.STRONG) {
+                            player.teleport(this, endTile, tabId)
+                        }
+                    }
+                    return
+                } catch (e: Exception) {
+                    // "Teleport" option registration failed
+                }
+            }
+            
+            // Priority 5: Try other common option names
+            val commonOptions = listOf("use", "activate", "teleport")
+            for (optionName in commonOptions) {
+                if (itemHasInventoryOption(item, optionName)) {
+                    try {
+                        onItemOption(item = item, option = optionName) {
+                            player.queue(TaskPriority.STRONG) {
+                                player.teleport(this, endTile, tabId)
+                            }
+                        }
+                        return
+                    } catch (e: Exception) {
+                        // This option name failed, try next
+                    }
+                }
+            }
+            
+            // Priority 6: Fallback to option 3 or 4 if they exist
+            for (optionIndex in listOf(3, 4)) {
+                if (!world.plugins.isItemBound(itemId, optionIndex)) {
+                    if (interfaceOptions.size >= optionIndex && interfaceOptions[optionIndex - 1] != null) {
+                        try {
+                            onItemOption(item = item, option = optionIndex) {
+                                player.queue(TaskPriority.STRONG) {
+                                    player.teleport(this, endTile, tabId)
+                                }
+                            }
+                            return
+                        } catch (e: Exception) {
+                            // This option index failed
+                        }
+                    }
+                }
+            }
+            
+            println("Warning: Could not register any handler for teleport tab $item (ID: $itemId)")
+        } catch (e: Exception) {
+            println("Error registering teleport tab $item: ${e.message}")
         }
     }
 

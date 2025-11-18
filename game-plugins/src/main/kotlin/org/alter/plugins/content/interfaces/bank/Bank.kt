@@ -11,7 +11,6 @@ import org.alter.game.model.item.Item
 import org.alter.plugins.content.interfaces.bank.BankTabs.SELECTED_TAB_VARBIT
 import org.alter.plugins.content.interfaces.bank.BankTabs.getTabsItems
 import org.alter.plugins.content.interfaces.equipstats.EquipmentStats
-import org.alter.plugins.content.interfaces.equipstats.EquipmentStats.bonusTextMap
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -235,27 +234,29 @@ object Bank {
     }
 
     fun sendBonuses(p: Player) {
-
+        // Call the extension function through the EquipmentStats object scope
+        val bonusText = with(EquipmentStats) {
+            p.bonusTextMap()
+        }
         with(p) {
-            setBankEquipCompText(component = 98, text = bonusTextMap()[0])
-            setBankEquipCompText(component = 99, text = bonusTextMap()[1])
-            setBankEquipCompText(component = 100, text = bonusTextMap()[2])
-            setBankEquipCompText(component = 101, text = bonusTextMap()[3])
-            setBankEquipCompText(component = 102, text = bonusTextMap()[4])
-            setBankEquipCompText(component = 132, text = bonusTextMap()[5])
-            setBankEquipCompText(component = 133, text = bonusTextMap()[6])
-            setBankEquipCompText(component = 104, text = bonusTextMap()[7])
-            setBankEquipCompText(component = 105, text = bonusTextMap()[8])
-            setBankEquipCompText(component = 106, text = bonusTextMap()[9])
-            setBankEquipCompText(component = 108, text = bonusTextMap()[10])
-            setBankEquipCompText(component = 107, text = bonusTextMap()[11])
-            setBankEquipCompText(component = 110, text = bonusTextMap()[12])
-            setBankEquipCompText(component = 111, text = bonusTextMap()[13])
-            setBankEquipCompText(component = 112, text = bonusTextMap()[14])
-            setBankEquipCompText(component = 113, text = bonusTextMap()[15])
-            setBankEquipCompText(component = 115, text = bonusTextMap()[16])
-            setBankEquipCompText(component = 116, text = bonusTextMap()[17])
-
+            setBankEquipCompText(component = 98, text = bonusText[0])
+            setBankEquipCompText(component = 99, text = bonusText[1])
+            setBankEquipCompText(component = 100, text = bonusText[2])
+            setBankEquipCompText(component = 101, text = bonusText[3])
+            setBankEquipCompText(component = 102, text = bonusText[4])
+            setBankEquipCompText(component = 132, text = bonusText[5])
+            setBankEquipCompText(component = 133, text = bonusText[6])
+            setBankEquipCompText(component = 104, text = bonusText[7])
+            setBankEquipCompText(component = 105, text = bonusText[8])
+            setBankEquipCompText(component = 106, text = bonusText[9])
+            setBankEquipCompText(component = 108, text = bonusText[10])
+            setBankEquipCompText(component = 107, text = bonusText[11])
+            setBankEquipCompText(component = 110, text = bonusText[12])
+            setBankEquipCompText(component = 111, text = bonusText[13])
+            setBankEquipCompText(component = 112, text = bonusText[14])
+            setBankEquipCompText(component = 113, text = bonusText[15])
+            setBankEquipCompText(component = 115, text = bonusText[16])
+            setBankEquipCompText(component = 116, text = bonusText[17])
         }
         p.runClientScript(
             ClientScript(id = 7065),
