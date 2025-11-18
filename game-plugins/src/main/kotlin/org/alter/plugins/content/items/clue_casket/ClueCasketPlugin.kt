@@ -37,6 +37,32 @@ class ClueCasketPlugin(
         registerCasketHandler("item.casket_elite", ClueTier.ELITE)
         registerCasketHandler("item.reward_casket_master", ClueTier.MASTER)
         registerCasketHandler("item.reward_casket_beginner", ClueTier.BEGINNER)
+        
+        // Also register variant caskets by ID (medium casket variants)
+        // Register 2804, 2806, 2810 directly in init block where r is accessible
+        listOf(2804, 2806, 2810).forEach { itemId ->
+            try {
+                val itemDef = getItem(itemId)
+                val itemName = itemDef.name.lowercase()
+                
+                // Only register if it's actually a casket
+                if (itemName.contains("casket") && !world.plugins.isItemBound(itemId, 2)) {
+                    if (itemDef.interfaceOptions.size >= 2 && itemDef.interfaceOptions[1] != null) {
+                        try {
+                            r.bindItem(itemId, 2) {
+                                println("DEBUG: Casket handler triggered! itemId=$itemId, optionIndex=2, tier=MEDIUM")
+                                openCasket(player, ClueTier.MEDIUM, null, itemId)
+                            }
+                            println("DEBUG: ✓ Successfully registered option 2 for casket ID $itemId (tier: MEDIUM)")
+                        } catch (e: Exception) {
+                            println("DEBUG: ✗ Failed to register option 2 for casket ID $itemId: ${e.message}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Item might not exist, that's okay
+            }
+        }
     }
 
     private fun registerCasketHandler(itemName: String, tier: ClueTier) {
@@ -48,47 +74,89 @@ class ClueCasketPlugin(
             val availableOptions = itemDef.interfaceOptions.filterNotNull().filter { it.isNotBlank() }
             println("DEBUG: Registering casket handler for $itemName (ID: $itemId) with options: $availableOptions")
             
-            // Try to register "open" option if it exists
-            if (itemHasInventoryOption(itemName, "open")) {
-                onItemOption(itemName, "open") {
-                    openCasket(player, tier, itemName)
+            // Priority: Register option 2 first since that's what the client sends
+            // Check if option 2 is already bound
+            if (!world.plugins.isItemBound(itemId, 2)) {
+                // Check if option 2 exists for this item
+                if (itemDef.interfaceOptions.size >= 2 && itemDef.interfaceOptions[1] != null) {
+                    try {
+                        onItemOption(itemName, 2) {
+                            println("DEBUG: Handler triggered! itemName=$itemName, optionIndex=2, itemId=$itemId")
+                            openCasket(player, tier, itemName)
+                        }
+                        println("DEBUG: ✓ Successfully registered option 2 for $itemName (ID: $itemId)")
+                        return
+                    } catch (e: Exception) {
+                        println("DEBUG: ✗ Failed to register option 2 for $itemName: ${e.message}")
+                    }
                 }
-                println("DEBUG: Registered 'open' option for $itemName")
-                return
+            } else {
+                println("DEBUG: Option 2 already bound for $itemName (ID: $itemId)")
+            }
+            
+            // Try to register "open" option if it exists and not already bound
+            if (itemHasInventoryOption(itemName, "open")) {
+                val openOptionIndex = itemDef.interfaceOptions.indexOfFirst { it?.lowercase() == "open" }
+                if (openOptionIndex != -1 && !world.plugins.isItemBound(itemId, openOptionIndex + 1)) {
+                    try {
+                        onItemOption(itemName, "open") {
+                            openCasket(player, tier, itemName)
+                        }
+                        println("DEBUG: Registered 'open' option for $itemName")
+                        return
+                    } catch (e: Exception) {
+                        println("DEBUG: Failed to register 'open' option: ${e.message}")
+                    }
+                }
             }
             
             // Try common option names
             val commonOptions = listOf("use", "activate", "inspect", "check")
             for (optionName in commonOptions) {
                 if (itemHasInventoryOption(itemName, optionName)) {
-                    onItemOption(itemName, optionName) {
-                        openCasket(player, tier, itemName)
+                    val optionIndex = itemDef.interfaceOptions.indexOfFirst { it?.lowercase() == optionName.lowercase() }
+                    if (optionIndex != -1 && !world.plugins.isItemBound(itemId, optionIndex + 1)) {
+                        try {
+                            onItemOption(itemName, optionName) {
+                                openCasket(player, tier, itemName)
+                            }
+                            println("DEBUG: Registered '$optionName' option for $itemName")
+                            return
+                        } catch (e: Exception) {
+                            println("DEBUG: Failed to register '$optionName' option: ${e.message}")
+                        }
                     }
-                    println("DEBUG: Registered '$optionName' option for $itemName")
-                    return
                 }
             }
             
-            // Fall back to registering option indices 1, 2, 3, and 4
-            // (option 1 is usually the first action, option 2 is second, etc.)
-            // We'll register all of them to catch whichever one is actually used
-            for (optionIndex in 1..4) {
-                try {
-                    onItemOption(itemName, optionIndex) {
-                        println("DEBUG: Handler triggered! itemName=$itemName, optionIndex=$optionIndex, itemId=$itemId")
-                        openCasket(player, tier, itemName)
+            // Fall back to registering option indices 1, 3, and 4 (skip 2 since we already tried it)
+            val fallbackOptions = listOf(1, 3, 4)
+            for (optionIndex in fallbackOptions) {
+                if (world.plugins.isItemBound(itemId, optionIndex)) {
+                    println("DEBUG: Option index $optionIndex already bound for $itemName (ID: $itemId), skipping")
+                    continue
+                }
+                
+                // Check if this option index actually exists for this item
+                if (optionIndex <= itemDef.interfaceOptions.size && itemDef.interfaceOptions[optionIndex - 1] != null) {
+                    try {
+                        onItemOption(itemName, optionIndex) {
+                            println("DEBUG: Handler triggered! itemName=$itemName, optionIndex=$optionIndex, itemId=$itemId")
+                            openCasket(player, tier, itemName)
+                        }
+                        println("DEBUG: ✓ Successfully registered option index $optionIndex for $itemName (ID: $itemId)")
+                        return // Only register one option
+                    } catch (e: Exception) {
+                        println("DEBUG: ✗ Failed to register option index $optionIndex for $itemName: ${e.message}")
+                        // Option index doesn't exist or already bound, continue to next
                     }
-                    println("DEBUG: ✓ Successfully registered option index $optionIndex for $itemName (ID: $itemId)")
-                } catch (e: Exception) {
-                    println("DEBUG: ✗ Failed to register option index $optionIndex for $itemName: ${e.message}")
-                    // Option index doesn't exist, continue to next
                 }
             }
             
             // Verify registration worked
             try {
-                val registered = world.plugins.isItemBound(itemId, 2)
-                println("DEBUG: Verification - isItemBound($itemId, 2) = $registered")
+                val registered = world.plugins.isItemBound(itemId, 1) || world.plugins.isItemBound(itemId, 2)
+                println("DEBUG: Verification - isItemBound($itemId, 1 or 2) = $registered")
             } catch (e: Exception) {
                 println("DEBUG: Could not verify registration: ${e.message}")
             }
@@ -98,8 +166,8 @@ class ClueCasketPlugin(
         }
     }
 
-    private fun openCasket(player: Player, tier: ClueTier, itemName: String) {
-        println("DEBUG: openCasket called for tier=$tier, itemName=$itemName")
+    private fun openCasket(player: Player, tier: ClueTier, itemName: String?, itemId: Int? = null) {
+        println("DEBUG: openCasket called for tier=$tier, itemName=$itemName, itemId=$itemId")
         player.lock()
         
         try {
@@ -113,58 +181,42 @@ class ClueCasketPlugin(
             // Get the slot of the item being interacted with
             val slot = player.attr[INTERACTING_ITEM_SLOT] ?: -1
             println("DEBUG: Interacting slot = $slot")
-            if (slot == -1 || slot < 0 || slot >= player.inventory.capacity) {
-                player.message("You don't have that casket.")
-                return
-            }
-
-            val item = player.inventory[slot]
-            if (item == null) {
-                println("DEBUG: No item found at slot $slot")
-                player.message("You don't have that casket.")
-                return
-            }
-
-            println("DEBUG: Found item ID ${item.id} at slot $slot")
-
-            // Verify this is actually a casket by checking the item ID matches expected casket IDs
-            val casketId = try {
-                getRSCM(itemName)
-            } catch (e: Exception) {
-                // If name lookup fails, use the item's actual ID
-                println("DEBUG: Name lookup failed for $itemName, using item ID ${item.id}")
-                item.id
-            }
-
-            println("DEBUG: Expected casket ID = $casketId, actual item ID = ${item.id}")
-
-            // Accept any known casket ID, not just the exact match
-            val knownCasketIds = listOf(2714, 2802, 2724, 12084, 19836, 23245, 20543, 20544, 20545, 20546)
-            if (item.id !in knownCasketIds && item.id != casketId) {
-                println("DEBUG: Item ID ${item.id} is not a known casket ID")
-                // Try to find the casket by ID in inventory instead
-                val casketSlot = player.inventory.getItemIndex(casketId, false)
-                if (casketSlot == -1) {
+            
+            val targetItemId = itemId ?: (itemName?.let { getRSCM(it) } ?: run {
+                if (slot == -1 || slot < 0 || slot >= player.inventory.capacity) {
                     player.message("You don't have that casket.")
                     return
                 }
-                // Use the found slot
-                val removeResult = player.inventory.remove(item = casketId, amount = 1, beginSlot = casketSlot)
-                if (!removeResult.hasSucceeded()) {
-                    player.message("Failed to remove casket.")
+                val item = player.inventory[slot]
+                if (item == null) {
+                    println("DEBUG: No item found at slot $slot")
+                    player.message("You don't have that casket.")
                     return
                 }
+                item.id
+            })
+            
+            // Find the casket in inventory
+            val casketSlot = if (slot != -1 && slot >= 0 && slot < player.inventory.capacity) {
+                val item = player.inventory[slot]
+                if (item != null && item.id == targetItemId) slot else player.inventory.getItemIndex(targetItemId, false)
             } else {
-                // Remove the casket from the slot we found
-                println("DEBUG: Removing casket ID ${item.id} from slot $slot")
-                val removeResult = player.inventory.remove(item = item.id, amount = 1, beginSlot = slot)
-                if (!removeResult.hasSucceeded()) {
-                    println("DEBUG: Failed to remove casket from inventory")
-                    player.message("Failed to remove casket.")
-                    return
-                }
-                println("DEBUG: Successfully removed casket")
+                player.inventory.getItemIndex(targetItemId, false)
             }
+            
+            if (casketSlot == -1) {
+                player.message("You don't have that casket.")
+                return
+            }
+            
+            // Remove the casket
+            val removeResult = player.inventory.remove(item = targetItemId, amount = 1, beginSlot = casketSlot)
+            if (!removeResult.hasSucceeded()) {
+                println("DEBUG: Failed to remove casket from inventory")
+                player.message("Failed to remove casket.")
+                return
+            }
+            println("DEBUG: Successfully removed casket ID $targetItemId")
 
             // Play sound effect
             player.playSound(Sound.CASKET_OPEN)
