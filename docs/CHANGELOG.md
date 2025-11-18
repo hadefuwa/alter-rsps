@@ -1,5 +1,65 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-01-18 (F Key Binding Persistence Fix)
+
+### Summary
+Fixed F key bindings not saving/persisting between logins and set proper default keybindings:
+1. Fixed VarpSerialisation to always save keybinding-related varps, even when value is 0
+2. Set default F key bindings: F1=Combat, F2=Inventory, F3=Prayer, F4=Magic
+3. Added force-update on login to apply new defaults to all existing players
+4. Keybindings now properly persist after logout
+
+### Key Changes:
+
+#### 1. VarpSerialisation Fix
+**File**: [game-server/src/main/kotlin/org/alter/game/saving/impl/VarpSerialisation.kt](../game-server/src/main/kotlin/org/alter/game/saving/impl/VarpSerialisation.kt)
+
+**Issue**: Varps with value `0` were being filtered out during save, causing keybindings set to "None" or disabled to be lost on logout.
+
+**Fix Applied**:
+- Modified `asDocument()` to identify keybinding-related varps by checking varbits 4675-4690 and 6517
+- Added `keybindingVarpIds` lazy-initialized set that maps varbits to their underlying varp IDs
+- Changed filter logic to always save keybinding varps: `varp.state != 0 || varp.id in keybindingVarpIds`
+
+**Impact**: All F key bindings now persist correctly between logins, including those set to "None" (0).
+
+---
+
+#### 2. Default Keybinding Values
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/keybind/Hotkey.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/keybind/Hotkey.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/starter/StarterKitPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/starter/StarterKitPlugin.kt)
+
+**Changes**: Updated default F key bindings to a simple, minimal layout:
+- F1 (slot 1) → Combat
+- F2 (slot 2) → Inventory
+- F3 (slot 3) → Prayer
+- F4 (slot 4) → Magic
+- All others → None (0)
+
+**Impact**: New players get a clean, simple keybinding setup. Restore Defaults button applies this layout.
+
+---
+
+#### 3. Force Update on Login
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/keybind/KeyBindingPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/interfaces/gameframe/tabs/settings/keybind/KeyBindingPlugin.kt)
+
+**Change**: Added `onLogin` handler that forces all players to receive the new default keybindings on login.
+
+**Implementation**:
+```kotlin
+onLogin {
+    // Force all players to use the new simple keybinding layout
+    Hotkey.values.forEach { hotkey ->
+        player.setVarbit(hotkey.varbit, hotkey.defaultValue)
+    }
+}
+```
+
+**Impact**: All existing players get the updated F1-F4 layout immediately on next login.
+
+---
+
 ## Date: 2025-01-XX (Crazy Archaeologist Combat Improvements & Loot System Updates)
 
 ### Summary

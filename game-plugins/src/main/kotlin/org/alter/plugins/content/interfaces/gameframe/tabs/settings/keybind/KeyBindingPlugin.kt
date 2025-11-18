@@ -23,8 +23,21 @@ class KeyBindingPlugin(
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
-        
+
     init {
+        /**
+         * Initialize default F key bindings on login for all players.
+         * FORCE UPDATE: Always apply the simple F1-F4 layout for all existing players
+         */
+        onLogin {
+            // TEMPORARY: Force all players to use the new simple keybinding layout
+            // F1=Combat, F2=Inventory, F3=Prayer, F4=Magic, rest=None
+            // Remove this after everyone has logged in once with the new defaults
+            Hotkey.values.forEach { hotkey ->
+                player.setVarbit(hotkey.varbit, hotkey.defaultValue)
+            }
+        }
+
         /**
          * Set 'focused' hotkey.
          */
