@@ -229,10 +229,11 @@ class CrazyArchaeologistCombatPlugin(
                 facePawn(nearbyPlayers.first())
             }
             
-            if (isAttackDelayReady()) {
+            // Check if NPC is still alive and has HP before attacking
+            if (isAttackDelayReady() && isAlive() && getCurrentHp() > 0) {
                 attackCount++
                 regularAttackCount++
-                
+
                 /**
                  * Special Attack Logic:
                  * 
@@ -327,14 +328,18 @@ class CrazyArchaeologistCombatPlugin(
                                 val centerTile = Tile(avgX, avgZ, this.tile.height)
                                 bookRainAttackAtTile(centerTile)
                                 attackCount = 0
+                                // Post attack logic for timing
+                                postAttackLogic(nearbyPlayers.first())
                             }
-                        } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT && 
+                        } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
                             this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
                             // Teleport a random player (only if book rain didn't trigger)
                             if (isAlive()) {  // Check before executing special attack
                                 val randomPlayer = nearbyPlayers.random()
                                 teleportAttack(randomPlayer)
                                 attackCount = 0
+                                // Post attack logic for timing
+                                postAttackLogic(randomPlayer)
                             }
                         } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT &&
                           this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
@@ -343,17 +348,21 @@ class CrazyArchaeologistCombatPlugin(
                                 val randomPlayer = nearbyPlayers.random()
                                 unequipAttack(randomPlayer)
                                 attackCount = 0
+                                // Post attack logic for timing
+                                postAttackLogic(randomPlayer)
                             }
                         }
-                    } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT && 
+                    } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
                         this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
                         // Teleport a random player (single player scenario)
                         if (isAlive()) {  // Check before executing special attack
                             val randomPlayer = nearbyPlayers.random()
                             teleportAttack(randomPlayer)
                             attackCount = 0
+                            // Post attack logic for timing
+                            postAttackLogic(randomPlayer)
                         }
-                    } else if (attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT && 
+                    } else if (attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT &&
                               this.world.chance(BOOK_RAIN_ATTACK_CHANCE_NUMERATOR, BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR)) {
                         // Book rain on center of all players (single player or fallback)
                         if (isAlive()) {  // Check before executing special attack
@@ -367,14 +376,18 @@ class CrazyArchaeologistCombatPlugin(
                             }
                             bookRainAttackAtTile(centerTile)
                             attackCount = 0
+                            // Post attack logic for timing
+                            postAttackLogic(nearbyPlayers.first())
                         }
-                    } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT && 
+                    } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT &&
                           this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
                         // Unequip attack on a random player (single player scenario)
                         if (isAlive()) {  // Check before executing special attack
                             val randomPlayer = nearbyPlayers.random()
                             unequipAttack(randomPlayer)
                             attackCount = 0
+                            // Post attack logic for timing
+                            postAttackLogic(randomPlayer)
                         }
                     } else {
                         // Regular magic attacks - attack ALL nearby players simultaneously
@@ -519,8 +532,8 @@ class CrazyArchaeologistCombatPlugin(
             attackersIndex = this.index
         )
         
-        // Cancel the hit if the NPC dies before it lands
-        hit.setCancelIf { !this@unblockableMagicAttack.isAlive() }
+        // Cancel the hit if the NPC dies or reaches 0 HP before it lands
+        hit.setCancelIf { !this@unblockableMagicAttack.isAlive() || this@unblockableMagicAttack.getCurrentHp() <= 0 }
         
         if (target is Player) {
             target.message("The Crazy Archaeologist's unblockable magic strikes through your protection!")
@@ -583,8 +596,8 @@ class CrazyArchaeologistCombatPlugin(
         this.world.queue {
             wait(hitDelay - 1)
 
-            // Check if both NPC and target are still alive before executing teleport
-            if (!this@teleportAttack.isAlive() || !target.isAlive()) {
+            // Check if both NPC and target are still alive and NPC has HP before executing teleport
+            if (!this@teleportAttack.isAlive() || this@teleportAttack.getCurrentHp() <= 0 || !target.isAlive()) {
                 return@queue
             }
 
@@ -613,8 +626,8 @@ class CrazyArchaeologistCombatPlugin(
 
                 // Deal some damage from the teleport
                 val hit = target.hit(this@teleportAttack.world.random(8), type = HitType.HIT, delay = 1)
-                // Cancel the hit if the NPC dies before it lands
-                hit.setCancelIf { !this@teleportAttack.isAlive() }
+                // Cancel the hit if the NPC dies or reaches 0 HP before it lands
+                hit.setCancelIf { !this@teleportAttack.isAlive() || this@teleportAttack.getCurrentHp() <= 0 }
             }
         }
     }
@@ -654,8 +667,8 @@ class CrazyArchaeologistCombatPlugin(
         this.world.queue {
             wait(delay - 1)
             
-            // Check if both NPC and target are still alive
-            if (!this@unequipAttack.isAlive() || !target.isAlive()) {
+            // Check if both NPC and target are still alive and NPC has HP
+            if (!this@unequipAttack.isAlive() || this@unequipAttack.getCurrentHp() <= 0 || !target.isAlive()) {
                 return@queue
             }
             
@@ -737,8 +750,8 @@ class CrazyArchaeologistCombatPlugin(
         this.world.queue {
             wait(4)
 
-            // Check if NPC is still alive before dealing damage
-            if (!this@bookRainAttackAtTile.isAlive()) {
+            // Check if NPC is still alive and has HP before dealing damage
+            if (!this@bookRainAttackAtTile.isAlive() || this@bookRainAttackAtTile.getCurrentHp() <= 0) {
                 return@queue
             }
 
@@ -747,19 +760,21 @@ class CrazyArchaeologistCombatPlugin(
                 world.spawn(TileGraphic(tile, id = 157, height = 0, delay = 0)) // Explosion graphic
 
                 // Damage any pawns (players or NPCs) on this tile
-                // Max damage: 16 (0-15 random)
+                // Max damage: 70 (30-70 random) - high damage AOE attack
                 world.players.forEach { player ->
-                    if (player.tile == tile && player.isAlive() && this@bookRainAttackAtTile.isAlive()) {
-                        val hit = player.hit(this@bookRainAttackAtTile.world.random(16), type = HitType.HIT, delay = 0)
-                        // Cancel the hit if the NPC dies before it lands
-                        hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() }
+                    if (player.tile == tile && player.isAlive() && this@bookRainAttackAtTile.isAlive() && this@bookRainAttackAtTile.getCurrentHp() > 0) {
+                        val damage = this@bookRainAttackAtTile.world.random(30..70)
+                        val hit = player.hit(damage, type = HitType.HIT, delay = 0)
+                        // Cancel the hit if the NPC dies or reaches 0 HP before it lands
+                        hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() || this@bookRainAttackAtTile.getCurrentHp() <= 0 }
                     }
                 }
                 world.npcs.forEach { npc ->
-                    if (npc.tile == tile && npc.isAlive() && npc != this@bookRainAttackAtTile && this@bookRainAttackAtTile.isAlive()) {
-                        val hit = npc.hit(this@bookRainAttackAtTile.world.random(16), type = HitType.HIT, delay = 0)
-                        // Cancel the hit if the NPC dies before it lands
-                        hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() }
+                    if (npc.tile == tile && npc.isAlive() && npc != this@bookRainAttackAtTile && this@bookRainAttackAtTile.isAlive() && this@bookRainAttackAtTile.getCurrentHp() > 0) {
+                        val damage = this@bookRainAttackAtTile.world.random(30..70)
+                        val hit = npc.hit(damage, type = HitType.HIT, delay = 0)
+                        // Cancel the hit if the NPC dies or reaches 0 HP before it lands
+                        hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() || this@bookRainAttackAtTile.getCurrentHp() <= 0 }
                     }
                 }
             }
