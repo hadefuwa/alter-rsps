@@ -1,0 +1,16 @@
+List of Bugs
+
+Royal Seed pod should auto be in Pnda's inventory
+Royal seed pod doesnt work.
+
+
+
+
+venenatis cave not working, id 47077
+id 16664 stairs not working
+calvarion cave not working 46996
+spindel cave not working 47078
+ladder 18987 doesnt work
+
+
+28094 crate not working
