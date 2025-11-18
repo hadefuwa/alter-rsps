@@ -36,17 +36,17 @@ class CrazyArchaeologistCombatPlugin(
          * Special attack configuration constants.
          * These control when and how often special attacks occur.
          */
-        private const val TELEPORT_ATTACK_MIN_COUNT = 4  // Minimum attacks before teleport can trigger
+        private const val TELEPORT_ATTACK_MIN_COUNT = 2  // Minimum attacks before teleport can trigger (reduced from 4)
         private const val TELEPORT_ATTACK_CHANCE_NUMERATOR = 1  // 1 in TELEPORT_ATTACK_CHANCE_DENOMINATOR
-        private const val TELEPORT_ATTACK_CHANCE_DENOMINATOR = 3  // 33% chance when conditions are met
-        
-        private const val BOOK_RAIN_ATTACK_MIN_COUNT = 3  // Minimum attacks before book rain can trigger (reduced from 6 for more frequency)
-        private const val BOOK_RAIN_ATTACK_CHANCE_NUMERATOR = 1  // 1 in BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR
-        private const val BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR = 2  // 50% chance when conditions are met (increased from 25%)
-        
-        private const val UNEQUIP_ATTACK_MIN_COUNT = 4  // Minimum attacks before unequip can trigger (reduced from 5)
+        private const val TELEPORT_ATTACK_CHANCE_DENOMINATOR = 2  // 50% chance when conditions are met (increased from 33%)
+
+        private const val BOOK_RAIN_ATTACK_MIN_COUNT = 2  // Minimum attacks before book rain can trigger (reduced from 3)
+        private const val BOOK_RAIN_ATTACK_CHANCE_NUMERATOR = 2  // 2 in BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR
+        private const val BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR = 3  // 67% chance when conditions are met (increased from 50%)
+
+        private const val UNEQUIP_ATTACK_MIN_COUNT = 3  // Minimum attacks before unequip can trigger (reduced from 4)
         private const val UNEQUIP_ATTACK_CHANCE_NUMERATOR = 1  // 1 in UNEQUIP_ATTACK_CHANCE_DENOMINATOR
-        private const val UNEQUIP_ATTACK_CHANCE_DENOMINATOR = 3  // 33% chance when conditions are met (increased from 25%)
+        private const val UNEQUIP_ATTACK_CHANCE_DENOMINATOR = 2  // 50% chance when conditions are met (increased from 33%)
         
         /**
          * Special effect chance constants.
@@ -271,14 +271,14 @@ class CrazyArchaeologistCombatPlugin(
                  *    - Attack count continues incrementing, making specials more likely over time
                  */
                 
-                // Check if it's time for unblockable attack (randomly every 2-10 regular attacks)
-                // Probability increases as count increases: at 2 attacks = 1/9 chance, at 10 attacks = guaranteed
-                val shouldUseUnblockable = if (regularAttackCount >= 2 && regularAttackCount <= 10) {
-                    if (regularAttackCount == 10) {
-                        true // Guaranteed at 10 attacks
+                // Check if it's time for unblockable attack (randomly every 2-5 regular attacks)
+                // Probability increases as count increases: at 2 attacks = 1/4 chance, at 5 attacks = guaranteed
+                val shouldUseUnblockable = if (regularAttackCount >= 2 && regularAttackCount <= 5) {
+                    if (regularAttackCount == 5) {
+                        true // Guaranteed at 5 attacks
                     } else {
-                        // Increasing probability: 1/9 at count 2, 1/8 at count 3, ..., 1/1 at count 9
-                        val denominator = 11 - regularAttackCount
+                        // Increasing probability: 1/4 at count 2, 1/3 at count 3, 1/2 at count 4
+                        val denominator = 6 - regularAttackCount
                         this.world.chance(1, denominator)
                     }
                 } else {
@@ -416,13 +416,8 @@ class CrazyArchaeologistCombatPlugin(
                 }
             }
 
-            // Wait time depends on enrage state - when enraged (< 40% HP), skip every other wait for 2x speed
-            if (isEnraged()) {
-                // When enraged, don't wait as long - this effectively doubles attack speed
-                // By not waiting, the next attack check happens immediately
-            } else {
-                it.wait(1)
-            }
+            // Always wait at least 1 cycle to prevent infinite loops
+            it.wait(1)
         }
 
         resetFacePawn()
