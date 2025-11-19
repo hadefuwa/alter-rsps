@@ -72,8 +72,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -197,8 +197,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -322,8 +322,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -447,8 +447,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -572,8 +572,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -697,8 +697,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -822,8 +822,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -947,8 +947,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -1072,8 +1072,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -1197,8 +1197,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)
@@ -1322,8 +1322,8 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                // Total weight: 350 (increased to allow all items to drop with better balance)
-                main(weight = 350) {
+                // Total weight: 271 (matches total item weights to prevent roll failures)
+                main(weight = 271) {
                     // Bars (valuable smithing materials) - reduced weights
                     add("item.adamantite_bar", min = 1, max = 5, weight = 12)
                     add("item.runite_bar", min = 1, max = 3, weight = 6)

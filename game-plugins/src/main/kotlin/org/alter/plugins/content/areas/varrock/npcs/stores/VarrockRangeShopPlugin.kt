@@ -95,18 +95,6 @@ class VarrockRangeShopPlugin(
                 player.shop() 
             }
         }
-        
-        // Also register option 3 (numeric) directly as fallback
-        try {
-            onNpcOption(shopkeeper, option = 3) {
-                val npc = player.getInteractingNpc()
-                if (npc.tile == shopkeeperTile) {
-                    player.shop()
-                }
-            }
-        } catch (e: IllegalStateException) {
-            // Option 3 already bound, skip
-        }
     }
 
     fun Player.shop() = this.openShop("Varrock Range Shop")

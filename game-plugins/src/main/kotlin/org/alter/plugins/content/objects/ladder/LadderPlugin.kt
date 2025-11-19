@@ -90,6 +90,19 @@ class LadderPlugin(
             player.moveTo(3210, 3216, 0)
         }
         
+        // KBD Ladder (object 18987) - Teleports to King Black Dragon lair
+        onObjOption("object.ladder_18987", option = "climb-down") {
+            player.queue {
+                player.message("You climb down the ladder.")
+                player.animate(827) // Climb down animation
+                player.lock()
+                wait(2)
+                player.moveTo(2275, 4680, 0) // King Black Dragon lair entrance
+                player.message("You find yourself in the King Black Dragon's lair.")
+                player.unlock()
+            }
+        }
+        
         // Edgeville Dungeon Trapdoor (object 1581)
         // Teleports to Edgeville dungeon entrance (near hill giants area)
         // Edgeville surface location: around 3096, 3468

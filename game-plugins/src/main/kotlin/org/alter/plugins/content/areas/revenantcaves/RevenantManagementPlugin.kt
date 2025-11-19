@@ -65,6 +65,12 @@ class RevenantManagementPlugin(
      */
     private val pendingDelayTimerPlayers = mutableSetOf<Player>()
     
+    /**
+     * Map to track NPCs that need timers set (to avoid ConcurrentModificationException)
+     * Key: TimerKey, Value: Pair of (NPC, timer value)
+     */
+    private val pendingNpcTimers = mutableMapOf<TimerKey, MutableList<Pair<Npc, Int>>>()
+    
     companion object {
         /**
          * Revenant Caves area bounds
@@ -209,22 +215,42 @@ class RevenantManagementPlugin(
          */
         val REVENANT_DELAY_TIMER_SETTER = TimerKey()
         
-        // Start a global timer that runs every tick for all players
+        // Start a global timer that runs every tick to process pending timers
+        // Use world timers to ensure execution after player cycle
         onWorldInit {
-            world.queue {
-                while (true) {
-                    // Process all pending players and set their delay timers
-                    val playersToProcess = this@RevenantManagementPlugin.pendingDelayTimerPlayers.toList() // Create a copy to avoid concurrent modification
-                    this@RevenantManagementPlugin.pendingDelayTimerPlayers.clear()
-                    playersToProcess.forEach { p: Player ->
-                        if (p.isOnline && !p.timers.has(REVENANT_TARGET_DELAY_TIMER)) {
-                            // Set the delay timer (this is safe because we're in a queue task, not during timer iteration)
-                            p.timers[REVENANT_TARGET_DELAY_TIMER] = 300 // 3 seconds = 300 cycles
-                        }
-                    }
-                    wait(1) // Wait one tick before processing again
+            world.timers[REVENANT_DELAY_TIMER_SETTER] = 1
+        }
+        
+        // Register world timer handler - this executes when the timer reaches 0
+        // World timers execute in world.cycle() after player cycles, so it's safe to modify player timers
+        onTimer(REVENANT_DELAY_TIMER_SETTER) {
+            // This will be called on the world object when the timer expires
+            // Process all pending players and set their delay timers
+            val playersToProcess = this@RevenantManagementPlugin.pendingDelayTimerPlayers.toList() // Create a copy to avoid concurrent modification
+            this@RevenantManagementPlugin.pendingDelayTimerPlayers.clear()
+            playersToProcess.forEach { p: Player ->
+                if (p.isOnline) {
+                    // Set the delay timer directly without checking - if already set, it will just reset it
+                    // This avoids reading from timers map during iteration
+                    // World timers execute after player cycle, so this is safe
+                    p.timers[REVENANT_TARGET_DELAY_TIMER] = 300 // 3 seconds = 300 cycles
                 }
             }
+            
+            // Process all pending NPC timers
+            val npcTimersToProcess = this@RevenantManagementPlugin.pendingNpcTimers.toMap() // Create a copy
+            this@RevenantManagementPlugin.pendingNpcTimers.clear()
+            npcTimersToProcess.forEach { (timerKey, npcTimerPairs) ->
+                npcTimerPairs.forEach { (npc, timerValue) ->
+                    if (npc.isAlive()) {
+                        // Set the timer (this is safe because we're in a world timer, after player cycle)
+                        npc.timers[timerKey] = timerValue
+                    }
+                }
+            }
+            
+            // Reset timer to run again next tick
+            world.timers[REVENANT_DELAY_TIMER_SETTER] = 1
         }
         
         /**
@@ -570,7 +596,9 @@ class RevenantManagementPlugin(
             
             // Run every 4-6 ticks (randomized to make switching less predictable)
             // This ensures revenants switch styles multiple times during combat
-            npc.timers[REVENANT_COMBAT_STYLE_TIMER] = world.random(4..6)
+            // Defer timer setting to avoid ConcurrentModificationException
+            val timerValue = world.random(4..6)
+            pendingNpcTimers.getOrPut(REVENANT_COMBAT_STYLE_TIMER) { mutableListOf() }.add(Pair(npc, timerValue))
         }
         
         /**
@@ -652,7 +680,8 @@ class RevenantManagementPlugin(
             }
             
             // Run every 2 ticks to check for tile conflicts
-            npc.timers[REVENANT_TILE_PROTECTION_TIMER] = 2
+            // Defer timer setting to avoid ConcurrentModificationException
+            pendingNpcTimers.getOrPut(REVENANT_TILE_PROTECTION_TIMER) { mutableListOf() }.add(Pair(npc, 2))
         }
         
         /**
@@ -702,7 +731,8 @@ class RevenantManagementPlugin(
             }
             
             // Run every tick to check for conflicts
-            npc.timers[REVENANT_SINGLE_COMBAT_TIMER] = 1
+            // Defer timer setting to avoid ConcurrentModificationException
+            pendingNpcTimers.getOrPut(REVENANT_SINGLE_COMBAT_TIMER) { mutableListOf() }.add(Pair(npc, 1))
         }
     }
     
@@ -714,9 +744,9 @@ class RevenantManagementPlugin(
     private suspend fun revenantCombat(npc: Npc, it: QueueTask) {
         var target = npc.getCombatTarget() ?: return
         
-        // Apply damage multiplier for revenants (2.5x damage)
+        // Apply damage multiplier for revenants (5.0x damage - doubled from 2.5x)
         // This makes revenants hit significantly harder
-        npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 2.5
+        npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 5.0
         
         // Loop while in combat
         while (npc.canEngageCombat(target)) {
