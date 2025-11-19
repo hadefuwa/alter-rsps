@@ -70,7 +70,7 @@ object MagicCombatFormula : CombatFormula {
         target: Pawn,
         specialAttackMultiplier: Double,
     ): Double {
-        val attack = getAttackRoll(pawn)
+        val attack = getAttackRoll(pawn, target)
         val defence =
             if (target is Player) {
                 getDefenceRoll(target)
@@ -160,20 +160,22 @@ object MagicCombatFormula : CombatFormula {
                     hit *= 1.20
                     hit = Math.floor(hit)
                 }
+                
+                // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
+                if (isWildernessWeaponBonus(pawn, target)) {
+                    hit *= 4.0
+                    hit = Math.floor(hit)
+                }
             }
         } else if (pawn is Npc) {
             val multiplier = 1.0 + (pawn.getMagicDamageBonus() / 100.0)
             hit *= multiplier
             hit = Math.floor(hit)
             
-            // Apply protection prayer reduction for NPC magic attacks, with 50% bypass chance for wilderness NPCs
+            // Apply protection prayer - completely blocks magic damage (OSRS behavior)
             if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
-                val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
-                // 50% chance to bypass protection prayer for wilderness NPCs
-                if (!isWildernessNpc || !pawn.world.chance(1, 2)) {
-                    hit *= 0.6
-                    hit = Math.floor(hit)
-                }
+                // Protect from Magic completely blocks magic damage
+                hit = 0.0
             }
         }
 
@@ -183,7 +185,7 @@ object MagicCombatFormula : CombatFormula {
         return hit.toInt()
     }
 
-    private fun getAttackRoll(pawn: Pawn): Int {
+    private fun getAttackRoll(pawn: Pawn, target: Pawn): Int {
         val a =
             if (pawn is Player) {
                 getEffectiveAttackLevel(pawn)
@@ -196,11 +198,16 @@ object MagicCombatFormula : CombatFormula {
 
         var maxRoll = a * (b + 64.0)
         if (pawn is Player) {
-            maxRoll = applyAttackSpecials(pawn, maxRoll)
+            maxRoll = applyAttackSpecials(pawn, maxRoll, target)
         }
-        // Apply 10x accuracy multiplier for wilderness NPCs
-        if (pawn is Npc && pawn.tile.getWildernessLevel() > 0) {
-            maxRoll *= 10.0
+        // Apply 10x accuracy multiplier for wilderness NPCs and revenants
+        if (pawn is Npc) {
+            val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
+            val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
+                            (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
+            if (isWildernessNpc || isRevenant) {
+                maxRoll *= 10.0
+            }
         }
         return maxRoll.toInt()
     }
@@ -246,6 +253,7 @@ object MagicCombatFormula : CombatFormula {
     private fun applyAttackSpecials(
         player: Player,
         base: Double,
+        target: Pawn,
     ): Double {
         var hit = base
 
@@ -254,6 +262,12 @@ object MagicCombatFormula : CombatFormula {
 
         if (player.hasEquipped(EquipmentType.WEAPON, "item.mystic_smoke_staff")) {
             hit *= 1.1
+            hit = Math.floor(hit)
+        }
+
+        // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
+        if (target is Npc && isWildernessWeaponBonus(player, target)) {
+            hit *= 4.0
             hit = Math.floor(hit)
         }
 
@@ -352,4 +366,36 @@ object MagicCombatFormula : CombatFormula {
         }
 
     private fun getDamageDealMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_DEAL_MULTIPLIER] ?: 1.0
+
+    /**
+     * Check if wilderness weapon bonus applies (100% damage/accuracy bonus)
+     * Conditions:
+     * 1. Player must be in wilderness
+     * 2. Player must have a wilderness weapon equipped (Thammaron's Sceptre or Accursed Sceptre for magic)
+     * 3. Target must be a wilderness NPC or revenant
+     */
+    private fun isWildernessWeaponBonus(player: Player, target: Npc): Boolean {
+        // Check if player is in wilderness
+        if (player.tile.getWildernessLevel() <= 0) {
+            return false
+        }
+        
+        // Check if player has a wilderness magic weapon equipped
+        val hasWildernessWeapon = player.hasEquipped(
+            EquipmentType.WEAPON,
+            "item.thammarons_sceptre",
+            "item.accursed_sceptre"
+        )
+        
+        if (!hasWildernessWeapon) {
+            return false
+        }
+        
+        // Check if target is in wilderness or is a revenant
+        val isWildernessNpc = target.tile.getWildernessLevel() > 0
+        val isRevenant = target.def.name.lowercase().contains("revenant") || 
+                        (target.tile.z >= 10000 && target.tile.z <= 10300 && target.tile.x >= 3100 && target.tile.x <= 3300)
+        
+        return isWildernessNpc || isRevenant
+    }
 }

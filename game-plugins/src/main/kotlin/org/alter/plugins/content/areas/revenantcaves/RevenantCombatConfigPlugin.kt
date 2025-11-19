@@ -47,7 +47,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 10
                 attack = 2
-                strength = 2
+                strength = 100  // Increased for max hit ~15-20
                 defence = 1
                 magic = 1
                 ranged = 1
@@ -72,44 +72,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -138,7 +172,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 20
                 attack = 10
-                strength = 10
+                strength = 110  // Increased for max hit ~18-22
                 defence = 5
                 magic = 5
                 ranged = 5
@@ -163,44 +197,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -229,7 +297,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 50
                 attack = 80
-                strength = 80
+                strength = 120  // Increased for max hit ~20-25
                 defence = 40
                 magic = 40
                 ranged = 40
@@ -254,44 +322,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -320,7 +422,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 60
                 attack = 100
-                strength = 100
+                strength = 130  // Increased for max hit ~22-27
                 defence = 50
                 magic = 50
                 ranged = 50
@@ -345,44 +447,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -411,7 +547,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 80
                 attack = 120
-                strength = 120
+                strength = 140  // Increased for max hit ~24-29
                 defence = 60
                 magic = 60
                 ranged = 60
@@ -436,44 +572,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -502,7 +672,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 90
                 attack = 140
-                strength = 140
+                strength = 150  // Increased for max hit ~25-30
                 defence = 70
                 magic = 70
                 ranged = 70
@@ -527,44 +697,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -593,7 +797,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 100
                 attack = 160
-                strength = 160
+                strength = 160  // Already good for max hit ~27-32
                 defence = 80
                 magic = 80
                 ranged = 80
@@ -618,44 +822,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -684,7 +922,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 110
                 attack = 170
-                strength = 170
+                strength = 170  // Already good for max hit ~28-33
                 defence = 85
                 magic = 85
                 ranged = 85
@@ -709,44 +947,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -775,7 +1047,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 120
                 attack = 200
-                strength = 200
+                strength = 200  // Already good for max hit ~30-35
                 defence = 100
                 magic = 100
                 ranged = 100
@@ -800,44 +1072,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -866,7 +1172,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 130
                 attack = 220
-                strength = 220
+                strength = 220  // Already good for max hit ~32-37
                 defence = 110
                 magic = 110
                 ranged = 110
@@ -891,44 +1197,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons
@@ -957,7 +1297,7 @@ class RevenantCombatConfigPlugin(
             stats {
                 hitpoints = 140
                 attack = 240
-                strength = 240
+                strength = 240  // Already good for max hit ~33-38
                 defence = 120
                 magic = 120
                 ranged = 120
@@ -982,44 +1322,78 @@ class RevenantCombatConfigPlugin(
                 }
                 
                 // Main drop table with standard valuable items
-                main(weight = 100) {
-                    // Bars (valuable smithing materials)
-                    add("item.adamantite_bar", min = 1, max = 5, weight = 15)
-                    add("item.runite_bar", min = 1, max = 3, weight = 8)
+                // Total weight: 350 (increased to allow all items to drop with better balance)
+                main(weight = 350) {
+                    // Bars (valuable smithing materials) - reduced weights
+                    add("item.adamantite_bar", min = 1, max = 5, weight = 12)
+                    add("item.runite_bar", min = 1, max = 3, weight = 6)
                     
-                    // Food (high healing items)
-                    add("item.manta_ray", min = 1, max = 10, weight = 20)
-                    add("item.cooked_karambwan", min = 1, max = 15, weight = 18)
+                    // Food (high healing items) - reduced weights
+                    add("item.manta_ray", min = 1, max = 10, weight = 15)
+                    add("item.cooked_karambwan", min = 1, max = 15, weight = 12)
                     
-                    // Potions (useful consumables)
-                    add("item.prayer_potion4", min = 1, max = 5, weight = 12)
-                    add("item.prayer_potion3", min = 1, max = 5, weight = 10)
-                    add("item.super_restore4", min = 1, max = 3, weight = 8)
-                    add("item.super_restore3", min = 1, max = 3, weight = 6)
+                    // Potions (useful consumables) - reduced weights
+                    add("item.prayer_potion4", min = 1, max = 5, weight = 10)
+                    add("item.prayer_potion3", min = 1, max = 5, weight = 8)
+                    add("item.super_restore4", min = 1, max = 3, weight = 6)
+                    add("item.super_restore3", min = 1, max = 3, weight = 5)
                     
-                    // Runes (magic supplies)
-                    add("item.death_rune", min = 20, max = 100, weight = 15)
-                    add("item.blood_rune", min = 15, max = 80, weight = 12)
-                    add("item.chaos_rune", min = 30, max = 150, weight = 18)
-                    add("item.soul_rune", min = 10, max = 50, weight = 10)
-                    add("item.law_rune", min = 20, max = 100, weight = 14)
-                    add("item.nature_rune", min = 25, max = 120, weight = 16)
+                    // Runes (magic supplies) - reduced weights
+                    add("item.death_rune", min = 20, max = 100, weight = 12)
+                    add("item.blood_rune", min = 15, max = 80, weight = 10)
+                    add("item.chaos_rune", min = 30, max = 150, weight = 14)
+                    add("item.soul_rune", min = 10, max = 50, weight = 8)
+                    add("item.law_rune", min = 20, max = 100, weight = 11)
+                    add("item.nature_rune", min = 25, max = 120, weight = 13)
                     
                     // Coins are handled separately with level-based scaling (100k-5m)
                     // See NpcLootDropPlugin.dropWildernessCoins() for revenant coin drops
                     
-                    // Other valuable items
-                    add("item.dragon_bones", min = 1, max = 5, weight = 10)
-                    add("item.uncut_diamond", min = 1, max = 5, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 8, weight = 10)
-                    add("item.uncut_emerald", min = 1, max = 10, weight = 12)
-                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 5)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.rune_scimitar", min = 1, weight = 4)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_platelegs", min = 1, weight = 3)
-                    add("item.rune_plateskirt", min = 1, weight = 3)
+                    // Other valuable items - reduced weights
+                    add("item.dragon_bones_noted", min = 1, max = 20, weight = 8) // Quantity scaled by level in NpcLootDropPlugin
+                    add("item.uncut_diamond", min = 1, max = 5, weight = 6)
+                    add("item.uncut_ruby", min = 1, max = 8, weight = 8)
+                    add("item.uncut_emerald", min = 1, max = 10, weight = 10)
+                    add("item.bracelet_of_ethereum_uncharged", min = 1, weight = 8)
+                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.rune_sword", min = 1, weight = 3)
+                    add("item.rune_scimitar", min = 1, weight = 3)
+                    add("item.rune_chainbody", min = 1, weight = 2)
+                    add("item.rune_platelegs", min = 1, weight = 2)
+                    add("item.rune_plateskirt", min = 1, weight = 2)
+                    add("item.rune_platebody", min = 1, weight = 3) // Increased from 2 to 3
+                    
+                    // High-value alch items - increased weights for better drop rates
+                    add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    
+                    // Barrows armour (rare high-value drops) - increased weights
+                    add("item.ahrims_hood", min = 1, weight = 2)
+                    add("item.ahrims_robetop", min = 1, weight = 2)
+                    add("item.ahrims_robeskirt", min = 1, weight = 2)
+                    add("item.dharoks_helm", min = 1, weight = 2)
+                    add("item.dharoks_platebody", min = 1, weight = 2)
+                    add("item.dharoks_platelegs", min = 1, weight = 2)
+                    add("item.guthans_helm", min = 1, weight = 2)
+                    add("item.guthans_platebody", min = 1, weight = 2)
+                    add("item.guthans_chainskirt", min = 1, weight = 2)
+                    add("item.karils_coif", min = 1, weight = 2)
+                    add("item.karils_leathertop", min = 1, weight = 2)
+                    add("item.karils_leatherskirt", min = 1, weight = 2)
+                    add("item.torags_helm", min = 1, weight = 2)
+                    add("item.torags_platebody", min = 1, weight = 2)
+                    add("item.torags_platelegs", min = 1, weight = 2)
+                    add("item.veracs_helm", min = 1, weight = 2)
+                    add("item.veracs_brassard", min = 1, weight = 2)
+                    add("item.veracs_plateskirt", min = 1, weight = 2)
+                    
+                    // Chinchompas (ranged training items) - slightly reduced
+                    add("item.red_chinchompa", min = 50, max = 200, weight = 6)
+                    add("item.black_chinchompa", min = 50, max = 200, weight = 5)
+                    
+                    // Rune bolts and gems - slightly reduced
+                    add("item.runite_bolts", min = 100, max = 500, weight = 8)
+                    add("item.ruby", min = 5, max = 20, weight = 6)
+                    add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
                 // Tertiary drop table for rare wilderness weapons

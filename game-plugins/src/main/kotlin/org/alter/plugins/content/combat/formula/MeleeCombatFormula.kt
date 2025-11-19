@@ -56,12 +56,17 @@ object MeleeCombatFormula : CombatFormula {
             var hit = base.toDouble()
             if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
                 val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
-                // 50% chance to bypass protection prayer for wilderness NPCs
-                if (!isWildernessNpc || !pawn.world.chance(1, 2)) {
+                val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
+                                (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
+                // 50% chance to bypass protection prayer for wilderness NPCs and revenants
+                if ((!isWildernessNpc && !isRevenant) || !pawn.world.chance(1, 2)) {
                     hit *= 0.6
                     hit = Math.floor(hit)
                 }
             }
+            // Apply damage multiplier for NPCs (e.g., revenants, wilderness NPCs)
+            hit *= getDamageDealMultiplier(pawn)
+            hit = Math.floor(hit)
             base = hit.toInt()
         }
         return base
@@ -75,9 +80,14 @@ object MeleeCombatFormula : CombatFormula {
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, target, maxRoll, specialAttackMultiplier)
         }
-        // Apply 10x accuracy multiplier for wilderness NPCs
-        if (pawn is Npc && pawn.tile.getWildernessLevel() > 0) {
-            maxRoll *= 10.0
+        // Apply 10x accuracy multiplier for wilderness NPCs and revenants
+        if (pawn is Npc) {
+            val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
+            val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
+                            (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
+            if (isWildernessNpc || isRevenant) {
+                maxRoll *= 10.0
+            }
         }
         return maxRoll.toInt()
     }
@@ -113,6 +123,12 @@ object MeleeCombatFormula : CombatFormula {
             hit = Math.floor(hit)
         }
 
+        // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
+        if (target is Npc && isWildernessWeaponBonus(player, target)) {
+            hit *= 4.0
+            hit = Math.floor(hit)
+        }
+
         hit *= getDamageDealMultiplier(player)
         hit = Math.floor(hit)
 
@@ -130,6 +146,12 @@ object MeleeCombatFormula : CombatFormula {
 
         hit *= (if (player.hasEquipped(EquipmentType.WEAPON, "item.arclight") && isDemon(target)) 1.7 else specialAttackMultiplier)
         hit = Math.floor(hit)
+
+        // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
+        if (target is Npc && isWildernessWeaponBonus(player, target)) {
+            hit *= 4.0
+            hit = Math.floor(hit)
+        }
 
         return hit
     }
@@ -368,5 +390,37 @@ object MeleeCombatFormula : CombatFormula {
                 && player.hasEquipped(EquipmentType.WEAPON, "item.torags_hammers", "item.torags_hammers_25", "item.torags_hammers_50", "item.torags_hammers_75", "item.torags_hammers_100")
                 && player.hasEquipped(EquipmentType.CHEST, "item.torags_platebody", "item.torags_platebody_25", "item.torags_platebody_50", "item.torags_platebody_75", "item.torags_platebody_100")
                 && player.hasEquipped(EquipmentType.LEGS, "item.torags_platelegs", "item.torags_platelegs_25", "item.torags_platelegs_50", "item.torags_platelegs_75", "item.torags_platelegs_100")
+    }
+
+    /**
+     * Check if wilderness weapon bonus applies (100% damage/accuracy bonus)
+     * Conditions:
+     * 1. Player must be in wilderness
+     * 2. Player must have a wilderness weapon equipped (Viggora's Chainmace or Ursine Chainmace for melee)
+     * 3. Target must be a wilderness NPC or revenant
+     */
+    private fun isWildernessWeaponBonus(player: Player, target: Npc): Boolean {
+        // Check if player is in wilderness
+        if (player.tile.getWildernessLevel() <= 0) {
+            return false
+        }
+        
+        // Check if player has a wilderness melee weapon equipped
+        val hasWildernessWeapon = player.hasEquipped(
+            EquipmentType.WEAPON,
+            "item.viggoras_chainmace",
+            "item.ursine_chainmace"
+        )
+        
+        if (!hasWildernessWeapon) {
+            return false
+        }
+        
+        // Check if target is in wilderness or is a revenant
+        val isWildernessNpc = target.tile.getWildernessLevel() > 0
+        val isRevenant = target.def.name.lowercase().contains("revenant") || 
+                        (target.tile.z >= 10000 && target.tile.z <= 10300 && target.tile.x >= 3100 && target.tile.x <= 3300)
+        
+        return isWildernessNpc || isRevenant
     }
 }

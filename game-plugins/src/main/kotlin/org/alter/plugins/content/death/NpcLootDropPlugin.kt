@@ -196,11 +196,32 @@ class NpcLootDropPlugin(
                 // Convert clue scrolls to clue caskets before dropping
                 val itemIdToDrop = convertClueScrollToCasket(groundItem.item)
                 
+                // Scale dragon bones quantity based on revenant level (1-20)
+                var amountToDrop = groundItem.amount
+                val dragonBonesNotedId = getRSCM("item.dragon_bones_noted")
+                if (itemIdToDrop == dragonBonesNotedId) {
+                    // Check if this is a revenant
+                    val isRevenant = npc.def.name.lowercase().contains("revenant") || 
+                                    (npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300)
+                    if (isRevenant) {
+                        // Scale from 1-20 based on combat level
+                        // Revenant levels range from ~7 (imp) to ~135 (dragon)
+                        val combatLevel = npc.def.combatLevel
+                        // Map level 7-135 to quantity 1-20
+                        val minLevel = 7
+                        val maxLevel = 135
+                        val minQuantity = 1
+                        val maxQuantity = 20
+                        val scaledQuantity = minQuantity + ((combatLevel - minLevel) * (maxQuantity - minQuantity) / (maxLevel - minLevel))
+                        amountToDrop = scaledQuantity.coerceIn(minQuantity, maxQuantity)
+                    }
+                }
+                
                 // Create a new GroundItem with the correct tile and owner
                 // (Can't modify ownerUID directly as it's internal)
                 val newGroundItem = GroundItem(
                     item = itemIdToDrop,
-                    amount = groundItem.amount,
+                    amount = amountToDrop,
                     tile = npc.tile,
                     owner = killer
                 )
@@ -212,12 +233,12 @@ class NpcLootDropPlugin(
                 newGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
                 newGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
                 
-                println("DEBUG: Dropping item ${itemIdToDrop} x${groundItem.amount} at ${npc.tile}")
+                println("DEBUG: Dropping item ${itemIdToDrop} x${amountToDrop} at ${npc.tile}")
                 npc.world.spawn(newGroundItem)
                 
                 // Optional: Send a message to the player about valuable drops
-                if (groundItem.amount > 100) { // If item value is high, could add more sophisticated value checking
-                    killer.message("${npc.def.name} drops: ${groundItem.amount}x ${getItem(itemIdToDrop).name}")
+                if (amountToDrop > 100) { // If item value is high, could add more sophisticated value checking
+                    killer.message("${npc.def.name} drops: ${amountToDrop}x ${getItem(itemIdToDrop).name}")
                 }
             }
             
@@ -237,13 +258,23 @@ class NpcLootDropPlugin(
     /**
      * Drops coins for all NPCs in the wilderness, scaled by combat level.
      * This makes wilderness combat more rewarding, with higher level monsters dropping more coins.
+     * Revenants have special scaling: 100k to 5m based on combat level.
      */
     private fun dropWildernessCoins(npc: Npc, killer: Player) {
         try {
+            // Check if this is a revenant NPC (by name or ID)
+            val isRevenant = npc.def.name.lowercase().contains("revenant") || 
+                            npc.id in setOf(7881, 7931, 7932, 7933, 7934, 7935, 7936, 7937, 7938, 7939, 7940, 11246)
+            
+            // Check if NPC is in revenant caves (z >= 10000)
+            val isInRevenantCaves = npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300
+            
             // Check if NPC is in wilderness
             val wildernessLevel = npc.tile.getWildernessLevel()
-            if (wildernessLevel <= 0) {
-                // Not in wilderness, no coin drop
+            
+            // Only drop coins if in wilderness OR if it's a revenant in revenant caves
+            if (wildernessLevel <= 0 && !(isRevenant && isInRevenantCaves)) {
+                // Not in wilderness and not a revenant in caves, no coin drop
                 return
             }
             
@@ -255,16 +286,35 @@ class NpcLootDropPlugin(
             }
             
             // Scale coin amount based on combat level
-            val (minCoins, maxCoins) = when {
-                combatLevel <= 20 -> 10_000 to 50_000      // Low level: 10k-50k
-                combatLevel <= 50 -> 50_000 to 150_000    // Mid-low: 50k-150k
-                combatLevel <= 100 -> 150_000 to 400_000  // Mid: 150k-400k
-                combatLevel <= 150 -> 400_000 to 700_000  // High: 400k-700k
-                else -> 700_000 to 1_000_000              // Very high: 700k-1m
+            val (minCoins, maxCoins) = if (isRevenant) {
+                // Revenant scaling: 100k to 5m based on combat level
+                // Linear scaling from level 7 (lowest revenant) to 126 (highest revenant)
+                // Formula: min = 100k + (level - 7) * (4900k / 119), max = min + 500k
+                val baseMin = 100_000
+                val baseMax = 5_000_000
+                val levelRange = 119.0 // 126 - 7
+                val levelProgress = ((combatLevel - 7).coerceAtLeast(0).coerceAtMost(119)) / levelRange
+                val scaledMin = (baseMin + (baseMax - baseMin - 500_000) * levelProgress).toInt()
+                val scaledMax = scaledMin + 500_000
+                scaledMin to scaledMax.coerceAtMost(5_000_000)
+            } else {
+                // Regular wilderness NPC scaling
+                when {
+                    combatLevel <= 20 -> 10_000 to 50_000      // Low level: 10k-50k
+                    combatLevel <= 50 -> 50_000 to 150_000    // Mid-low: 50k-150k
+                    combatLevel <= 100 -> 150_000 to 400_000  // Mid: 150k-400k
+                    combatLevel <= 150 -> 400_000 to 700_000  // High: 400k-700k
+                    else -> 700_000 to 1_000_000              // Very high: 700k-1m
+                }
             }
             
             // Generate random coin amount within the scaled range
-            val coinAmount = Random.nextInt(minCoins, maxCoins + 1) // Inclusive range
+            var coinAmount = Random.nextInt(minCoins, maxCoins + 1) // Inclusive range
+            
+            // Reduce revenant coin drops to 30% of original amount
+            if (isRevenant) {
+                coinAmount = (coinAmount * 0.3).toInt()
+            }
             
             // Coin item ID is 995
             val coinItemId = 995
@@ -282,7 +332,7 @@ class NpcLootDropPlugin(
             coinGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
             coinGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
             
-            println("DEBUG: Dropping ${coinAmount} coins for wilderness NPC ${npc.id} (${npc.def.name}, level $combatLevel) at ${npc.tile} (range: ${minCoins}-${maxCoins})")
+            println("DEBUG: Dropping ${coinAmount} coins for ${if (isRevenant) "REVENANT" else "wilderness"} NPC ${npc.id} (${npc.def.name}, level $combatLevel) at ${npc.tile} (range: ${minCoins}-${maxCoins})")
             npc.world.spawn(coinGroundItem)
             
             // Notify the player about the coin drop

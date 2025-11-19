@@ -12,8 +12,26 @@ import org.alter.game.model.timer.TimeConstants
 import org.alter.game.model.timer.TimerKey
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.game.model.combat.CombatClass
+import org.alter.game.model.combat.CombatStyle
+import org.alter.game.model.combat.AttackStyle
+import org.alter.game.model.move.moveTo
 import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.getCombatTarget
+import org.alter.plugins.content.combat.removeCombatTarget
+import org.alter.plugins.content.combat.canAttackMelee
+import org.alter.plugins.content.combat.combatRaycast
+import org.alter.plugins.content.combat.canEngageCombat
+import org.alter.plugins.content.combat.isAttackDelayReady
+import org.alter.plugins.content.combat.postAttackLogic
+import org.alter.plugins.content.combat.strategy.magic.CombatSpell
+import org.alter.plugins.content.combat.formula.MeleeCombatFormula
+import org.alter.plugins.content.combat.formula.RangedCombatFormula
+import org.alter.plugins.content.combat.formula.MagicCombatFormula
+import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
+import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
+import org.alter.plugins.content.combat.dealHit
+import org.alter.game.model.queue.QueueTask
 import org.alter.rscm.RSCM.getRSCM
 
 /**
@@ -42,6 +60,11 @@ class RevenantManagementPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
+    /**
+     * Set to track players who need the delay timer set (to avoid ConcurrentModificationException)
+     */
+    private val pendingDelayTimerPlayers = mutableSetOf<Player>()
+    
     companion object {
         /**
          * Revenant Caves area bounds
@@ -50,6 +73,13 @@ class RevenantManagementPlugin(
         private fun isInRevenantCaves(tile: Tile): Boolean {
             return tile.z >= 10000 && tile.z <= 10300 && tile.x >= 3100 && tile.x <= 3300
         }
+        
+        /**
+         * Timer key for tracking when a player was last targeted by a revenant (3 second delay)
+         * This prevents multiple revenants from attacking the same player simultaneously
+         */
+        val REVENANT_TARGET_DELAY_TIMER = TimerKey()
+        
         
         /**
          * Check if an NPC is a revenant
@@ -125,6 +155,94 @@ class RevenantManagementPlugin(
     }
     
     init {
+        /**
+         * Revenant Single-Combat Enforcement with 3-second delay
+         * Prevents multiple revenants from attacking the same player
+         * Adds a 3-second delay when a revenant starts targeting a player to give them time to walk into melee range
+         */
+        onGlobalNpcSpawn {
+            if (isRevenant(npc) && isInRevenantCaves(npc.tile)) {
+                // Override aggression check to enforce single-combat for revenants with delay
+                val originalAggroCheck = npc.aggroCheck
+                npc.aggroCheck = { n, p ->
+                    // First check the original aggression logic
+                    if (originalAggroCheck != null && !originalAggroCheck(n, p)) {
+                        false
+                    } else {
+                        // Only enforce single-combat in revenant caves
+                        if (!isInRevenantCaves(n.tile)) {
+                            true
+                        } else {
+                            // Check if another revenant is already attacking this player
+                            val otherRevenantAttacking = world.npcs.any { otherNpc ->
+                                otherNpc != n && 
+                                isRevenant(otherNpc) && 
+                                otherNpc.isAlive() && 
+                                otherNpc.getCombatTarget() == p &&
+                                isInRevenantCaves(otherNpc.tile)
+                            }
+                            
+                            // Check if player has a recent revenant target delay (3 seconds = 300 cycles)
+                            val hasRecentTargetDelay = p.timers.has(RevenantManagementPlugin.REVENANT_TARGET_DELAY_TIMER)
+                            
+                            // Only allow attack if:
+                            // 1. No other revenant is attacking this player
+                            // 2. No recent target delay (3 seconds haven't passed since last revenant targeted them)
+                            val canAttack = !otherRevenantAttacking && !hasRecentTargetDelay
+                            
+                            // If we're allowing the attack, mark player for delay timer (set in separate timer to avoid ConcurrentModificationException)
+                            if (canAttack) {
+                                this@RevenantManagementPlugin.pendingDelayTimerPlayers.add(p)
+                            }
+                            
+                            canAttack
+                        }
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Global timer to set delay timers for players who were just targeted by revenants
+         * This runs every tick and processes all pending players to avoid ConcurrentModificationException
+         * We use a world-level timer that processes all players
+         */
+        val REVENANT_DELAY_TIMER_SETTER = TimerKey()
+        
+        // Start a global timer that runs every tick for all players
+        onWorldInit {
+            world.queue {
+                while (true) {
+                    // Process all pending players and set their delay timers
+                    val playersToProcess = this@RevenantManagementPlugin.pendingDelayTimerPlayers.toList() // Create a copy to avoid concurrent modification
+                    this@RevenantManagementPlugin.pendingDelayTimerPlayers.clear()
+                    playersToProcess.forEach { p: Player ->
+                        if (p.isOnline && !p.timers.has(REVENANT_TARGET_DELAY_TIMER)) {
+                            // Set the delay timer (this is safe because we're in a queue task, not during timer iteration)
+                            p.timers[REVENANT_TARGET_DELAY_TIMER] = 300 // 3 seconds = 300 cycles
+                        }
+                    }
+                    wait(1) // Wait one tick before processing again
+                }
+            }
+        }
+        
+        /**
+         * Revenant Combat Plugin
+         * Handles melee, ranged, and magic attacks for all revenants
+         */
+        onNpcCombat("npc.revenant_imp") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_goblin") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_pyrefiend") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_hobgoblin") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_cyclops") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_hellhound") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_demon") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_ork") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_dark_beast") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_knight") { npc.queue { revenantCombat(npc, this) } }
+        onNpcCombat("npc.revenant_dragon") { npc.queue { revenantCombat(npc, this) } }
+        
         /**
          * Amulet of Avarice - Make all revenants aggressive when worn
          * Skull player when equipping in revenant caves
@@ -250,32 +368,39 @@ class RevenantManagementPlugin(
                 return@onTimer
             }
             
+            // Only run timer if player has bracelet equipped
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
             if (bracelet?.id == getRSCM("item.bracelet_of_ethereum")) {
                 val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
                 if (charges > 0) {
-                    // Update damage multiplier based on charges
+                    // Update damage multiplier based on charges (only protects from revenant damage)
+                    // Note: This currently protects from all damage, but should ideally only protect from revenant damage
+                    // TODO: Integrate into combat formulas to check if attacker is a revenant
                     player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.0
                 } else {
                     // No charges, remove protection
                     player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 }
+                // Continue timer if player has bracelet
+                player.timers[ETHEREUM_CONSUME_TIMER] = 5
             } else {
+                // Player doesn't have bracelet, remove any protection and stop timer
                 player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
+                player.timers.remove(ETHEREUM_CONSUME_TIMER)
             }
-            
-            // Run every 5 ticks instead of every tick to reduce overhead
-            player.timers[ETHEREUM_CONSUME_TIMER] = 5
         }
         
         // Define AVARICE_AGGRO_TIMER early so it can be referenced by other timers
         val AVARICE_AGGRO_TIMER = TimerKey()
         
-        // Start timer for players in revenant caves (on login)
+        // Start timer for players in revenant caves (on login) - only if they have bracelet
         onLogin {
             val player = ctx as Player
             if (isInRevenantCaves(player.tile)) {
-                player.timers[ETHEREUM_CONSUME_TIMER] = 1
+                val bracelet = player.getEquipment(EquipmentType.GLOVES)
+                if (bracelet?.id == getRSCM("item.bracelet_of_ethereum")) {
+                    player.timers[ETHEREUM_CONSUME_TIMER] = 1
+                }
             }
         }
         
@@ -285,13 +410,24 @@ class RevenantManagementPlugin(
             // This timer runs for all players, check if they're in revenant caves
             val player = ctx as Player
             if (isInRevenantCaves(player.tile)) {
-                // Start timers if not already running
-                if (!player.timers.has(ETHEREUM_CONSUME_TIMER)) {
-                    player.timers[ETHEREUM_CONSUME_TIMER] = 1
-                }
+                // Start AVARICE_AGGRO_TIMER if not already running
                 if (!player.timers.has(AVARICE_AGGRO_TIMER)) {
                     player.timers[AVARICE_AGGRO_TIMER] = 1
                 }
+                
+                // Only start ETHEREUM_CONSUME_TIMER if player has bracelet equipped
+                val bracelet = player.getEquipment(EquipmentType.GLOVES)
+                if (bracelet?.id == getRSCM("item.bracelet_of_ethereum") && !player.timers.has(ETHEREUM_CONSUME_TIMER)) {
+                    player.timers[ETHEREUM_CONSUME_TIMER] = 1
+                } else if (bracelet?.id != getRSCM("item.bracelet_of_ethereum")) {
+                    // Player doesn't have bracelet, make sure timer is stopped and multiplier is removed
+                    player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                    player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
+                }
+            } else {
+                // Player left revenant caves, stop timers and remove multiplier
+                player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
             }
             // Run every 10 ticks to check for players entering the area
             player.timers[REVENANT_CAVES_CHECK_TIMER] = 10
@@ -365,6 +501,317 @@ class RevenantManagementPlugin(
             }
         }
         // The REVENANT_CAVES_CHECK_TIMER will also handle starting it when entering the area
+        
+        /**
+         * Revenant Combat Style Switching
+         * Make all revenants switch between melee, ranged, and magic combat styles
+         */
+        val REVENANT_COMBAT_STYLE_TIMER = TimerKey()
+        
+        // Data class to hold combat style configuration
+        data class RevenantCombatStyle(
+            val combatClass: CombatClass,
+            val combatStyle: CombatStyle,
+            val attackStyle: AttackStyle,
+            val spell: CombatSpell?
+        )
+        
+        // Start timer for revenants when they spawn and set initial combat style
+        onGlobalNpcSpawn {
+            if (isRevenant(npc)) {
+                // Set initial random combat style
+                val styles = listOf(
+                    RevenantCombatStyle(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE, null),
+                    RevenantCombatStyle(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE, null),
+                    RevenantCombatStyle(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE, CombatSpell.WIND_STRIKE)
+                )
+                val initialStyle = styles.random()
+                npc.combatClass = initialStyle.combatClass
+                npc.combatStyle = initialStyle.combatStyle
+                npc.attackStyle = initialStyle.attackStyle
+                // Set spell for magic attacks
+                if (initialStyle.spell != null) {
+                    npc.attr[Combat.CASTING_SPELL] = initialStyle.spell
+                } else {
+                    npc.attr.remove(Combat.CASTING_SPELL)
+                }
+                
+                // Start timer to switch styles periodically
+                npc.timers[REVENANT_COMBAT_STYLE_TIMER] = 1
+            }
+        }
+        
+        // Timer to switch revenant combat styles
+        onTimer(REVENANT_COMBAT_STYLE_TIMER) {
+            val npc = ctx as Npc
+            if (!isRevenant(npc) || !npc.isAlive()) {
+                npc.timers.remove(REVENANT_COMBAT_STYLE_TIMER)
+                return@onTimer
+            }
+            
+            // Switch combat style periodically to make revenants use all 3 attack styles
+            val styles = listOf(
+                RevenantCombatStyle(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE, null),
+                RevenantCombatStyle(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE, null),
+                RevenantCombatStyle(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE, CombatSpell.WIND_STRIKE)
+            )
+            
+            // Randomly select a style (can repeat, making it unpredictable)
+            val selectedStyle = styles.random()
+            npc.combatClass = selectedStyle.combatClass
+            npc.combatStyle = selectedStyle.combatStyle
+            npc.attackStyle = selectedStyle.attackStyle
+            // Set or remove spell based on combat class
+            if (selectedStyle.spell != null) {
+                npc.attr[Combat.CASTING_SPELL] = selectedStyle.spell
+            } else {
+                npc.attr.remove(Combat.CASTING_SPELL)
+            }
+            
+            // Run every 4-6 ticks (randomized to make switching less predictable)
+            // This ensures revenants switch styles multiple times during combat
+            npc.timers[REVENANT_COMBAT_STYLE_TIMER] = world.random(4..6)
+        }
+        
+        /**
+         * Revenant Tile Protection
+         * Prevent revenants from standing on the same tile as each other
+         */
+        val REVENANT_TILE_PROTECTION_TIMER = TimerKey()
+        
+        // Start timer for revenants when they spawn
+        onGlobalNpcSpawn {
+            if (isRevenant(npc)) {
+                // Start tile protection timer if not already running
+                if (!npc.timers.has(REVENANT_TILE_PROTECTION_TIMER)) {
+                    npc.timers[REVENANT_TILE_PROTECTION_TIMER] = 2 // Check every 2 ticks
+                }
+            }
+        }
+        
+        // Timer to check and prevent revenants from standing on the same tile
+        onTimer(REVENANT_TILE_PROTECTION_TIMER) {
+            val npc = ctx as Npc
+            if (!isRevenant(npc) || !npc.isAlive()) {
+                npc.timers.remove(REVENANT_TILE_PROTECTION_TIMER)
+                return@onTimer
+            }
+            
+            val npcTile = npc.tile
+            
+            // Check all other revenants to see if any are on the same tile
+            world.npcs.forEach { otherNpc ->
+                if (otherNpc != npc && isRevenant(otherNpc) && otherNpc.isAlive()) {
+                    if (otherNpc.tile.sameAs(npcTile)) {
+                        // Another revenant is on the same tile, move this one away
+                        val adjacentTiles = listOf(
+                            npcTile.transform(1, 0),   // East
+                            npcTile.transform(-1, 0),  // West
+                            npcTile.transform(0, 1),   // North
+                            npcTile.transform(0, -1),  // South
+                            npcTile.transform(1, 1),   // Northeast
+                            npcTile.transform(-1, 1),  // Northwest
+                            npcTile.transform(1, -1),  // Southeast
+                            npcTile.transform(-1, -1)  // Southwest
+                        )
+                        
+                        // Find a walkable adjacent tile that doesn't have another revenant on it
+                        val targetTile = adjacentTiles.firstOrNull { tile ->
+                            // Check if tile is walkable
+                            val chunk = npc.world.chunks.get(tile, createIfNeeded = false)
+                            if (chunk == null) return@firstOrNull false
+                            
+                            val isWalkable = npc.world.reachStrategy.reached(
+                                flags = npc.world.collision,
+                                level = tile.height,
+                                srcX = npcTile.x,
+                                srcZ = npcTile.z,
+                                destX = tile.x,
+                                destZ = tile.z,
+                                destWidth = 1,
+                                destLength = 1,
+                                srcSize = 1,
+                                locShape = -2
+                            )
+                            
+                            if (!isWalkable) return@firstOrNull false
+                            
+                            // Check if another revenant is already on this tile
+                            val hasOtherRevenant = world.npcs.any { checkNpc ->
+                                checkNpc != npc && isRevenant(checkNpc) && checkNpc.isAlive() && checkNpc.tile.sameAs(tile)
+                            }
+                            
+                            !hasOtherRevenant
+                        }
+                        
+                        if (targetTile != null) {
+                            npc.moveTo(targetTile)
+                        }
+                    }
+                }
+            }
+            
+            // Run every 2 ticks to check for tile conflicts
+            npc.timers[REVENANT_TILE_PROTECTION_TIMER] = 2
+        }
+        
+        /**
+         * Revenant Single-Combat Enforcement Timer
+         * Stops revenants that try to attack a player already being attacked by another revenant
+         * This handles the race condition where multiple revenants check simultaneously
+         */
+        val REVENANT_SINGLE_COMBAT_TIMER = TimerKey()
+        
+        // Start timer for revenants when they spawn
+        onGlobalNpcSpawn {
+            if (isRevenant(npc) && isInRevenantCaves(npc.tile)) {
+                if (!npc.timers.has(REVENANT_SINGLE_COMBAT_TIMER)) {
+                    npc.timers[REVENANT_SINGLE_COMBAT_TIMER] = 1 // Check every tick
+                }
+            }
+        }
+        
+        // Timer to enforce single-combat for revenants (with delay check)
+        onTimer(REVENANT_SINGLE_COMBAT_TIMER) {
+            val npc = ctx as Npc
+            if (!isRevenant(npc) || !npc.isAlive() || !isInRevenantCaves(npc.tile)) {
+                npc.timers.remove(REVENANT_SINGLE_COMBAT_TIMER)
+                return@onTimer
+            }
+            
+            val target = npc.getCombatTarget()
+            if (target is Player && isInRevenantCaves(target.tile)) {
+                // Check if another revenant is already attacking this player
+                val otherRevenantAttacking = world.npcs.any { otherNpc ->
+                    otherNpc != npc && 
+                    isRevenant(otherNpc) && 
+                    otherNpc.isAlive() && 
+                    otherNpc.getCombatTarget() == target &&
+                    isInRevenantCaves(otherNpc.tile)
+                }
+                
+                // Check if player has a recent revenant target delay (3 seconds = 300 cycles)
+                val hasRecentTargetDelay = target.timers.has(RevenantManagementPlugin.REVENANT_TARGET_DELAY_TIMER)
+                
+                if (otherRevenantAttacking || hasRecentTargetDelay) {
+                    // Another revenant is already attacking this player, or delay is active, stop this one
+                    npc.removeCombatTarget()
+                    npc.resetFacePawn()
+                    npc.interruptQueues()
+                }
+            }
+            
+            // Run every tick to check for conflicts
+            npc.timers[REVENANT_SINGLE_COMBAT_TIMER] = 1
+        }
+    }
+    
+    /**
+     * Revenant Combat Handler
+     * Handles melee, ranged, and magic attacks based on the current combat class
+     * Applies damage multiplier to increase revenant damage output
+     */
+    private suspend fun revenantCombat(npc: Npc, it: QueueTask) {
+        var target = npc.getCombatTarget() ?: return
+        
+        // Apply damage multiplier for revenants (2.5x damage)
+        // This makes revenants hit significantly harder
+        npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 2.5
+        
+        // Loop while in combat
+        while (npc.canEngageCombat(target)) {
+            npc.facePawn(target)
+            
+            // Check if we can attack (in range and attack delay ready)
+            val canAttack = when (npc.combatClass) {
+                CombatClass.MELEE -> {
+                    if (npc.canAttackMelee(it, target, moveIfNeeded = true) && npc.isAttackDelayReady()) {
+                        // Melee attack
+                        npc.prepareAttack(CombatClass.MELEE, npc.combatStyle, npc.attackStyle)
+                        npc.animate(npc.combatDef.attackAnimation)
+                        npc.dealHit(target, MeleeCombatFormula, delay = 1)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                CombatClass.RANGED -> {
+                    if (npc.combatRaycast(target, RangedCombatStrategy.getAttackRange(npc), projectile = true) && npc.isAttackDelayReady()) {
+                        // Ranged attack - create projectile
+                        val projectile = npc.createProjectile(
+                            target,
+                            gfx = 249, // Arrow projectile
+                            startHeight = 43,
+                            endHeight = 31,
+                            delay = 51,
+                            angle = 10,
+                            steepness = 11
+                        )
+                        npc.prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
+                        npc.animate(426) // Ranged attack animation
+                        npc.world.spawn(projectile)
+                        val hitDelay = RangedCombatStrategy.getHitDelay(npc.getFrontFacingTile(target), target.getCentreTile())
+                        npc.dealHit(target, RangedCombatFormula, delay = hitDelay - 1)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                CombatClass.MAGIC -> {
+                    if (npc.combatRaycast(target, MagicCombatStrategy.getAttackRange(npc), projectile = true) && npc.isAttackDelayReady()) {
+                        // Magic attack - get spell from attribute or use default
+                        val spell = npc.attr[Combat.CASTING_SPELL] ?: CombatSpell.WIND_STRIKE
+                        val projectile = npc.createProjectile(
+                            target,
+                            gfx = spell.projectile,
+                            startHeight = 43,
+                            endHeight = if (spell.projectilEndHeight != -1) spell.projectilEndHeight else 31,
+                            delay = 51,
+                            angle = 15,
+                            steepness = 127
+                        )
+                        npc.prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+                        npc.animate(spell.castAnimation)
+                        npc.world.spawn(projectile)
+                        val hitDelay = MagicCombatStrategy.getHitDelay(npc.getFrontFacingTile(target), target.getCentreTile())
+                        npc.dealHit(target, MagicCombatFormula, delay = hitDelay - 1)
+                        // Show impact graphic
+                        spell.impactGfx?.let { impact ->
+                            target.graphic(impact.id, impact.height, delay = hitDelay - 1)
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> {
+                    // Fallback to melee
+                    if (npc.canAttackMelee(it, target, moveIfNeeded = true) && npc.isAttackDelayReady()) {
+                        npc.prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
+                        npc.animate(npc.combatDef.attackAnimation)
+                        npc.dealHit(target, MeleeCombatFormula, delay = 1)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+            
+            // Post attack logic (handles retaliation, etc.)
+            if (canAttack) {
+                npc.postAttackLogic(target)
+            }
+            
+            // Wait before next attack cycle
+            it.wait(1)
+            
+            // Update target (in case it changed)
+            target = npc.getCombatTarget() ?: break
+        }
+        
+        // Clean up when combat ends
+        npc.resetFacePawn()
+        npc.removeCombatTarget()
     }
 }
 
