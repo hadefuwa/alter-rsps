@@ -66,6 +66,17 @@ class RevenantManagementPlugin(
     private val pendingDelayTimerPlayers = mutableSetOf<Player>()
     
     /**
+     * Set to track players who need timers removed (to avoid ConcurrentModificationException)
+     */
+    private val pendingTimerRemovals = mutableMapOf<Player, MutableSet<TimerKey>>()
+    
+    /**
+     * Map to track players that need timers set (to avoid ConcurrentModificationException)
+     * Key: TimerKey, Value: Pair of (Player, timer value)
+     */
+    private val pendingPlayerTimers = mutableMapOf<TimerKey, MutableList<Pair<Player, Int>>>()
+    
+    /**
      * Map to track NPCs that need timers set (to avoid ConcurrentModificationException)
      * Key: TimerKey, Value: Pair of (NPC, timer value)
      */
@@ -216,35 +227,71 @@ class RevenantManagementPlugin(
         val REVENANT_DELAY_TIMER_SETTER = TimerKey()
         
         // Start a global timer that runs every tick to process pending timers
-        // Use world timers to ensure execution after player cycle
+        // Use world timers - they execute in world.cycle() which runs AFTER PlayerCycleTask
+        // We'll collect the data in the timer handler, then use a world queue task
+        // that executes in QueueHandlerTask (which runs BEFORE PlayerCycleTask)
+        // This ensures timer modifications happen before timer cycles
         onWorldInit {
             world.timers[REVENANT_DELAY_TIMER_SETTER] = 1
         }
         
-        // Register world timer handler - this executes when the timer reaches 0
-        // World timers execute in world.cycle() after player cycles, so it's safe to modify player timers
+        // Register world timer handler - this executes when the timer reaches 0 in world.cycle()
+        // World timers execute AFTER player cycles in the current cycle
+        // We use submitGameThreadJob to execute at the START of the NEXT cycle,
+        // BEFORE QueueHandlerTask and PlayerCycleTask, ensuring timer modifications
+        // happen before any timer cycles
         onTimer(REVENANT_DELAY_TIMER_SETTER) {
-            // This will be called on the world object when the timer expires
-            // Process all pending players and set their delay timers
-            val playersToProcess = this@RevenantManagementPlugin.pendingDelayTimerPlayers.toList() // Create a copy to avoid concurrent modification
+            // Collect data to process (do this synchronously while we're in world.cycle())
+            val playersToProcess = this@RevenantManagementPlugin.pendingDelayTimerPlayers.toList() // Create a copy
             this@RevenantManagementPlugin.pendingDelayTimerPlayers.clear()
-            playersToProcess.forEach { p: Player ->
-                if (p.isOnline) {
-                    // Set the delay timer directly without checking - if already set, it will just reset it
-                    // This avoids reading from timers map during iteration
-                    // World timers execute after player cycle, so this is safe
-                    p.timers[REVENANT_TARGET_DELAY_TIMER] = 300 // 3 seconds = 300 cycles
-                }
-            }
-            
-            // Process all pending NPC timers
+            val playerTimersToProcess = this@RevenantManagementPlugin.pendingPlayerTimers.toMap() // Create a copy
+            this@RevenantManagementPlugin.pendingPlayerTimers.clear()
+            val timerRemovalsToProcess = this@RevenantManagementPlugin.pendingTimerRemovals.toMap() // Create a copy
+            this@RevenantManagementPlugin.pendingTimerRemovals.clear()
             val npcTimersToProcess = this@RevenantManagementPlugin.pendingNpcTimers.toMap() // Create a copy
             this@RevenantManagementPlugin.pendingNpcTimers.clear()
-            npcTimersToProcess.forEach { (timerKey, npcTimerPairs) ->
-                npcTimerPairs.forEach { (npc, timerValue) ->
-                    if (npc.isAlive()) {
-                        // Set the timer (this is safe because we're in a world timer, after player cycle)
-                        npc.timers[timerKey] = timerValue
+            
+            // Submit as game thread job - executes at START of NEXT cycle, BEFORE all tasks
+            // This ensures timer modifications happen before timer cycles, avoiding ConcurrentModificationException
+            if (playersToProcess.isNotEmpty() || playerTimersToProcess.isNotEmpty() || timerRemovalsToProcess.isNotEmpty() || npcTimersToProcess.isNotEmpty()) {
+                world.getService(org.alter.game.service.GameService::class.java)?.submitGameThreadJob {
+                    // Set delay timers for players
+                    playersToProcess.forEach { p: Player ->
+                        if (p.isOnline) {
+                            p.timers[REVENANT_TARGET_DELAY_TIMER] = 300 // 3 seconds = 300 cycles
+                        }
+                    }
+                    
+                    // Set other player timers
+                    playerTimersToProcess.forEach { (timerKey, playerTimerPairs) ->
+                        playerTimerPairs.forEach { (player, timerValue) ->
+                            if (player.isOnline) {
+                                player.timers[timerKey] = timerValue
+                            }
+                        }
+                    }
+                    
+                    // Remove player timers
+                    timerRemovalsToProcess.forEach { (player, timerKeys) ->
+                        if (player.isOnline) {
+                            timerKeys.forEach { timerKey ->
+                                player.timers.remove(timerKey)
+                            }
+                        }
+                    }
+                    
+                    // Set NPC timers (or remove if timerValue is -1)
+                    npcTimersToProcess.forEach { (timerKey, npcTimerPairs) ->
+                        npcTimerPairs.forEach { (npc, timerValue) ->
+                            if (npc.isAlive()) {
+                                if (timerValue == -1) {
+                                    // -1 indicates removal
+                                    npc.timers.remove(timerKey)
+                                } else {
+                                    npc.timers[timerKey] = timerValue
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -388,8 +435,8 @@ class RevenantManagementPlugin(
         onTimer(ETHEREUM_CONSUME_TIMER) {
             val player = ctx as Player
             if (!isInRevenantCaves(player.tile)) {
-                // Stop timer if player left the area
-                player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                // Stop timer if player left the area - defer removal to avoid ConcurrentModificationException
+                pendingTimerRemovals.getOrPut(player) { mutableSetOf() }.add(ETHEREUM_CONSUME_TIMER)
                 player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 return@onTimer
             }
@@ -407,12 +454,12 @@ class RevenantManagementPlugin(
                     // No charges, remove protection
                     player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 }
-                // Continue timer if player has bracelet
-                player.timers[ETHEREUM_CONSUME_TIMER] = 5
+                // Continue timer if player has bracelet - defer setting to avoid ConcurrentModificationException
+                pendingPlayerTimers.getOrPut(ETHEREUM_CONSUME_TIMER) { mutableListOf() }.add(Pair(player, 5))
             } else {
-                // Player doesn't have bracelet, remove any protection and stop timer
+                // Player doesn't have bracelet, remove any protection and stop timer - defer removal
                 player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
-                player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                pendingTimerRemovals.getOrPut(player) { mutableSetOf() }.add(ETHEREUM_CONSUME_TIMER)
             }
         }
         
@@ -436,27 +483,27 @@ class RevenantManagementPlugin(
             // This timer runs for all players, check if they're in revenant caves
             val player = ctx as Player
             if (isInRevenantCaves(player.tile)) {
-                // Start AVARICE_AGGRO_TIMER if not already running
+                // Start AVARICE_AGGRO_TIMER if not already running - defer setting to avoid ConcurrentModificationException
                 if (!player.timers.has(AVARICE_AGGRO_TIMER)) {
-                    player.timers[AVARICE_AGGRO_TIMER] = 1
+                    pendingPlayerTimers.getOrPut(AVARICE_AGGRO_TIMER) { mutableListOf() }.add(Pair(player, 1))
                 }
                 
-                // Only start ETHEREUM_CONSUME_TIMER if player has bracelet equipped
+                // Only start ETHEREUM_CONSUME_TIMER if player has bracelet equipped - defer setting
                 val bracelet = player.getEquipment(EquipmentType.GLOVES)
                 if (bracelet?.id == getRSCM("item.bracelet_of_ethereum") && !player.timers.has(ETHEREUM_CONSUME_TIMER)) {
-                    player.timers[ETHEREUM_CONSUME_TIMER] = 1
+                    pendingPlayerTimers.getOrPut(ETHEREUM_CONSUME_TIMER) { mutableListOf() }.add(Pair(player, 1))
                 } else if (bracelet?.id != getRSCM("item.bracelet_of_ethereum")) {
-                    // Player doesn't have bracelet, make sure timer is stopped and multiplier is removed
-                    player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                    // Player doesn't have bracelet, make sure timer is stopped and multiplier is removed - defer removal
+                    pendingTimerRemovals.getOrPut(player) { mutableSetOf() }.add(ETHEREUM_CONSUME_TIMER)
                     player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 }
             } else {
-                // Player left revenant caves, stop timers and remove multiplier
-                player.timers.remove(ETHEREUM_CONSUME_TIMER)
+                // Player left revenant caves, stop timers and remove multiplier - defer removal
+                pendingTimerRemovals.getOrPut(player) { mutableSetOf() }.add(ETHEREUM_CONSUME_TIMER)
                 player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
             }
-            // Run every 10 ticks to check for players entering the area
-            player.timers[REVENANT_CAVES_CHECK_TIMER] = 10
+            // Run every 10 ticks to check for players entering the area - defer setting to avoid ConcurrentModificationException
+            pendingPlayerTimers.getOrPut(REVENANT_CAVES_CHECK_TIMER) { mutableListOf() }.add(Pair(player, 10))
         }
         
         // Start the check timer for all players on login
@@ -500,8 +547,8 @@ class RevenantManagementPlugin(
         onTimer(AVARICE_AGGRO_TIMER) {
             val player = ctx as Player
             if (!isInRevenantCaves(player.tile)) {
-                // Stop timer if player left the area
-                player.timers.remove(AVARICE_AGGRO_TIMER)
+                // Stop timer if player left the area - defer removal to avoid ConcurrentModificationException
+                pendingTimerRemovals.getOrPut(player) { mutableSetOf() }.add(AVARICE_AGGRO_TIMER)
                 return@onTimer
             }
             
@@ -516,7 +563,8 @@ class RevenantManagementPlugin(
                 }
             }
             
-            player.timers[AVARICE_AGGRO_TIMER] = 3 // Check every 3 ticks
+            // Check every 3 ticks - defer setting to avoid ConcurrentModificationException
+            pendingPlayerTimers.getOrPut(AVARICE_AGGRO_TIMER) { mutableListOf() }.add(Pair(player, 3))
         }
         
         // Start aggro timer for players in revenant caves (on login)
@@ -571,7 +619,8 @@ class RevenantManagementPlugin(
         onTimer(REVENANT_COMBAT_STYLE_TIMER) {
             val npc = ctx as Npc
             if (!isRevenant(npc) || !npc.isAlive()) {
-                npc.timers.remove(REVENANT_COMBAT_STYLE_TIMER)
+                // Defer removal to avoid ConcurrentModificationException (NPC timers handled separately, but safer to defer)
+                pendingNpcTimers.getOrPut(REVENANT_COMBAT_STYLE_TIMER) { mutableListOf() }.add(Pair(npc, -1)) // -1 indicates removal
                 return@onTimer
             }
             
@@ -621,7 +670,8 @@ class RevenantManagementPlugin(
         onTimer(REVENANT_TILE_PROTECTION_TIMER) {
             val npc = ctx as Npc
             if (!isRevenant(npc) || !npc.isAlive()) {
-                npc.timers.remove(REVENANT_TILE_PROTECTION_TIMER)
+                // Defer removal to avoid ConcurrentModificationException (NPC timers handled separately, but safer to defer)
+                pendingNpcTimers.getOrPut(REVENANT_TILE_PROTECTION_TIMER) { mutableListOf() }.add(Pair(npc, -1)) // -1 indicates removal
                 return@onTimer
             }
             
@@ -704,7 +754,8 @@ class RevenantManagementPlugin(
         onTimer(REVENANT_SINGLE_COMBAT_TIMER) {
             val npc = ctx as Npc
             if (!isRevenant(npc) || !npc.isAlive() || !isInRevenantCaves(npc.tile)) {
-                npc.timers.remove(REVENANT_SINGLE_COMBAT_TIMER)
+                // Defer removal to avoid ConcurrentModificationException (NPC timers handled separately, but safer to defer)
+                pendingNpcTimers.getOrPut(REVENANT_SINGLE_COMBAT_TIMER) { mutableListOf() }.add(Pair(npc, -1)) // -1 indicates removal
                 return@onTimer
             }
             
