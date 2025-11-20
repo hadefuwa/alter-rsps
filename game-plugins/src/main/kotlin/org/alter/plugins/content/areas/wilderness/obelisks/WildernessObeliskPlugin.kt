@@ -1,5 +1,6 @@
 package org.alter.plugins.content.areas.wilderness.obelisks
 
+import dev.openrune.cache.CacheManager.getObject
 import org.alter.api.*
 import org.alter.api.cfg.*
 import org.alter.api.dsl.*
@@ -93,32 +94,70 @@ class WildernessObeliskPlugin(
         // Register handlers for all wilderness obelisk object IDs using direct object IDs
         val obeliskIds = arrayOf(14825, 14826, 14827, 14828, 14829, 14830, 14831)
         
-        // Check each obelisk object and bind available options
+                // Check each obelisk object and bind available options
         obeliskIds.forEach { obeliskId ->
             try {
+                // First, try to get available options for this object
+                val availableOptions = try {
+                    val objDef = getObject(obeliskId)
+                    objDef.actions.filterNotNull().filter { action: String? -> action != null && action.isNotBlank() }
+                } catch (e: Exception) {
+                    emptyList<String>()
+                }
+                
+                // Skip obelisks that have no options (likely inactive/visual-only states)
+                if (availableOptions.isEmpty()) {
+                    // This is normal for some obelisk states - they may be inactive or visual-only variants
+                    // No need to log a warning for this
+                    return@forEach
+                }
+                
                 // Try common object interaction options for wilderness obelisks
                 val possibleOptions = listOf("activate", "operate", "touch", "use")
                 var optionBound = false
                 
+                // Try string-based options first
                 for (option in possibleOptions) {
                     try {
-                        onObjOption(obj = obeliskId, option = option) {
-                            activateObelisk(player)
+                        // Check if the object has this option by checking the actions array
+                        val objDef = getObject(obeliskId)
+                        val optionIndex = objDef.actions.indexOfFirst { action: String? -> 
+                            action != null && action.lowercase() == option.lowercase() 
                         }
-                        println("Bound obelisk $obeliskId with option: $option")
-                        optionBound = true
-                        break
+                        if (optionIndex != -1) {
+                            onObjOption(obj = obeliskId, option = option) {
+                                activateObelisk(player)
+                            }
+                            println("Successfully bound obelisk $obeliskId with option: $option")
+                            optionBound = true
+                            break // Found a working option, no need to try others
+                        }
                     } catch (e: Exception) {
-                        // Option not available, try next
+                        // Option not available or binding failed, try next
                         continue
                     }
                 }
                 
-                if (!optionBound) {
-                    println("No suitable option found for obelisk $obeliskId")
+                // If no string options worked, try binding to option index 1 (first interaction)
+                if (!optionBound && availableOptions.isNotEmpty()) {
+                    try {
+                        r.bindObject(obeliskId, 1, -1) {
+                            activateObelisk(player)
+                        }
+                        println("Successfully bound obelisk $obeliskId with option index 1")
+                        optionBound = true
+                    } catch (e: Exception) {
+                        println("Failed to bind obelisk $obeliskId with option index 1: ${e.message}")
+                    }
+                }
+                
+                // Only warn if we expected to bind an option but couldn't (object has options but binding failed)
+                if (!optionBound && availableOptions.isNotEmpty()) {
+                    println("Warning: No suitable option found for obelisk $obeliskId. Available options: $availableOptions")
                 }
             } catch (e: Exception) {
                 println("Error configuring obelisk $obeliskId: ${e.message}")
+                e.printStackTrace()
             }
         }
     }

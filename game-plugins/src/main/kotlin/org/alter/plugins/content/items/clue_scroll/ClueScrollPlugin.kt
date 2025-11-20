@@ -33,26 +33,23 @@ class ClueScrollPlugin(
         registerClueScroll("item.clue_scroll_master", "item.reward_casket_master")
         
         // Also register by item ID 2804 (medium clue scroll variant)
-        // Check if it's actually a scroll or casket
+        // Check if it's actually a scroll (NOT a casket - caskets are handled by ClueCasketPlugin)
         try {
             val itemDef = getItem(2804)
             val itemName = itemDef.name.lowercase()
-            if (itemName.contains("clue") && itemName.contains("scroll") && itemName.contains("medium")) {
+            // Only register if it's a clue scroll, NOT a casket
+            if (itemName.contains("clue") && itemName.contains("scroll") && itemName.contains("medium") 
+                && !itemName.contains("casket")) {
                 // It's a clue scroll, register it
-                r.bindItem(2804, 2) {
-                    player.queue {
-                        convertClueScrollToCasket(this, player, 2804, "item.casket_medium")
-                    }
-                }
-            } else if (itemName.contains("casket") && itemName.contains("medium")) {
-                // It's already a casket, register it to open
-                r.bindItem(2804, 2) {
-                    player.queue {
-                        // This should be handled by ClueCasketPlugin, but let's make sure
-                        player.message("You read the clue scroll and receive a casket!")
+                if (!world.plugins.isItemBound(2804, 2)) {
+                    r.bindItem(2804, 2) {
+                        player.queue {
+                            convertClueScrollToCasket(this, player, 2804, "item.casket_medium")
+                        }
                     }
                 }
             }
+            // If it's a casket, don't register it - ClueCasketPlugin handles caskets
         } catch (e: Exception) {
             // Item might not exist, that's okay
         }

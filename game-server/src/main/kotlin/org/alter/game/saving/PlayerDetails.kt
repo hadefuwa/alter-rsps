@@ -56,7 +56,7 @@ object PlayerDetails {
             displayNames[it.key.lowercase()] = DisplayName.fromDocument(it.value)
         }
 
-        logger.info { "Total Player Details Saved: ${displayNames.size}" }
+        // logger.info { "Total Player Details Saved: ${displayNames.size}" }
 
         serialization.init()
 

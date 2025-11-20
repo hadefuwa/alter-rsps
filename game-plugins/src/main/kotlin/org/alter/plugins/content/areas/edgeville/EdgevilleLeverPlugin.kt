@@ -91,6 +91,9 @@ class EdgevilleLeverPlugin(
             }
         }
 
+        // Track which options were registered to avoid duplicates
+        val registeredOptions = mutableSetOf<String>()
+        
         // Handle Edgeville lever (object 26761) - check what options it has
         try {
             val leverDef = getObject(26761)
@@ -98,20 +101,28 @@ class EdgevilleLeverPlugin(
             
             // Common lever options: "pull", "operate", "use", "pull-lever"
             leverOptions.forEach { option ->
-                // Check if we're at Edgeville lever location (teleport to wilderness)
-                onObjOption(obj = 26761, option = option) {
-                    val obj = player.getInteractingGameObj()
-                    val playerTile = player.tile
-                    
-                    // Check if player is near Edgeville lever (around 3090, 3470)
-                    // If player is in wilderness (Z > 3520), teleport to Edgeville
-                    // Otherwise, teleport to wilderness
-                    if (playerTile.z > 3520) {
-                        // Player is in wilderness, teleport back to Edgeville
-                        pullLeverToEdgeville()
-                    } else {
-                        // Player is in Edgeville, teleport to wilderness
-                        pullLeverToWilderness()
+                if (!registeredOptions.contains(option)) {
+                    try {
+                        onObjOption(obj = 26761, option = option) {
+                            val obj = player.getInteractingGameObj()
+                            val playerTile = player.tile
+                            
+                            // Check if player is near Edgeville lever (around 3090, 3470)
+                            // If player is in wilderness (Z > 3520), teleport to Edgeville
+                            // Otherwise, teleport to wilderness
+                            if (playerTile.z > 3520) {
+                                // Player is in wilderness, teleport back to Edgeville
+                                pullLeverToEdgeville()
+                            } else {
+                                // Player is in Edgeville, teleport to wilderness
+                                pullLeverToWilderness()
+                            }
+                        }
+                        registeredOptions.add(option)
+                    } catch (e: IllegalStateException) {
+                        // Option already bound, skip
+                    } catch (e: Exception) {
+                        // Other error, continue
                     }
                 }
             }
@@ -120,27 +131,37 @@ class EdgevilleLeverPlugin(
             // We'll use the RSCM name instead
         }
 
-        // Also handle using RSCM name
+        // Also handle using RSCM name (only if not already registered)
         try {
-            if (objHasOption("object.lever_26761", "pull")) {
-                onObjOption(obj = "object.lever_26761", option = "pull") {
-                    val playerTile = player.tile
-                    if (playerTile.z > 3520) {
-                        pullLeverToEdgeville()
-                    } else {
-                        pullLeverToWilderness()
+            if (objHasOption("object.lever_26761", "pull") && !registeredOptions.contains("pull")) {
+                try {
+                    onObjOption(obj = "object.lever_26761", option = "pull") {
+                        val playerTile = player.tile
+                        if (playerTile.z > 3520) {
+                            pullLeverToEdgeville()
+                        } else {
+                            pullLeverToWilderness()
+                        }
                     }
+                    registeredOptions.add("pull")
+                } catch (e: IllegalStateException) {
+                    // Already bound, skip
                 }
             }
             
-            if (objHasOption("object.lever_26761", "operate")) {
-                onObjOption(obj = "object.lever_26761", option = "operate") {
-                    val playerTile = player.tile
-                    if (playerTile.z > 3520) {
-                        pullLeverToEdgeville()
-                    } else {
-                        pullLeverToWilderness()
+            if (objHasOption("object.lever_26761", "operate") && !registeredOptions.contains("operate")) {
+                try {
+                    onObjOption(obj = "object.lever_26761", option = "operate") {
+                        val playerTile = player.tile
+                        if (playerTile.z > 3520) {
+                            pullLeverToEdgeville()
+                        } else {
+                            pullLeverToWilderness()
+                        }
                     }
+                    registeredOptions.add("operate")
+                } catch (e: IllegalStateException) {
+                    // Already bound, skip
                 }
             }
         } catch (e: Exception) {

@@ -370,13 +370,17 @@ object MagicCombatFormula : CombatFormula {
     /**
      * Check if wilderness weapon bonus applies (100% damage/accuracy bonus)
      * Conditions:
-     * 1. Player must be in wilderness
+     * 1. Player must be in wilderness or Revenant Caves
      * 2. Player must have a wilderness weapon equipped (Thammaron's Sceptre or Accursed Sceptre for magic)
      * 3. Target must be a wilderness NPC or revenant
      */
     private fun isWildernessWeaponBonus(player: Player, target: Npc): Boolean {
-        // Check if player is in wilderness
-        if (player.tile.getWildernessLevel() <= 0) {
+        // Check if player is in wilderness or Revenant Caves
+        val playerWildernessLevel = player.tile.getWildernessLevel()
+        val playerInRevenantCaves = player.tile.z >= 10000 && player.tile.z <= 10300 && 
+                                   player.tile.x >= 3100 && player.tile.x <= 3300
+        
+        if (playerWildernessLevel <= 0 && !playerInRevenantCaves) {
             return false
         }
         

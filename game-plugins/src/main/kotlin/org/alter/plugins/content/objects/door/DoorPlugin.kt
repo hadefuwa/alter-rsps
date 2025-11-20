@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.door
 
+import dev.openrune.cache.CacheManager.getObject
 import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
 import org.alter.game.Server
@@ -23,18 +24,32 @@ class DoorPlugin(
         onWorldInit {
             world.getService(DoorService::class.java)?.let { service ->
                 service.doors.forEach { door ->
-                    onObjOption(obj = door.opened, option = "close") {
-                        val obj = player.getInteractingGameObj()
-                        val newDoor = world.closeDoor(obj, closed = door.closed, invertTransform = obj.type == WALL_DIAGONAL)
-                        copyStickVars(obj, newDoor)
-                        player.playSound(Sound.CLOSE_DOOR_SFX)
+                    // Check if opened door has "close" option
+                    val openedDef = getObject(door.opened)
+                    val hasCloseOption = openedDef.actions.any { it?.lowercase() == "close" }
+                    
+                    // Check if closed door has "open" option
+                    val closedDef = getObject(door.closed)
+                    val hasOpenOption = closedDef.actions.any { it?.lowercase() == "open" }
+                    
+                    // Handle closing an open door (only if the object has "close" option)
+                    if (hasCloseOption) {
+                        onObjOption(obj = door.opened, option = "close") {
+                            val obj = player.getInteractingGameObj()
+                            val newDoor = world.closeDoor(obj, closed = door.closed, invertTransform = obj.type == WALL_DIAGONAL)
+                            copyStickVars(obj, newDoor)
+                            player.playSound(Sound.CLOSE_DOOR_SFX)
+                        }
                     }
 
-                    onObjOption(obj = door.closed, option = "open") {
-                        val obj = player.getInteractingGameObj()
-                        val newDoor = world.openDoor(obj, opened = door.opened, invertTransform = obj.type == WALL_DIAGONAL)
-                        copyStickVars(obj, newDoor)
-                        player.playSound(Sound.OPEN_DOOR_SFX)
+                    // Handle opening a closed door (only if the object has "open" option)
+                    if (hasOpenOption) {
+                        onObjOption(obj = door.closed, option = "open") {
+                            val obj = player.getInteractingGameObj()
+                            val newDoor = world.openDoor(obj, opened = door.opened, invertTransform = obj.type == WALL_DIAGONAL)
+                            copyStickVars(obj, newDoor)
+                            player.playSound(Sound.OPEN_DOOR_SFX)
+                        }
                     }
                 }
 

@@ -21,7 +21,7 @@ import org.alter.game.plugin.*
  * Callisto - The Bear Wilderness Boss
  * Combat Level: 470
  * Hitpoints: 1000
- * Location: Callisto's Den (3307, 3737)
+ * Location: Callisto's Den (3294, 3846)
  * Region: 13123 (Multi-combat)
  * 
  * Special Attacks:
@@ -42,7 +42,7 @@ class CallistoConfigsPlugin(
         setMultiCombatRegion(region = 13123) // Callisto's Den wilderness region
 
         // Spawn Callisto at Callisto's Den location in wilderness
-        spawnNpc("npc.callisto", x = 3307, z = 3737, walkRadius = 10)
+        spawnNpc("npc.callisto", x = 3294, z = 3846, walkRadius = 3)
 
         setCombatDef("npc.callisto") {
             configs {

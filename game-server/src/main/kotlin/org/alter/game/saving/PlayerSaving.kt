@@ -33,7 +33,7 @@ object PlayerSaving {
     fun init(gameContext: GameContext) {
         serialization = gameContext.saveFormat.createInstance("details")
 
-        logger.info { "Player Save Format : ${gameContext.saveFormat.name}" }
+        // logger.info { "Player Save Format : ${gameContext.saveFormat.name}" }
 
         serialization.init()
 
@@ -146,7 +146,7 @@ object PlayerSaving {
                     null
                 }
                 if (tileData != null && tileData.size >= 3) {
-                    logger.info { "Loading player ${client.loginUsername} from position (${tileData[0]}, ${tileData[1]}, ${tileData[2]})" }
+                    // logger.info { "Loading player ${client.loginUsername} from position (${tileData[0]}, ${tileData[1]}, ${tileData[2]})" }
                 } else {
                     logger.warn { "Player ${client.loginUsername} save file missing position data - will spawn at home" }
                 }
@@ -160,7 +160,7 @@ object PlayerSaving {
             }
             
             // Log position after loading to verify it was set correctly
-            logger.info { "Player ${client.loginUsername} loaded at position (${client.tile.x}, ${client.tile.z}, ${client.tile.height})" }
+            // logger.info { "Player ${client.loginUsername} loaded at position (${client.tile.x}, ${client.tile.z}, ${client.tile.height})" }
 
             PlayerLoadResult.LOAD_ACCOUNT
         } catch (e: Exception) {

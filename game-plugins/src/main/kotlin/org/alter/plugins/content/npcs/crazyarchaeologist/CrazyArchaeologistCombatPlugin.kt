@@ -254,7 +254,7 @@ class CrazyArchaeologistCombatPlugin(
                  * 3. Book Rain Attack (Priority 2, only if teleport didn't trigger):
                  *    - Requires: attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT (3)
                  *    - Chance: BOOK_RAIN_ATTACK_CHANCE_NUMERATOR / BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR (1/2 = 50%)
-                 *    - Effect: Area-of-effect attack in 5x5 area around center of players
+                 *    - Effect: Area-of-effect attack in 7x7 area around center of players (50-90 damage)
                  *    - Resets attack count to 0 on success
                  * 
                  * 4. Unequip Attack (Priority 3, only if teleport/book rain didn't trigger):
@@ -712,21 +712,21 @@ class CrazyArchaeologistCombatPlugin(
     }
     
     private suspend fun Npc.bookRainAttackAtTile(targetTile: Tile) {
-        /**
-         * Book Rain Attack - Area-of-effect special ability.
-         * 
-         * This attack:
-         * 1. Shows warning graphics on a 5x5 area around the target tile
-         * 2. After a delay, explodes all tiles in the area
-         * 3. Damages all pawns (players and NPCs) standing on affected tiles
-         * 4. Does not damage the archaeologist itself
-         */
+    /**
+     * Book Rain Attack - Area-of-effect special ability.
+     * 
+     * This attack:
+     * 1. Shows warning graphics on a 7x7 area around the target tile
+     * 2. After a delay, explodes all tiles in the area
+     * 3. Damages all pawns (players and NPCs) standing on affected tiles (50-90 damage)
+     * 4. Does not damage the archaeologist itself
+     */
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         animate(Animation.CRAZY_ARCHAEOLOGIST_BOOK) // Book animation
 
         // Notify all nearby players
         this.world.players.forEach { player ->
-            if (player.tile.isWithinRadius(targetTile, 5) && player.initiated) {
+            if (player.tile.isWithinRadius(targetTile, 7) && player.initiated) {
                 player.message("The Crazy Archaeologist summons a rain of explosive books!")
             }
         }
@@ -734,9 +734,9 @@ class CrazyArchaeologistCombatPlugin(
         // Create multiple books around the target area
         val affectedTiles = mutableListOf<Tile>()
 
-        // Get tiles in a 5x5 area around the target (25 tiles total)
-        for (x in -2..2) {
-            for (z in -2..2) {
+        // Get tiles in a 7x7 area around the target (49 tiles total)
+        for (x in -3..3) {
+            for (z in -3..3) {
                 val tile = targetTile.transform(x, z)
                 affectedTiles.add(tile)
             }
@@ -761,10 +761,10 @@ class CrazyArchaeologistCombatPlugin(
                 world.spawn(TileGraphic(tile, id = 157, height = 0, delay = 0)) // Explosion graphic
 
                 // Damage any pawns (players or NPCs) on this tile
-                // Max damage: 70 (30-70 random) - high damage AOE attack
+                // Max damage: 90 (50-90 random) - high damage AOE attack
                 world.players.forEach { player ->
                     if (player.tile == tile && player.isAlive() && this@bookRainAttackAtTile.isAlive() && this@bookRainAttackAtTile.getCurrentHp() > 0) {
-                        val damage = this@bookRainAttackAtTile.world.random(30..70)
+                        val damage = this@bookRainAttackAtTile.world.random(50..90)
                         val hit = player.hit(damage, type = HitType.HIT, delay = 0)
                         // Cancel the hit if the NPC dies or reaches 0 HP before it lands
                         hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() || this@bookRainAttackAtTile.getCurrentHp() <= 0 }
@@ -772,7 +772,7 @@ class CrazyArchaeologistCombatPlugin(
                 }
                 world.npcs.forEach { npc ->
                     if (npc.tile == tile && npc.isAlive() && npc != this@bookRainAttackAtTile && this@bookRainAttackAtTile.isAlive() && this@bookRainAttackAtTile.getCurrentHp() > 0) {
-                        val damage = this@bookRainAttackAtTile.world.random(30..70)
+                        val damage = this@bookRainAttackAtTile.world.random(50..90)
                         val hit = npc.hit(damage, type = HitType.HIT, delay = 0)
                         // Cancel the hit if the NPC dies or reaches 0 HP before it lands
                         hit.setCancelIf { !this@bookRainAttackAtTile.isAlive() || this@bookRainAttackAtTile.getCurrentHp() <= 0 }

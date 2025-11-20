@@ -101,7 +101,7 @@ class VarrockFoodShopPlugin(
         }
 
         // Register option 3 (numeric) directly - this is what gets triggered when clicking trade
-        // Register this BEFORE the string "trade" option to avoid conflicts
+        // Try to register option 3, fall back to "trade" string option if it's already bound
         try {
             onNpcOption(shopkeeper, option = 3) {
                 val npc = player.getInteractingNpc()
@@ -115,13 +115,35 @@ class VarrockFoodShopPlugin(
             }
             println("VarrockFoodShopPlugin: Successfully registered option 3 for shopkeeper")
         } catch (e: IllegalStateException) {
-            // Option 3 already bound by another plugin, use string option as fallback
-            println("VarrockFoodShopPlugin: Option 3 already bound, using string 'trade' option")
-            onNpcOption(shopkeeper, option = "trade") { 
-                val npc = player.getInteractingNpc()
-                if (npc.tile == shopkeeperTile) {
-                    player.shop() 
+            // Option 3 already bound by another plugin, try string option as fallback
+            println("VarrockFoodShopPlugin: Option 3 already bound, trying string 'trade' option")
+            try {
+                onNpcOption(shopkeeper, option = "trade") { 
+                    val npc = player.getInteractingNpc()
+                    if (npc.tile == shopkeeperTile) {
+                        player.shop() 
+                    }
                 }
+                println("VarrockFoodShopPlugin: Successfully registered 'trade' option for shopkeeper")
+            } catch (e2: IllegalStateException) {
+                // "trade" option also already bound, skip
+                println("VarrockFoodShopPlugin: 'trade' option also already bound, skipping")
+            } catch (e2: Exception) {
+                println("VarrockFoodShopPlugin: Could not register 'trade' option: ${e2.message}")
+            }
+        } catch (e: Exception) {
+            // Other error, try string option as fallback
+            println("VarrockFoodShopPlugin: Could not register option 3: ${e.message}, trying 'trade' option")
+            try {
+                onNpcOption(shopkeeper, option = "trade") { 
+                    val npc = player.getInteractingNpc()
+                    if (npc.tile == shopkeeperTile) {
+                        player.shop() 
+                    }
+                }
+            } catch (e2: IllegalStateException) {
+                // "trade" option also already bound, skip
+                println("VarrockFoodShopPlugin: 'trade' option also already bound, skipping")
             }
         }
     }

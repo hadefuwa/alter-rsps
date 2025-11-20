@@ -29,6 +29,13 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.guard_3010", x = 3209, z = 3424, walkRadius = 5, direction = Direction.SOUTH)
 
         /**
+         * Makeover Mage
+         *
+         * Makeover Mage in Varrock square for character customization.
+         */
+        spawnNpc(npc = "npc.makeover_mage", x = 3201, z = 3424, walkRadius = 0, direction = Direction.SOUTH)
+
+        /**
          * Castle Entrance Guards
          *
          * Guards stationed at the main entrance to Varrock Castle.

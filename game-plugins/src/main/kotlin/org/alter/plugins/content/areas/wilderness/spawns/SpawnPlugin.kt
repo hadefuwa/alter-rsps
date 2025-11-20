@@ -109,19 +109,20 @@ class SpawnPlugin(
          * that attack players on sight. The Bandit Camp is a popular training location.
          * 
          * Spawn Location: Bandit Camp area (coordinates ~3034-3048, ~3687-3695)
-         * Total Spawns: 8 Bandits (mix of bandit_690, bandit_691, bandit_692)
+         * Total Spawns: 9 Bandits (mix of bandit_1026 and bandit_6605)
          * Walk Radius: 10 tiles (larger patrol area around camp)
          */
-        // Bandits - note we're using different bandit IDs (690, 691, 692) for variety
+        // Bandits - using only bandit_1026 and bandit_6605 (attackable IDs)
         // walkRadius = 10 means they patrol a larger area around the camp
-        spawnNpc(npc = "npc.bandit_690", x = 3038, z = 3689, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.bandit_691", x = 3040, z = 3691, walkRadius = 10, direction = Direction.EAST)
-        spawnNpc(npc = "npc.bandit_692", x = 3042, z = 3689, walkRadius = 10, direction = Direction.WEST)
-        spawnNpc(npc = "npc.bandit_690", x = 3044, z = 3693, walkRadius = 10, direction = Direction.NORTH)
-        spawnNpc(npc = "npc.bandit_691", x = 3036, z = 3695, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.bandit_692", x = 3046, z = 3691, walkRadius = 10, direction = Direction.EAST)
-        spawnNpc(npc = "npc.bandit_690", x = 3034, z = 3687, walkRadius = 10, direction = Direction.WEST)
-        spawnNpc(npc = "npc.bandit_691", x = 3048, z = 3689, walkRadius = 10, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.bandit_1026", x = 3038, z = 3689, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bandit_6605", x = 3040, z = 3691, walkRadius = 10, direction = Direction.EAST)
+        spawnNpc(npc = "npc.bandit_1026", x = 3042, z = 3689, walkRadius = 10, direction = Direction.WEST)
+        spawnNpc(npc = "npc.bandit_6605", x = 3044, z = 3693, walkRadius = 10, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.bandit_1026", x = 3036, z = 3695, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bandit_6605", x = 3046, z = 3691, walkRadius = 10, direction = Direction.EAST)
+        spawnNpc(npc = "npc.bandit_1026", x = 3034, z = 3687, walkRadius = 10, direction = Direction.WEST)
+        spawnNpc(npc = "npc.bandit_6605", x = 3048, z = 3689, walkRadius = 10, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.bandit_1026", x = 3037, z = 3667, walkRadius = 10, direction = Direction.SOUTH)
         
         /**
          * Chaos Druids - Level 1-5 Wilderness
@@ -155,7 +156,6 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.wolf", x = 2972, z = 3612, walkRadius = 10, direction = Direction.EAST)
         spawnNpc(npc = "npc.wolf", x = 2974, z = 3610, walkRadius = 10, direction = Direction.WEST)
         spawnNpc(npc = "npc.wolf", x = 2976, z = 3614, walkRadius = 10, direction = Direction.NORTH)
-        spawnNpc(npc = "npc.wolf", x = 2978, z = 3612, walkRadius = 10, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.wolf", x = 2980, z = 3610, walkRadius = 10, direction = Direction.EAST)
         
         /**
@@ -193,6 +193,17 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.black_knight", x = 3031, z = 3854, walkRadius = 6, direction = Direction.SOUTH)
         
         /**
+         * Ice Warriors - Wilderness
+         * 
+         * Warriors encased in ice armor that spawn in the wilderness. They are aggressive
+         * melee fighters with moderate combat stats.
+         * 
+         * Spawn Location: Coordinates 2953, 3895
+         * Walk Radius: 7 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.ice_warrior", x = 2953, z = 3895, walkRadius = 7, direction = Direction.SOUTH)
+        
+        /**
          * Green Dragons - Level 13-20 Wilderness
          * 
          * Powerful dragons that breathe fire and have high combat stats. They are
@@ -213,6 +224,7 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.green_dragon", x = 3212, z = 3862, walkRadius = 5, direction = Direction.WEST)
         spawnNpc(npc = "npc.green_dragon", x = 3214, z = 3860, walkRadius = 5, direction = Direction.NORTH)
         spawnNpc(npc = "npc.green_dragon", x = 3094, z = 3812, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.green_dragon", x = 2979, z = 3616, walkRadius = 5, direction = Direction.SOUTH)
         
         /**
          * Hellhounds - Level 20+ Wilderness
@@ -246,16 +258,31 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.skeleton", x = 3152, z = 3702, walkRadius = 8, direction = Direction.EAST)
         spawnNpc(npc = "npc.skeleton", x = 3154, z = 3700, walkRadius = 8, direction = Direction.WEST)
         spawnNpc(npc = "npc.skeleton", x = 3156, z = 3704, walkRadius = 8, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.skeleton", x = 3223, z = 3742, walkRadius = 8, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.skeleton", x = 3245, z = 3744, walkRadius = 8, direction = Direction.SOUTH)
+        
+        /**
+         * Chaos Dwarfs - Wilderness
+         * 
+         * Aggressive dwarfs that spawn in the wilderness.
+         * 
+         * Spawn Location: Coordinates 3243, 3791
+         * Total Spawns: 3 Chaos Dwarfs
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.chaos_dwarf", x = 3243, z = 3791, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_dwarf", x = 3241, z = 3791, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.chaos_dwarf", x = 3245, z = 3791, walkRadius = 6, direction = Direction.WEST)
         
         // Additional wolves in different wilderness areas - wolves roam far
         spawnNpc(npc = "npc.wolf", x = 3080, z = 3650, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.wolf", x = 3082, z = 3652, walkRadius = 10, direction = Direction.EAST)
         spawnNpc(npc = "npc.wolf", x = 3084, z = 3650, walkRadius = 10, direction = Direction.WEST)
         
         // Additional dark wizards in different areas - spreading them out for better coverage
         spawnNpc(npc = "npc.dark_wizard", x = 3085, z = 3565, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.dark_wizard", x = 3087, z = 3567, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.dark_wizard", x = 3089, z = 3565, walkRadius = 5, direction = Direction.WEST)
+        spawnNpc(npc = "npc.dark_wizard", x = 2981, z = 3567, walkRadius = 5, direction = Direction.SOUTH)
         
         /**
          * Greater Demons - Demonic Ruins (Level 40+ Wilderness)
@@ -384,6 +411,26 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.black_chinchompa_2912", x = 3150, z = 3771, walkRadius = 4, direction = Direction.NORTH)
         spawnNpc(npc = "npc.black_chinchompa_2912", x = 3154, z = 3771, walkRadius = 4, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.black_chinchompa_2912", x = 3152, z = 3767, walkRadius = 4, direction = Direction.EAST)
+        
+        /**
+         * Hobgoblin - Wilderness
+         * 
+         * Aggressive goblin-like creatures found in the wilderness.
+         * 
+         * Spawn Location: Coordinates 3082, 3763
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.hobgoblin", x = 3082, z = 3763, walkRadius = 6, direction = Direction.SOUTH)
+        
+        /**
+         * Black Warrior - Wilderness
+         * 
+         * A warrior NPC that spawns in the wilderness.
+         * 
+         * Spawn Location: Coordinates 3312, 3769
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.warrior", x = 3312, z = 3769, walkRadius = 6, direction = Direction.SOUTH)
         
         /**
          * Ghosts and Ankous - Wilderness

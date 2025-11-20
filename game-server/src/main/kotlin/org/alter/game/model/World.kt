@@ -235,7 +235,7 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     internal fun cycle() {
         if (currentCycle++ >= Int.MAX_VALUE - 1) {
             currentCycle = 0
-            logger.info {"World cycle has been reset." }
+            // logger.info {"World cycle has been reset." }
         }
 
         /*
@@ -375,11 +375,22 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     }
 
     fun unregister(p: Player) {
-        // Only dealloc if player info was initialized (player completed login)
-        if (p.initiated) {
+        // Dealloc protocols if they were allocated, even if player didn't complete login
+        // This prevents warnings about packets being calculated but not sent
+        try {
             network.playerInfoProtocol.dealloc(p.playerInfo)
+        } catch (e: UninitializedPropertyAccessException) {
+            // Protocols weren't allocated, which is fine
+        }
+        try {
             network.npcInfoProtocol.dealloc(p.npcInfo)
+        } catch (e: UninitializedPropertyAccessException) {
+            // Protocols weren't allocated, which is fine
+        }
+        try {
             network.worldEntityInfoProtocol.dealloc(p.worldEntityInfo)
+        } catch (e: UninitializedPropertyAccessException) {
+            // Protocols weren't allocated, which is fine
         }
 
         players.remove(p)
@@ -720,10 +731,10 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
             stopwatch.stop()
 
             services.add(service)
-            logger.info { "Initiated service '${service.javaClass.simpleName}' in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
+            // logger.info { "Initiated service '${service.javaClass.simpleName}' in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
         }
         services.forEach { s -> s.postLoad(server, this) }
-        logger.info { "Loaded ${services.size} game services." }
+        // logger.info { "Loaded ${services.size} game services." }
     }
 
     /**

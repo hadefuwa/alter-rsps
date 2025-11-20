@@ -49,7 +49,7 @@ class Gate26760Plugin(
          * Default entry fee (7,500 coins)
          * TODO: Implement Wilderness Diary discount system
          */
-        private const val ENTRY_FEE = 7_500
+        private const val ENTRY_FEE = 0
         
         /**
          * Coins item ID

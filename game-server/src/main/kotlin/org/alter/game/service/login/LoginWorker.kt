@@ -41,6 +41,10 @@ class LoginWorker(private val boss: LoginService, private val verificationServic
                         if (interceptedLoginResult != null) {
                             request.responseHandler.writeFailedResponse(interceptedLoginResult)
                             logger.info { "${"User '{}' login denied with code {}."} ${client.username} $interceptedLoginResult" }
+                            // Player was registered but login was intercepted - unregister to prevent conflicts
+                            if (world.players.contains(client)) {
+                                world.unregister(client)
+                            }
                         } else if (client.register()) {
                             request.responseHandler.writeSuccessfulResponse(
                                 LoginResponse.Ok(
@@ -56,6 +60,8 @@ class LoginWorker(private val boss: LoginService, private val verificationServic
                                 request.block,
                             ).apply {
                                 if (this == null) {
+                                    // Session creation failed - unregister the player to prevent protocol conflicts
+                                    world.unregister(client)
                                     return@apply
                                 }
                                 client.session = this

@@ -47,7 +47,7 @@ class VenenatisConfigsPlugin(
             x = 3319,
             z = 3754,
             height = 0,
-            walkRadius = 12,
+            walkRadius = 3,
             direction = Direction.SOUTH
         )
         

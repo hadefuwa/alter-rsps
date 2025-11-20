@@ -4,6 +4,7 @@ import org.alter.api.EquipmentType
 import org.alter.api.Skills
 import org.alter.api.cfg.Varp
 import org.alter.api.ext.*
+import org.alter.game.model.attr.AttributeKey
 import org.alter.game.model.bits.INFINITE_VARS_STORAGE
 import org.alter.game.model.bits.InfiniteVarsType
 import org.alter.game.model.entity.Player
@@ -23,6 +24,12 @@ object RunEnergy {
      */
     val STAMINA_BOOST = TimerKey("stamina_boost", tickOffline = false)
 
+    /**
+     * Attribute key for tracking Agility XP grant intervals (every 4 ticks)
+     * Using attribute instead of timer to avoid ConcurrentModificationException
+     */
+    val AGILITY_XP_COUNTER = AttributeKey<Int>()
+
     const val RUN_ENABLED_VARP = Varp.RUN_MODE_VARP
 
     fun toggle(p: Player) {
@@ -36,6 +43,24 @@ object RunEnergy {
 
     fun drain(p: Player) {
         if (p.isRunning() && p.hasMoveDestination()) {
+            // Grant Agility XP based on Agility level while running (every 4 ticks)
+            val agilityLevel = p.getSkills().getCurrentLevel(Skills.AGILITY)
+            if (agilityLevel > 0) {
+                // Initialize counter if it doesn't exist
+                val currentCounter = p.attr[AGILITY_XP_COUNTER] ?: 4
+                
+                // Decrement counter
+                val newCounter = currentCounter - 1
+                p.attr[AGILITY_XP_COUNTER] = newCounter
+                
+                // Grant XP only when counter reaches 0, then reset to 4
+                if (newCounter <= 0) {
+                    val xpGained = agilityLevel * 0.05 // XP per occurrence = Agility level * 0.05
+                    p.addXp(Skills.AGILITY, xpGained)
+                    p.attr[AGILITY_XP_COUNTER] = 4 // Reset counter to 4 ticks
+                }
+            }
+            
             if (!p.hasStorageBit(INFINITE_VARS_STORAGE, InfiniteVarsType.RUN)) {
                 val weight = max(0.0, p.weight)
                 var decrement = (min(weight, 6400.0) / 10000.0) + 64.0

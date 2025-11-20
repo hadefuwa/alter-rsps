@@ -55,6 +55,27 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.guard_397", x = 3113, z = 3516, walkRadius = 3, direction = Direction.SOUTH)
         
         /**
+         * Krystilia
+         * 
+         * Krystilia in Edgeville
+         */
+        spawnNpc(npc = "npc.krystilia", x = 3109, z = 3516, walkRadius = 0, direction = Direction.SOUTH)
+        
+        /**
+         * Skeletons
+         * 
+         * Skeletons in Edgeville
+         */
+        spawnNpc(npc = "npc.skeleton", x = 3106, z = 3535, walkRadius = 4, direction = Direction.SOUTH)
+        
+        /**
+         * Scorpion
+         * 
+         * Scorpion in Edgeville
+         */
+        spawnNpc(npc = "npc.scorpion", x = 3074, z = 3552, walkRadius = 4, direction = Direction.SOUTH)
+        
+        /**
          * Shop Keeper
          * 
          * Shop keeper in Edgeville

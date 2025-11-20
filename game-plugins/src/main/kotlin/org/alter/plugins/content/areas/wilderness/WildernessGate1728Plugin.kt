@@ -93,44 +93,110 @@ class WildernessGate1728Plugin(
         // Track registered options to avoid duplicates
         val registeredOpenOptions = mutableSetOf<String>()
         
-        try {
+        // First, get available options from object definition
+        val gateOptionsFromDef = try {
             val gateDef = getObject(CLOSED_GATE)
-            val gateOptions: List<String> = gateDef.actions.filterNotNull().map { it.toLowerCase() }
-
-            gateOptions.forEach { option: String ->
-                if ((option == "open" || option == "operate") && !registeredOpenOptions.contains(option)) {
-                    onObjOption(obj = CLOSED_GATE, option = option, lineOfSightDistance = 1) {
-                        openGate(this)
-                    }
-                    registeredOpenOptions.add(option)
-                }
+            gateDef.actions.filterNotNull().map { it.toLowerCase() }
+        } catch (e: Exception) {
+            emptyList<String>()
+        }
+        
+        // Check if option 1 maps to "open" or "operate" to avoid duplicate registration
+        val option1MapsTo = try {
+            val gateDef = getObject(CLOSED_GATE)
+            if (gateDef.actions.size > 0 && gateDef.actions[0] != null) {
+                gateDef.actions[0]!!.lowercase()
+            } else {
+                null
             }
         } catch (e: Exception) {
-            // Object might not exist in cache, use RSCM name instead
+            null
+        }
+        
+        // Try numeric option 1 first (most common for gates/doors)
+        // Only if it doesn't map to "open" or "operate" (which we'll register as strings)
+        if (option1MapsTo != "open" && option1MapsTo != "operate") {
+            try {
+                onObjOption(obj = "object.gate_1728", option = 1, lineOfSightDistance = 1) {
+                    openGate()
+                }
+                println("WildernessGate1728Plugin: Successfully registered option 1 for gate $CLOSED_GATE")
+            } catch (e: IllegalStateException) {
+                // Option already bound, skip
+                println("WildernessGate1728Plugin: Option 1 already bound for gate $CLOSED_GATE, skipping")
+            } catch (e: Exception) {
+                println("WildernessGate1728Plugin: Could not register option 1 for gate $CLOSED_GATE: ${e.message}")
+            }
+        } else {
+            // Option 1 maps to "open" or "operate", we'll register it as a string instead to avoid duplicate
+            if (option1MapsTo != null) {
+                registeredOpenOptions.add(option1MapsTo)
+            }
+        }
+        
+        // Register string options from object definition
+        gateOptionsFromDef.forEach { option: String ->
+            if ((option == "open" || option == "operate") && !registeredOpenOptions.contains(option)) {
+                try {
+                    onObjOption(obj = CLOSED_GATE, option = option, lineOfSightDistance = 1) {
+                        openGate()
+                    }
+                    registeredOpenOptions.add(option)
+                    println("WildernessGate1728Plugin: Successfully registered option '$option' for gate $CLOSED_GATE")
+                } catch (e: IllegalStateException) {
+                    // Option already bound, skip
+                    println("WildernessGate1728Plugin: Option '$option' for gate $CLOSED_GATE already bound, skipping")
+                } catch (e: Exception) {
+                    println("WildernessGate1728Plugin: Failed to register option '$option' for gate $CLOSED_GATE: ${e.message}")
+                }
+            }
         }
 
         // Handle using RSCM name for closed gate (only if not already registered)
         try {
             if (objHasOption("object.gate_1728", "open") && !registeredOpenOptions.contains("open")) {
-                onObjOption(obj = "object.gate_1728", option = "open", lineOfSightDistance = 1) {
-                    openGate()
+                try {
+                    onObjOption(obj = "object.gate_1728", option = "open", lineOfSightDistance = 1) {
+                        openGate()
+                    }
+                    registeredOpenOptions.add("open")
+                    println("WildernessGate1728Plugin: Successfully registered 'open' option via RSCM for gate 1728")
+                } catch (e: IllegalStateException) {
+                    println("WildernessGate1728Plugin: 'open' option for gate 1728 already bound via RSCM, skipping")
                 }
-                registeredOpenOptions.add("open")
             }
             
             if (objHasOption("object.gate_1728", "operate") && !registeredOpenOptions.contains("operate")) {
-                onObjOption(obj = "object.gate_1728", option = "operate", lineOfSightDistance = 1) {
-                    openGate()
+                try {
+                    onObjOption(obj = "object.gate_1728", option = "operate", lineOfSightDistance = 1) {
+                        openGate()
+                    }
+                    registeredOpenOptions.add("operate")
+                    println("WildernessGate1728Plugin: Successfully registered 'operate' option via RSCM for gate 1728")
+                } catch (e: IllegalStateException) {
+                    println("WildernessGate1728Plugin: 'operate' option for gate 1728 already bound via RSCM, skipping")
                 }
-                registeredOpenOptions.add("operate")
             }
         } catch (e: Exception) {
-            // Options might not exist
+            println("WildernessGate1728Plugin: Could not register via RSCM name: ${e.message}")
         }
 
         // Handle gate 1729 (opened state) - close action
         // Track registered options to avoid duplicates
         val registeredCloseOptions = mutableSetOf<String>()
+        
+        // Try numeric option 1 first (most common for gates/doors)
+        try {
+            onObjOption(obj = "object.null_1729", option = 1, lineOfSightDistance = 1) {
+                closeGate()
+            }
+            println("WildernessGate1728Plugin: Successfully registered option 1 for gate $OPENED_GATE")
+        } catch (e: IllegalStateException) {
+            // Option already bound, skip
+            println("WildernessGate1728Plugin: Option 1 already bound for gate $OPENED_GATE, skipping")
+        } catch (e: Exception) {
+            println("WildernessGate1728Plugin: Could not register option 1 for gate $OPENED_GATE: ${e.message}")
+        }
         
         try {
             val gateDef = getObject(OPENED_GATE)
@@ -138,33 +204,51 @@ class WildernessGate1728Plugin(
 
             gateOptions.forEach { option: String ->
                 if ((option == "close" || option == "operate") && !registeredCloseOptions.contains(option)) {
-                    onObjOption(obj = OPENED_GATE, option = option, lineOfSightDistance = 1) {
-                        closeGate(this)
+                    try {
+                        onObjOption(obj = OPENED_GATE, option = option, lineOfSightDistance = 1) {
+                            closeGate()
+                        }
+                        registeredCloseOptions.add(option)
+                        println("WildernessGate1728Plugin: Successfully registered option '$option' for gate $OPENED_GATE")
+                    } catch (e: IllegalStateException) {
+                        // Option already bound, skip
+                        println("WildernessGate1728Plugin: Option '$option' for gate $OPENED_GATE already bound, skipping")
+                    } catch (e: Exception) {
+                        println("WildernessGate1728Plugin: Failed to register option '$option' for gate $OPENED_GATE: ${e.message}")
                     }
-                    registeredCloseOptions.add(option)
                 }
             }
         } catch (e: Exception) {
-            // Object might not exist in cache, use RSCM name instead
+            println("WildernessGate1728Plugin: Could not get object definition for gate $OPENED_GATE: ${e.message}")
         }
 
         // Handle using RSCM name for opened gate (only if not already registered)
         try {
             if (objHasOption("object.null_1729", "close") && !registeredCloseOptions.contains("close")) {
-                onObjOption(obj = "object.null_1729", option = "close", lineOfSightDistance = 1) {
-                    closeGate()
+                try {
+                    onObjOption(obj = "object.null_1729", option = "close", lineOfSightDistance = 1) {
+                        closeGate()
+                    }
+                    registeredCloseOptions.add("close")
+                    println("WildernessGate1728Plugin: Successfully registered 'close' option via RSCM for gate 1729")
+                } catch (e: IllegalStateException) {
+                    println("WildernessGate1728Plugin: 'close' option for gate 1729 already bound via RSCM, skipping")
                 }
-                registeredCloseOptions.add("close")
             }
             
             if (objHasOption("object.null_1729", "operate") && !registeredCloseOptions.contains("operate")) {
-                onObjOption(obj = "object.null_1729", option = "operate", lineOfSightDistance = 1) {
-                    closeGate()
+                try {
+                    onObjOption(obj = "object.null_1729", option = "operate", lineOfSightDistance = 1) {
+                        closeGate()
+                    }
+                    registeredCloseOptions.add("operate")
+                    println("WildernessGate1728Plugin: Successfully registered 'operate' option via RSCM for gate 1729")
+                } catch (e: IllegalStateException) {
+                    println("WildernessGate1728Plugin: 'operate' option for gate 1729 already bound via RSCM, skipping")
                 }
-                registeredCloseOptions.add("operate")
             }
         } catch (e: Exception) {
-            // Options might not exist
+            println("WildernessGate1728Plugin: Could not register via RSCM name for opened gate: ${e.message}")
         }
     }
 }

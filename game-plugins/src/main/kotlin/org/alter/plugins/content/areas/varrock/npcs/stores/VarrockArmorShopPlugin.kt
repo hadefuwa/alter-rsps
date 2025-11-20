@@ -2,7 +2,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
@@ -89,7 +91,7 @@ class VarrockArmorShopPlugin(
         addArmor("karils_leathertop", 100000000)
         addArmor("karils_leatherskirt", 90000000)
         addArmor("karils_crossbow", 100000000)
-        addArmor("karils_armour_set", 95000000)
+        //addArmor("karils_armour_set", 95000000)
         
         // Magic Armor - 15m-30m
         addArmor("mystic_robe_top", 300000)
@@ -104,7 +106,15 @@ class VarrockArmorShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
+        val shopkeeperTile = Tile(x = 3219, z = 3421, height = 0)
         spawnNpc(shopkeeper, 3219, 3421, 0, 0, Direction.SOUTH)
+        
+        // Set custom name for the shopkeeper when it spawns
+        onNpcSpawn(shopkeeper) {
+            if (npc.tile == shopkeeperTile) {
+                NpcInfo(npc).setTempName("Armor Shopkeeper")
+            }
+        }
 
         // Create the armor shop
         createShop(

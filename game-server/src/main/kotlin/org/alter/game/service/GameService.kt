@@ -140,7 +140,7 @@ class GameService : Service {
         )
         if (autoSaveInterval > 0) {
             val intervalSeconds = (autoSaveInterval * world.gameContext.cycleTime) / 1000
-            logger.info { "Auto-save configured: saving player positions every $autoSaveInterval cycles (~${intervalSeconds}s)" }
+            // logger.info { "Auto-save configured: saving player positions every $autoSaveInterval cycles (~${intervalSeconds}s)" }
         } else {
             logger.warn { "Auto-save is DISABLED - player positions will only be saved on logout!" }
         }
@@ -209,41 +209,12 @@ class GameService : Service {
             val maxMemory = Runtime.getRuntime().maxMemory()
 
             /*
-             * Description:
-             *
-             * Cycle time:
-             * the average time it took for a game cycle to
-             * complete the last [TICKS_PER_DEBUG_LOG] game cycles.
-             *
-             * Entities:
-             * The amount of entities in the world.
-             * p: players
-             * n: npcs
-             *
-             * Map:
-             * The amount of map entities that are currently active.
-             * c: chunks [org.alter.game.model.region.Chunk]
-             * r: regions
-             * i: instanced maps [org.alter.game.model.instance.InstancedMap]
-             *
-             * Queues:
-             * The amount of plugins that are being executed on this exact
-             * game cycle.
-             * p: players
-             * n: npcs
-             * w: world
-             *
-             * Mem Usage:
-             * Memory usage statistics.
-             * U: used memory, in megabytes
-             * R: reserved memory, in megabytes
-             * M: max memory available, in megabytes
+             * Simple RAM usage message to show server is still running
              */
-            logger.info("[Cycle time: {}ms] [Entities: {}p / {}n] [Map: {}c / {}r / {}i] [Queues: {}p / {}n / {}w] [Mem usage: U={}MB / R={}MB / M={}MB].",
-                   cycleTime / TICKS_PER_DEBUG_LOG, world.players.count(), world.npcs.count(),
-                   world.chunks.getActiveChunkCount(), world.chunks.getActiveRegionCount(), world.instanceAllocator.activeMapCount,
-                   totalPlayerQueues, totalNpcQueues, totalWorldQueues,
-                   (totalMemory - freeMemory) / (1024 * 1024), totalMemory / (1024 * 1024), maxMemory / (1024 * 1024))
+            val usedMB = (totalMemory - freeMemory) / (1024 * 1024)
+            val totalMB = totalMemory / (1024 * 1024)
+            val maxMB = maxMemory / (1024 * 1024)
+            logger.info { "Server running - RAM: ${usedMB}MB / ${totalMB}MB (Max: ${maxMB}MB)" }
             debugTick = 0
             cycleTime = 0
         }

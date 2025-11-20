@@ -2,7 +2,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
@@ -61,7 +63,15 @@ class VarrockJewelryShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
+        val shopkeeperTile = Tile(x = 3215, z = 3421, height = 0)
         spawnNpc(shopkeeper, 3215, 3421, 0, 0, Direction.SOUTH)
+        
+        // Set custom name for the shopkeeper when it spawns
+        onNpcSpawn(shopkeeper) {
+            if (npc.tile == shopkeeperTile) {
+                NpcInfo(npc).setTempName("Jewelry Shopkeeper")
+            }
+        }
 
         // Create the jewelry shop
         createShop(
@@ -78,9 +88,23 @@ class VarrockJewelryShopPlugin(
         }
 
         // Set up NPC interactions
-        // Note: gnome_shop_keeper only has "talk-to" option, not "trade"
         onNpcOption(shopkeeper, option = "talk-to") { 
             player.queue { dialog(player) } 
+        }
+
+        // Try to register option 3 (numeric) for trade - this is what gets triggered when clicking trade
+        // Since gnome_shop_keeper only has "Talk-to", we use option 3 as fallback
+        try {
+            onNpcOption(shopkeeper, option = 3) {
+                val npc = player.getInteractingNpc()
+                if (npc.tile == shopkeeperTile) {
+                    player.shop()
+                }
+            }
+        } catch (e: IllegalStateException) {
+            // Option 3 already bound by another plugin, skip
+        } catch (e: Exception) {
+            // Other error, skip
         }
     }
 

@@ -37,13 +37,13 @@ class SequentialSynchronizationTask : GameTask {
         // First off, write the world entity info to the client - it must
         // be aware of the updates before receiving the rebuild world entity packets
         world.players.forEach {
-            if (it.entityType.isHumanControlled && it.initiated) {
+            if (it.entityType.isHumanControlled && it.initiated && it.session != null) {
                 it.write(it.worldEntityInfo.toPacket()) // try-catch it, this _can_ throw exceptions during .toPacket()
             }
         }
 
         world.players.forEach {
-            if (it.entityType.isHumanControlled && it.initiated) {
+            if (it.entityType.isHumanControlled && it.initiated && it.session != null) {
                 // If the player is not on a dynamic world entity, we can set the
                 // origin point as the local player coordinate
                 val (x, z, level) = it.tile
@@ -60,7 +60,7 @@ class SequentialSynchronizationTask : GameTask {
              * to send any synchronization data to their game-client as they do
              * not have one.
              */
-            if (it.entityType.isHumanControlled && it.initiated) {
+            if (it.entityType.isHumanControlled && it.initiated && it.session != null) {
                 it.write(SetActiveWorld(SetActiveWorld.RootWorldType(it.tile.height)))
                 it.write(it.playerInfo.toPacket()) // try-catch it, this _can_ throw exceptions during .toPacket()
                 it.write(
@@ -89,7 +89,8 @@ fun Player.playerPreSynchronizationTask() {
     val pawn = this
     // Check if player is fully initialized (player might still be logging in)
     // The 'initiated' flag is set to true after login() completes, which initializes playerInfo
-    if (!initiated) {
+    // Also check if player has a session to avoid calculating packets that won't be sent
+    if (!initiated || session == null) {
         return
     }
     pawn.movementQueue.cycle()
@@ -175,7 +176,8 @@ fun Npc.npcPostSynchronizationTask() {
 fun Player.playerCoordCycleTask() {
     // Check if player is fully initialized (player might still be logging in)
     // The 'initiated' flag is set to true after login() completes, which initializes playerInfo
-    if (!initiated) {
+    // Also check if player has a session to avoid calculating packets that won't be sent
+    if (!initiated || session == null) {
         return
     }
     this.playerInfo.updateCoord(this.tile.height, this.tile.x, this.tile.z)

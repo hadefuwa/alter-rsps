@@ -79,9 +79,9 @@ class CombatConfigPlugin(
                 // Lower number = faster attacks. 4 is standard speed.
                 attackSpeed = 4
                 
-                // respawnDelay = 25 means after the monster dies, wait 25 cycles before respawning it
-                // Lower number = faster respawn. 25 cycles is quick for low-level monsters.
-                respawnDelay = 25
+                // respawnDelay = 15 means after the monster dies, wait 15 cycles before respawning it
+                // Lower number = faster respawn. 15 cycles is faster respawn for quicker farming.
+                respawnDelay = 15
             }
             
             // stats block: Combat statistics
@@ -123,7 +123,23 @@ class CombatConfigPlugin(
             drops {
                 always {
                     add(526, 1) // bones
-                    add(995, 10) // 10 coins always for testing
+                }
+                
+                main(weight = 100) {
+                    // Random runes in quantities of 100
+                    add("item.air_rune", min = 100, max = 100, weight = 10)
+                    add("item.water_rune", min = 100, max = 100, weight = 10)
+                    add("item.earth_rune", min = 100, max = 100, weight = 10)
+                    add("item.fire_rune", min = 100, max = 100, weight = 10)
+                    add("item.mind_rune", min = 100, max = 100, weight = 10)
+                    add("item.body_rune", min = 100, max = 100, weight = 10)
+                    add("item.chaos_rune", min = 100, max = 100, weight = 8)
+                    add("item.death_rune", min = 100, max = 100, weight = 8)
+                    add("item.nature_rune", min = 100, max = 100, weight = 8)
+                    add("item.law_rune", min = 100, max = 100, weight = 6)
+                    add("item.cosmic_rune", min = 100, max = 100, weight = 6)
+                    add("item.blood_rune", min = 100, max = 100, weight = 4)
+                    add("item.soul_rune", min = 100, max = 100, weight = 2)
                 }
             }
         }

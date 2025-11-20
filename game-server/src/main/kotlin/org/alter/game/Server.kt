@@ -48,12 +48,12 @@ class Server {
          * Load the API property file.
          */
         apiProperties.loadYaml(apiProps.toFile())
-        logger.info{"Preparing ${getApiName()}..."}
+        // logger.info{"Preparing ${getApiName()}..."}
 
         /*
          * Inform the time it took to load the API related logic.
          */
-        logger.info { "${getApiName()} loaded up in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
+        // logger.info { "${getApiName()} loaded up in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
     }
 
     /**
@@ -81,7 +81,7 @@ class Server {
         if (devProps != null && Files.exists(devProps)) {
             devProperties.loadYaml(devProps.toFile())
         }
-        logger.info{"Loaded properties for ${gameProperties.get<String>("name")!!}."}
+        // logger.info{"Loaded properties for ${gameProperties.get<String>("name")!!}."}
 
         /*
          * Create a game context for our configurations and services to run.
@@ -136,7 +136,7 @@ class Server {
          */
         individualStopwatch.reset().start()
         CacheManager.init(filestore, gameContext.revision)
-        logger.info{"Loaded filestore from path ${filestore} in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms."}
+        // logger.info{"Loaded filestore from path ${filestore} in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms."}
 
         val world = World(gameContext, devContext)
 
@@ -177,7 +177,7 @@ class Server {
          */
         individualStopwatch.reset().start()
         world.privileges.load(gameProperties)
-        logger.info { "Loaded ${world.privileges.size()} privilege levels in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
+        // logger.info { "Loaded ${world.privileges.size()} privilege levels in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
 
         /*
          * Load the plugins for game content.
@@ -188,9 +188,9 @@ class Server {
             world = world,
             jarPluginsDirectory = gameProperties.getOrDefault("plugin-packed-path", "../plugins"),
         )
-        logger.info {
-            "Loaded ${DecimalFormat().format(world.plugins.getPluginCount())} plugins in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms."
-        }
+        // logger.info {
+        //     "Loaded ${DecimalFormat().format(world.plugins.getPluginCount())} plugins in ${individualStopwatch.elapsed(TimeUnit.MILLISECONDS)}ms."
+        // }
 
         /*
          * Post load world.
@@ -200,7 +200,7 @@ class Server {
         /*
          * Inform the time it took to load up all non-network logic.
          */
-        logger.info { "${gameProperties.get<String>("name")!!} loaded up in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
+        // logger.info { "${gameProperties.get<String>("name")!!} loaded up in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms." }
 
         /*
          * Bind all service networks, if applicable.
@@ -211,7 +211,7 @@ class Server {
          * Bind the game port.
          */
         world.network.start()
-        logger.info { "Now listening for incoming connections on port $port..." }
+        // logger.info { "Now listening for incoming connections on port $port..." }
         return world
     }
 

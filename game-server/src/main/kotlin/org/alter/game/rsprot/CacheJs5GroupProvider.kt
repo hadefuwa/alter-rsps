@@ -33,7 +33,7 @@ class CacheJs5GroupProvider : Js5GroupProvider  {
         }
         encodeArchiveMasterIndex(cache)
 
-        logger.info("Loaded {} JS5 responses", groups.size)
+        // logger.info("Loaded {} JS5 responses", groups.size)
 
     }
 

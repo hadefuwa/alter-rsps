@@ -2,7 +2,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
@@ -100,7 +102,15 @@ class VarrockPotionsShopPlugin(
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
         // Placed next to the food shopkeeper
+        val shopkeeperTile = Tile(x = 3220, z = 3427, height = 0)
         spawnNpc(shopkeeper, 3220, 3427, 0, 0, Direction.SOUTH)
+        
+        // Set custom name for the shopkeeper when it spawns
+        onNpcSpawn(shopkeeper) {
+            if (npc.tile == shopkeeperTile) {
+                NpcInfo(npc).setTempName("Potions Shopkeeper")
+            }
+        }
 
         // Create the potions shop with enough space for all potions
         createShop(

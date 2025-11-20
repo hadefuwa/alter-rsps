@@ -27,7 +27,7 @@ class VetionConfigsPlugin(
         setMultiCombatRegion(region = 12342) // Wilderness region around Vet'ion location
 
         // Spawn Vet'ion at Bone Yard in wilderness  
-        spawnNpc("npc.vetion", x = 3307, z = 3739, walkRadius = 8)
+        spawnNpc("npc.vetion", x = 3229, z = 3788, walkRadius = 3)
 
         setCombatDef("npc.vetion") {
             configs {

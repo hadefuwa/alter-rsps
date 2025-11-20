@@ -10,7 +10,7 @@ import org.alter.game.model.shop.PurchasePolicy
 import org.alter.game.model.shop.ShopItem
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
-import org.alter.plugins.content.mechanics.shops.CoinCurrency
+import org.alter.plugins.content.mechanics.shops.GeneralStoreCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 class FaladorShopPlugin(
@@ -44,7 +44,7 @@ class FaladorShopPlugin(
         spawnNpc("npc.shop_keeper_2819", 2955, 3388, 0, 3, Direction.EAST)
         spawnNpc("npc.shop_assistant_2820", 2956, 3388, 0, 3, Direction.EAST)
 
-        createShop("Falador General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
+        createShop("Falador General Store", GeneralStoreCurrency(), purchasePolicy = PurchasePolicy.BUY_TRADEABLES) {
             storeItems.forEachIndexed { index, item ->
                 items[index] = item
             }

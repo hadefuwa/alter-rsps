@@ -42,12 +42,8 @@ class AgilityShortcutPlugin(
 
     fun Player.crossShortcut(obj: GameObject, shortcut: AgilityShortcut) {
         queue {
-            // Check agility level
-            val agilityLevel = getSkills().getCurrentLevel(Skills.AGILITY)
-            if (agilityLevel < shortcut.requiredLevel) {
-                message("You need an Agility level of ${shortcut.requiredLevel} to use this shortcut.")
-                return@queue
-            }
+            // Players will always succeed in performing actions for Agility
+            // Level check removed - all players can use shortcuts regardless of level
 
             // Calculate end tile
             val endTile = if (shortcut.useRelativePosition) {

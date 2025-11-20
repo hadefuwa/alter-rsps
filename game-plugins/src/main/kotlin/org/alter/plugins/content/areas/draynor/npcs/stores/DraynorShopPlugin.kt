@@ -10,7 +10,7 @@ import org.alter.game.model.shop.PurchasePolicy
 import org.alter.game.model.shop.ShopItem
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
-import org.alter.plugins.content.mechanics.shops.CoinCurrency
+import org.alter.plugins.content.mechanics.shops.GeneralStoreCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 class DraynorShopPlugin(
@@ -43,7 +43,7 @@ class DraynorShopPlugin(
         spawnNpc("npc.shop_keeper_2821", 3079, 3249, 0, 3, Direction.NORTH)
         spawnNpc("npc.shop_assistant_2822", 3080, 3249, 0, 3, Direction.NORTH)
 
-        createShop("Draynor General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_ALL) {
+        createShop("Draynor General Store", GeneralStoreCurrency(), purchasePolicy = PurchasePolicy.BUY_ALL) {
             storeItems.forEachIndexed { index, item ->
                 items[index] = item
             }

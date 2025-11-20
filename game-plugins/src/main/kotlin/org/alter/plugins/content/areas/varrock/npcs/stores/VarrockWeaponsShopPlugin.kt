@@ -2,7 +2,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
@@ -80,7 +82,15 @@ class VarrockWeaponsShopPlugin(
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
+        val shopkeeperTile = Tile(x = 3221, z = 3430, height = 0)
         spawnNpc(shopkeeper, 3221, 3430, 0, 0, Direction.SOUTH)
+        
+        // Set custom name for the shopkeeper when it spawns
+        onNpcSpawn(shopkeeper) {
+            if (npc.tile == shopkeeperTile) {
+                NpcInfo(npc).setTempName("Weapons Shopkeeper")
+            }
+        }
 
         // Create the weapons shop
         createShop(

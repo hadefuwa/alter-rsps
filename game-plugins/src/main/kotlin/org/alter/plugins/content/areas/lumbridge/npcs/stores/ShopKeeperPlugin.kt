@@ -10,7 +10,7 @@ import org.alter.game.model.shop.PurchasePolicy
 import org.alter.game.model.shop.ShopItem
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
-import org.alter.plugins.content.mechanics.shops.CoinCurrency
+import org.alter.plugins.content.mechanics.shops.GeneralStoreCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 class ShopKeeperPlugin(
@@ -47,7 +47,7 @@ class ShopKeeperPlugin(
         spawnNpc("npc.shop_keeper", 3211, 3246, 0, 3, Direction.EAST)
         spawnNpc("npc.shop_assistant", 3211, 3247, 0, 3, Direction.EAST)
 
-        createShop("Lumbridge General Store", CoinCurrency(), purchasePolicy = PurchasePolicy.BUY_ALL) {
+        createShop("Lumbridge General Store", GeneralStoreCurrency(), purchasePolicy = PurchasePolicy.BUY_ALL) {
             storeItems.forEachIndexed { index, item ->
                 items[index] = item
             }

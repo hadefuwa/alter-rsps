@@ -83,7 +83,7 @@ class WildernessDamageMultiplierPlugin(
      * then applies the 3x damage multiplier by setting the DAMAGE_DEAL_MULTIPLIER attribute.
      * 
      * Conditions checked:
-     * 1. NPC must be in wilderness (wilderness level > 0)
+     * 1. NPC must be in wilderness (wilderness level > 0) OR in Revenant Caves
      * 2. NPC must not be King Black Dragon
      * 3. Target must be a player
      * 
@@ -93,7 +93,12 @@ class WildernessDamageMultiplierPlugin(
     private fun applyWildernessDamageMultiplier(npc: Npc, target: Player) {
         // Check if NPC is in wilderness
         val wildernessLevel = npc.tile.getWildernessLevel()
-        if (wildernessLevel > 0) {
+        
+        // Check if NPC is in Revenant Caves (dungeon coordinates z >= 10000)
+        val isInRevenantCaves = npc.tile.z >= 10000 && npc.tile.z <= 10300 && 
+                               npc.tile.x >= 3100 && npc.tile.x <= 3300
+        
+        if (wildernessLevel > 0 || isInRevenantCaves) {
             // Exclude King Black Dragon from damage multiplier
             if (npc.id != getRSCM("npc.king_black_dragon")) {
                 // Apply 3x damage multiplier to wilderness monsters

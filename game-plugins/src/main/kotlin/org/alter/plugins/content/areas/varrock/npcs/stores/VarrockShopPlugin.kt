@@ -2,7 +2,9 @@ package org.alter.plugins.content.areas.varrock.npcs.stores
 
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.info.NpcInfo
 import org.alter.game.model.Direction
+import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
@@ -10,7 +12,7 @@ import org.alter.game.model.shop.PurchasePolicy
 import org.alter.game.model.shop.ShopItem
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
-import org.alter.plugins.content.mechanics.shops.CoinCurrency
+import org.alter.plugins.content.mechanics.shops.GeneralStoreCurrency
 import org.alter.rscm.RSCM.getRSCM
 
 class VarrockShopPlugin(
@@ -45,12 +47,26 @@ class VarrockShopPlugin(
 
     init {
         // Varrock General Store (main square) - using valid RSCM names
+        val shopkeeperTile1 = Tile(x = 3217, z = 3415, height = 0)
+        val shopkeeperTile2 = Tile(x = 3218, z = 3415, height = 0)
         spawnNpc("npc.shop_keeper_2817", 3217, 3415, 0, 3, Direction.SOUTH)
         spawnNpc("npc.shop_assistant_2818", 3218, 3415, 0, 3, Direction.SOUTH)
+        
+        // Set custom name for the shopkeepers when they spawn
+        onNpcSpawn("npc.shop_keeper_2817") {
+            if (npc.tile == shopkeeperTile1) {
+                NpcInfo(npc).setTempName("General Store Shopkeeper")
+            }
+        }
+        onNpcSpawn("npc.shop_assistant_2818") {
+            if (npc.tile == shopkeeperTile2) {
+                NpcInfo(npc).setTempName("General Store Shopkeeper")
+            }
+        }
 
         createShop(
             name = "Varrock General Store",
-            currency = CoinCurrency(),
+            currency = GeneralStoreCurrency(),
             stockSize = 100,
             purchasePolicy = PurchasePolicy.BUY_ALL
         ) {

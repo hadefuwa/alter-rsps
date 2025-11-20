@@ -116,11 +116,11 @@ class SharedLootDropPlugin(
         }
         
         // Add NPCs that should always drop guaranteed coins
-        // Currently: Crazy Archaeologist (250k per player)
+        // Currently: Crazy Archaeologist (500k per player)
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
-            guaranteedCoinDrops[crazyArchId] = 250000 // 250k coins
-            println("SharedLootDropPlugin: Added Crazy Archaeologist (ID: $crazyArchId) to guaranteed-coin-drop list (250k per player)")
+            guaranteedCoinDrops[crazyArchId] = 500000 // 500k coins
+            println("SharedLootDropPlugin: Added Crazy Archaeologist (ID: $crazyArchId) to guaranteed-coin-drop list (500k per player)")
         } catch (e: Exception) {
             println("SharedLootDropPlugin: Warning - Could not find NPC npc.crazy_archaeologist for coin drops: ${e.message}")
         }

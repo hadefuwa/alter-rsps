@@ -34,58 +34,70 @@ class VarrockCosmeticClothingShopPlugin(
         "No thanks.",
     )
     
-    // Cosmetic/Clothing shop items - starting with 2 items, user will populate the rest
-    private val storeItems = listOf(
-        ShopItem(getRSCM("item.soul_cape"), 50, 100000, 25),
-        ShopItem(getRSCM("item.bunny_ears"), 50, 1000000, 10),
-        // bunny_tail doesn't exist in RSCM, removed
-        ShopItem(getRSCM("item.bunny_feet"), 50, 1000000, 10),
-        ShopItem(getRSCM("item.bunnyman_mask"), 50, 1000000, 10),
-        ShopItem(getRSCM("item.bunny_top"), 50, 1000000, 10),
-        ShopItem(getRSCM("item.bunny_legs"), 50, 1000000, 10),
-        ShopItem(getRSCM("item.bunny_paws"), 50, 1000000, 10),
-        ShopItem(getRSCM("item.flower_crown"), 50, 1000000, 10),
-        // bunny_hat doesn't exist in RSCM, removed
-        ShopItem(getRSCM("item.3rd_age_wand"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_robe"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_boots"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_gloves"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_mask"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_top"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_bottom"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_hat"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.3rd_age_robe_2"), 50, 10000000, 10),
-        ShopItem(getRSCM("item.blue_partyhat"), 50, 100000, 10),
-        ShopItem(getRSCM("item.rainbow_partyhat"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_hat"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_shirt"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_pants"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_boots"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_gloves"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_mask"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_top"), 50, 100000, 10),
-        ShopItem(getRSCM("item.unicorn_bottom"), 50, 100000, 10),
-    
-
-   
-        ShopItem(getRSCM("item.mole_slippers"), 50, 100000, 10),
-       ShopItem(getRSCM("item.pirate_hat"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_shirt"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_pants"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_boots"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_gloves"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_mask"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_top"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_bottom"), 50, 100000, 10),
-        ShopItem(getRSCM("item.pirate_hat"), 50, 100000, 10),
-
-      
-    )
+    // Cosmetic/Clothing shop items
+    private val storeItems: List<ShopItem> = buildList {
+        // Helper function to add item with pricing
+        fun addItem(itemName: String, price: Int, stock: Int = 50, restock: Int = 10) {
+            try {
+                val itemId = getRSCM("item.$itemName")
+                if (itemId != -1) {
+                    add(ShopItem(itemId, stock, price, restock))
+                }
+            } catch (e: Exception) {
+                // Skip items not found in RSCM
+            }
+        }
+        
+        // Bunny items
+        addItem("bunny_ears", 1000000)
+        addItem("bunny_feet", 1000000)
+        addItem("bunnyman_mask", 1000000)
+        addItem("bunny_top", 1000000)
+        addItem("bunny_legs", 1000000)
+        addItem("bunny_paws", 1000000)
+        
+        // Flower crown
+        addItem("flower_crown", 1000000)
+        
+        // 3rd age items
+        addItem("_3rd_age_robe", 10000000)
+        addItem("_3rd_age_robe_top", 10000000)
+        addItem("_3rd_age_mage_hat", 10000000)
+        addItem("_3rd_age_robe_20577", 10000000)
+        
+        // Party hats
+        addItem("blue_partyhat", 100000)
+        addItem("rainbow_partyhat", 100000)
+        
+        // Unicorn items
+        addItem("unicorn_hat", 100000)
+        addItem("unicorn_shirt", 100000)
+        addItem("unicorn_pants", 100000)
+        addItem("unicorn_boots", 100000)
+        addItem("unicorn_gloves", 100000)
+        addItem("unicorn_mask", 100000)
+        addItem("unicorn_top", 100000)
+        addItem("unicorn_bottom", 100000)
+        
+        // Other cosmetic items
+        addItem("mole_slippers", 100000)
+        addItem("soul_cape", 100000, 50, 25)
+        
+        // Pirate items
+        addItem("pirate_hat", 100000)
+        addItem("pirate_shirt", 100000)
+        addItem("pirate_pants", 100000)
+        addItem("pirate_boots", 100000)
+        addItem("pirate_gloves", 100000)
+        addItem("pirate_mask", 100000)
+        addItem("pirate_top", 100000)
+        addItem("pirate_bottom", 100000)
+    }
 
     init {
         // Spawn shopkeeper in Varrock center (stationary, no walking)
         val shopkeeperTile = Tile(x = 3218, z = 3422, height = 0)
-        spawnNpc(shopkeeper, 3218, 3422, 0, 0, Direction.SOUTH)
+        spawnNpc(shopkeeper, 3220, 3424, 0, 0, Direction.SOUTH)
         
         // Set custom name for the shopkeeper when it spawns
         onNpcSpawn(shopkeeper) {
@@ -109,9 +121,23 @@ class VarrockCosmeticClothingShopPlugin(
         }
 
         // Set up NPC interactions
-        // Note: silk_trader only has "talk-to" option, not "trade"
         onNpcOption(shopkeeper, option = "talk-to") { 
             player.queue { dialog(player) } 
+        }
+
+        // Try to register option 3 (numeric) for trade - this is what gets triggered when clicking trade
+        // Since silk_trader only has "Talk-to", we use option 3 as fallback
+        try {
+            onNpcOption(shopkeeper, option = 3) {
+                val npc = player.getInteractingNpc()
+                if (npc.tile == shopkeeperTile) {
+                    player.shop()
+                }
+            }
+        } catch (e: IllegalStateException) {
+            // Option 3 already bound by another plugin, skip
+        } catch (e: Exception) {
+            // Other error, skip
         }
     }
 

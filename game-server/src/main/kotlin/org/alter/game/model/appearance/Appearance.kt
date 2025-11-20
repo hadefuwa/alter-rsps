@@ -35,24 +35,63 @@ data class Appearance(val looks: IntArray, val colors: IntArray, var gender: Gen
         return when (gender) {
             Gender.MALE -> {
                 when (option) {
-                    0 -> getHeads(gender)[looks[0]]
-                    1 -> getJaws(gender)[looks[1]]
-                    2 -> getTorsos(gender)[looks[2]]
-                    3 -> getArms(gender)[looks[3]]
-                    4 -> getHands(gender)[looks[4]]
-                    5 -> getLegs(gender)[looks[5]]
-                    6 -> getFeets(gender)[looks[6]]
+                    0 -> {
+                        val heads = getHeads(gender)
+                        if (looks.size > 0 && looks[0] in heads.indices) heads[looks[0]] else heads[0]
+                    }
+                    1 -> {
+                        val jaws = getJaws(gender)
+                        if (looks.size > 1 && looks[1] in jaws.indices) jaws[looks[1]] else jaws[0]
+                    }
+                    2 -> {
+                        val torsos = getTorsos(gender)
+                        if (looks.size > 2 && looks[2] in torsos.indices) torsos[looks[2]] else torsos[0]
+                    }
+                    3 -> {
+                        val arms = getArms(gender)
+                        if (looks.size > 3 && looks[3] in arms.indices) arms[looks[3]] else arms[0]
+                    }
+                    4 -> {
+                        val hands = getHands(gender)
+                        if (looks.size > 4 && looks[4] in hands.indices) hands[looks[4]] else hands[0]
+                    }
+                    5 -> {
+                        val legs = getLegs(gender)
+                        if (looks.size > 5 && looks[5] in legs.indices) legs[looks[5]] else legs[0]
+                    }
+                    6 -> {
+                        val feets = getFeets(gender)
+                        if (looks.size > 6 && looks[6] in feets.indices) feets[looks[6]] else feets[0]
+                    }
                     else -> -1
                 }
             }
             Gender.FEMALE -> {
                 when (option) {
-                    0 -> getHeads(gender)[looks[0]]
-                    2 -> getTorsos(gender)[looks[1]]
-                    3 -> getArms(gender)[looks[2]]
-                    4 -> getHands(gender)[looks[3]]
-                    5 -> getLegs(gender)[looks[4]]
-                    6 -> getFeets(gender)[looks[5]]
+                    0 -> {
+                        val heads = getHeads(gender)
+                        if (looks.size > 0 && looks[0] in heads.indices) heads[looks[0]] else heads[0]
+                    }
+                    2 -> {
+                        val torsos = getTorsos(gender)
+                        if (looks.size > 1 && looks[1] in torsos.indices) torsos[looks[1]] else torsos[0]
+                    }
+                    3 -> {
+                        val arms = getArms(gender)
+                        if (looks.size > 2 && looks[2] in arms.indices) arms[looks[2]] else arms[0]
+                    }
+                    4 -> {
+                        val hands = getHands(gender)
+                        if (looks.size > 3 && looks[3] in hands.indices) hands[looks[3]] else hands[0]
+                    }
+                    5 -> {
+                        val legs = getLegs(gender)
+                        if (looks.size > 4 && looks[4] in legs.indices) legs[looks[4]] else legs[0]
+                    }
+                    6 -> {
+                        val feets = getFeets(gender)
+                        if (looks.size > 5 && looks[5] in feets.indices) feets[looks[5]] else feets[0]
+                    }
                     else -> -1
                 }
             }

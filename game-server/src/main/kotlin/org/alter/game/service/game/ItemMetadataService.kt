@@ -198,6 +198,50 @@ class ItemMetadataService : Service {
                         load(data)
                     }
             }
+            
+            // Direct override for Blade of Saeldor (24553) - ensure it's equippable
+            try {
+                val bladeOfSaeldorId = 24553
+                val def = getItem(bladeOfSaeldorId)
+                if (def.equipSlot < 0) {
+                    // Copy configuration from a working weapon (Excalibur ID 35) as fallback
+                    val excaliburDef = getItem(35)
+                    def.equipSlot = 3 // Weapon slot
+                    def.equipType = excaliburDef.equipType
+                    def.weaponType = 9 // Slash sword type
+                    def.attackSpeed = 4
+                    def.bonuses = intArrayOf(
+                        55,  // attackStab
+                        94,  // attackSlash
+                        -2,  // attackCrush
+                        0,   // attackMagic
+                        0,   // attackRanged
+                        0,   // defenceStab
+                        0,   // defenceSlash
+                        0,   // defenceCrush
+                        0,   // defenceMagic
+                        0,   // defenceRanged
+                        89,  // meleeStrength
+                        0,   // rangedStrength
+                        0,   // magicDamage
+                        0    // prayer
+                    )
+                    def.renderAnimations = intArrayOf(
+                        809, // standAnimId
+                        823, // turnOnSpotAnim
+                        819, // walkForwardAnimId
+                        820, // walkBackwardsAnimId
+                        821, // walkLeftAnimId
+                        822, // walkRightAnimId
+                        824  // runAnimId
+                    )
+                    val reqs = Byte2ByteOpenHashMap()
+                    reqs[0] = 80.toByte() // Attack level 80
+                    def.skillReqs = reqs
+                }
+            } catch (e: Exception) {
+                // Item might not exist or already configured, ignore
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
