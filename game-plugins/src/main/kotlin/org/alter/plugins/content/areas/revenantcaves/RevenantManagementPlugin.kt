@@ -561,13 +561,13 @@ class RevenantManagementPlugin(
         }
 
         /**
-         * Use Ether on Charged Bracelet
+         * Use Ether on Charged Bracelet - works regardless of inventory position
          */
         onItemOnItem("item.revenant_ether", "item.bracelet_of_ethereum") {
-            val etherIndex = player.inventory.getItemIndex(getRSCM("item.revenant_ether"), true)
+            val etherIndex = player.inventory.getItemIndex(getRSCM("item.revenant_ether"), false)
             val ether = player.inventory[etherIndex] ?: return@onItemOnItem
             
-            val braceletSlot = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), true)
+            val braceletSlot = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), false)
             val bracelet = player.inventory[braceletSlot] ?: return@onItemOnItem
             
             val currentCharges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
@@ -615,8 +615,8 @@ class RevenantManagementPlugin(
         // Register for inventory
         onItemOption("item.bracelet_of_ethereum", "Toggle-absorption", toggleAbsorption)
         
-        // Register for equipped item (note: equipped version uses space instead of hyphen)
-        onEquipmentOption("item.bracelet_of_ethereum", "Toggle absorption") {
+        // Register for equipped item - option 6 for Toggle absorption
+        r.bindEquipmentOption(getRSCM("item.bracelet_of_ethereum"), 6) {
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
             if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {
                 // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
@@ -676,8 +676,8 @@ class RevenantManagementPlugin(
         // Register for inventory
         onItemOption("item.bracelet_of_ethereum", "Check", checkCharges)
         
-        // Register for equipped item
-        onEquipmentOption("item.bracelet_of_ethereum", "Check") {
+        // Register for equipped item - option 2 for Check
+        r.bindEquipmentOption(getRSCM("item.bracelet_of_ethereum"), 2) {
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
             
             if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {

@@ -554,6 +554,15 @@ class GenericNpcCombatConfigPlugin(
         // NOTE: Hellhounds are configured in wilderness/CombatConfigPlugin.kt
         // Removing duplicate configuration to avoid "Npc combat definition has been previously set" error
         // If you need to modify hellhound config, edit wilderness/CombatConfigPlugin.kt instead
+        
+        // ======================
+        // NPC 27665 - Magic Attacker
+        // ======================
+        // Note: If NPC 27665 is not in npc.rscm, add it first: npc_27665:27665
+        onNpcSpawn(npc = "npc.npc_27665") {
+            npc.combatClass = org.alter.game.model.combat.CombatClass.MAGIC
+            npc.attr[org.alter.plugins.content.combat.Combat.CASTING_SPELL] = org.alter.plugins.content.combat.strategy.magic.CombatSpell.WIND_STRIKE
+        }
     }
 }
 
