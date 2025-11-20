@@ -33,6 +33,25 @@ class EquipmentPlugin(
                 }
             }
         }
+        
+        // Configure wilderness sceptres to auto-cast when equipped
+        // Accursed Sceptre and Thammaron's Sceptre auto-cast Fire Wave (no runes required)
+        onItemEquip("item.accursed_sceptre") {
+            player.setVarbit(org.alter.plugins.content.combat.Combat.SELECTED_AUTOCAST_VARBIT, org.alter.plugins.content.combat.strategy.magic.CombatSpell.FIRE_WAVE.autoCastId)
+        }
+        
+        onItemEquip("item.thammarons_sceptre") {
+            player.setVarbit(org.alter.plugins.content.combat.Combat.SELECTED_AUTOCAST_VARBIT, org.alter.plugins.content.combat.strategy.magic.CombatSpell.FIRE_WAVE.autoCastId)
+        }
+        
+        // Clear auto-cast when wilderness sceptres are unequipped
+        onItemUnequip("item.accursed_sceptre") {
+            player.setVarbit(org.alter.plugins.content.combat.Combat.SELECTED_AUTOCAST_VARBIT, 0)
+        }
+        
+        onItemUnequip("item.thammarons_sceptre") {
+            player.setVarbit(org.alter.plugins.content.combat.Combat.SELECTED_AUTOCAST_VARBIT, 0)
+        }
 
         bind_unequip(EquipmentType.HEAD, child = 15)
         bind_unequip(EquipmentType.CAPE, child = 16)

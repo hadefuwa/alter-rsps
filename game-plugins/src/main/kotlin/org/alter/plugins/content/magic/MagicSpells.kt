@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.alter.api.Skills
 import org.alter.api.ext.getSpellbook
 import org.alter.api.ext.getVarbit
+import org.alter.api.ext.hasEquipped
 import org.alter.api.ext.message
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
@@ -48,6 +49,12 @@ object MagicSpells {
             "item.guthix_staff",
             "item.zamorak_staff",
         )
+    
+    private val WILDERNESS_SCEPTRE_ITEMS =
+        arrayOf(
+            "item.accursed_sceptre",
+            "item.thammarons_sceptre",
+        )
 
     private val metadata = Int2ObjectOpenHashMap<SpellMetadata>()
 
@@ -69,7 +76,15 @@ object MagicSpells {
             p.message("Your Magic level is not high enough for this spell.")
             return false
         }
-        if (p.getVarbit(INF_RUNES_VARBIT) == 0) {
+        
+        // Check if player has a wilderness sceptre equipped - these don't require runes
+        val hasWildernessSceptre = p.hasEquipped(
+            org.alter.api.EquipmentType.WEAPON,
+            *WILDERNESS_SCEPTRE_ITEMS
+        )
+        
+        // Skip rune requirements if player has wilderness sceptre or infinite runes enabled
+        if (!hasWildernessSceptre && p.getVarbit(INF_RUNES_VARBIT) == 0) {
             for (item in items) {
                 if (p.inventory.getItemCount(item.id) < item.amount && p.equipment.getItemCount(item.id) < item.amount) {
                     p.message("You do not have enough ${item.getDef().name}s to cast this spell.")
@@ -84,7 +99,14 @@ object MagicSpells {
         p: Player,
         items: List<Item>,
     ) {
-        if (p.getVarbit(INF_RUNES_VARBIT) == 0) {
+        // Check if player has a wilderness sceptre equipped - these don't consume runes
+        val hasWildernessSceptre = p.hasEquipped(
+            org.alter.api.EquipmentType.WEAPON,
+            *WILDERNESS_SCEPTRE_ITEMS
+        )
+        
+        // Don't remove runes if player has wilderness sceptre or infinite runes enabled
+        if (!hasWildernessSceptre && p.getVarbit(INF_RUNES_VARBIT) == 0) {
             for (item in items) {
                 /*
                  * Do not remove staff item requirements.
