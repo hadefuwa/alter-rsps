@@ -7,10 +7,12 @@ import org.alter.game.info.PlayerInfo
 import org.alter.game.model.*
 import org.alter.game.model.attr.*
 import org.alter.game.model.entity.*
+import org.alter.game.model.item.Item
 import org.alter.game.model.item.ItemAttribute
 import org.alter.game.model.timer.TimeConstants
 import org.alter.game.model.timer.TimerKey
 import org.alter.game.plugin.KotlinPlugin
+import org.alter.game.plugin.Plugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.game.model.combat.CombatClass
 import org.alter.game.model.combat.CombatStyle
@@ -169,6 +171,11 @@ class RevenantManagementPlugin(
             bracelet.putAttr(ItemAttribute.CHARGES, newCharges)
             PlayerInfo(player).syncAppearance()
         }
+
+        /**
+         * Timer to check for Amulet of Avarice aggression
+         */
+        val AVARICE_AGGRO_TIMER = TimerKey()
     }
     
     init {
@@ -323,22 +330,23 @@ class RevenantManagementPlugin(
         onEquipToSlot(EquipmentType.AMULET.id) {
             val amulet = player.getEquipment(EquipmentType.AMULET)
             if (amulet?.id == getRSCM("item.amulet_of_avarice")) {
+                // Skull player permanently
+                player.skull(SkullIcon.WHITE, Int.MAX_VALUE)
+                player.message("The amulet of avarice has skulled you!")
+                
+                // Start aggro timer immediately if in rev caves
                 if (isInRevenantCaves(player.tile)) {
-                    // Skull player
-                    if (!player.hasSkullIcon(SkullIcon.WHITE)) {
-                        player.skull(SkullIcon.WHITE, TimeConstants.minutesToCycles(20) ?: 2000)
-                        player.message("The amulet of avarice has skulled you!")
-                    }
-                    
-                    // Make all nearby revenants aggressive
-                    world.npcs.forEach { npc ->
-                        if (isRevenant(npc) && npc.tile.isWithinRadius(player.tile, 15)) {
-                            if (npc.getCombatTarget() != player && npc.lock.canAttack()) {
-                                npc.attack(player)
-                            }
-                        }
-                    }
+                    player.timers[AVARICE_AGGRO_TIMER] = 1
                 }
+            }
+        }
+        
+        onUnequipFromSlot(EquipmentType.AMULET.id) {
+            val amulet = player.getEquipment(EquipmentType.AMULET)
+            if (amulet?.id == getRSCM("item.amulet_of_avarice")) {
+                // Unskull player
+                player.skullIcon = -1
+                player.message("You are no longer skulled by the amulet of avarice.")
             }
         }
         
@@ -348,10 +356,11 @@ class RevenantManagementPlugin(
         onLogin {
             val player = ctx as Player
             
-            if (isInRevenantCaves(player.tile)) {
-                val hasAvarice = player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")
-                if (hasAvarice && !player.hasSkullIcon(SkullIcon.WHITE)) {
-                    player.skull(SkullIcon.WHITE, TimeConstants.minutesToCycles(20) ?: 2000)
+            val hasAvarice = player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")
+            if (hasAvarice) {
+                // Skull player permanently if they have the amulet
+                if (!player.hasSkullIcon(SkullIcon.WHITE)) {
+                    player.skull(SkullIcon.WHITE, Int.MAX_VALUE)
                     player.message("The amulet of avarice has skulled you!")
                 }
             }
@@ -391,15 +400,18 @@ class RevenantManagementPlugin(
         
         /**
          * Bracelet of Ethereum - Protect from revenant damage when charged
-         * Use DAMAGE_TAKE_MULTIPLIER to reduce damage to 0 when bracelet has charges
+         * Use DAMAGE_TAKE_MULTIPLIER to reduce damage to 0 when bracelet has charges AND absorption is enabled
          */
         onEquipToSlot(EquipmentType.GLOVES.id) {
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
             if (bracelet?.id == getRSCM("item.bracelet_of_ethereum")) {
                 val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
-                if (charges > 0 && isInRevenantCaves(player.tile)) {
-                    // Set damage multiplier to 0 for revenant attacks
-                    player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.0
+                // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
+                val absorptionEnabled = (bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1) == 1
+                
+                if (charges > 0 && absorptionEnabled && isInRevenantCaves(player.tile)) {
+                    // Set damage multiplier to 0.5 for 50% damage reduction from revenant attacks
+                    player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.5
                 }
             }
         }
@@ -407,22 +419,6 @@ class RevenantManagementPlugin(
         onUnequipFromSlot(EquipmentType.GLOVES.id) {
             // Remove damage multiplier when unequipping
             player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
-        }
-        
-        /**
-         * Bracelet of Ethereum - Consume ether on each revenant hit
-         * This runs before damage is applied
-         */
-        onAnyNpcDeath {
-            val npc = ctx as Npc
-            val killer = npc.attr[KILLER_ATTR]?.get() as? Player ?: return@onAnyNpcDeath
-            
-            if (!isRevenant(npc) || !isInRevenantCaves(npc.tile)) {
-                return@onAnyNpcDeath
-            }
-            
-            // Check if killer has bracelet of ethereum equipped and consumed ether during fight
-            // We'll handle ether consumption in a timer-based system instead
         }
         
         /**
@@ -445,13 +441,14 @@ class RevenantManagementPlugin(
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
             if (bracelet?.id == getRSCM("item.bracelet_of_ethereum")) {
                 val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
-                if (charges > 0) {
-                    // Update damage multiplier based on charges (only protects from revenant damage)
-                    // Note: This currently protects from all damage, but should ideally only protect from revenant damage
-                    // TODO: Integrate into combat formulas to check if attacker is a revenant
-                    player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.0
+                // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
+                val absorptionEnabled = (bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1) == 1
+                
+                if (charges > 0 && absorptionEnabled) {
+                    // Update damage multiplier for 50% damage reduction from revenant attacks
+                    player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.5
                 } else {
-                    // No charges, remove protection
+                    // No charges or absorption disabled, remove protection
                     player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 }
                 // Continue timer if player has bracelet - defer setting to avoid ConcurrentModificationException
@@ -463,8 +460,6 @@ class RevenantManagementPlugin(
             }
         }
         
-        // Define AVARICE_AGGRO_TIMER early so it can be referenced by other timers
-        val AVARICE_AGGRO_TIMER = TimerKey()
         
         // Start timer for players in revenant caves (on login) - only if they have bracelet
         onLogin {
@@ -533,6 +528,166 @@ class RevenantManagementPlugin(
                 killer.message("Your bracelet of ethereum absorbs $etherAmount revenant ether.")
             }
         }
+
+        /**
+         * Use Ether on Uncharged Bracelet
+         */
+        onItemOnItem("item.revenant_ether", "item.bracelet_of_ethereum_uncharged") {
+            val etherIndex = player.inventory.getItemIndex(getRSCM("item.revenant_ether"), true)
+            val ether = player.inventory[etherIndex] ?: return@onItemOnItem
+            
+            val braceletIndex = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum_uncharged"), true)
+            val bracelet = player.inventory[braceletIndex] ?: return@onItemOnItem
+            
+            if (ether.amount < 250) {
+                player.message("You need at least 250 revenant ether to activate the bracelet.")
+                return@onItemOnItem
+            }
+            
+            // Consume 250 ether for activation
+            val etherToAdd = ether.amount - 250
+            val chargesToAdd = etherToAdd.coerceAtMost(16000)
+            
+            player.inventory.remove(ether.id, 250 + chargesToAdd)
+            player.inventory.remove(bracelet.id, 1)
+            
+            val chargedBracelet = Item(getRSCM("item.bracelet_of_ethereum"))
+            chargedBracelet.putAttr(ItemAttribute.CHARGES, chargesToAdd)
+            // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled
+            chargedBracelet.putAttr(ItemAttribute.ATTACHED_ITEM_ID, 1)
+            
+            player.inventory.add(chargedBracelet)
+            player.message("You activate the bracelet with 250 ether" + (if (chargesToAdd > 0) " and add $chargesToAdd charges" else "") + ".")
+        }
+
+        /**
+         * Use Ether on Charged Bracelet
+         */
+        onItemOnItem("item.revenant_ether", "item.bracelet_of_ethereum") {
+            val etherIndex = player.inventory.getItemIndex(getRSCM("item.revenant_ether"), true)
+            val ether = player.inventory[etherIndex] ?: return@onItemOnItem
+            
+            val braceletSlot = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), true)
+            val bracelet = player.inventory[braceletSlot] ?: return@onItemOnItem
+            
+            val currentCharges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+            val space = 16000 - currentCharges
+            
+            if (space <= 0) {
+                player.message("Your bracelet is already fully charged.")
+                return@onItemOnItem
+            }
+            
+            val amountToAdd = ether.amount.coerceAtMost(space)
+            
+            player.inventory.remove(ether.id, amountToAdd)
+            bracelet.putAttr(ItemAttribute.CHARGES, currentCharges + amountToAdd)
+            player.message("You add $amountToAdd charges to the bracelet.")
+        }
+
+        /**
+         * Toggle Absorption
+         */
+        val toggleAbsorption: Plugin.() -> Unit = {
+            val invIndex = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), false)
+            val bracelet = if (invIndex != -1) player.inventory[invIndex] else player.getEquipment(EquipmentType.GLOVES)
+            
+            if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {
+                // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
+                val currentVal = bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1
+                val newStatus = currentVal == 0
+                bracelet.putAttr(ItemAttribute.ATTACHED_ITEM_ID, if (newStatus) 1 else 0)
+                
+                player.message("Absorption is now ${if (newStatus) "enabled" else "disabled"}.")
+                
+                // Update equipment stats if equipped
+                if (player.hasEquipped(EquipmentType.GLOVES, "item.bracelet_of_ethereum")) {
+                     val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+                     if (newStatus && charges > 0 && isInRevenantCaves(player.tile)) {
+                         player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.5
+                     } else {
+                         player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
+                     }
+                }
+            }
+        }
+        
+        // Register for inventory
+        onItemOption("item.bracelet_of_ethereum", "Toggle-absorption", toggleAbsorption)
+        
+        // Register for equipped item (note: equipped version uses space instead of hyphen)
+        onEquipmentOption("item.bracelet_of_ethereum", "Toggle absorption") {
+            val bracelet = player.getEquipment(EquipmentType.GLOVES)
+            if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {
+                // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
+                val currentVal = bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1
+                val newStatus = currentVal == 0
+                bracelet.putAttr(ItemAttribute.ATTACHED_ITEM_ID, if (newStatus) 1 else 0)
+                
+                player.message("Absorption is now ${if (newStatus) "enabled" else "disabled"}.")
+                
+                // Update equipment stats if equipped
+                val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+                if (newStatus && charges > 0 && isInRevenantCaves(player.tile)) {
+                    player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.5
+                } else {
+                    player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
+                }
+            }
+        }
+
+        /**
+         * Uncharge (Dismantle)
+         */
+        onItemOption("item.bracelet_of_ethereum", "Uncharge") {
+            val slot = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), false)
+            if (slot == -1) {
+                player.message("You must unequip the bracelet to dismantle it.")
+                return@onItemOption
+            }
+            
+            val bracelet = player.inventory[slot] ?: return@onItemOption
+            val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+            
+            player.inventory.remove(bracelet.id, 1)
+            if (charges > 0) {
+                player.inventory.add(getRSCM("item.revenant_ether"), charges)
+            }
+            
+            player.message("You dismantle the bracelet and retrieve $charges ether. The bracelet is destroyed.")
+        }
+
+        /**
+         * Check/Check charges
+         */
+        val checkCharges: Plugin.() -> Unit = {
+            val invIndex = player.inventory.getItemIndex(getRSCM("item.bracelet_of_ethereum"), false)
+            val bracelet = if (invIndex != -1) player.inventory[invIndex] else player.getEquipment(EquipmentType.GLOVES)
+            
+            if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {
+                val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+                val absorptionVal = bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1
+                val absorption = absorptionVal == 1
+                
+                player.message("Charges: $charges. Absorption: ${if (absorption) "Enabled" else "Disabled"}.")
+            }
+        }
+        
+        // Register for inventory
+        onItemOption("item.bracelet_of_ethereum", "Check", checkCharges)
+        
+        // Register for equipped item
+        onEquipmentOption("item.bracelet_of_ethereum", "Check") {
+            val bracelet = player.getEquipment(EquipmentType.GLOVES)
+            
+            if (bracelet != null && bracelet.id == getRSCM("item.bracelet_of_ethereum")) {
+                val charges = bracelet.getAttr(ItemAttribute.CHARGES) ?: 0
+                val absorptionVal = bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1
+                val absorption = absorptionVal == 1
+                
+                player.message("Charges: $charges. Absorption: ${if (absorption) "Enabled" else "Disabled"}.")
+            }
+        }
         
         /**
          * Amulet of Avarice - Note all drops in revenant caves
@@ -540,6 +695,38 @@ class RevenantManagementPlugin(
          * We'll store a flag that the loot drop plugin can check
          */
         // Note: Drop noting will be handled in NpcLootDropPlugin by checking for amulet
+        
+        /**
+         * Amulet of Avarice - Always lost on death
+         */
+        onPlayerDeath {
+            val player = ctx as Player
+            val avariceId = getRSCM("item.amulet_of_avarice")
+            val amulet = player.getEquipment(EquipmentType.AMULET)
+            
+            if (amulet?.id == avariceId) {
+                // Remove from equipment
+                player.equipment[EquipmentType.AMULET.id] = null
+                player.equipment.dirty = true
+                
+                // Drop on ground
+                val killer = player.damageMap.getMostDamage() as? Player
+                val groundItem = GroundItem(avariceId, 1, player.tile, killer ?: player)
+                
+                if (killer != null) {
+                    groundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE
+                    groundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
+                } else {
+                    // If died to NPC/Environment, make visible to everyone immediately?
+                    // Or just player? Standard is player then public.
+                    groundItem.timeUntilPublic = 0 // Visible to everyone immediately if no killer?
+                    groundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
+                }
+                
+                world.spawn(groundItem)
+                player.message("Your Amulet of Avarice has been lost!")
+            }
+        }
         
         /**
          * Periodic check to make revenants aggressive to players with Amulet of Avarice
@@ -553,11 +740,18 @@ class RevenantManagementPlugin(
             }
             
             if (player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")) {
-                // Make nearby revenants aggressive
-                world.npcs.forEach { npc ->
-                    if (isRevenant(npc) && npc.tile.isWithinRadius(player.tile, 15)) {
-                        if (npc.getCombatTarget() != player && npc.lock.canAttack()) {
-                            npc.attack(player)
+                // Check if player has charged bracelet of ethereum (blocks aggression)
+                val bracelet = player.getEquipment(EquipmentType.GLOVES)
+                val hasChargedBracelet = bracelet?.id == getRSCM("item.bracelet_of_ethereum") && 
+                                        (bracelet.getAttr(ItemAttribute.CHARGES) ?: 0) > 0
+                
+                if (!hasChargedBracelet) {
+                    // Make nearby revenants aggressive
+                    world.npcs.forEach { npc ->
+                        if (isRevenant(npc) && npc.tile.isWithinRadius(player.tile, 15)) {
+                            if (npc.getCombatTarget() != player && npc.lock.canAttack()) {
+                                npc.attack(player)
+                            }
                         }
                     }
                 }
@@ -795,9 +989,9 @@ class RevenantManagementPlugin(
     private suspend fun revenantCombat(npc: Npc, it: QueueTask) {
         var target = npc.getCombatTarget() ?: return
         
-        // Apply damage multiplier for revenants (5.0x damage - doubled from 2.5x)
+        // Apply damage multiplier for revenants (10.0x damage - doubled from 5.0x)
         // This makes revenants hit significantly harder
-        npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 5.0
+        npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 10.0
         
         // Loop while in combat
         while (npc.canEngageCombat(target)) {
@@ -807,8 +1001,13 @@ class RevenantManagementPlugin(
             val canAttack = when (npc.combatClass) {
                 CombatClass.MELEE -> {
                     if (npc.canAttackMelee(it, target, moveIfNeeded = true) && npc.isAttackDelayReady()) {
-                        // Melee attack
-                        npc.prepareAttack(CombatClass.MELEE, npc.combatStyle, npc.attackStyle)
+                        // Melee attack - ensure combat style is valid for melee (STAB, SLASH, or CRUSH)
+                        // If combat style is MAGIC or RANGED from a previous switch, default to SLASH
+                        val meleeStyle = when (npc.combatStyle) {
+                            CombatStyle.STAB, CombatStyle.SLASH, CombatStyle.CRUSH -> npc.combatStyle
+                            else -> CombatStyle.SLASH // Default to SLASH if invalid style
+                        }
+                        npc.prepareAttack(CombatClass.MELEE, meleeStyle, npc.attackStyle)
                         npc.animate(npc.combatDef.attackAnimation)
                         npc.dealHit(target, MeleeCombatFormula, delay = 1)
                         true

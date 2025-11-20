@@ -70,7 +70,7 @@ fun random(boundInclusive: Int) = random.nextInt(boundInclusive + 1)
 /**
  * Table rollers
  */
-fun LootTable.mainRoll(): Loot {
+fun LootTable.mainRoll(): Loot? {
     var total = tableWeight ?: 0 // total table weight
     val roll = random(total)
     var cur = 0
@@ -82,8 +82,9 @@ fun LootTable.mainRoll(): Loot {
             }
         }
     }
-    // should never happen unless the table is misconfigured
-    throw IllegalStateException("Failed to roll loot from table: tableWeight=$tableWeight, totalItemWeights=$cur, roll=$roll. Table configuration is invalid.")
+    // If roll exceeds total item weights, return null (no drop)
+    // This is valid when tableWeight > sum of item weights, allowing for "no drop" chance
+    return null
 }
 fun LootTable.preRoll(): Loot? {
     for (loot in drops) {

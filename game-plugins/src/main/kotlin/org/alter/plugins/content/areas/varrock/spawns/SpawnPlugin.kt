@@ -19,6 +19,13 @@ class SpawnPlugin(
 ) : KotlinPlugin(r, world, server) {
     init {
         /**
+         * Banker in Varrock Square
+         *
+         * Banker NPC in the center of Varrock square for easy banking access.
+         */
+        spawnNpc(npc = "npc.banker", x = 3210, z = 3420, walkRadius = 3, direction = Direction.SOUTH)
+        
+        /**
          * Varrock Square Guards
          *
          * Guards in the main Varrock square area for testing.

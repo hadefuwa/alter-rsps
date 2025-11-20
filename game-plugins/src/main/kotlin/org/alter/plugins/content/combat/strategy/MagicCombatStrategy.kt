@@ -29,7 +29,7 @@ object MagicCombatStrategy : CombatStrategy {
         target: Pawn,
     ): Boolean {
         if (pawn is Player) {
-            val spell = pawn.attr[Combat.CASTING_SPELL]!!
+            val spell = pawn.attr[Combat.CASTING_SPELL] ?: return false
             val requirements = MagicSpells.getMetadata(spell.id)
             if (requirements != null && !MagicSpells.canCast(pawn, requirements.lvl, requirements.items, requirements.spellbook)) {
                 return false
@@ -44,7 +44,7 @@ object MagicCombatStrategy : CombatStrategy {
     ) {
         val world = pawn.world
 
-        val spell = pawn.attr[Combat.CASTING_SPELL]!!
+        val spell = pawn.attr[Combat.CASTING_SPELL] ?: CombatSpell.WIND_STRIKE
         val projectile =
             pawn.createProjectile(
                 target,
