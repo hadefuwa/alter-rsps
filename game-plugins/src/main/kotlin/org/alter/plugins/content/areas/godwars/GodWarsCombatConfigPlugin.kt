@@ -8,59 +8,6 @@ import org.alter.game.model.*
 import org.alter.game.model.entity.*
 import org.alter.game.plugin.*
 
-/**
- * God Wars Dungeon Combat Configuration Plugin
- * 
- * Configures combat stats for all God Wars NPCs across all factions:
- * - Saradomin
- * - Zamorak
- * - Armadyl
- * - Bandos
- * 
- * ============================================================================
- * DROP TABLE WEIGHT SYSTEM - IMPORTANT RULES
- * ============================================================================
- * 
- * CRITICAL RULE: The table weight MUST be greater than or equal to the sum
- * of all item weights in that table. If not, the server will crash with:
- * "Table weight (X) must be greater than or equal to the sum of all item weights (Y)"
- * 
- * HOW TO CALCULATE CORRECT TABLE WEIGHT:
- * 1. Add up ALL item weights in the main() block
- * 2. Set main(weight = SUM_OF_ALL_ITEM_WEIGHTS) or higher
- * 3. If you want guaranteed drops, set it equal to the sum
- * 4. If you want some chance of no drop, set it higher than the sum
- * 
- * EXAMPLE - CORRECT CONFIGURATION:
- *   main(weight = 100) {  // Table weight = 100
- *       add("item.coins", weight = 20)      // Item weight = 20
- *       add("item.sword", weight = 10)      // Item weight = 10
- *       add("item.shield", weight = 15)     // Item weight = 15
- *       // Total item weights = 20 + 10 + 15 = 45
- *       // Table weight (100) >= Sum (45) ✓ CORRECT
- *   }
- * 
- * EXAMPLE - INCORRECT CONFIGURATION (WILL CRASH):
- *   main(weight = 50) {   // Table weight = 50
- *       add("item.coins", weight = 350)     // Item weight = 350
- *       add("item.sword", weight = 200)     // Item weight = 200
- *       // Total item weights = 350 + 200 = 550
- *       // Table weight (50) < Sum (550) ✗ ERROR - WILL CRASH!
- *   }
- * 
- * HOW IT WORKS:
- * - Item weight: Higher = more common drop (weight 20 is twice as likely as weight 10)
- * - Table weight: Controls overall drop chance vs no drop
- *   * If table weight = sum of item weights: Guaranteed drop (100% chance)
- *   * If table weight > sum: Some chance of no drop (lower table weight = more drops)
- *   * If table weight < sum: INVALID - Server will crash on startup
- * 
- * TIPS:
- * - Always calculate sum of item weights first before setting table weight
- * - Use a calculator or add them up manually
- * - When in doubt, set table weight higher than the sum (e.g., sum + 100)
- * - The difference between table weight and sum determines "no drop" chance
- */
 class GodWarsCombatConfigPlugin(
     r: PluginRepository,
     world: World,
@@ -141,18 +88,32 @@ class GodWarsCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 128) {
-                    add("item.adamant_longsword", min = 1, weight = 4)
-                    add("item.rune_longsword", min = 1, weight = 2)
-                    add("item.death_rune", min = 10, max = 20, weight = 8)
-                    add("item.blood_rune", min = 5, max = 10, weight = 6)
-                    add("item.chaos_rune", min = 20, max = 40, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 8)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.coins", min = 500, max = 2000, weight = 15)
-                    add("item.ranarr_seed", min = 1, weight = 6)
-                    add("item.uncut_ruby", min = 1, weight = 6)
-                    add("item.uncut_diamond", min = 1, weight = 4)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 200)
+                    add("item.casket_medium", min = 1, max = 7, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 5, weight = 50)
+
+
+                    add("item.barrows_gloves", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.dragon_axe", min = 1, max = 1, weight = 1) 
                 }
             }
         }
@@ -224,17 +185,32 @@ class GodWarsCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 128) {
-                    add("item.adamant_arrow", min = 50, max = 100, weight = 10)
-                    add("item.rune_arrow", min = 20, max = 40, weight = 6)
-                    add("item.death_rune", min = 10, max = 20, weight = 8)
-                    add("item.chaos_rune", min = 20, max = 40, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 8)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.coins", min = 500, max = 2000, weight = 15)
-                    add("item.ranarr_seed", min = 1, weight = 6)
-                    add("item.uncut_ruby", min = 1, weight = 6)
-                    add("item.uncut_diamond", min = 1, weight = 4)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 7, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 5, weight = 50)
+
+
+                    add("item.barrows_gloves", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.dragon_axe", min = 1, max = 1, weight = 1) 
                 }
             }
         }
@@ -306,17 +282,32 @@ class GodWarsCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 128) {
-                    add("item.death_rune", min = 20, max = 40, weight = 10)
-                    add("item.blood_rune", min = 10, max = 20, weight = 8)
-                    add("item.chaos_rune", min = 40, max = 80, weight = 12)
-                    add("item.law_rune", min = 10, max = 20, weight = 8)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 8)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.coins", min = 500, max = 2000, weight = 15)
-                    add("item.ranarr_seed", min = 1, weight = 6)
-                    add("item.uncut_ruby", min = 1, weight = 6)
-                    add("item.uncut_diamond", min = 1, weight = 4)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 5, weight = 200)
+                    add("item.casket_medium", min = 1, max = 7, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 3, weight = 50)
+
+
+                    add("item.barrows_gloves", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.dragon_axe", min = 1, max = 1, weight = 1) 
                 }
             }
         }
@@ -388,16 +379,26 @@ class GodWarsCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 128) {
-                    add("item.rune_longsword", min = 1, weight = 3)
-                    add("item.death_rune", min = 15, max = 30, weight = 8)
-                    add("item.blood_rune", min = 10, max = 20, weight = 6)
-                    add("item.adamant_bar", min = 2, max = 5, weight = 8)
-                    add("item.shark", min = 3, max = 6, weight = 10)
-                    add("item.coins", min = 1000, max = 3000, weight = 15)
-                    add("item.ranarr_seed", min = 1, max = 2, weight = 6)
-                    add("item.uncut_ruby", min = 1, max = 2, weight = 6)
-                    add("item.uncut_diamond", min = 1, weight = 5)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 2, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 5, weight = 200)
+                    add("item.casket_medium", min = 1, max = 7, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 3, weight = 50)
                 }
             }
         }
@@ -474,11 +475,32 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 3, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 7, weight = 200)
+                    add("item.casket_medium", min = 1, max = 5, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 2, weight = 50)
+
+
+                    add("item.barrows_gloves", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.dragon_axe", min = 1, max = 1, weight = 1)
                 }
             }
         }
@@ -549,11 +571,32 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 3, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 6, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 2, weight = 50)
+
+
+                    add("item.barrows_gloves", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.dragon_axe", min = 1, max = 1, weight = 1)
                 }
             }
         }
@@ -624,11 +667,32 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 2, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 6, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 3, weight = 50)
+
+
+                    add("item.uncut_dragonstone", min = 10, max = 30, weight = 50)
+                    add("item.uncut_ruby", min = 30, max = 50, weight = 70)
+                    add("item.uncut_diamond", min = 50, max = 70, weight = 90)
+                    add("item.uncut_sapphire", min = 70, max = 100, weight = 110) 
                 }
             }
         }
@@ -699,11 +763,26 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 200, max = 800, weight = 20)
-                    add("item.chaos_rune", min = 10, max = 20, weight = 10)
-                    add("item.lobster", min = 1, max = 3, weight = 10)
-                    add("item.iron_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 1, max = 2, weight = 250)
+                    add("item.adamantite_bar_noted", min = 1, max = 1, weight = 200)
+                    add("item.manta_ray", min = 1, max = 2, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 1, weight = 300)
+                    add("item.steel_bar_noted", min = 1, max = 1, weight = 290)
+                    add("item.mithril_bar_noted", min = 1, max = 1, weight = 225)
+                    add("item.runite_bar_noted", min = 1, max = 1, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 1, weight = 25)
+                    add("item.casket_hard_2738", min = 1, max = 3, weight = 200)
+                    add("item.casket_medium", min = 1, max = 5, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 2, weight = 50)
                 }
             }
         }
@@ -780,11 +859,31 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 200) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 200)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 200)
+                    add("item.death_rune", min = 250, max = 1000, weight = 200)
+                    add("item.shark", min = 2, max = 4, weight = 200)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 200)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 200)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 200)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 200)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =200)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 200)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 200)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 200)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 200)
+                    add("item.casket_master_2738", min = 1, max = 3, weight = 200)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 200)
+                    add("item.casket_medium", min = 1, max = 5, weight = 200)
+                    add("item.casket_elite_2738", min = 1, max = 2, weight = 200)
+
+                    add("item.logs_2771_noted", min = 500, max = 1000, weight = 200)
+                    add("item.oak_logs_2771_noted", min = 100, max = 500, weight = 200)
+                    add("item.yew_logs_2773_noted", min = 100, max = 200, weight = 200) 
+                    add("item.magic_logs_2772_noted", min = 10, max = 30, weight = 200)
                 }
             }
         }
@@ -855,11 +954,32 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
+
+
+                    add("item.dargon_crossbow", min = 1, max = 1, weight = 1)
+                    add("item.ancient_staff_2773", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword_2774", min = 1, max = 1, weight = 1)
+                    add("item.dragon_dagger_2775", min = 1, max = 1, weight = 1)
                 }
             }
         }
@@ -930,11 +1050,32 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 500, max = 2000, weight = 20)
-                    add("item.death_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.adamant_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
+
+
+                    add("item.saradomin_godsword", min = 1, max = 1, weight = 1)
+                    add("item.blessed_dhide_body", min = 1, max = 1, weight = 1)
+                    add("item.ancient_godsword", min = 1, max = 1, weight = 1)
+                    add("item.abyssal_dagger", min = 1, max = 1, weight = 1)
                 }
             }
         }
@@ -1005,11 +1146,26 @@ class GodWarsCombatConfigPlugin(
                 always {
                     add("item.bones", 1)
                 }
-                main(weight = 50) {
-                    add("item.coins", min = 400, max = 1500, weight = 20)
-                    add("item.chaos_rune", min = 10, max = 20, weight = 10)
-                    add("item.shark", min = 2, max = 4, weight = 10)
-                    add("item.mithril_bar", min = 1, max = 3, weight = 10)
+                main(weight = 3000) {
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
+                    add("item.death_rune", min = 250, max = 1000, weight = 300)
+                    add("item.shark", min = 2, max = 4, weight = 250)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.manta_ray", min = 1, max = 3, weight = 100)
+                    add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
+                    add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
+                    add("item.dragon_arrow", min = 1, max = 150, weight = 150)
+                    add("item.rune_arrow", min = 50, max = 1000, weight =250)
+
+                    add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
+                    add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
+                    add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.casket_master_2738", min = 1, max = 10, weight = 25)
+                    add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
+                    add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
                 }
             }
         }
@@ -1090,10 +1246,11 @@ class GodWarsCombatConfigPlugin(
                 // Table weight set to 3000 to satisfy validation (3000 >= 2883)
                 // This gives ~96% drop chance, ~4% no drop chance
                 main(weight = 3000) {
-                    add("item.coins", min = 10000, max = 200000, weight = 350)
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
                     add("item.death_rune", min = 250, max = 1000, weight = 300)
                     add("item.shark", min = 2, max = 4, weight = 250)
-                    add("item.adamant_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
                     add("item.manta_ray", min = 1, max = 3, weight = 100)
                     add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
                     add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
@@ -1103,10 +1260,10 @@ class GodWarsCombatConfigPlugin(
                     add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
                     add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
                     add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
-                    add("item.rune_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
                     add("item.casket_master_2738", min = 1, max = 10, weight = 25)
                     add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
-                    add("item.casket_medium_2738", min = 1, max = 10, weight = 150)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
                     add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
 
 
@@ -1188,10 +1345,11 @@ class GodWarsCombatConfigPlugin(
                 // Table weight set to 3000 to satisfy validation (3000 >= 2883)
                 // This gives ~96% drop chance, ~4% no drop chance
                 main(weight = 3000) {
-                    add("item.coins", min = 10000, max = 200000, weight = 350)
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
                     add("item.death_rune", min = 250, max = 1000, weight = 300)
                     add("item.shark", min = 2, max = 4, weight = 250)
-                    add("item.adamant_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
                     add("item.manta_ray", min = 1, max = 3, weight = 100)
                     add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
                     add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
@@ -1201,10 +1359,10 @@ class GodWarsCombatConfigPlugin(
                     add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
                     add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
                     add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
-                    add("item.rune_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
                     add("item.casket_master_2738", min = 1, max = 10, weight = 25)
                     add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
-                    add("item.casket_medium_2738", min = 1, max = 10, weight = 150)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
                     add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
 
 
@@ -1286,10 +1444,11 @@ class GodWarsCombatConfigPlugin(
                 // Table weight set to 3000 to satisfy validation (3000 >= 2883)
                 // This gives ~96% drop chance, ~4% no drop chance
                 main(weight = 3000) {
-                    add("item.coins", min = 10000, max = 200000, weight = 350)
+                    //add("item.coins", min = 10000, max = 200000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
                     add("item.death_rune", min = 250, max = 1000, weight = 300)
                     add("item.shark", min = 2, max = 4, weight = 250)
-                    add("item.adamant_bar_noted", min = 6, max = 13, weight = 200)
+                    add("item.adamantite_bar_noted", min = 6, max = 13, weight = 200)
                     add("item.manta_ray", min = 1, max = 3, weight = 100)
                     add("item.casket_hard_2738", min = 1, max = 10, weight = 100)
                     add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
@@ -1299,11 +1458,12 @@ class GodWarsCombatConfigPlugin(
                     add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
                     add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
                     add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)
-                    add("item.rune_bar_noted", min = 5, max = 10, weight = 75)
+                    add("item.runite_bar_noted", min = 5, max = 10, weight = 75)
                     add("item.casket_master_2738", min = 1, max = 10, weight = 25)
                     add("item.casket_easy_2738", min = 1, max = 10, weight = 200)
-                    add("item.casket_medium_2738", min = 1, max = 10, weight = 150)
+                    add("item.casket_medium", min = 1, max = 10, weight = 150)
                     add("item.casket_elite_2738", min = 1, max = 10, weight = 50)
+
                     add("item.rangers_boots", min = 1, max = 1, weight = 2)
                     add("item.dragon_crossbow", min = 1, max = 1, weight = 1)
                     add("item.spirit_shield", min = 1, max = 1, weight = 1)
@@ -1378,10 +1538,11 @@ class GodWarsCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 main(weight = 3000) {
-                    add("item.coins", min = 1000, max = 25000, weight = 350)
+                    //add("item.coins", min = 1000, max = 25000, weight = 350)
+                    add("item.coins_995", min = 10000, max = 200000, weight = 350)
                     add("item.death_rune", min = 25, max = 100, weight = 300)
                     add("item.shark", min = 1, max = 2, weight = 250)
-                    add("item.adamant_bar_noted", min = 1, max = 13, weight = 200)
+                    add("item.adamantite_bar_noted", min = 1, max = 13, weight = 200)
                     add("item.manta_ray", min = 1, max = 1, weight = 100)
                     add("item.casket_hard_2738", min = 1, max = 1, weight = 100)
                     add("item.diamond_bolt_tips", min = 10, max = 15, weight = 10)
@@ -1391,11 +1552,11 @@ class GodWarsCombatConfigPlugin(
                     add("item.iron_bar_noted", min = 1, max = 1, weight = 300)
                     add("item.steel_bar_noted", min = 10, max = 1, weight = 290)
                     add("item.mithril_bar_noted", min = 5, max = 1, weight = 225)
-                    add("item.rune_bar_noted", min = 5, max = 1, weight = 75)
+                    add("item.runite_bar_noted", min = 5, max = 1, weight = 75)
 
                     add("item.casket_master_2738", min = 1, max = 1, weight = 25)
                     add("item.casket_easy_2738", min = 1, max = 1, weight = 200)
-                    add("item.casket_medium_2738", min = 1, max = 1, weight = 150)
+                    add("item.casket_medium", min = 1, max = 1, weight = 150)
                     add("item.casket_elite_2738", min = 1, max = 1, weight = 50)
                 }
             }
