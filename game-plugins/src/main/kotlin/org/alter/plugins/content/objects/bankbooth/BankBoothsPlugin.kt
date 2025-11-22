@@ -66,6 +66,7 @@ class BankBoothsPlugin(
                 // BANK_BOOTH_37959,// Has "use" option
                 "object.bank_booth_39238",
                 "object.bank_booth_42837", // has only "bank option"
+                // "object.bank_booth_26711", // Handled separately below (no RSCM name)
                 // "object.bank_chest_26707", // Mage bank - handled separately below
             )
 
@@ -88,6 +89,32 @@ class BankBoothsPlugin(
         }
         onObjOption(obj = "object.bank_chest_26707", option = "Collect") {
             open_collect(player)
+        }
+        
+        // Handle bank 26711 separately - uses numeric ID since RSCM name doesn't exist
+        try {
+            // Try common bank options with numeric ID
+            onObjOption(obj = 26711, option = "bank") {
+                player.openBank()
+            }
+        } catch (e: Exception) {
+            // "bank" option might not exist, try "Use" option
+            try {
+                onObjOption(obj = 26711, option = "Use") {
+                    player.openBank()
+                }
+            } catch (e2: Exception) {
+                // Could not register
+            }
+        }
+        
+        // Try "Collect" option for bank 26711
+        try {
+            onObjOption(obj = 26711, option = "Collect") {
+                open_collect(player)
+            }
+        } catch (e: Exception) {
+            // "Collect" option might not exist
         }
     }
 

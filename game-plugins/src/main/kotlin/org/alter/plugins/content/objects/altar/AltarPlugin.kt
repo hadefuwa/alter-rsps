@@ -167,7 +167,7 @@ class AltarPlugin(
     }
 
     /**
-     * Handles offering bones on an altar
+     * Handles offering bones on an altar - automatically uses all bones of the same type
      * @param player The player offering the bone
      * @param altarId The altar object ID
      * @param boneItemName The bone item name (e.g., "item.dragon_bones")
@@ -209,20 +209,6 @@ class AltarPlugin(
                 return@queue
             }
             
-            // Get the inventory slot
-            val inventorySlot = player.attr[INTERACTING_ITEM_SLOT] ?: -1
-            if (inventorySlot < 0 || inventorySlot >= player.inventory.capacity) {
-                player.message("You don't have that bone.")
-                return@queue
-            }
-            
-            // Verify the item at the slot matches
-            val slotItem = player.inventory[inventorySlot]
-            if (slotItem?.id != expectedItemId) {
-                player.message("You don't have that bone.")
-                return@queue
-            }
-            
             // Get base XP for this bone
             val baseXp = BONE_XP_MAP[boneItemName] ?: run {
                 player.message("Nothing interesting happens.")
@@ -236,52 +222,104 @@ class AltarPlugin(
             val xpMultiplier = if (isChaosAltar) 3.5 else 2.0
             val xpGained = baseXp * xpMultiplier
             
-            // Play animation and sound
-            player.animate(Animation.OFFER_BONES_TO_ALTER_ANIM)
-            player.playSound(Sound.ALTAR_PRAY)
+            // Get bone name for messages
+            val boneName = getItem(expectedItemId).name.lowercase()
+            val bonePlural = if (boneName.endsWith("s", ignoreCase = false)) boneName else "$boneName bones"
             
-            // Wait for animation
-            this.wait(cycles = 2)
-            
-            // For chaos altars, 50% chance to not consume the bone
-            val shouldConsumeBone = if (isChaosAltar) {
-                Random.nextBoolean()
-            } else {
-                true
+            // Get initial bone count
+            val initialBoneCount = player.inventory.getItemCount(expectedItemId)
+            if (initialBoneCount == 0) {
+                player.message("You don't have that bone.")
+                return@queue
             }
             
-            // Remove the bone from inventory (unless chaos altar saves it)
-            if (shouldConsumeBone) {
-                val remove = player.inventory.remove(
-                    item = expectedItemId,
-                    amount = 1,
-                    beginSlot = inventorySlot,
-                    assureFullRemoval = false
-                )
+            // Process all bones - loop until we've processed all initial bones or can't find more
+            var bonesProcessed = 0
+            var consecutiveSaves = 0 // Track consecutive chaos altar saves to avoid infinite loops
+            
+            while (bonesProcessed < initialBoneCount && consecutiveSaves < 10) {
+                // Check if player can still interact
+                if (!player.lock.canItemInteract()) {
+                    break
+                }
                 
-                if (remove.hasSucceeded() && remove.completed > 0) {
-                    // Add prayer experience
-                    player.addXp(Skills.PRAYER, xpGained)
+                // Find the first bone of this type in inventory
+                val boneSlot = player.inventory.getItemIndex(expectedItemId, skipAttrItems = false)
+                if (boneSlot == -1) {
+                    // No more bones found, we're done
+                    break
+                }
+                
+                // Verify the item at the slot matches
+                val slotItem = player.inventory[boneSlot]
+                if (slotItem?.id != expectedItemId) {
+                    // Item changed, stop processing
+                    break
+                }
+                
+                // Play animation and sound
+                player.animate(Animation.OFFER_BONES_TO_ALTER_ANIM)
+                player.playSound(Sound.ALTAR_PRAY)
+                
+                // Wait for animation
+                this.wait(cycles = 2)
+                
+                // For chaos altars, 50% chance to not consume the bone
+                val shouldConsumeBone = if (isChaosAltar) {
+                    Random.nextBoolean()
+                } else {
+                    true
+                }
+                
+                // Remove the bone from inventory (unless chaos altar saves it)
+                if (shouldConsumeBone) {
+                    val remove = player.inventory.remove(
+                        item = expectedItemId,
+                        amount = 1,
+                        beginSlot = boneSlot,
+                        assureFullRemoval = false
+                    )
                     
-                    // Get bone name for message
-                    val boneName = getItem(expectedItemId).name.lowercase()
-                    val bonePlural = if (boneName.endsWith("s", ignoreCase = false)) boneName else "$boneName bones"
-                    
-                    if (isChaosAltar) {
-                        player.message("The gods are very pleased with your $bonePlural offering.")
+                    if (remove.hasSucceeded() && remove.completed > 0) {
+                        // Add prayer experience
+                        player.addXp(Skills.PRAYER, xpGained)
+                        bonesProcessed++
+                        consecutiveSaves = 0 // Reset counter on successful consumption
+                        
+                        // Only show message for first bone to avoid spam
+                        if (bonesProcessed == 1) {
+                            if (isChaosAltar) {
+                                player.message("The gods are very pleased with your $bonePlural offering.")
+                            } else {
+                                player.message("The gods are pleased with your $bonePlural offering.")
+                            }
+                        }
                     } else {
-                        player.message("The gods are pleased with your $bonePlural offering.")
+                        // Couldn't remove bone, stop processing
+                        break
                     }
                 } else {
-                    player.message("You don't have that bone.")
+                    // Chaos altar saved the bone - still give XP but don't remove bone
+                    player.addXp(Skills.PRAYER, xpGained)
+                    bonesProcessed++
+                    consecutiveSaves++
+                    
+                    // Only show message for first bone to avoid spam
+                    if (bonesProcessed == 1) {
+                        player.message("The gods are very pleased with your $bonePlural offering. They don't require the bones.")
+                    }
+                    
+                    // If we've saved too many consecutive bones, break to avoid infinite loop
+                    // This should rarely happen, but is a safety measure
+                    if (consecutiveSaves >= 10) {
+                        break
+                    }
                 }
-            } else {
-                // Chaos altar saved the bone - still give XP but don't remove bone
-                player.addXp(Skills.PRAYER, xpGained)
-                
-                val boneName = getItem(expectedItemId).name.lowercase()
-                val bonePlural = if (boneName.endsWith("s", ignoreCase = false)) boneName else "$boneName bones"
-                player.message("The gods are very pleased with your $bonePlural offering. They don't require the bones.")
+            }
+            
+            // Show summary message if multiple bones were processed
+            if (bonesProcessed > 1) {
+                player.message("You offer $bonesProcessed $bonePlural to the altar.")
             }
         }
     }
