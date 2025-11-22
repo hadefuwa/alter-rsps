@@ -410,6 +410,11 @@ object CombatConfigs {
     }
 
     fun getXpMode(player: Player): XpMode {
+        // If player is casting a spell, always return MAGIC XP mode
+        if (player.attr.has(Combat.CASTING_SPELL)) {
+            return XpMode.MAGIC
+        }
+        
         val style = player.getAttackStyle()
 
         return when {

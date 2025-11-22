@@ -159,7 +159,6 @@ class BankPlugin(
                 if (deposited > 0) {
                     any = true
                     if (curTab != 0 && !placeholder) {
-                        println("Equipment banker 1.")
                         dropToTab(player, curTab, to.getLastFreeSlot() - 1, true)
                     }
                     EquipAction.onItemUnequip(player, item.id, i)
@@ -219,7 +218,6 @@ class BankPlugin(
                         }
             }
 
-            println("DEPOSIT BUTTON EXEC")
             if (amount == 0) {
                 amount = player.inventory.getItemCount(item.id)
             } else if (amount == -1) {
@@ -337,7 +335,6 @@ class BankPlugin(
             dstInterfaceId = INV_INTERFACE_ID,
             dstComponent = INV_INTERFACE_CHILD,
         ) {
-            println("Here")
             val srcSlot = player.attr[INTERACTING_ITEM_SLOT]!!
             val dstSlot = player.attr[OTHER_ITEM_SLOT_ATTR]!!
 

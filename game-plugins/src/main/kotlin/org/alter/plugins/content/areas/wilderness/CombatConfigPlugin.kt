@@ -158,44 +158,47 @@ class CombatConfigPlugin(
          * Undead warriors with moderate combat stats.
          * - Hitpoints: 25 (low-medium HP)
          * - Aggressive Radius: 7 tiles
+         * 
+         * NOTE: Skeleton combat definition is already set in TaverleyCombatConfigPlugin.
+         * Commenting out to avoid duplicate definition error for NPC 70.
          */
         // Configure skeletons - same structure as dark wizards but different values
-        setCombatDef("npc.skeleton") {
-            configs {
-                attackSpeed = 4   // Same attack speed as dark wizards
-                respawnDelay = 25 // Same respawn speed
-            }
-            stats {
-                hitpoints = 25    // Same HP as dark wizards
-            }
-            anims {
-                attack = 422      // Different animation - this is a melee attack (not magic)
-                block = 424       // Same block animation
-                death = 836       // Same death animation
-            }
-            aggro {
-                radius = 7        // Same detection radius
-                searchDelay = 3   // Same search frequency
-                alwaysAggro()     // Always aggressive
-            }
-            
-            // Add loot drops for Skeletons
-            drops {
-                always {
-                    add("item.bones", 1)
-                }
-                
-                main(weight = 100) {
-                    add("item.coins_995", min = 3, max = 12, weight = 45)
-                    add("item.bronze_arrow", min = 5, max = 15, weight = 25)
-                    add("item.iron_arrow", min = 2, max = 8, weight = 15)
-                    add("item.bronze_axe", min = 1, weight = 5)
-                    add("item.bronze_sword", min = 1, weight = 5)
-                    add("item.bronze_dagger", min = 1, weight = 8)
-                    add("item.iron_dagger", min = 1, weight = 3)
-                }
-            }
-        }
+        // setCombatDef("npc.skeleton") {
+        //     configs {
+        //         attackSpeed = 4   // Same attack speed as dark wizards
+        //         respawnDelay = 25 // Same respawn speed
+        //     }
+        //     stats {
+        //         hitpoints = 25    // Same HP as dark wizards
+        //     }
+        //     anims {
+        //         attack = 422      // Different animation - this is a melee attack (not magic)
+        //         block = 424       // Same block animation
+        //         death = 836       // Same death animation
+        //     }
+        //     aggro {
+        //         radius = 7        // Same detection radius
+        //         searchDelay = 3   // Same search frequency
+        //         alwaysAggro()     // Always aggressive
+        //     }
+        //     
+        //     // Add loot drops for Skeletons
+        //     drops {
+        //         always {
+        //             add("item.bones", 1)
+        //         }
+        //         
+        //         main(weight = 100) {
+        //             add("item.coins_995", min = 3, max = 12, weight = 45)
+        //             add("item.bronze_arrow", min = 5, max = 15, weight = 25)
+        //             add("item.iron_arrow", min = 2, max = 8, weight = 15)
+        //             add("item.bronze_axe", min = 1, weight = 5)
+        //             add("item.bronze_sword", min = 1, weight = 5)
+        //             add("item.bronze_dagger", min = 1, weight = 8)
+        //             add("item.iron_dagger", min = 1, weight = 3)
+        //         }
+        //     }
+        // }
         
         /**
          * Bandits Combat Configuration
@@ -252,46 +255,49 @@ class CombatConfigPlugin(
          * Magic-using druids similar to dark wizards.
          * - Hitpoints: 25 (low HP)
          * - Aggressive Radius: 7 tiles
+         * 
+         * NOTE: Chaos Druid combat definition is already set in TaverleyCombatConfigPlugin.
+         * Commenting out to avoid duplicate definition error for NPC 520.
          */
-        setCombatDef("npc.chaos_druid") {
-            configs {
-                attackSpeed = 4
-                respawnDelay = 25
-            }
-            stats {
-                hitpoints = 25
-            }
-            anims {
-                attack = 422
-                block = 424
-                death = 836
-            }
-            aggro {
-                radius = 7
-                searchDelay = 3
-                alwaysAggro()
-            }
-            
-            // Add loot drops for Chaos Druids
-            drops {
-                always {
-                    add("item.bones", 1)
-                }
-                
-                main(weight = 100) {
-                    add("item.coins_995", min = 6, max = 18, weight = 30)
-                    add("item.grimy_guam", min = 1, weight = 20)
-                    add("item.grimy_marrentill", min = 1, weight = 15)
-                    add("item.grimy_tarromin", min = 1, weight = 12)
-                    add("item.grimy_harralander", min = 1, weight = 10)
-                    add("item.grimy_ranarr", min = 1, weight = 8)
-                    add("item.grimy_irit", min = 1, weight = 6)
-                    add("item.nature_rune", min = 1, max = 3, weight = 10)
-                    add("item.law_rune", min = 1, max = 2, weight = 8)
-                    add("item.chaos_rune", min = 2, max = 5, weight = 12)
-                }
-            }
-        }
+        // setCombatDef("npc.chaos_druid") {
+        //     configs {
+        //         attackSpeed = 4
+        //         respawnDelay = 25
+        //     }
+        //     stats {
+        //         hitpoints = 25
+        //     }
+        //     anims {
+        //         attack = 422
+        //         block = 424
+        //         death = 836
+        //     }
+        //     aggro {
+        //         radius = 7
+        //         searchDelay = 3
+        //         alwaysAggro()
+        //     }
+        //     
+        //     // Add loot drops for Chaos Druids
+        //     drops {
+        //         always {
+        //             add("item.bones", 1)
+        //         }
+        //         
+        //         main(weight = 100) {
+        //             add("item.coins_995", min = 6, max = 18, weight = 30)
+        //             add("item.grimy_guam_leaf", min = 1, weight = 20)
+        //             add("item.grimy_marrentill", min = 1, weight = 15)
+        //             add("item.grimy_tarromin", min = 1, weight = 12)
+        //             add("item.grimy_harralander", min = 1, weight = 10)
+        //             add("item.grimy_ranarr_weed", min = 1, weight = 8)
+        //             add("item.grimy_irit_leaf", min = 1, weight = 6)
+        //             add("item.nature_rune", min = 1, max = 3, weight = 10)
+        //             add("item.law_rune", min = 1, max = 2, weight = 8)
+        //             add("item.chaos_rune", min = 2, max = 5, weight = 12)
+        //         }
+        //     }
+        // }
         
         /**
          * Wolves Combat Configuration
@@ -448,6 +454,60 @@ class CombatConfigPlugin(
         }
         
         /**
+         * Battle Mages Combat Configuration
+         * 
+         * Aggressive mages that spawn in the Mage Arena area of the wilderness.
+         * They use god spells (Saradomin Strike, Claws of Guthix, Flames of Zamorak)
+         * that hit through prayer protection.
+         * Configured for all three battle mage variants (1610, 1611, 1612).
+         * - Hitpoints: 50 (moderate HP for mid-level wilderness area)
+         * - Respawn Delay: 30 cycles (moderate respawn speed)
+         * - Aggressive Radius: 8 tiles (good detection range for mages)
+         * - Search Delay: 2 cycles (fast reaction to players)
+         * - Always Aggressive: Yes (will attack any player within range)
+         * - Uses magic attack animation (811) for god spells
+         */
+        setCombatDef("npc.battle_mage", "npc.battle_mage_1611", "npc.battle_mage_1612") {
+            configs {
+                attackSpeed = 4  // Standard magic attack speed
+                respawnDelay = 30  // Moderate respawn delay
+            }
+            stats {
+                hitpoints = 50  // Moderate HP for mid-level wilderness monsters
+            }
+            anims {
+                attack = 811   // God spell attack animation
+                block = 424    // Standard block animation
+                death = 836    // Standard death animation
+            }
+            aggro {
+                radius = 8     // Good detection range for mages
+                searchDelay = 2  // Fast reaction to players entering area
+                alwaysAggro()   // Always aggressive - never stops being aggressive
+            }
+            
+            // Add loot drops for Battle Mages
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 20, max = 100, weight = 30)
+                    add("item.blood_rune", min = 2, max = 8, weight = 20)
+                    add("item.death_rune", min = 3, max = 10, weight = 18)
+                    add("item.chaos_rune", min = 5, max = 15, weight = 15)
+                    add("item.law_rune", min = 2, max = 6, weight = 12)
+                    add("item.nature_rune", min = 3, max = 8, weight = 10)
+                    add("item.air_rune", min = 10, max = 30, weight = 15)
+                    add("item.fire_rune", min = 10, max = 30, weight = 15)
+                    add("item.water_rune", min = 10, max = 30, weight = 15)
+                    add("item.earth_rune", min = 10, max = 30, weight = 15)
+                }
+            }
+        }
+        
+        /**
          * Hellhounds Combat Configuration
          * 
          * Extremely dangerous high-level monsters with the highest HP.
@@ -457,60 +517,63 @@ class CombatConfigPlugin(
          * - Aggressive Radius: 10 tiles (large detection range)
          * - Search Delay: 2 cycles (very fast reaction)
          * - Uses hellhound-specific animations (6562, 6563, 6564)
+         * 
+         * NOTE: Hellhound combat definitions are already set in TaverleyCombatConfigPlugin.
+         * Commenting out to avoid duplicate definition errors for NPCs 104 and 105.
          */
-        setCombatDef("npc.hellhound_104", "npc.hellhound_105") {
-            configs {
-                attackSpeed = 4
-                // respawnDelay = 50 means wait 50 cycles before respawning (slower than low-level monsters)
-                // High-level monsters take longer to respawn to make them feel more valuable
-                respawnDelay = 50
-            }
-            stats {
-                // hitpoints = 116 is VERY high - these are the toughest wilderness monsters
-                // Players will need to hit them many times to kill them
-                hitpoints = 116
-            }
-            anims {
-                // Hellhounds have their own unique animations (different from other monsters)
-                attack = 6562
-                block = 6563
-                death = 6564
-            }
-            aggro {
-                // Same aggressive settings as dragons - large radius and fast reaction
-                radius = 10
-                searchDelay = 2
-                alwaysAggro()
-            }
-            
-            // Add loot drops for Hellhounds
-            drops {
-                always {
-                    add("item.bones", 1)
-                }
-                
-                main(weight = 100) {
-                    add("item.coins_995", min = 75, max = 200, weight = 20)
-                    add("item.blood_rune", min = 5, max = 15, weight = 18)
-                    add("item.death_rune", min = 3, max = 10, weight = 15)
-                    add("item.soul_rune", min = 2, max = 8, weight = 12)
-                    add("item.nature_rune", min = 8, max = 20, weight = 16)
-                    add("item.law_rune", min = 5, max = 12, weight = 14)
-                    add("item.rune_dagger", min = 1, weight = 6)
-                    add("item.rune_sword", min = 1, weight = 4)
-                    add("item.adamant_platebody", min = 1, weight = 3)
-                    add("item.rune_chainbody", min = 1, weight = 2)
-                    add("item.uncut_emerald", min = 1, max = 3, weight = 8)
-                    add("item.uncut_ruby", min = 1, max = 2, weight = 5)
-                    add("item.uncut_diamond", min = 1, weight = 3)
-                }
-                
-                tertiary(weight = 512) {
-                    add("item.dragon_spear", min = 1, weight = 512)
-                    add("item.rune_platebody", min = 1, weight = 384)
-                }
-            }
-        }
+        // setCombatDef("npc.hellhound_104", "npc.hellhound_105") {
+        //     configs {
+        //         attackSpeed = 4
+        //         // respawnDelay = 50 means wait 50 cycles before respawning (slower than low-level monsters)
+        //         // High-level monsters take longer to respawn to make them feel more valuable
+        //         respawnDelay = 50
+        //     }
+        //     stats {
+        //         // hitpoints = 116 is VERY high - these are the toughest wilderness monsters
+        //         // Players will need to hit them many times to kill them
+        //         hitpoints = 116
+        //     }
+        //     anims {
+        //         // Hellhounds have their own unique animations (different from other monsters)
+        //         attack = 6562
+        //         block = 6563
+        //         death = 6564
+        //     }
+        //     aggro {
+        //         // Same aggressive settings as dragons - large radius and fast reaction
+        //         radius = 10
+        //         searchDelay = 2
+        //         alwaysAggro()
+        //     }
+        //     
+        //     // Add loot drops for Hellhounds
+        //     drops {
+        //         always {
+        //             add("item.bones", 1)
+        //         }
+        //         
+        //         main(weight = 100) {
+        //             add("item.coins_995", min = 75, max = 200, weight = 20)
+        //             add("item.blood_rune", min = 5, max = 15, weight = 18)
+        //             add("item.death_rune", min = 3, max = 10, weight = 15)
+        //             add("item.soul_rune", min = 2, max = 8, weight = 12)
+        //             add("item.nature_rune", min = 8, max = 20, weight = 16)
+        //             add("item.law_rune", min = 5, max = 12, weight = 14)
+        //             add("item.rune_dagger", min = 1, weight = 6)
+        //             add("item.rune_sword", min = 1, weight = 4)
+        //             add("item.adamant_platebody", min = 1, weight = 3)
+        //             add("item.rune_chainbody", min = 1, weight = 2)
+        //             add("item.uncut_emerald", min = 1, max = 3, weight = 8)
+        //             add("item.uncut_ruby", min = 1, max = 2, weight = 5)
+        //             add("item.uncut_diamond", min = 1, weight = 3)
+        //         }
+        //         
+        //         tertiary(weight = 512) {
+        //             add("item.dragon_spear", min = 1, weight = 512)
+        //             add("item.rune_platebody", min = 1, weight = 384)
+        //         }
+        //     }
+        // }
     }
 }
 

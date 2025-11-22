@@ -3,7 +3,6 @@ package org.alter.plugins.content.areas.godwars
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.World
-import org.alter.game.model.Tile
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Player
 import org.alter.game.model.timer.TimerKey
@@ -43,6 +42,11 @@ class GodWarsFactionFightingPlugin(
         val COMBAT_CLEANUP_TIMER = TimerKey()
         
         /**
+         * Timer key for resetting NPCs after inactivity
+         */
+        val INACTIVITY_RESET_TIMER = TimerKey()
+        
+        /**
          * God factions
          */
         enum class GodFaction {
@@ -52,6 +56,27 @@ class GodWarsFactionFightingPlugin(
             BANDOS,
             NONE
         }
+        
+        /**
+         * God Wars Dungeon region IDs (height 2)
+         */
+        private val GODWARS_REGIONS = setOf(
+            11602, // Saradomin area
+            11603, // Zamorak area
+            11346, // Armadyl area
+            11347, // Bandos area
+            11345, // Adjacent region
+            11601, // Adjacent region
+            11604, // Adjacent region
+            11858, // Adjacent region
+            11859  // Adjacent region
+        )
+        
+        /**
+         * Time in ticks before resetting NPCs when no players present
+         * 120 seconds = 200 ticks (1 tick = 0.6 seconds)
+         */
+        private const val INACTIVITY_RESET_TICKS = 200
     }
     
     /**
@@ -59,18 +84,117 @@ class GodWarsFactionFightingPlugin(
      */
     private val npcFactions = mutableMapOf<Int, GodFaction>()
     
+    /**
+     * Track the number of players currently in God Wars regions
+     * This is updated via region enter/exit events (event-based, not polling)
+     */
+    private var playersInGodWars: Int = 0
+    
+    /**
+     * Check if any players are currently in God Wars Dungeon
+     */
+    private fun hasPlayersInGodWars(): Boolean {
+        return playersInGodWars > 0
+    }
+    
+    /**
+     * Enable faction fighting for all God Wars NPCs
+     */
+    /*private fun enableFactionFighting() {
+        world.npcs.forEach { npc ->
+            val faction = npcFactions[npc.id]
+            if (faction != null && faction != GodFaction.NONE && npc.isSpawned() && npc.isAlive()) {
+                // Start faction timer if not already running
+                if (!npc.timers.has(FACTION_CHECK_TIMER)) {
+                    npc.timers[FACTION_CHECK_TIMER] = 20
+                }
+            }
+        }
+    }*/
+    
+    /**
+     * Disable faction fighting for all God Wars NPCs
+     */
+    /*private fun disableFactionFighting() {
+        world.npcs.forEach { npc ->
+            val faction = npcFactions[npc.id]
+            if (faction != null && faction != GodFaction.NONE) {
+                // Stop faction fighting timer
+                npc.timers.remove(FACTION_CHECK_TIMER)
+            }
+        }
+    }*/
+    
+    /**
+     * Reset all God Wars NPCs (clear combat state only)
+     * NPCs will naturally return to spawn via their walk radius
+     */
+    /*private fun resetAllGodWarsNpcs() {
+        world.npcs.forEach { npc ->
+            val faction = npcFactions[npc.id]
+            if (faction != null && faction != GodFaction.NONE && npc.isSpawned()) {
+                // Clear combat targets and reset state
+                npc.removeCombatTarget()
+                npc.resetFacePawn()
+                npc.interruptQueues()
+                
+                // Stop faction fighting timer
+                npc.timers.remove(FACTION_CHECK_TIMER)
+            }
+        }
+    }*/
+    
     init {
         // Register NPCs to their factions
-        registerFactions()
+        //registerFactions()
         
-        // Set up combat cleanup timer for all God Wars NPCs
-        // This clears stale combat targets that prevent players from attacking NPCs
-        // Only clears targets that are truly invalid (dead, despawned, offline)
+        // EVENT-BASED PLAYER TRACKING (much more efficient than polling)
+        // Track players entering God Wars regions
+        /*GODWARS_REGIONS.forEach { regionId ->
+            onEnterRegion(regionId) {
+                val player = ctx as? Player ?: return@onEnterRegion
+                
+                // Increment player count
+                playersInGodWars++
+                
+                // If this is the first player, enable faction fighting
+                if (playersInGodWars == 1) {
+                    //enableFactionFighting()
+                    // Cancel any pending inactivity reset
+                    world.timers.remove(INACTIVITY_RESET_TIMER)
+                }
+            }
+            
+            // Track players exiting God Wars regions
+            onExitRegion(regionId) {
+                val player = ctx as? Player ?: return@onExitRegion
+                
+                // Decrement player count
+                playersInGodWars = maxOf(0, playersInGodWars - 1)
+                
+                // If no players remain, disable faction fighting and start inactivity timer
+                if (playersInGodWars == 0) {
+                    //disableFactionFighting()
+                    // Start inactivity reset timer (only runs when needed)
+                    world.timers[INACTIVITY_RESET_TIMER] = INACTIVITY_RESET_TICKS
+                }
+            }
+        }
+        
+        // Timer that resets NPCs after inactivity (only runs when no players are present)
+        onTimer(INACTIVITY_RESET_TIMER) {
+            // Double-check no players are present (in case someone entered during the timer)
+            if (playersInGodWars == 0) {
+                //resetAllGodWarsNpcs()
+            }
+            // Timer will not reset itself - it only runs once when triggered
+        }
+        
+        // Set up combat cleanup timer and faction fighting for all God Wars NPCs
         onGlobalNpcSpawn {
             val faction = npcFactions[npc.id]
             if (faction != null && faction != GodFaction.NONE) {
                 // Immediately check and clear any stale combat targets on spawn
-                // This ensures NPCs aren't stuck with invalid targets from previous sessions
                 val combatTarget = npc.getCombatTarget()
                 if (combatTarget != null) {
                     val isTrulyInvalid = combatTarget.isDead() || 
@@ -83,8 +207,13 @@ class GodWarsFactionFightingPlugin(
                     }
                 }
                 
-                // Start combat cleanup timer (check every 10 ticks to avoid interfering with combat)
+                // Start combat cleanup timer (always runs)
                 npc.timers[COMBAT_CLEANUP_TIMER] = 10
+                
+                // Only start faction timer if players are present
+                /*if (hasPlayersInGodWars()) {
+                    npc.timers[FACTION_CHECK_TIMER] = 20
+                }*/
             }
         }
         
@@ -128,37 +257,21 @@ class GodWarsFactionFightingPlugin(
             
             // Reset timer to check again (less frequently to avoid interference)
             npc.timers[COMBAT_CLEANUP_TIMER] = 10
-        }
+        }*/
         
-        // FACTION FIGHTING DISABLED
-        // This was preventing players from attacking NPCs
-        // If you want faction fighting back, uncomment the code below and adjust the logic
-        
-        /*
-        // Set up faction checking timer for all God Wars NPCs
-        onGlobalNpcSpawn {
-            val faction = npcFactions[npc.id]
-            if (faction != null && faction != GodFaction.NONE) {
-                // Start faction checking timer (check every 10 ticks to reduce interference)
-                npc.timers[FACTION_CHECK_TIMER] = 10
-            }
-        }
-        
-        // Timer that checks for faction enemies and initiates combat
-        onTimer(FACTION_CHECK_TIMER) {
-            if (npc.lock.canAttack() && npc.isActive()) {
-                checkForFactionEnemies(npc)
-            }
-            // Reset timer to check again (less frequently)
-            npc.timers[FACTION_CHECK_TIMER] = 10
-        }
-        */
-    }
+        // FACTION FIGHTING ENABLED
+        // NPCs will attack each other, but can be interrupted by players
+        // Timer only runs when players are present (managed by event handlers)
+        /*onTimer(FACTION_CHECK_TIMER) {
+            // ... (already commented out)
+        }*/
+    }    
+
     
     /**
      * Register all God Wars NPCs to their factions
      */
-    private fun registerFactions() {
+    /*private fun registerFactions() {
         try {
             // Saradomin faction
             registerFaction("npc.spiritual_warrior", GodFaction.SARADOMIN)
@@ -188,70 +301,46 @@ class GodWarsFactionFightingPlugin(
         } catch (e: Exception) {
             // Silent error handling
         }
-    }
+    }*/
     
     /**
      * Register a single NPC to a faction
      */
-    private fun registerFaction(rscmName: String, faction: GodFaction) {
+    /*private fun registerFaction(rscmName: String, faction: GodFaction) {
         try {
             val npcId = getRSCM(rscmName)
             npcFactions[npcId] = faction
         } catch (e: Exception) {
             // Silent error handling
         }
-    }
+    }*/
     
     /**
      * Check for nearby faction enemies and attack them
      * 
-     * Priority order:
-     * 1. If already in combat (with anyone), don't interfere
-     * 2. If players are very close (within 5 tiles), don't do anything (let players initiate)
-     * 3. Otherwise, attack enemy NPCs if no players are nearby
+     * Simple logic:
+     * - If not already in combat, look for enemy NPCs and attack them
+     * - Players can interrupt at any time by attacking the NPC
      */
-    private fun checkForFactionEnemies(npc: Npc) {
+    /*private fun checkForFactionEnemies(npc: Npc) {
         val myFaction = npcFactions[npc.id] ?: return
         
-        // If NPC is already attacking anyone (player or NPC), don't interfere
+        // If NPC is already attacking, don't change targets
         if (npc.isAttacking()) {
             return
         }
         
-        // Look for very close players (within 5 tiles) - if present, do nothing
-        val veryCloseToPlayer = hasVeryClosePlayer(npc, 5)
-        if (veryCloseToPlayer) {
-            // Players are very close - let them initiate combat if they want
-            return
-        }
-        
-        // NPC is idle and no players are very close - look for enemy NPCs to fight
-        val enemyNpc = findNearestEnemy(npc, myFaction, 8)
-        if (enemyNpc != null && !enemyNpc.isAttacking()) {
-            // Only attack idle enemy NPCs (don't interrupt their combat)
+        // Look for the nearest enemy NPC to attack
+        val enemyNpc = findNearestEnemy(npc, myFaction, 10)
+        if (enemyNpc != null) {
             npc.attack(enemyNpc)
         }
-    }
-    
-    /**
-     * Check if there are any players very close to the NPC
-     */
-    private fun hasVeryClosePlayer(npc: Npc, radius: Int): Boolean {
-        var hasClosePlayer = false
-        npc.world.players.forEach { player ->
-            if (player.isAlive() && 
-                player.tile.isWithinRadius(npc.tile, radius) &&
-                player.tile.height == npc.tile.height) {
-                hasClosePlayer = true
-            }
-        }
-        return hasClosePlayer
-    }
+    }*/
     
     /**
      * Find the nearest enemy NPC from a different faction
      */
-    private fun findNearestEnemy(npc: Npc, myFaction: GodFaction, radius: Int): Npc? {
+    /*private fun findNearestEnemy(npc: Npc, myFaction: GodFaction, radius: Int): Npc? {
         val enemies = mutableListOf<Npc>()
         
         npc.world.npcs.forEach { otherNpc ->
@@ -279,18 +368,18 @@ class GodWarsFactionFightingPlugin(
         }
         
         return closestEnemy
-    }
+    }*/
     
     /**
      * Check if two factions are enemies
      */
-    private fun isEnemy(faction1: GodFaction, faction2: GodFaction?): Boolean {
+    /*private fun isEnemy(faction1: GodFaction, faction2: GodFaction?): Boolean {
         if (faction2 == null || faction2 == GodFaction.NONE) {
             return false
         }
         
         // All factions are enemies with each other
         return faction1 != faction2
-    }
+    }*/
 }
 

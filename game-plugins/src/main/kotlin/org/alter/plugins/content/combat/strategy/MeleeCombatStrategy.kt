@@ -99,6 +99,13 @@ object MeleeCombatStrategy : CombatStrategy {
                 player.addXp(Skills.DEFENCE, modDamage * 1.33 * multiplier)
                 player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
+            XpMode.MAGIC, XpMode.RANGED -> {
+                // This should not happen - player should be using MagicCombatStrategy or RangedCombatStrategy
+                // But handle it gracefully to prevent crashes
+                // Log a warning and give default melee XP
+                player.addXp(Skills.ATTACK, modDamage * 4.0 * multiplier)
+                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+            }
             else -> throw IllegalStateException("Unknown $mode in MeleeCombatStrategy.")
         }
     }

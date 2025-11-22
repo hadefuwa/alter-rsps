@@ -3,6 +3,7 @@ package org.alter.plugins.content.combat.formula
 import org.alter.api.*
 import org.alter.api.ext.*
 import org.alter.game.model.combat.AttackStyle
+import org.alter.game.model.combat.CombatStyle
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Pawn
 import org.alter.game.model.entity.Player
@@ -101,7 +102,25 @@ object RangedCombatFormula : CombatFormula {
             }
             // Apply damage multiplier for NPCs (e.g., revenants, wilderness NPCs)
             hit *= getDamageDealMultiplier(pawn)
+            // Apply 6x base damage multiplier for revenants
+            val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
+                            (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
+            if (isRevenant) {
+                hit *= 6.0
+            }
             hit = Math.floor(hit)
+
+            // Apply damage take multiplier (for items like Bracelet of Ethereum)
+            hit *= getDamageTakeMultiplier(target)
+            hit = Math.floor(hit)
+
+            // Cap damage at 30 if target is wearing Bracelet of Ethereum and attacker is Revenant
+            if (isRevenant && target.hasEquipped(EquipmentType.GLOVES, "item.bracelet_of_ethereum")) {
+                 if (hit > 30.0) {
+                     hit = 30.0
+                 }
+            }
+
             base = hit.toInt()
         }
         return base
@@ -126,12 +145,16 @@ object RangedCombatFormula : CombatFormula {
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, target, maxRoll, specialAttackMultiplier)
         }
-        // Apply 10x accuracy multiplier for wilderness NPCs and revenants
+        // Apply accuracy multiplier for wilderness NPCs and revenants
+        // Revenants: 15x accuracy (tripled from 5x)
+        // Other wilderness NPCs: 10x accuracy
         if (pawn is Npc) {
             val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
             val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
                             (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
-            if (isWildernessNpc || isRevenant) {
+            if (isRevenant) {
+                maxRoll *= 15.0
+            } else if (isWildernessNpc) {
                 maxRoll *= 10.0
             }
         }
@@ -222,6 +245,12 @@ object RangedCombatFormula : CombatFormula {
 
         hit *= getDamageTakeMultiplier(target)
         hit = Math.floor(hit)
+        
+        // Apply Kalphite Queen form-based damage reduction
+        if (target is Npc) {
+            hit *= getKQDamageMultiplier(target, CombatStyle.RANGED)
+            hit = Math.floor(hit)
+        }
 
         return hit.toInt()
     }
@@ -417,11 +446,16 @@ object RangedCombatFormula : CombatFormula {
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") -> 1.15
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") -> 1.2
+            player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice") && isRevenantCaves(player.tile) -> 1.2
             // TODO: this should only apply when target is slayer task?
             player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) -> 7.0 / 6.0
             player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) -> 1.15
             else -> 1.0
         }
+
+    private fun isRevenantCaves(tile: org.alter.game.model.Tile): Boolean {
+        return tile.z >= 10000 && tile.z <= 10300 && tile.x >= 3100 && tile.x <= 3300
+    }
 
     private fun applyPassiveMultiplier(
         player: Player,
@@ -472,6 +506,29 @@ object RangedCombatFormula : CombatFormula {
     private fun getDamageDealMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_DEAL_MULTIPLIER] ?: 1.0
 
     private fun getDamageTakeMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_TAKE_MULTIPLIER] ?: 1.0
+    
+    /**
+     * Get Kalphite Queen damage multiplier based on form and attack style
+     */
+    private fun getKQDamageMultiplier(npc: Npc, attackStyle: CombatStyle): Double {
+        // Check if this is a Kalphite Queen
+        val isKQ = npc.id == 963 || npc.id == 964 || npc.def.name.lowercase().contains("kalphite queen")
+        if (!isKQ) return 1.0
+        
+        // Try to get the form from the phase plugin
+        val isForm2 = try {
+            org.alter.plugins.content.npcs.kalphitequeen.KalphiteQueenPhasePlugin.isForm2(npc)
+        } catch (e: Exception) {
+            // Fallback to ID check if plugin not loaded
+            npc.id == 964
+        }
+        
+        // Both forms reduce Ranged damage
+        return when (attackStyle) {
+            CombatStyle.RANGED -> 0.25
+            else -> 1.0
+        }
+    }
 
     private fun isDragon(pawn: Pawn): Boolean {
         return if (pawn is Npc) {

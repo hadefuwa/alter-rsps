@@ -27,23 +27,78 @@ class AppearanceInterfacePlugin(
     private val APPEARANCE_INTERFACE_ID = 679
     
     init {
+        // Initialize interface when opened - set varbit and save original appearance
+        onInterfaceOpen(APPEARANCE_INTERFACE_ID) {
+            // Set varbit to match current gender (0 = male, 1 = female)
+            player.setVarbit(11697, if (player.appearance.gender == Gender.MALE) 0 else 1)
+            // Save original appearance so we can restore it if player cancels
+            player.attr[ORIGINAL_APPEARANCE_ATTR] = Appearance(
+                looks = player.appearance.looks.copyOf(),
+                colors = player.appearance.colors.copyOf(),
+                gender = player.appearance.gender
+            )
+        }
+        
+        // Handle interface close - restore original appearance if not confirmed
+        onInterfaceClose(APPEARANCE_INTERFACE_ID) {
+            // Only restore if the appearance wasn't confirmed (APPEARANCE_SET_ATTR wasn't set)
+            // We check this by seeing if the original appearance is still stored
+            player.attr[ORIGINAL_APPEARANCE_ATTR]?.let { originalAppearance ->
+                // Restore original appearance
+                player.appearance = Appearance(
+                    looks = originalAppearance.looks.copyOf(),
+                    colors = originalAppearance.colors.copyOf(),
+                    gender = originalAppearance.gender
+                )
+                PlayerInfo(player).syncAppearance()
+                // Clear the stored original appearance
+                player.attr.remove(ORIGINAL_APPEARANCE_ATTR)
+            }
+        }
+        
         // Change gender to MALE
         onButton(APPEARANCE_INTERFACE_ID, 65) {
             player.setVarbit(11697, 0)
-            player.appearance = Appearance.DEFAULT_MALE.copy()
+            // Reset looks to default (males have 7 looks, females have 6, so structure is different)
+            // But preserve colors since they're the same for both genders
+            player.appearance = Appearance.DEFAULT_MALE.copy(
+                colors = player.appearance.colors.copyOf()
+            )
             PlayerInfo(player).syncAppearance()
         }
         
         // Change gender to FEMALE
         onButton(APPEARANCE_INTERFACE_ID, 66) {
             player.setVarbit(11697, 1)
-            player.appearance = Appearance.DEFAULT_FEMALE.copy()
+            // Reset looks to default (males have 7 looks, females have 6, so structure is different)
+            // But preserve colors since they're the same for both genders
+            player.appearance = Appearance.DEFAULT_FEMALE.copy(
+                colors = player.appearance.colors.copyOf()
+            )
             PlayerInfo(player).syncAppearance()
+        }
+        
+        // Cancel button - restore original appearance and close interface
+        onButton(APPEARANCE_INTERFACE_ID, 67) {
+            player.attr[ORIGINAL_APPEARANCE_ATTR]?.let { originalAppearance ->
+                // Restore original appearance
+                player.appearance = Appearance(
+                    looks = originalAppearance.looks.copyOf(),
+                    colors = originalAppearance.colors.copyOf(),
+                    gender = originalAppearance.gender
+                )
+                PlayerInfo(player).syncAppearance()
+                // Clear the stored original appearance
+                player.attr.remove(ORIGINAL_APPEARANCE_ATTR)
+            }
+            player.closeInterface(APPEARANCE_INTERFACE_ID)
         }
         
         // Confirm appearance selection and close interface
         onButton(APPEARANCE_INTERFACE_ID, 68) {
             player.attr[APPEARANCE_SET_ATTR] = true
+            // Clear the stored original appearance since we're confirming
+            player.attr.remove(ORIGINAL_APPEARANCE_ATTR)
             player.closeInterface(APPEARANCE_INTERFACE_ID)
         }
         

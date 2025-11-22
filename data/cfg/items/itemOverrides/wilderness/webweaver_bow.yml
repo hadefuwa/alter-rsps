@@ -1,0 +1,25 @@
+---
+id: 27655
+name: "Webweaver bow"
+equipment:
+  equipSlot: "weapon"
+  weaponType: 3
+  attackSpeed: 5
+  attackStab: 0
+  attackSlash: 0
+  attackCrush: 0
+  attackMagic: 0
+  attackRanged: 80
+  defenceStab: 0
+  defenceSlash: 0
+  defenceCrush: 0
+  defenceMagic: 0
+  defenceRanged: 0
+  meleeStrength: 0
+  rangedStrength: 65
+  magicDamage: 0
+  prayer: 0
+  skillReqs:
+    - skill: "ranged"
+      level: 70
+

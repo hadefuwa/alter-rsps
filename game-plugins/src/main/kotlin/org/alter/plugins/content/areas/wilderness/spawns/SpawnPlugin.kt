@@ -53,6 +53,9 @@ class SpawnPlugin(
      * - height: Height level (defaults to 0 for surface level)
      */
     init {
+        // Debug: Verify plugin is loading
+        println("Wilderness SpawnPlugin: Loading wilderness spawns...")
+        
         /**
          * Dark Wizards - Level 1-5 Wilderness
          * 
@@ -453,6 +456,73 @@ class SpawnPlugin(
          * Walk Radius: 5 tiles (boss patrols a small area)
          */
         spawnNpc(npc = "npc.porazdir", x = 3243, z = 3867, walkRadius = 5, direction = Direction.SOUTH)
+
+
+
+        spawnItem(item = "item.casket_hard_2726", amount = 1, x = 2986, z = 3704, height = 0)
+        spawnItem(item = "item.casket_easy", amount = 1, x = 3187, z = 3925, height = 0)
+        spawnItem(item = "item.casket_medium_2812", amount = 1, x = 2982, z = 3845, height = 0)
+
+        /**
+         * Battle Mages - Mage Arena (near Infinity Boots spawn)
+         * 
+         * Aggressive mages that hit through prayer.
+         */
+        spawnNpc(npc = "npc.battle_mage", x = 3102, z = 3932, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1611", x = 3106, z = 3932, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1612", x = 3102, z = 3936, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage", x = 3106, z = 3936, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1611", x = 3104, z = 3930, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1612", x = 3104, z = 3938, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage", x = 3100, z = 3934, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1611", x = 3108, z = 3934, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage_1612", x = 3103, z = 3933, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.battle_mage", x = 3105, z = 3935, walkRadius = 5, direction = Direction.SOUTH)
+
+        spawnItem(item = "item.antivenom4_12913", amount = 1, x = 3250, z = 3940, height = 0)
+        spawnItem(item = "item.infinity_boots", amount = 1, x = 3104, z = 3934, height = 0)
+        
+        
+        spawnItem(item = "item.wilderness_sword_3", amount = 1, x = 3105, z = 3958, height = 0)
+        spawnItem(item = "item.wilderness_sword_2", amount = 1, x = 3158, z = 3952, height = 0)
+        spawnItem(item = "item.wilderness_sword_1", amount = 1, x = 3030, z = 3852, height = 0)
+
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3077, z = 3759, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3083, z = 3753, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3085, z = 3749, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3086, z = 3756, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3084, z = 3760, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3079, z = 3765, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3075, z = 3770, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3082, z = 3773, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3085, z = 3771, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3089, z = 3769, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3089, z = 3763, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3092, z = 3774, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3091, z = 3761, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3096, z = 3755, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3100, z = 3761, height = 0)
+        spawnItem(item = "item.rune_pickaxe", amount = 1, x = 3101, z = 3766, height = 0)
+        
+        spawnItem(item = "item.dragon_bones", amount = 1, x = 2948, z = 3821, height = 0)
+        //lockpick by resource area
+
+        spawnItem(item = "item.lockpick", amount = 1, x = 3190, z = 3957, height = 0)
+        //10k coins by resource area
+
+        spawnItem(item = "item.coins_6964", amount = 10000, x = 3184, z = 3944, height = 0)
+        //
+        
+        //antifire by lava maze
+        spawnItem(item = "item.antifire_potion4", amount = 1, x = 3200, z = 3856, height = 0)
+        //antipoison by lava maze
+        spawnItem(item = "item.antifire_potion4", amount = 1, x = 3346, z = 3688, height = 0)
+        //antipoison by lava maze
+        spawnItem(item = "item.antifire_potion4", amount = 1, x = 2978, z = 3615, height = 0)
+        //dragon axe by Ents
+        spawnItem(item = "item.dragon_axe", amount = 1, x = 3232, z = 3689, height = 0)
+        
+        // Debug: Verify plugin loaded successfully
+        println("Wilderness SpawnPlugin: Loaded successfully - all spawns registered")
     }
 }
-

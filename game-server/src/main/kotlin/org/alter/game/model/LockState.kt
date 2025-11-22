@@ -72,7 +72,7 @@ enum class LockState {
 
     fun canGroundItemInteract(): Boolean =
         when (this) {
-            NONE -> true
+            NONE, DELAY_ACTIONS -> true
             else -> false
         }
 

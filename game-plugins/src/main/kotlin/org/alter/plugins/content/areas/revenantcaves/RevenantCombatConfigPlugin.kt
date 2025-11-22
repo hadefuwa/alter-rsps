@@ -66,9 +66,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -155,6 +157,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -191,9 +194,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -280,6 +285,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -316,9 +322,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -405,6 +413,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -441,9 +450,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -530,6 +541,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -566,9 +578,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -655,6 +669,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -691,9 +706,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -780,6 +797,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -816,9 +834,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -905,6 +925,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -941,9 +962,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -1030,6 +1053,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -1066,9 +1090,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -1155,6 +1181,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -1191,9 +1218,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -1280,6 +1309,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }
@@ -1316,9 +1346,11 @@ class RevenantCombatConfigPlugin(
             }
             
             drops {
-                // Always drop revenant ether (10-1000)
+                // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
                     add("item.revenant_ether", min = 10, max = 1000)
+                    add("item.manta_ray", min = 1, max = 5)
+                    add("item.prayer_potion4", min = 1, max = 3)
                 }
                 
                 // Main drop table with standard valuable items
@@ -1405,6 +1437,7 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024)
                 }
             }
         }

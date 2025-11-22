@@ -51,6 +51,12 @@ val FREE_BOND_CLAIMED_ATTR = AttributeKey<String>("bond_claimed")
 val APPEARANCE_SET_ATTR = AttributeKey<Boolean>("appearance_set")
 
 /**
+ * Stores the original appearance when the appearance interface is opened,
+ * so it can be restored if the player cancels.
+ */
+val ORIGINAL_APPEARANCE_ATTR = AttributeKey<org.alter.game.model.appearance.Appearance>()
+
+/**
  * A flag which indicates that the player will not take collision into account
  * when walking.
  */

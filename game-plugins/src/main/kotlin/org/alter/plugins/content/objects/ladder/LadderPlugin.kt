@@ -50,6 +50,133 @@ class LadderPlugin(
                 }
             }
         }
+        
+        // Slayer Tower Staircase (object.staircase, ID 2114)
+        // Teleports player to x=3437, y=3535, height=1
+        // Check which options are available before registering handlers
+        // Using lineOfSightDistance = 5 to allow interaction from further away
+        if (objHasOption(obj = "object.staircase", option = "climb")) {
+            onObjOption("object.staircase", option = "climb", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb up the stairs.")
+                    player.animate(828) // Climb up animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3437, 3535, 1)
+                    player.unlock()
+                }
+            }
+        }
+        
+        if (objHasOption(obj = "object.staircase", option = "climb-up")) {
+            onObjOption("object.staircase", option = "climb-up", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb up the stairs.")
+                    player.animate(828) // Climb up animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3437, 3535, 1)
+                    player.unlock()
+                }
+            }
+        }
+        
+        // Also handle climb-down option if it exists
+        if (objHasOption(obj = "object.staircase", option = "climb-down")) {
+            onObjOption("object.staircase", option = "climb-down", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb down the stairs.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3437, 3535, 1)
+                    player.unlock()
+                }
+            }
+        }
+        
+        // Stairs 2119 (staircase_2119) - Teleport to (3418, 3541, height 2)
+        // Using lineOfSightDistance = 5 to allow interaction from further away
+        if (objHasOption(obj = "object.staircase_2119", option = "climb")) {
+            onObjOption("object.staircase_2119", option = "climb", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb up the stairs.")
+                    player.animate(828) // Climb up animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3418, 3541, 2)
+                    player.unlock()
+                }
+            }
+        }
+        
+        if (objHasOption(obj = "object.staircase_2119", option = "climb-up")) {
+            onObjOption("object.staircase_2119", option = "climb-up", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb up the stairs.")
+                    player.animate(828) // Climb up animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3418, 3541, 2)
+                    player.unlock()
+                }
+            }
+        }
+        
+        // Also handle climb-down option if it exists
+        if (objHasOption(obj = "object.staircase_2119", option = "climb-down")) {
+            onObjOption("object.staircase_2119", option = "climb-down", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb down the stairs.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3418, 3541, 2)
+                    player.unlock()
+                }
+            }
+        }
+        
+        // Stairs 2120 (staircase_2120) - Teleport down to (3413, 3540, height 1)
+        // Using lineOfSightDistance = 5 to allow interaction from further away
+        if (objHasOption(obj = "object.staircase_2120", option = "climb")) {
+            onObjOption("object.staircase_2120", option = "climb", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb down the stairs.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3413, 3540, 1)
+                    player.unlock()
+                }
+            }
+        }
+        
+        if (objHasOption(obj = "object.staircase_2120", option = "climb-down")) {
+            onObjOption("object.staircase_2120", option = "climb-down", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb down the stairs.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3413, 3540, 1)
+                    player.unlock()
+                }
+            }
+        }
+        
+        if (objHasOption(obj = "object.staircase_2120", option = "climb-up")) {
+            onObjOption("object.staircase_2120", option = "climb-up", lineOfSightDistance = 5) {
+                player.queue {
+                    player.message("You climb down the stairs.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3413, 3540, 1)
+                    player.unlock()
+                }
+            }
+        }
 
         /**Ladders*/
 
@@ -61,6 +188,11 @@ class LadderPlugin(
                 "object.ladder_12966",
                 "object.ladder_16679",
                 "object.ladder_16684",
+                "object.ladder_14745",
+                "object.ladder_14746",
+                "object.ladder_14747",
+                "object.ladder_14748",
+                "object.ladder_30191",
             )
 
         ladders.forEach { ladder ->
@@ -135,6 +267,184 @@ class LadderPlugin(
                     player.unlock()
                 }
             }
+        }
+        
+        // Stairs 30190 - Teleport to (2883, 9825, height 0)
+        // Try common stair options
+        val stairs30190Options = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        stairs30190Options.forEach { option ->
+            try {
+                onObjOption(30190, option = option) {
+                    player.moveTo(2883, 9825, 0)
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Stairs 30189 - Teleport to (2880, 9825, height 1)
+        // Try common stair options
+        val stairs30189Options = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        stairs30189Options.forEach { option ->
+            try {
+                onObjOption(30189, option = option) {
+                    player.moveTo(2880, 9825, 1)
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Stairs 16665 (staircase_16665) - Teleport to (3045, 3927, height 0)
+        // Try common stair options
+        val stairs16665Options = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        stairs16665Options.forEach { option ->
+            try {
+                onObjOption(16665, option = option) {
+                    player.queue {
+                        player.message("You climb the staircase and find yourself in a new location.")
+                        player.animate(828) // Climb animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3045, 3927, 0)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.staircase_16665", option = "climb")) {
+                onObjOption("object.staircase_16665", option = "climb") {
+                    player.queue {
+                        player.message("You climb the staircase and find yourself in a new location.")
+                        player.animate(828)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3045, 3927, 0)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
+        
+        // Stairs 16664 (staircase_16664) - Teleport to (3045, 10323, height 0)
+        // Try common stair options
+        val stairs16664Options = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        stairs16664Options.forEach { option ->
+            try {
+                onObjOption(16664, option = option) {
+                    player.queue {
+                        player.message("You climb the staircase and find yourself in a new location.")
+                        player.animate(828) // Climb animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3045, 10323, 0)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.staircase_16664", option = "climb")) {
+                onObjOption("object.staircase_16664", option = "climb") {
+                    player.queue {
+                        player.message("You climb the staircase and find yourself in a new location.")
+                        player.animate(828)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3045, 10323, 0)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
+        
+        // Chain 16537 (spikey_chain) - Teleport to (3424, 3548, height 1)
+        // Try common chain/climb options
+        val chain16537Options = listOf("climb", "climb-up", "climb-down", "use", "operate", "swing")
+        chain16537Options.forEach { option ->
+            try {
+                onObjOption(16537, option = option) {
+                    player.queue {
+                        player.message("You climb the chain.")
+                        player.animate(828) // Climb animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3424, 3548, 1)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.spikey_chain", option = "climb")) {
+                onObjOption("object.spikey_chain", option = "climb") {
+                    player.queue {
+                        player.message("You climb the chain.")
+                        player.animate(828)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3424, 3548, 1)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
+        
+        // Chain 16538 (spikey_chain_16538) - Teleport to (3422, 3549, height 0) - Downstairs
+        // Try common chain/climb options
+        val chain16538Options = listOf("climb", "climb-up", "climb-down", "use", "operate", "swing")
+        chain16538Options.forEach { option ->
+            try {
+                onObjOption(16538, option = option) {
+                    player.queue {
+                        player.message("You climb down the chain.")
+                        player.animate(827) // Climb down animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3422, 3549, 0)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.spikey_chain_16538", option = "climb")) {
+                onObjOption("object.spikey_chain_16538", option = "climb") {
+                    player.queue {
+                        player.message("You climb down the chain.")
+                        player.animate(827)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3422, 3549, 0)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
         }
     }
 

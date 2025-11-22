@@ -5,6 +5,7 @@ import org.alter.game.model.combat.CombatStyle
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Pawn
 import org.alter.game.model.entity.Player
+import org.alter.game.model.Tile
 import org.alter.api.*
 import org.alter.api.ext.*
 import org.alter.plugins.content.combat.Combat
@@ -66,7 +67,25 @@ object MeleeCombatFormula : CombatFormula {
             }
             // Apply damage multiplier for NPCs (e.g., revenants, wilderness NPCs)
             hit *= getDamageDealMultiplier(pawn)
+            // Apply 6x base damage multiplier for revenants
+            val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
+                            (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
+            if (isRevenant) {
+                hit *= 6.0
+            }
             hit = Math.floor(hit)
+
+            // Apply damage take multiplier (for items like Bracelet of Ethereum)
+            hit *= getDamageTakeMultiplier(target)
+            hit = Math.floor(hit)
+
+            // Cap damage at 30 if target is wearing Bracelet of Ethereum and attacker is Revenant
+            if (isRevenant && target.hasEquipped(EquipmentType.GLOVES, "item.bracelet_of_ethereum")) {
+                 if (hit > 30.0) {
+                     hit = 30.0
+                 }
+            }
+
             base = hit.toInt()
         }
         return base
@@ -80,12 +99,16 @@ object MeleeCombatFormula : CombatFormula {
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, target, maxRoll, specialAttackMultiplier)
         }
-        // Apply 10x accuracy multiplier for wilderness NPCs and revenants
+        // Apply accuracy multiplier for wilderness NPCs and revenants
+        // Revenants: 15x accuracy (tripled from 5x)
+        // Other wilderness NPCs: 10x accuracy
         if (pawn is Npc) {
             val isWildernessNpc = pawn.tile.getWildernessLevel() > 0
             val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
                             (pawn.tile.z >= 10000 && pawn.tile.z <= 10300 && pawn.tile.x >= 3100 && pawn.tile.x <= 3300)
-            if (isWildernessNpc || isRevenant) {
+            if (isRevenant) {
+                maxRoll *= 15.0
+            } else if (isWildernessNpc) {
                 maxRoll *= 10.0
             }
         }
@@ -134,6 +157,12 @@ object MeleeCombatFormula : CombatFormula {
 
         hit *= getDamageTakeMultiplier(target)
         hit = Math.floor(hit)
+        
+        // Apply Kalphite Queen form-based damage reduction
+        if (target is Npc) {
+            hit *= getKQDamageMultiplier(target, CombatStyle.SLASH) // Melee uses SLASH as default
+            hit = Math.floor(hit)
+        }
 
         return hit.toInt()
     }
@@ -181,7 +210,7 @@ object MeleeCombatFormula : CombatFormula {
             CombatStyle.STAB -> BonusSlot.ATTACK_STAB
             CombatStyle.SLASH -> BonusSlot.ATTACK_SLASH
             CombatStyle.CRUSH -> BonusSlot.ATTACK_CRUSH
-            else -> throw IllegalStateException("Invalid combat style. $combatStyle")
+            else -> return 0.0 // Non-melee combat styles (MAGIC, RANGED, etc.) have no melee attack bonus
         }
         return pawn.getBonus(bonus).toDouble()
     }
@@ -192,7 +221,7 @@ object MeleeCombatFormula : CombatFormula {
             CombatStyle.STAB -> BonusSlot.DEFENCE_STAB
             CombatStyle.SLASH -> BonusSlot.DEFENCE_SLASH
             CombatStyle.CRUSH -> BonusSlot.DEFENCE_CRUSH
-            else -> throw IllegalStateException("Invalid combat style. $combatStyle")
+            else -> return 0.0 // Non-melee combat styles (MAGIC, RANGED, etc.) defend with general defence
         }
         return target.getBonus(bonus).toDouble()
     }
@@ -293,16 +322,19 @@ object MeleeCombatFormula : CombatFormula {
         Prayers.isActive(player, Prayer.CHIVALRY) -> 1.20
         Prayers.isActive(player, Prayer.PIETY) -> 1.25
         Prayers.isActive(player, Prayer.RIGOUR) -> 1.25
-        Prayers.isActive(player, Prayer.AUGURY) -> 1.25
         else -> 1.0
     }
 
     private fun getEquipmentMultiplier(player: Player): Double = when {
-        player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") -> 7.0 / 6.0 // These should only apply if the target is undead..
-        player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2 // These should only apply if the target is undead..
-        // TODO: this should only apply when target is slayer task?
-        player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) || player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) -> 7.0 / 6.0 // This should only apply if you have the target || his category as a Slayer Task
+        player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") -> 7.0 / 6.0
+        player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2
+        player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice") && isRevenantCaves(player.tile) -> 1.2
+        player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) || player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) -> 7.0 / 6.0
         else -> 1.0
+    }
+
+    private fun isRevenantCaves(tile: Tile): Boolean {
+        return tile.z >= 10000 && tile.z <= 10300 && tile.x >= 3100 && tile.x <= 3300
     }
 
     private fun applyPassiveMultiplier(pawn: Pawn, target: Pawn, base: Double): Double {
@@ -316,7 +348,7 @@ object MeleeCombatFormula : CombatFormula {
                     1.0 + (lost * max)
                 }
                 pawn.hasEquipped(EquipmentType.WEAPON, "item.gadderhammer") && isShade(target) -> if (world.chance(1, 20)) 2.0 else 1.25
-                pawn.hasEquipped(EquipmentType.WEAPON, "item.keris", "item.kerisp") && (isKalphite(target) || isScarab(target)) -> if (world.chance(1, 51)) 3.0 else (4.0 / 3.0)
+                pawn.hasEquipped(EquipmentType.WEAPON, "item.keris", "item.kerisp", "item.keris_partisan", "item.keris_partisan_of_breaching", "item.keris_partisan_of_corruption", "item.keris_partisan_of_the_sun") && (isKalphite(target) || isScarab(target)) -> if (world.chance(1, 51)) 3.0 else (4.0 / 3.0)
                 else -> 1.0
             }
             if (multiplier == 1.0 && isWearingVerac(pawn)) {
@@ -330,6 +362,36 @@ object MeleeCombatFormula : CombatFormula {
     private fun getDamageDealMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_DEAL_MULTIPLIER] ?: 1.0
 
     private fun getDamageTakeMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_TAKE_MULTIPLIER] ?: 1.0
+    
+    /**
+     * Get Kalphite Queen damage multiplier based on form and attack style
+     */
+    private fun getKQDamageMultiplier(npc: Npc, attackStyle: CombatStyle): Double {
+        // Check if this is a Kalphite Queen
+        val isKQ = npc.id == 963 || npc.id == 964 || npc.def.name.lowercase().contains("kalphite queen")
+        if (!isKQ) return 1.0
+        
+        // Try to get the form from the phase plugin
+        val isForm2 = try {
+            org.alter.plugins.content.npcs.kalphitequeen.KalphiteQueenPhasePlugin.isForm2(npc)
+        } catch (e: Exception) {
+            // Fallback to ID check if plugin not loaded
+            npc.id == 964
+        }
+        
+        return if (!isForm2) {
+            // Form 1: Heavy reduction to Ranged and Magic, normal to Melee
+            // Melee attacks (STAB, SLASH, CRUSH) do normal damage
+            1.0
+        } else {
+            // Form 2: Heavy reduction to Melee and Ranged, normal to Magic
+            // Melee attacks (STAB, SLASH, CRUSH) do reduced damage
+            when (attackStyle) {
+                CombatStyle.STAB, CombatStyle.SLASH, CombatStyle.CRUSH -> 0.25
+                else -> 1.0
+            }
+        }
+    }
 
     private fun isDemon(pawn: Pawn): Boolean {
         return if (pawn is Npc) {

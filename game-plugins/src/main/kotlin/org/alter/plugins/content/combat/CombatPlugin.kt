@@ -16,6 +16,7 @@ import org.alter.game.model.move.MovementQueue.StepType
 import org.alter.game.model.move.hasMoveDestination
 import org.alter.game.model.move.stopMovement
 import org.alter.game.model.move.walkRoute
+import org.alter.game.model.move.walkTo
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
@@ -37,7 +38,8 @@ class CombatPlugin(
             }
             pawn.queue {
                 while (true) {
-                    // @TODO Npc can follow player up to 16 tiles from spawn point, some npc will have exceptional range so property for overwrite should be added.
+                    // NPCs can follow players up to maxFollowDistance tiles from spawn point (default 20).
+                    // This limit can be customized per NPC by setting the maxFollowDistance property.
                     if (!cycle(pawn, this)) {
                         break
                     }
@@ -66,6 +68,20 @@ class CombatPlugin(
         if (target.isDead()) {
             Combat.reset(pawn)
             return false
+        }
+        // Check if NPC is too far from spawn point (only for NPCs)
+        if (pawn.entityType.isNpc) {
+            val npc = pawn as Npc
+            val distanceFromSpawn = npc.tile.getDistance(npc.spawnTile)
+            if (distanceFromSpawn > npc.maxFollowDistance) {
+                // NPC is too far from spawn, reset combat and return to spawn
+                Combat.reset(pawn)
+                pawn.resetFacePawn()
+                pawn.interruptQueues()
+                // Walk back to spawn tile
+                npc.walkTo(npc.spawnTile)
+                return false
+            }
         }
         val strategy = CombatConfigs.getCombatStrategy(pawn)
         val attackRange = strategy.getAttackRange(pawn)

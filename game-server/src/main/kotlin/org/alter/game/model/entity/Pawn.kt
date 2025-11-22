@@ -219,6 +219,14 @@ abstract class Pawn(val world: World) : Entity() {
         resetInteractions()
         interruptQueues()
         attr[COMBAT_TARGET_FOCUS_ATTR] = WeakReference(target)
+        
+        // Clear auto-retaliate focus timer for players on manual attacks
+        // This allows immediate target switching when manually clicking on NPCs
+        // Auto-retaliate will set the timer again if needed
+        if (this is Player) {
+            timers.remove(AUTO_RETALIATE_FOCUS_TIMER)
+        }
+        
         /*
          * Players always have the default combat, and npcs will use default
          * combat <strong>unless</strong> they have a custom npc combat plugin

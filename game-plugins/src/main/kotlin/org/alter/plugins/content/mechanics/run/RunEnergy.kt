@@ -55,7 +55,10 @@ object RunEnergy {
                 
                 // Grant XP only when counter reaches 0, then reset to 4
                 if (newCounter <= 0) {
-                    val xpGained = agilityLevel * 0.05 // XP per occurrence = Agility level * 0.05
+                    val baseXp = agilityLevel * 0.05 // XP per occurrence = Agility level * 0.05
+                    val gracefulPieces = countGracefulPieces(p)
+                    val bonusMultiplier = 1.0 + (gracefulPieces * 0.50) // 50% bonus per piece
+                    val xpGained = baseXp * bonusMultiplier
                     p.addXp(Skills.AGILITY, xpGained)
                     p.attr[AGILITY_XP_COUNTER] = 4 // Reset counter to 4 ticks
                 }
@@ -90,6 +93,21 @@ object RunEnergy {
             (p.equipment[EquipmentType.LEGS.id]?.id ?: -1) in GRACEFUL_LEGS &&
             (p.equipment[EquipmentType.GLOVES.id]?.id ?: -1) in GRACEFUL_GLOVES &&
             (p.equipment[EquipmentType.BOOTS.id]?.id ?: -1) in GRACEFUL_BOOTS
+
+    /**
+     * Counts how many graceful pieces are currently equipped by the player.
+     * Each piece gives 50% bonus agility XP when running.
+     */
+    private fun countGracefulPieces(p: Player): Int {
+        var count = 0
+        if ((p.equipment[EquipmentType.HEAD.id]?.id ?: -1) in GRACEFUL_HOODS) count++
+        if ((p.equipment[EquipmentType.CAPE.id]?.id ?: -1) in GRACEFUL_CAPE) count++
+        if ((p.equipment[EquipmentType.CHEST.id]?.id ?: -1) in GRACEFUL_TOP) count++
+        if ((p.equipment[EquipmentType.LEGS.id]?.id ?: -1) in GRACEFUL_LEGS) count++
+        if ((p.equipment[EquipmentType.GLOVES.id]?.id ?: -1) in GRACEFUL_GLOVES) count++
+        if ((p.equipment[EquipmentType.BOOTS.id]?.id ?: -1) in GRACEFUL_BOOTS) count++
+        return count
+    }
 
 
     /**

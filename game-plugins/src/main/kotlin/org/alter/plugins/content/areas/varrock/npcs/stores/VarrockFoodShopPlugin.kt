@@ -41,18 +41,22 @@ class VarrockFoodShopPlugin(
             try {
                 val itemId = getRSCM(food.item)
                 if (itemId != -1) {
-                    // Price based on heal amount (roughly 10-20 coins per HP)
-                    val price = when {
-                        food.heal <= 5 -> food.heal * 2  // Cheap foods: 2 coins per HP
-                        food.heal <= 10 -> food.heal * 3  // Mid-tier: 3 coins per HP
-                        food.heal <= 15 -> food.heal * 4  // High-tier: 4 coins per HP
-                        else -> food.heal * 5  // Premium: 5 coins per HP
+                    // Price all foods between 1k-10k based on heal amount
+                    // Heal range is 1-22, so we scale linearly: heal 1 = 1k, heal 22 = 10k
+                    // Anglerfish has heal = 0 but can heal up to 22 at max level, so treat it as high-tier
+                    val healAmount = when {
+                        food.heal > 0 -> food.heal
+                        food.overheal -> 20  // Anglerfish: treat as high-tier overheal food
+                        else -> 1  // Fallback for any other edge cases
                     }
-                    // Special pricing for combo foods and overheal foods
+                    val basePrice = 1000 + ((healAmount - 1) * 9000 / 21).toInt()
+                    
+                    // Apply multipliers for special food types
                     val finalPrice = when {
-                        food.comboFood -> price * 2  // Combo foods cost more
-                        food.overheal -> price * 3   // Overheal foods cost even more
-                        else -> price
+                        food.comboFood && food.overheal -> (basePrice * 1.5).toInt().coerceIn(1000, 10000)  // Both special properties
+                        food.comboFood -> (basePrice * 1.3).toInt().coerceIn(1000, 10000)  // Combo foods: +30%
+                        food.overheal -> (basePrice * 1.4).toInt().coerceIn(1000, 10000)  // Overheal foods: +40%
+                        else -> basePrice.coerceIn(1000, 10000)  // Regular foods
                     }
                     
                     // Stock: 100 of each food, restock to 50

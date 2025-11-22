@@ -16,6 +16,8 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.rscm.RSCM.getRSCM
 import java.lang.ref.WeakReference
 import kotlin.random.Random
+import org.alter.game.model.item.Item
+import org.alter.api.EquipmentType
 
 /**
  * Plugin to handle NPC loot drops when they die.
@@ -194,11 +196,25 @@ class NpcLootDropPlugin(
             // Spawn each dropped item on the ground at the NPC's location
             droppedItems.forEach { groundItem ->
                 // Convert clue scrolls to clue caskets before dropping
-                val itemIdToDrop = convertClueScrollToCasket(groundItem.item)
+                var itemIdToDrop = convertClueScrollToCasket(groundItem.item)
                 
                 // Scale dragon bones quantity based on revenant level (1-20)
                 var amountToDrop = groundItem.amount
                 val dragonBonesNotedId = getRSCM("item.dragon_bones_noted")
+                
+                // Check for Amulet of Avarice noting effect
+                val hasAvarice = killer.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")
+                val isInRevenantCaves = npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300
+                val isRevenant = npc.def.name.lowercase().contains("revenant") || 
+                                (npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300)
+
+                if (hasAvarice && isInRevenantCaves && isRevenant) {
+                    val notedId = Item(itemIdToDrop).toNoted().id
+                    if (notedId != itemIdToDrop) {
+                        itemIdToDrop = notedId
+                    }
+                }
+
                 if (itemIdToDrop == dragonBonesNotedId) {
                     // Check if this is a revenant
                     val isRevenant = npc.def.name.lowercase().contains("revenant") || 
@@ -410,7 +426,7 @@ class NpcLootDropPlugin(
             val randomItemId = validItemIds[Random.nextInt(validItemIds.size)]
             
             // Convert clue scrolls to clue caskets before dropping
-            val itemIdToDrop = convertClueScrollToCasket(randomItemId)
+            var itemIdToDrop = convertClueScrollToCasket(randomItemId)
             val finalItemDef = getItem(itemIdToDrop)
             
             // Determine amount (1 for most items, random 1-100 for stackable items)
@@ -418,6 +434,19 @@ class NpcLootDropPlugin(
                 Random.nextInt(1, 101) // 1-100 for stackable items
             } else {
                 1 // Single item for non-stackable
+            }
+
+            // Check for Amulet of Avarice noting effect
+            val hasAvarice = killer.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")
+            val isInRevenantCaves = npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300
+            val isRevenant = npc.def.name.lowercase().contains("revenant") || 
+                            (npc.tile.z >= 10000 && npc.tile.z <= 10300 && npc.tile.x >= 3100 && npc.tile.x <= 3300)
+
+            if (hasAvarice && isInRevenantCaves && isRevenant) {
+                val notedId = Item(itemIdToDrop).toNoted().id
+                if (notedId != itemIdToDrop) {
+                    itemIdToDrop = notedId
+                }
             }
             
             // Create and spawn the random item

@@ -62,6 +62,13 @@ class Npc private constructor(val id: Int, world: World, val spawnTile: Tile) : 
     var walkRadius = 0
 
     /**
+     * The maximum distance from [spawnTile], in tiles, which the npc can follow a target in combat.
+     * If the npc moves beyond this distance, it will reset combat and return to its spawn tile.
+     * Default is 20 tiles.
+     */
+    var maxFollowDistance = 20
+
+    /**
      * This flag indicates whether this npc can traverse water tiles.
      */
     var canSwim = false

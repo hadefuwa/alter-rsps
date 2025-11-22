@@ -122,8 +122,14 @@ fun Loot.handleToItem(p: Player) : List<GroundItem> {
             }
             is String -> {
                 // Convert string item identifier (e.g., "item.bones") to Int ID using RSCM
-                val itemId = getRSCM(item)
-                items.add(GroundItem(itemId, amount = randomStep(min, max, steepness), tile = tile))
+                try {
+                    val itemId = getRSCM(item)
+                    items.add(GroundItem(itemId, amount = randomStep(min, max, steepness), tile = tile))
+                } catch (e: IllegalStateException) {
+                    // Log error and skip this item if RSCM lookup fails
+                    println("Error: RSCM lookup failed for '$item' in loot table. Skipping this item. ${e.message}")
+                    // Don't add the item to the drop list
+                }
             }
             is LootTable -> {
                 items.addAll(roll(p, setOf(item)))

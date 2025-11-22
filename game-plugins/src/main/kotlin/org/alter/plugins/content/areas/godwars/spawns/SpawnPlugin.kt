@@ -86,11 +86,11 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.spiritual_ranger_3167", x = 2875, z = 5282, height = 2, walkRadius = 10, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.spiritual_ranger_3167", x = 2879, z = 5287, height = 2, walkRadius = 10, direction = Direction.SOUTH)
 
-        spawnNpc(npc = "npc.aviansie", x = 2901, z = 5303, height = 2, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aviansie", x = 2889, z = 5304, height = 2, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aviansie", x = 2886, z = 5327, height = 2, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aviansie", x = 2883, z = 5325, height = 2, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aviansie", x = 2880, z = 5323, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.aviansie", x = 2870, z = 5284, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.aviansie", x = 2868, z = 5289, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.aviansie", x = 2863, z = 5289, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.aviansie", x = 2861, z = 5294, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.aviansie", x = 2877, z = 5286, height = 2, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.aviansie", x = 2876, z = 5282, height = 2, walkRadius = 5, direction = Direction.SOUTH)
 
 
@@ -102,17 +102,17 @@ class SpawnPlugin(
         */
         // Zamarok Spawns
 
-        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2885, z = 5238, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2882, z = 5326, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2876, z = 5315, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2885, z = 5328, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2891, z = 5326, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_warrior_3159", x = 2887, z = 5331, height = 2, walkRadius = 10, direction = Direction.SOUTH)
         
-        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2880, z = 5284, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2877, z = 5284, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2876, z = 5281, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2880, z = 5331, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2876, z = 5334, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_mage_3161", x = 2877, z = 5327, height = 2, walkRadius = 10, direction = Direction.SOUTH)
 
-        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2871, z = 5287, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2875, z = 5282, height = 2, walkRadius = 10, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2879, z = 5287, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2872, z = 5329, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2877, z = 5325, height = 2, walkRadius = 10, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spiritual_ranger_3160", x = 2896, z = 5322, height = 2, walkRadius = 10, direction = Direction.SOUTH)
 
         spawnNpc(npc = "npc.imp_3134", x = 2901, z = 5303, height = 2, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.imp_3134", x = 2889, z = 5304, height = 2, walkRadius = 5, direction = Direction.SOUTH)
@@ -120,6 +120,16 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.imp_3134", x = 2883, z = 5325, height = 2, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.imp_3134", x = 2880, z = 5323, height = 2, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.imp_3134", x = 2877, z = 5321, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+
+
+        // Item spawns
+        spawnItem(item = "item.hammer", amount = 1, x = 2852, z = 5334, height = 2)
+        spawnItem(item = "item.super_combat_potion4", amount = 1, x = 2852, z = 5334, height = 2)
+        spawnItem(item = "item.ranging_potion4", amount = 1, x = 2869, z = 5280, height = 2)
+        spawnItem(item = "item.ranging_potion4", amount = 1, x = 2911, z = 5297, height = 2)
+        spawnItem(item = "item.super_combat_potion4", amount = 1, x = 2882, z = 5328, height = 2)
+        spawnItem(item = "item.manta_ray", amount = 1, x = 2878, z = 5311, height = 2)
+    
 
         
     }

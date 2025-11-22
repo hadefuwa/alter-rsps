@@ -34,6 +34,16 @@
     "endTileZ": 3,
     "animationId": 762,
     "useRelativePosition": true
+  },
+  {
+    "objectId": 16537,
+    "option": "climb",
+    "requiredLevel": 61,
+    "endTileX": 0,
+    "endTileZ": 0,
+    "endTileHeight": 1,
+    "animationId": 828,
+    "useRelativePosition": true
   }
 ]
 

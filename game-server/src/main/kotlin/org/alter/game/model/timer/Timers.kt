@@ -85,3 +85,10 @@ val BONE_OFFER_DELAY = TimerKey()
  * Timer key for HP regeneration ticks.
  */
 val HP_REGENERATION_TIMER = TimerKey()
+
+/**
+ * Timer key for auto-retaliate focus. Prevents players from switching targets
+ * too frequently when hit by multiple NPCs, allowing them to focus on one
+ * target for a set duration before switching.
+ */
+val AUTO_RETALIATE_FOCUS_TIMER = TimerKey()

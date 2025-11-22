@@ -126,9 +126,15 @@ object NpcCombatDsl {
             val builder = AggressivenessBuilder()
             init(builder)
 
-            combatBuilder.setAggroRadius(builder.radius)
-            combatBuilder.setFindAggroTargetDelay(builder.searchDelay)
-            combatBuilder.setAggroTimer(builder.aggroTimer)
+            if (builder.radius != -1) {
+                combatBuilder.setAggroRadius(builder.radius)
+            }
+            if (builder.searchDelay != -1) {
+                combatBuilder.setFindAggroTargetDelay(builder.searchDelay)
+            }
+            if (builder.aggroTimer != -1) {
+                combatBuilder.setAggroTimer(builder.aggroTimer)
+            }
         }
 
         fun stats(init: StatsBuilder.() -> Unit) {

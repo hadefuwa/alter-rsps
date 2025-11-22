@@ -318,6 +318,13 @@ open class Player(world: World) : Pawn(world) {
 
         if (bank.dirty) {
             val items = bank.rawItems
+            // Safety check: remove corrupted items with negative amounts
+            items.forEachIndexed { index, item ->
+                if (item != null && item.amount < 0) {
+                    println("WARNING: Removing corrupted bank item at slot $index: ID=${item.id}, amount=${item.amount}")
+                    bank[index] = null
+                }
+            }
             write(UpdateInvFull(inventoryId = 95, capacity = items.size, provider = RsModObjectProvider(items)))
             bank.dirty = false
         }

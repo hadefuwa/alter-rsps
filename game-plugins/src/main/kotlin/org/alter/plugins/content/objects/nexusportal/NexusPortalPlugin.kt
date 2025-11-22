@@ -44,8 +44,11 @@ class NexusPortalPlugin(
         private val TELEPORT_LOCATIONS = listOf(
             // Cities & Towns
             "God Wars Dungeon" to Tile(x = 2881, z = 5309, height = 2),
-            "Revenants South" to Tile(x = 3214, z = 10097, height = 0),
+            "Revenants South" to Tile(x = 3197, z = 10056, height = 0),
+            "Revenants Orks" to Tile(x = 3214, z = 10097, height = 0),
             "Revenants North" to Tile(x = 3235, z = 10198, height = 0),
+            "Taverley Dungeon" to Tile(x = 2884, z = 9798, height = 0),
+            "Kalphite Queen Dungeon" to Tile(x = 3499, z = 9492, height = 0),
             "Varrock Centre" to Tile(x = 3213, z = 3428, height = 0),
             "Varrock East Bank" to Tile(x = 3253, z = 3420, height = 0),
             "Varrock West Bank" to Tile(x = 3185, z = 3436, height = 0),

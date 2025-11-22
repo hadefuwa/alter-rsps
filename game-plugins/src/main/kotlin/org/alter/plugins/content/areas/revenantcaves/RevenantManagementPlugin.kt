@@ -400,7 +400,7 @@ class RevenantManagementPlugin(
         
         /**
          * Bracelet of Ethereum - Protect from revenant damage when charged
-         * Use DAMAGE_TAKE_MULTIPLIER to reduce damage to 0 when bracelet has charges AND absorption is enabled
+         * Use DAMAGE_TAKE_MULTIPLIER to reduce damage when bracelet has charges AND absorption is enabled
          */
         onEquipToSlot(EquipmentType.GLOVES.id) {
             val bracelet = player.getEquipment(EquipmentType.GLOVES)
@@ -409,8 +409,9 @@ class RevenantManagementPlugin(
                 // Use ATTACHED_ITEM_ID as a flag for absorption: 1 = enabled, 0 = disabled (default to enabled if missing)
                 val absorptionEnabled = (bracelet.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: 1) == 1
                 
-                if (charges > 0 && absorptionEnabled && isInRevenantCaves(player.tile)) {
+                if (charges > 0 && absorptionEnabled) {
                     // Set damage multiplier to 0.5 for 50% damage reduction from revenant attacks
+                    // Apply regardless of location - will work when player enters Revenant Caves
                     player.attr[Combat.DAMAGE_TAKE_MULTIPLIER] = 0.5
                 }
             }
@@ -420,6 +421,7 @@ class RevenantManagementPlugin(
             // Remove damage multiplier when unequipping
             player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
         }
+        
         
         /**
          * Timer-based system to consume ether from bracelet on each hit
@@ -451,8 +453,8 @@ class RevenantManagementPlugin(
                     // No charges or absorption disabled, remove protection
                     player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
                 }
-                // Continue timer if player has bracelet - defer setting to avoid ConcurrentModificationException
-                pendingPlayerTimers.getOrPut(ETHEREUM_CONSUME_TIMER) { mutableListOf() }.add(Pair(player, 5))
+                // Continue timer if player has bracelet - run every tick for immediate protection
+                pendingPlayerTimers.getOrPut(ETHEREUM_CONSUME_TIMER) { mutableListOf() }.add(Pair(player, 1))
             } else {
                 // Player doesn't have bracelet, remove any protection and stop timer - defer removal
                 player.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)

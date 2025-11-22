@@ -1,8 +1,11 @@
 <configuration>
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
-    <!-- Console output with colors -->
+    <!-- Console output with colors - ERROR level only, but allow INFO for GameService -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <encoder>
             <pattern>[%d{HH:mm:ss.SSS}] %highlight(%-5level) %cyan(%logger{0}) - %msg %n</pattern>
         </encoder>
@@ -37,9 +40,14 @@
         </encoder>
     </appender>
 
-    <logger name="org.alter" level="DEBUG"/>
-    <logger name="org.gradle" level="INFO"/>
-    <logger name="net.rsprot" level="DEBUG"/>
+    <!-- Logger levels set to ERROR to suppress INFO/DEBUG messages in console -->
+    <!-- Note: File appenders will still receive all logs due to root level INFO -->
+    <logger name="org.alter" level="ERROR"/>
+    <!-- Allow INFO level for GameService to show RAM usage heartbeat -->
+    <logger name="org.alter.game.service.GameService" level="INFO"/>
+    <logger name="org.gradle" level="ERROR"/>
+    <logger name="net.rsprot" level="ERROR"/>
+    <logger name="dev.openrune" level="ERROR"/>
 
     <!-- Gradle-specific logging -->
     <logger name="org.gradle.cache.internal" level="INFO"/>

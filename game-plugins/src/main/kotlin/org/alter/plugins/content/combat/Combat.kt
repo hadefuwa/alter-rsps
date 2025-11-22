@@ -17,6 +17,7 @@ import org.alter.game.model.move.walkRoute
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.timer.ACTIVE_COMBAT_TIMER
 import org.alter.game.model.timer.ATTACK_DELAY
+import org.alter.game.model.timer.AUTO_RETALIATE_FOCUS_TIMER
 import org.alter.plugins.content.combat.strategy.CombatStrategy
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
@@ -39,6 +40,11 @@ object Combat {
 
     fun reset(pawn: Pawn) {
         pawn.attr.remove(COMBAT_TARGET_FOCUS_ATTR)
+        // Clear auto-retaliate focus timer when combat is reset
+        // This allows immediate target switching when combat ends
+        if (pawn is Player) {
+            pawn.timers.remove(AUTO_RETALIATE_FOCUS_TIMER)
+        }
     }
 
     /**
@@ -141,8 +147,19 @@ object Combat {
             } else if (target is Player) {
                 // Check if auto retaliate is enabled (varp == 0 means enabled, varp == 1 means disabled)
                 if (target.getVarp(AttackTab.DISABLE_AUTO_RETALIATE_VARP) == 0 && target.getCombatTarget() != pawn) {
-                    // Initiate attack - the combat system will handle movement to attack range if needed
-                    target.attack(pawn)
+                    // Check if player has a focus timer active - if so, don't switch targets
+                    // This prevents players from being pulled around by multiple NPCs
+                    val hasFocusTimer = target.timers.has(AUTO_RETALIATE_FOCUS_TIMER)
+                    
+                    // Only switch targets if focus timer has expired or doesn't exist
+                    if (!hasFocusTimer) {
+                        // Initiate attack - the combat system will handle movement to attack range if needed
+                        target.attack(pawn)
+
+                        // Set focus timer to prevent switching targets for 50 cycles (~30 seconds)
+                        // This allows the player to focus on one NPC before switching to another
+                        target.timers[AUTO_RETALIATE_FOCUS_TIMER] = 50
+                    }
                 }
             }
         }
@@ -297,7 +314,13 @@ object Combat {
             if (!target.isSpawned()) {
                 return false
             }
-            if (!target.def.isAttackable() || target.combatDef.hitpoints == -1) {
+            // Check if NPC has a custom combat definition registered (meaning it's configured for combat)
+            val hasCustomCombatDef = target.world.plugins.npcCombatDefs.containsKey(target.id)
+            // Allow attacking if: 
+            // 1. NPC has custom combat def (configured via setCombatDef), OR
+            // 2. NPC is attackable according to its definition (has "Attack" option and combat level > 0)
+            // AND hitpoints is not -1 (which means the NPC is disabled)
+            if ((!hasCustomCombatDef && !target.def.isAttackable()) || target.combatDef.hitpoints == -1) {
                 (pawn as? Player)?.message("You can't attack this npc.")
                 return false
             }

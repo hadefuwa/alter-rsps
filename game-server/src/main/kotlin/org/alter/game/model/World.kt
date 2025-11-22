@@ -446,43 +446,58 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     }
 
     fun spawn(item: GroundItem) {
-        val tile = item.tile
+        // Convert non-stackable coins (617) to stackable coins (995) before spawning
+        val groundItem = if (item.item == 617) {
+            GroundItem(995, item.amount, item.tile, item.ownerUID?.let { getPlayerForUid(it) })
+                .apply {
+                    ownerShipType = item.ownerShipType
+                    timeUntilPublic = item.timeUntilPublic
+                    timeUntilDespawn = item.timeUntilDespawn
+                    respawnCycles = item.respawnCycles
+                    currentCycle = item.currentCycle
+                    attr.putAll(item.attr)
+                }
+        } else {
+            item
+        }
+        
+        val tile = groundItem.tile
         val chunk = chunks.getOrCreate(tile)
-        val def = getItem(item.item)
+        val def = getItem(groundItem.item)
         if (def.stackable) {
             // For stackable items, try to combine with existing items of the same type
             // Combine if: same item ID AND (same owner OR at least one is public)
             val oldItem =
                 chunk.getEntities<GroundItem>(tile, EntityType.GROUND_ITEM).firstOrNull {
-                    it.item == item.item && (
-                        it.ownerUID == item.ownerUID || 
+                    it.item == groundItem.item && (
+                        it.ownerUID == groundItem.ownerUID || 
                         it.isPublic() || 
-                        item.isPublic() ||
-                        (it.ownerUID == null && item.ownerUID == null)
+                        groundItem.isPublic() ||
+                        (it.ownerUID == null && groundItem.ownerUID == null)
                     )
                 }
             if (oldItem != null) {
                 val oldAmount = oldItem.amount
-                val newAmount = Math.min(Int.MAX_VALUE.toLong(), item.amount.toLong() + oldItem.amount.toLong()).toInt()
+                val newAmount = Math.min(Int.MAX_VALUE.toLong(), groundItem.amount.toLong() + oldItem.amount.toLong()).toInt()
                 oldItem.amount = newAmount
                 // If the new item is public or the old item is public, make sure both are public
-                if (item.isPublic() || oldItem.isPublic()) {
+                if (groundItem.isPublic() || oldItem.isPublic()) {
                     oldItem.removeOwner()
                     oldItem.ownerShipType = 0
                     oldItem.timeUntilPublic = 0
                 }
-                chunk.updateGroundItem(this, item, oldAmount, newAmount)
+                chunk.updateGroundItem(this, groundItem, oldAmount, newAmount)
                 return
             }
         }
-        groundItems.add(item)
+        groundItems.add(groundItem)
         // If public delay is 0, make item instantly public
-        if (gameContext.gItemPublicDelay == 0 && !item.isPublic()) {
-            item.removeOwner()
-            item.ownerShipType = 0
-            item.timeUntilPublic = 0
+        if (gameContext.gItemPublicDelay == 0 && !groundItem.isPublic()) {
+            groundItem.removeOwner()
+            groundItem.ownerShipType = 0
+            groundItem.timeUntilPublic = 0
         }
-        chunk.addEntity(this, item, tile)
+        chunk.addEntity(this, groundItem, tile)
     }
 
     fun remove(item: GroundItem) {

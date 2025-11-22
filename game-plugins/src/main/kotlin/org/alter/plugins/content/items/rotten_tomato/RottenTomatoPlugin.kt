@@ -39,27 +39,15 @@ class RottenTomatoPlugin(
          */
         onItemOnItem(item1 = "item.rotten_tomato", item2 = "item.rotten_tomato") {
             // Check if the player is Pnda
-            if (player.username.equals("Pnda", ignoreCase = true)) {
-                player.queue {
-                    // Prompt the player to enter an item ID
-                    val itemId = inputInt(player, "Enter item ID to spawn:")
-
-                    if (itemId != null && itemId > 0) {
-                        // Try to add the item to the player's inventory
-                        val result = player.inventory.add(itemId, 1)
-
-                        if (result.completed > 0) {
-                            player.message("Spawned item ID: $itemId")
-                        } else {
-                            player.message("Failed to spawn item ID: $itemId (inventory full or invalid ID)")
-                        }
-                    } else {
-                        player.message("Invalid item ID entered.")
-                    }
-                }
-            } else {
+            if (!player.username.equals("Pnda", ignoreCase = true)) {
                 // For non-Pnda players, show a funny message
                 player.message("The rotten tomatoes squish together disgustingly.")
+                return@onItemOnItem
+            }
+            
+            // For Pnda, queue the spawn item functionality
+            player.queue {
+                handleSpawnItem(this, player)
             }
         }
 
@@ -78,6 +66,27 @@ class RottenTomatoPlugin(
                     }
                 }
             }
+        }
+    }
+    
+    /**
+     * Handles the spawn item functionality for Pnda
+     */
+    private suspend fun handleSpawnItem(queueTask: QueueTask, player: Player) {
+        // Prompt the player to enter an item ID
+        val itemId = queueTask.inputInt(player, "Enter item ID to spawn:")
+
+        if (itemId > 0) {
+            // Try to add the item to the player's inventory
+            val result = player.inventory.add(itemId, 1)
+
+            if (result.completed > 0) {
+                player.message("Spawned item ID: $itemId")
+            } else {
+                player.message("Failed to spawn item ID: $itemId (inventory full or invalid ID)")
+            }
+        } else {
+            player.message("Invalid item ID entered.")
         }
     }
 }

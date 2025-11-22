@@ -112,6 +112,15 @@ class OptionsTabFirstPlugin(
                 0..21,
                 setting = InterfaceEvent.ClickOp1,
             )
+            // Enable Shift Drop by default
+            player.setVarbit(5542, 1)
+        }
+
+        onButton(interfaceId = 134, component = 19) {
+            val slot = player.getInteractingSlot()
+            if (slot == 160) {
+                player.toggleVarbit(5542)
+            }
         }
 
         /**

@@ -56,7 +56,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -153,7 +153,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -250,7 +250,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -347,7 +347,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -444,7 +444,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -540,7 +540,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -636,7 +636,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -732,7 +732,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -828,7 +828,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -923,7 +923,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1019,7 +1019,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1115,7 +1115,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1211,7 +1211,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1310,7 +1310,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1409,7 +1409,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {
@@ -1506,7 +1506,7 @@ class GodWarsCombatConfigPlugin(
             aggro {
                 radius = 10
                 searchDelay = 1
-                aggroTimer = Int.MAX_VALUE
+                alwaysAggro()
             }
             
             drops {

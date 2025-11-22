@@ -198,7 +198,7 @@ class LumbridgeCombatConfigPlugin(
          * Includes all goblin variants found in Lumbridge.
          */
         setCombatDef("npc.goblin", "npc.goblin_656", "npc.goblin_657", "npc.goblin_658", "npc.goblin_659", "npc.goblin_660", 
-                     "npc.goblin_3028", "npc.goblin_2246", "npc.goblin_2248", "npc.goblin_2484", "npc.goblin_3039", "npc.goblin_3054") {
+                     "npc.goblin_3028", "npc.goblin_2248", "npc.goblin_2484", "npc.goblin_3039", "npc.goblin_3054") {
             configs {
                 attackSpeed = 4
                 respawnDelay = 25

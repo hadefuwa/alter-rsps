@@ -1,5 +1,159 @@
 # Changelog - Server Setup and Path Fixes
 
+## Date: 2025-11-17 (Medium Casket and Rotten Tomato Fixes)
+
+### Summary
+Fixed two critical issues:
+1. Medium casket (item ID 2802) was not spawning random items when opened
+2. RottenTomatoPlugin was throwing NoClassDefFoundError due to nested lambda class loading issues
+
+### Key Changes:
+
+#### 1. Fixed Medium Casket 2802 Not Spawning Random Items
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/clue_casket/ClueCasketPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/clue_casket/ClueCasketPlugin.kt)
+
+**Issue**: Medium casket with item ID 2802 was not spawning random items when opened, even though it was registered by name (`item.casket_medium`).
+
+**Root Cause**: Item 2802 was missing from the explicit `mediumCaskets` list in the `registerCasketVariants()` function. While it was registered by RSCM name, it wasn't being registered by item ID, which could cause issues with item option binding.
+
+**Fix Applied**:
+- Added item ID 2802 to the beginning of the `mediumCaskets` list in `registerCasketVariants()`
+- Updated list: `listOf(2802, 2804, 2806, 2810, 2808, 2812, 2814, 2816, 2818, 2820, 2822, 2824, 2826, 2828, 2830)`
+
+**Impact**: Medium casket 2802 now properly spawns random items when opened, consistent with other medium casket variants.
+
+---
+
+#### 2. Fixed RottenTomatoPlugin NoClassDefFoundError
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/items/rotten_tomato/RottenTomatoPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/items/rotten_tomato/RottenTomatoPlugin.kt)
+
+**Issue**: `java.lang.NoClassDefFoundError: org/alter/plugins/content/items/rotten_tomato/RottenTomatoPlugin$1$1` when using rotten tomato on itself.
+
+**Root Cause**: Deeply nested lambdas (`onItemOnItem` → `player.queue` → lambda) were creating anonymous inner classes (`$1$1`) that couldn't be loaded at runtime. Additionally, the code incorrectly treated `inputInt` return value as nullable when it returns `Int`.
+
+**Fix Applied**:
+- Extracted the nested lambda into a separate `suspend fun handleSpawnItem(queueTask: QueueTask, player: Player)` method
+- Removed incorrect null check (`itemId != null`) since `inputInt` returns `Int`, not `Int?`
+- Simplified control flow with early return pattern
+- Explicitly pass `QueueTask` parameter to avoid nested lambda scope issues
+
+**Implementation**:
+```kotlin
+private suspend fun handleSpawnItem(queueTask: QueueTask, player: Player) {
+    val itemId = queueTask.inputInt(player, "Enter item ID to spawn:")
+    if (itemId > 0) {
+        // ... spawn logic
+    }
+}
+```
+
+**Impact**: RottenTomatoPlugin now works correctly without class loading errors. The spawn item functionality for player "Pnda" is fully operational.
+
+---
+
+## Date: 2025-01-XX (Graceful Gear Agility XP Bonus)
+
+### Summary
+Added agility experience bonus for wearing graceful gear pieces while running:
+1. Each equipped graceful piece now grants 50% bonus agility XP when running
+2. Bonus stacks multiplicatively with multiple pieces (up to 6 pieces = 300% bonus)
+3. Works with all graceful color variants
+
+### Key Changes:
+
+#### 1. Graceful Gear Agility XP Bonus
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/run/RunEnergy.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/mechanics/run/RunEnergy.kt)
+
+**Feature**: Each piece of graceful gear equipped grants 50% bonus agility XP when running around.
+
+**Implementation**:
+- Added `countGracefulPieces()` function to count equipped graceful pieces (0-6)
+- Modified agility XP calculation to apply bonus multiplier: `1.0 + (gracefulPieces * 0.50)`
+- Bonus applies to all graceful variants (all colors) defined in the graceful item arrays
+- Works with: hood, cape, top, legs, gloves, and boots
+
+**Bonus Structure**:
+- 0 pieces: 1.0x (no bonus)
+- 1 piece: 1.5x (+50%)
+- 2 pieces: 2.0x (+100%)
+- 3 pieces: 2.5x (+150%)
+- 4 pieces: 3.0x (+200%)
+- 5 pieces: 3.5x (+250%)
+- 6 pieces: 4.0x (+300%)
+
+**Impact**: Players wearing graceful gear now receive significantly more agility XP while running, incentivizing the use of graceful sets for agility training.
+
+---
+
+## Date: 2025-11-21 (Kalphite Queen Implementation)
+
+### Summary
+Implemented the Kalphite Queen boss with dual-form combat mechanics, proper spawn configuration, and Keris weapon support:
+1. Created Kalphite Queen plugin with dual-form combat system (crawling and flying forms)
+2. Added proper spawn configuration at Kalphite Lair (3478, 9498)
+3. Implemented form transformation at 50% HP
+4. Fixed combat to allow attacks when players stand under the KQ
+5. Added Keris Partisan variants to Kalphite weakness bonus
+
+### Key Changes:
+
+#### 1. Kalphite Queen Plugin Implementation
+**Files**:
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenConfigsPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenConfigsPlugin.kt)
+- [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenCombatPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenCombatPlugin.kt)
+
+**Features**:
+- Spawns at Kalphite Lair (3478, 9498) with multi-combat region configured
+- Combat stats: 510 HP, 300 in all combat stats
+- Dual-form system:
+  - **First Form (Crawling)**: Uses melee and magic attacks, weak to ranged
+  - **Second Form (Flying)**: Uses ranged and magic attacks, weak to melee
+- Automatic transformation at 50% HP (255/510)
+- Special spike attack that can hit multiple targets in 3x3 area
+- Proper drop table with signature drops (KQ Head, Jar of Sand, Kalphite Princess)
+
+**Implementation**:
+- Uses NPC ID 963 (`kalphite_queen_963`) for first form
+- Tracks form state using AttributeKey system
+- Form-specific attack animations and graphics
+- Proper combat formulas for each attack style
+
+**Impact**: Kalphite Queen is now fully functional with authentic OSRS mechanics.
+
+---
+
+#### 2. Fixed Same-Tile Attack Issue
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenCombatPlugin.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/kalphitequeen/KalphiteQueenCombatPlugin.kt)
+
+**Issue**: Kalphite Queen could not attack players standing directly under her (same tile).
+
+**Fix Applied**:
+- Added explicit same-tile detection using `tile.sameAs()`
+- Modified range check for crawling form to allow attacks when `isSameTile || targetDistance <= 1`
+- Skip raycast check for same-tile attacks (always allow)
+- Use `hasLineOfSightTo()` for other range checks
+
+**Impact**: Players can no longer safely stand under the Kalphite Queen to avoid attacks.
+
+---
+
+#### 3. Keris Partisan Support for Kalphite Weakness
+**File**: [game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/MeleeCombatFormula.kt](../game-plugins/src/main/kotlin/org/alter/plugins/content/combat/formula/MeleeCombatFormula.kt)
+
+**Issue**: Only base Keris weapons (`item.keris`, `item.kerisp`) had bonus damage against Kalphites. Keris Partisan variants were missing.
+
+**Fix Applied**:
+- Added all Keris Partisan variants to the weakness check:
+  - `item.keris_partisan`
+  - `item.keris_partisan_of_breaching`
+  - `item.keris_partisan_of_corruption`
+  - `item.keris_partisan_of_the_sun`
+- All variants now receive the same bonus: 1/51 chance for 3.0x damage, otherwise 4/3 (1.33x) multiplier
+
+**Impact**: All Keris weapon variants now properly benefit from the Kalphite weakness bonus, making them effective against the Kalphite Queen.
+
+---
+
 ## Date: 2025-01-18 (F Key Binding Persistence Fix)
 
 ### Summary

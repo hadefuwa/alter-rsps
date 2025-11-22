@@ -67,6 +67,7 @@ class GenericNpcCombatConfigPlugin(
             aggro {
                 radius = 5
                 searchDelay = 3
+                alwaysAggro()
             }
             
             drops {
@@ -81,10 +82,44 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 1, max = 10, weight = 40)
-                    add("item.bat_bone", min = 1, weight = 30)
-                    add("item.iron_arrow", min = 2, max = 8, weight = 20)
-                    add("item.iron_dagger", min = 1, weight = 10)
+                    add("item.slayer_helm_i", min = 1, weight = 1)
+                    add("item.lava_scale_noted", min = 10, max = 100, weight = 3)
+                    add("item.odium_shard_1", min = 1, max = 1, weight = 1)
+                    add("item.rainbow_partyhat", min = 1, weight = 10)
+                    // Additional items with high quantities (10-100)
+                    add("item.coins_995", min = 10, max = 100, weight = 25)
+                    add("item.fire_rune", min = 10, max = 100, weight = 15)
+                    add("item.water_rune", min = 10, max = 100, weight = 15)
+                    add("item.air_rune", min = 10, max = 100, weight = 15)
+                    add("item.earth_rune", min = 10, max = 100, weight = 15)
+                    add("item.mind_rune", min = 10, max = 100, weight = 18)
+                    add("item.body_rune", min = 10, max = 100, weight = 18)
+                    add("item.grimy_guam_leaf", min = 10, max = 100, weight = 12)
+                    add("item.grimy_marrentill", min = 10, max = 100, weight = 10)
+                    add("item.grimy_tarromin", min = 10, max = 100, weight = 8)
+                    // Crafting gear
+                    add("item.needle", min = 10, max = 100, weight = 15)
+                    add("item.thread", min = 10, max = 100, weight = 15)
+                    add("item.leather_noted", min = 10, max = 100, weight = 12)
+                    add("item.cowhide_noted", min = 10, max = 100, weight = 12)
+                    add("item.hard_leather_noted", min = 10, max = 100, weight = 10)
+                    add("item.flax_noted", min = 10, max = 100, weight = 15)
+                    add("item.bow_string_noted", min = 10, max = 100, weight = 12)
+                    add("item.ball_of_wool_noted", min = 10, max = 100, weight = 12)
+                    add("item.chisel", min = 10, max = 100, weight = 10)
+                    add("item.molten_glass_noted", min = 10, max = 100, weight = 10)
+                    add("item.bucket_of_sand_noted", min = 10, max = 100, weight = 12)
+                    add("item.soda_ash_noted", min = 10, max = 100, weight = 10)
+                    add("item.glassblowing_pipe", min = 10, max = 100, weight = 8)
+                    add("item.soft_clay_noted", min = 10, max = 100, weight = 12)
+                    add("item.bronze_wire_noted", min = 10, max = 100, weight = 10)
+                    add("item.raw_shrimps_noted", min = 10, max = 100, weight = 12)
+                    add("item.raw_sardine_noted", min = 10, max = 100, weight = 10)
+                    add("item.raw_anchovies_noted", min = 10, max = 100, weight = 10)
+                    add("item.feather", min = 10, max = 100, weight = 15)
+                    add("item.bronze_arrow", min = 10, max = 100, weight = 12)
+                    add("item.iron_arrow", min = 10, max = 100, weight = 10)
+                    add("item.vial_of_water_noted", min = 10, max = 100, weight = 12)
                 }
             }
         }
@@ -121,6 +156,7 @@ class GenericNpcCombatConfigPlugin(
             aggro {
                 radius = 7
                 searchDelay = 3
+                alwaysAggro()
             }
             
             drops {
@@ -129,12 +165,50 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 5, max = 25, weight = 35)
-                    add("item.ghostspeak_amulet", min = 1, weight = 5)
-                    add("item.iron_arrow", min = 5, max = 15, weight = 25)
-                    add("item.iron_dagger", min = 1, weight = 15)
-                    add("item.iron_sword", min = 1, weight = 10)
-                    add("item.steel_dagger", min = 1, weight = 10)
+                    add("item.red_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.ghostspeak_amulet", min = 1, weight = 10)
+                    add("item.obsidian_cape", min = 1, max = 1, weight = 3)
+                    add("item.bunny_top", min = 1, weight = 10)
+                    add("item.purple_partyhat", min = 1, weight = 10)
+                    add("item.odium_shard_2", min = 1, weight = 1)
+                    // Additional items with high quantities (10-100) and crafting gear
+                    add("item.coins_995", min = 10, max = 100, weight = 30)
+                    add("item.chaos_rune", min = 10, max = 100, weight = 18)
+                    add("item.nature_rune", min = 10, max = 100, weight = 16)
+                    add("item.death_rune", min = 10, max = 100, weight = 14)
+                    add("item.law_rune", min = 10, max = 100, weight = 12)
+                    add("item.cosmic_rune", min = 10, max = 100, weight = 15)
+                    add("item.blood_rune", min = 10, max = 100, weight = 10)
+                    add("item.grimy_harralander", min = 10, max = 100, weight = 12)
+                    add("item.grimy_ranarr_weed", min = 10, max = 100, weight = 8)
+                    add("item.grimy_irit_leaf", min = 10, max = 100, weight = 8)
+                    add("item.grimy_avantoe", min = 10, max = 100, weight = 7)
+                    // Crafting gear (replacing steel/mithril items)
+                    add("item.needle", min = 10, max = 100, weight = 15)
+                    add("item.thread", min = 10, max = 100, weight = 15)
+                    add("item.leather_noted", min = 10, max = 100, weight = 12)
+                    add("item.cowhide_noted", min = 10, max = 100, weight = 12)
+                    add("item.hard_leather_noted", min = 10, max = 100, weight = 10)
+                    add("item.green_dragon_leather_noted", min = 10, max = 100, weight = 8)
+                    add("item.flax_noted", min = 10, max = 100, weight = 15)
+                    add("item.bow_string_noted", min = 10, max = 100, weight = 12)
+                    add("item.ball_of_wool_noted", min = 10, max = 100, weight = 12)
+                    add("item.chisel", min = 10, max = 100, weight = 10)
+                    add("item.molten_glass_noted", min = 10, max = 100, weight = 10)
+                    add("item.bucket_of_sand_noted", min = 10, max = 100, weight = 12)
+                    add("item.soda_ash_noted", min = 10, max = 100, weight = 10)
+                    add("item.glassblowing_pipe", min = 10, max = 100, weight = 8)
+                    add("item.soft_clay_noted", min = 10, max = 100, weight = 12)
+                    add("item.bronze_wire_noted", min = 10, max = 100, weight = 10)
+                    add("item.red_dye_noted", min = 10, max = 100, weight = 8)
+                    add("item.blue_dye_noted", min = 10, max = 100, weight = 8)
+                    add("item.yellow_dye_noted", min = 10, max = 100, weight = 8)
+                    add("item.raw_tuna_noted", min = 10, max = 100, weight = 12)
+                    add("item.raw_lobster_noted", min = 10, max = 100, weight = 10)
+                    add("item.raw_bass_noted", min = 10, max = 100, weight = 10)
+                    add("item.uncut_sapphire", min = 10, max = 100, weight = 8)
+                    add("item.uncut_emerald", min = 10, max = 100, weight = 6)
+                    add("item.uncut_ruby", min = 10, max = 100, weight = 4)
                 }
             }
         }
@@ -185,16 +259,14 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 20, max = 80, weight = 30)
-                    add("item.iron_sword", min = 1, weight = 20)
-                    add("item.steel_sword", min = 1, weight = 15)
-                    add("item.iron_full_helm", min = 1, weight = 15)
-                    add("item.iron_platebody", min = 1, weight = 12)
-                    add("item.iron_platelegs", min = 1, weight = 12)
-                    add("item.steel_dagger", min = 1, weight = 10)
-                    add("item.steel_arrow", min = 10, max = 30, weight = 15)
-                    add("item.chaos_rune", min = 2, max = 8, weight = 12)
-                    add("item.death_rune", min = 1, max = 3, weight = 8)
+                    add("item.magic_logs_noted", min = 10, max = 15, weight = 17)
+                    add("item.gilded_vambraces", min = 1, max = 1, weight = 6)
+                    add("item.lava_dragon_bones_noted", min = 2, max = 5, weight = 10)
+                    add("item.logs_noted", min = 25, max = 50, weight = 25)
+                    add("item.odium_shard_3", min = 1, max = 1, weight = 1)
+                    add("item.onyx_amulet", min = 1, max = 1, weight = 1)
+                    add("item.gilded_medhelm", min = 1, max = 1, weight = 5)
+                    add("item.gilded_full_helm", min = 1, max = 1, weight = 5)
                 }
             }
         }
@@ -240,11 +312,11 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 10, max = 40, weight = 35)
-                    add("item.iron_dagger", min = 1, weight = 20)
-                    add("item.iron_sword", min = 1, weight = 15)
-                    add("item.steel_dagger", min = 1, weight = 12)
-                    add("item.iron_arrow", min = 5, max = 20, weight = 18)
+                    add("item.malediction_shard_1", min = 1, max = 1, weight = 1)
+                    add("item.red_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.ring_of_wealth_5", min = 1, weight = 5)
+                    add("item.gilded_platelegs", min = 1, weight = 5)
+                    add("item.gilded_full_helm", min = 1, weight = 5)
                 }
             }
         }
@@ -295,13 +367,13 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 15, max = 60, weight = 30)
-                    add("item.iron_pickaxe", min = 1, weight = 15)
-                    add("item.steel_pickaxe", min = 1, weight = 10)
-                    add("item.iron_bar", min = 1, max = 3, weight = 20)
-                    add("item.steel_bar", min = 1, max = 2, weight = 15)
-                    add("item.chaos_rune", min = 3, max = 10, weight = 18)
-                    add("item.death_rune", min = 1, max = 5, weight = 12)
+                    add("item.gilded_vambraces", min = 1, max = 1, weight = 5)
+                    add("item.gilded_medhelm", min = 1, weight = 5)
+                    add("item.malediction_shard_2", min = 1, weight = 10)
+                    add("item.casket_easy", min = 1, max = 3, weight = 10)
+                    add("item.white_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.harralander_potion_unf_noted", min = 25, max = 50, weight = 10)
+                    add("item.green_partyhat", min = 1, max = 1, weight = 10)
                 }
             }
         }
@@ -352,17 +424,15 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 128) {
-                    add("item.coins", min = 50, max = 200, weight = 25)
-                    add("item.chaos_rune", min = 5, max = 15, weight = 20)
-                    add("item.death_rune", min = 3, max = 10, weight = 18)
-                    add("item.fire_rune", min = 20, max = 50, weight = 20)
-                    add("item.steel_longsword", min = 1, weight = 12)
-                    add("item.mithril_longsword", min = 1, weight = 8)
-                    add("item.steel_full_helm", min = 1, weight = 10)
-                    add("item.steel_platebody", min = 1, weight = 8)
-                    add("item.steel_platelegs", min = 1, weight = 8)
-                    add("item.adamant_dagger", min = 1, weight = 6)
-                    add("item.rune_dagger", min = 1, weight = 3)
+                    add("item.malediction_shard_3", min = 1, max = 1, weight = 10)
+                    add("item.saradomin_halo", min = 1, max = 1, weight = 10)
+                    add("item.guthix_halo", min = 1, max = 1, weight = 10)
+                    add("item.mole_slippers", min = 1, max = 1, weight = 10)
+                    add("item.red_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.green_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.raw_anglerfish_noted", min = 10, max = 20, weight = 10)
+                    add("item.purple_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.tarromin_potion_unf_noted", min = 25, max = 50, weight = 10)
                 }
             }
         }
@@ -404,6 +474,7 @@ class GenericNpcCombatConfigPlugin(
             aggro {
                 radius = 7
                 searchDelay = 3
+                alwaysAggro()
             }
             
             drops {
@@ -412,14 +483,12 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 15, max = 50, weight = 30)
-                    add("item.big_bones", min = 1, weight = 5)
-                    add("item.iron_arrow", min = 10, max = 30, weight = 25)
-                    add("item.iron_dagger", min = 1, weight = 15)
-                    add("item.iron_sword", min = 1, weight = 12)
-                    add("item.steel_dagger", min = 1, weight = 10)
-                    add("item.limpwurt_root", min = 1, weight = 8)
-                    add("item.iron_full_helm", min = 1, weight = 10)
+                    add("item.gracefull_top_dark", min = 1, max = 1, weight = 5)
+                    add("item.gracefull_bottom_dark", min = 1, max = 1, weight = 5)
+                    add("item.yew_logs_noted", min = 10, max = 20, weight = 10)
+                    add("item.raw_strimp_noted", min = 100, max = 200, weight = 10)
+                    add("item.purple_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.guam_potion_unf_noted", min = 25, max = 50, weight = 10)
                 }
             }
         }
@@ -477,17 +546,16 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 128) {
-                    add("item.coins", min = 100, max = 400, weight = 25)
-                    add("item.chaos_rune", min = 10, max = 30, weight = 20)
-                    add("item.death_rune", min = 5, max = 20, weight = 18)
-                    add("item.blood_rune", min = 3, max = 15, weight = 15)
-                    add("item.fire_rune", min = 30, max = 80, weight = 20)
-                    add("item.rune_longsword", min = 1, weight = 10)
-                    add("item.rune_full_helm", min = 1, weight = 8)
-                    add("item.rune_platebody", min = 1, weight = 6)
-                    add("item.rune_platelegs", min = 1, weight = 6)
-                    add("item.rune_dagger", min = 1, weight = 8)
-                    add("item.adamant_longsword", min = 1, weight = 12)
+                    add("item.gilded_platebody", min = 1, max = 1, weight = 5)
+                    add("item.gilded_platelegs", min = 1, max = 1, weight = 5)
+                    add("item.gilded_full_helm", min = 1, max = 1, weight = 5)
+                    add("item.raw_monkfish_noted", min = 25, max = 50, weight = 10)
+                    add("item.green_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.casket_hard", min = 1, max = 1, weight = 10)
+                    add("item.purple_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.white_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.willow_shortbow_u_noted", min = 100, max = 200, weight = 10)
+
                 }
             }
         }
@@ -540,10 +608,11 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.coins", min = 5, max = 20, weight = 35)
-                    add("item.spider_silk", min = 1, weight = 25)
-                    add("item.spider_legs", min = 1, weight = 20)
-                    add("item.iron_arrow", min = 3, max = 12, weight = 20)
+                    add("item.white_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.casket_medium", min = 1, max = 2, weight = 10)
+                    add("item.raw_tuna_noted", min = 30, max = 60, weight = 10)
+                    add("item.purple_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.marrentill_potion_unf_noted", min = 25, max = 50, weight = 10)
                 }
             }
         }

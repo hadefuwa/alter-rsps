@@ -109,7 +109,7 @@ class SewerAbominationConfigsPlugin(
                     add("item.chaos_rune", min = 500, max = 500, weight = 15)
 
                     // Resources
-                    add("item.grimy_ranarr", min = 3, max = 6, weight = 8)
+                    add("item.grimy_ranarr_weed", min = 3, max = 6, weight = 8)
                     add("item.grimy_snapdragon", min = 2, max = 4, weight = 5)
                     add("item.grimy_torstol", min = 1, max = 3, weight = 3)
 

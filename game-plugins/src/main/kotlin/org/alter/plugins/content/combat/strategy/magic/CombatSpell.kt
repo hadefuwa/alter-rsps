@@ -260,6 +260,78 @@ enum class CombatSpell(
         baseXp = 50.5,
     ),
 
+    CRUMBLE_UNDEAD(
+        id = 3317,
+        maxHit = 15,
+        castAnimation = 724,
+        castSound = 122,
+        castGfx = Graphic(id = 145, height = 92),
+        projectile = 146,
+        impactGfx = Graphic(id = 147, height = 124),
+        autoCastId = 17,
+        baseXp = 24.5,
+    ),
+
+    IBAN_BLAST(
+        id = 3310,
+        maxHit = 25,
+        castAnimation = 708,
+        castSound = 162,
+        castGfx = Graphic(id = 87, height = 92),
+        projectile = 88,
+        impactGfx = Graphic(id = 89, height = 124),
+        autoCastId = 47,
+        baseXp = 30.0,
+    ),
+
+    MAGIC_DART(
+        id = 3322,
+        maxHit = 0, // Max hit is calculated based on Magic level
+        castAnimation = 1576,
+        castSound = 171, // TODO: Verify sound
+        castGfx = null,
+        projectile = 328,
+        impactGfx = Graphic(id = 329, height = 124),
+        autoCastId = 18,
+        baseXp = 30.0,
+    ),
+
+    SARADOMIN_STRIKE(
+        id = 3325,
+        maxHit = 20,
+        castAnimation = 811,
+        castSound = 165, // TODO: Verify sound
+        castGfx = null,
+        projectile = -1, // No projectile
+        impactGfx = Graphic(id = 76, height = 124),
+        autoCastId = 53,
+        baseXp = 35.0,
+    ),
+
+    CLAWS_OF_GUTHIX(
+        id = 3328,
+        maxHit = 20,
+        castAnimation = 811,
+        castSound = 165, // TODO: Verify sound
+        castGfx = null,
+        projectile = -1, // No projectile
+        impactGfx = Graphic(id = 77, height = 124),
+        autoCastId = 52,
+        baseXp = 35.0,
+    ),
+
+    FLAMES_OF_ZAMORAK(
+        id = 3331,
+        maxHit = 20,
+        castAnimation = 811,
+        castSound = 165, // TODO: Verify sound
+        castGfx = null,
+        projectile = -1, // No projectile
+        impactGfx = Graphic(id = 78, height = 124),
+        autoCastId = 54,
+        baseXp = 35.0,
+    ),
+
     /**
      * Ancient.
      */

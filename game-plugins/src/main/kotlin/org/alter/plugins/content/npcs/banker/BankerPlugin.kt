@@ -18,6 +18,7 @@ class BankerPlugin(
         "npc.banker_1479",
         "npc.banker_1480",
         "npc.banker_2897",
+        "npc.banker",
     )
 
     init {

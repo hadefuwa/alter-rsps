@@ -26,7 +26,9 @@ allprojects {
         implementation(lib.kotlin.logging)
         implementation(lib.logback.classic)
         implementation(lib.fastutil)
-        implementation(lib.spark.core)
+        implementation(lib.spark.core) {
+            exclude(group = "org.slf4j", module = "slf4j-simple")
+        }
         implementation(lib.kotlin.stdlib.jdk8)
         implementation(lib.jackson.dataformat.yaml)
         implementation(lib.jackson.dataformat.toml)

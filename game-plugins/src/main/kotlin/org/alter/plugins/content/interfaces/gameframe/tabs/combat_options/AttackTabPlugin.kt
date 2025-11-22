@@ -65,6 +65,14 @@ class AttackTabPlugin(
             player.setVarp(ATTACK_STYLE_VARP, 3)
         }
 
+        onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 22) {
+            player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
+        }
+
+        onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 27) {
+            player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
+        }
+
         /**
          * Toggle auto-retaliate button.
          */
