@@ -251,10 +251,11 @@ class KalphiteQueenPhasePlugin(
         form2Npc.attr[KQ_ORIGINAL_SPAWN_TILE_ATTR] = spawnTile
         form2Npc.walkRadius = form1Npc.walkRadius
         form2Npc.setActive(true)
+        // Set form attributes BEFORE spawning to ensure they're set when spawn handler runs
         form2Npc.attr[KQ_FORM_ATTR] = KQForm.FORM2_ORANGE
         form2Npc.attr[KQ_FORM_ATTR_SHARED] = KQForm.FORM2_ORANGE  // Also set shared attribute for combat formulas
         
-        // Spawn Form 2 FIRST (this will automatically call setNpcDefaults)
+        // Spawn Form 2 FIRST (this will automatically call setNpcDefaults and executeNpcSpawn)
         world.spawn(form2Npc)
         
         // Wait a few cycles to ensure Form 2 is fully spawned, initialized, and accessible
@@ -265,6 +266,11 @@ class KalphiteQueenPhasePlugin(
             println("Error: Form 2 NPC failed to spawn properly")
             return@transformToForm2
         }
+        
+        // Ensure Form 2 attributes are still set correctly (spawn handler might have run)
+        // This is a safeguard in case the spawn handler somehow cleared or changed them
+        form2Npc.attr[KQ_FORM_ATTR] = KQForm.FORM2_ORANGE
+        form2Npc.attr[KQ_FORM_ATTR_SHARED] = KQForm.FORM2_ORANGE
         
         // Ensure Form 2 HP is set correctly (after spawn, defaults might have been applied)
         form2Npc.setCurrentHp(255)

@@ -67,11 +67,9 @@ class KalphiteQueenCombatPlugin(
         while (canEngageCombat(target)) {
             facePawn(target)
             
-            // Determine current form based on NPC ID
-            // Form 1 = 963, Form 2 = 964
-            // Check both the actual ID and try RSCM lookup
-            val form2Id = try { getRSCM("npc.kalphite_queen_964") } catch (e: Exception) { 964 }
-            val isForm2 = this.id == 964 || this.id == form2Id
+            // Determine current form by checking the form attribute
+            // This works even if both forms use the same NPC ID
+            val isForm2 = KalphiteQueenPhasePlugin.isForm2(this)
             val currentForm = isForm2
             
             // Check if target is in range (including same tile for melee)
