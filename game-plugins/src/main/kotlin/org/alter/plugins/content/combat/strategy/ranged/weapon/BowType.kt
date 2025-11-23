@@ -122,6 +122,17 @@ enum class BowType(val item: Int, val ammo: Array<Int>) {
         item = getRSCM("item.twisted_bow"),
         ammo = BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS + AMETHYST_ARROWS + DRAGON_ARROWS,
     ),
+
+    BOW_OF_FAERDHINEN(item = getRSCM("item.bow_of_faerdhinen"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C(item = getRSCM("item.bow_of_faerdhinen_c"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25869(item = getRSCM("item.bow_of_faerdhinen_c_25869"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25884(item = getRSCM("item.bow_of_faerdhinen_c_25884"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25886(item = getRSCM("item.bow_of_faerdhinen_c_25886"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25888(item = getRSCM("item.bow_of_faerdhinen_c_25888"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25890(item = getRSCM("item.bow_of_faerdhinen_c_25890"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25892(item = getRSCM("item.bow_of_faerdhinen_c_25892"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25894(item = getRSCM("item.bow_of_faerdhinen_c_25894"), ammo = emptyArray()),
+    BOW_OF_FAERDHINEN_C_25896(item = getRSCM("item.bow_of_faerdhinen_c_25896"), ammo = emptyArray()),
     ;
 
     companion object {

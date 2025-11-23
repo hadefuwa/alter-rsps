@@ -1,0 +1,27 @@
+---
+id: 25884
+name: "Bow of faerdhinen (c)"
+equipment:
+  equipSlot: "weapon"
+  weaponType: 3
+  attackSpeed: 5
+  attackStab: 0
+  attackSlash: 0
+  attackCrush: 0
+  attackMagic: 0
+  attackRanged: 128
+  defenceStab: 0
+  defenceSlash: 0
+  defenceCrush: 0
+  defenceMagic: 0
+  defenceRanged: 0
+  meleeStrength: 0
+  rangedStrength: 106
+  magicDamage: 0
+  prayer: 0
+  skillReqs:
+    - skill: "ranged"
+      level: 80
+    - skill: "agility"
+      level: 70
+

@@ -44,6 +44,16 @@ object RangedCombatStrategy : CombatStrategy {
                     in Knives.KNIVES -> 6
                     in Darts.DARTS -> 3
                     in Bows.CRYSTAL_BOWS -> 10
+                    getRSCM("item.bow_of_faerdhinen"),
+                    getRSCM("item.bow_of_faerdhinen_c"),
+                    getRSCM("item.bow_of_faerdhinen_c_25869"),
+                    getRSCM("item.bow_of_faerdhinen_c_25884"),
+                    getRSCM("item.bow_of_faerdhinen_c_25886"),
+                    getRSCM("item.bow_of_faerdhinen_c_25888"),
+                    getRSCM("item.bow_of_faerdhinen_c_25890"),
+                    getRSCM("item.bow_of_faerdhinen_c_25892"),
+                    getRSCM("item.bow_of_faerdhinen_c_25894"),
+                    getRSCM("item.bow_of_faerdhinen_c_25896") -> 10
                     else -> DEFAULT_ATTACK_RANGE
                 }
 
