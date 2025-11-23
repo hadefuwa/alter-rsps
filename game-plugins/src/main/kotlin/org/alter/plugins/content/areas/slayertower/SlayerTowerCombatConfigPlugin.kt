@@ -183,36 +183,36 @@ class SlayerTowerCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 256) {
-                    add("item.slayer_ring_8", min = 1, max = 1, weight = 5)
-                    add("item.eternal_gem_noted", min = 1, max = 1, weight = 2)
-                    add("item.mist_battlestaff_noted", min = 1, max = 1, weight = 3)
-                    add("item.grimy_ranarr_weed_noted", min = 1, weight = 12)
-                    add("item.grimy_irit_leaf_noted", min = 1, weight = 15)
-                    add("item.grimy_avantoe_noted", min = 1, weight = 15)
-                    add("item.grimy_kwuarm_noted", min = 1, weight = 12)
-                    add("item.grimy_cadantine_noted", min = 1, weight = 10)
-                    add("item.grimy_dwarf_weed_noted", min = 1, weight = 10)
-                    add("item.grimy_lantadyme_noted", min = 1, weight = 8)
-                    add("item.grimy_torstol_noted", min = 1, weight = 5)
-                    add("item.rune_full_helm_noted", min = 1, weight = 8)
-                    add("item.rune_chainbody_noted", min = 1, weight = 6)
-                    add("item.rune_platelegs_noted", min = 1, weight = 6)
-                    add("item.rune_plateskirt_noted", min = 1, weight = 6)
-                    add("item.rune_kiteshield_noted", min = 1, weight = 5)
-                    add("item.rune_2h_sword_noted", min = 1, weight = 4)
-                    add("item.rune_battleaxe_noted", min = 1, weight = 4)
-                    add("item.rune_scimitar_noted", min = 1, weight = 8)
-                    add("item.rune_longsword_noted", min = 1, weight = 6)
-                    add("item.mystic_robe_top_dark_noted", min = 1, weight = 3)
-                    add("item.black_mystic_gloves_noted", min = 1, weight = 2)
-                    add("item.red_mystic_gloves_noted", min = 1, weight = 2)
-                    add("item.death_rune", min = 3, max = 10, weight = 12)
-                    add("item.blood_rune", min = 2, max = 8, weight = 10)
-                    add("item.chaos_rune", min = 5, max = 15, weight = 15)
-                    add("item.nature_rune", min = 4, max = 12, weight = 12)
-                    add("item.adament_boots_noted", min = 1, weight = 3)             
-
+                main(weight = 100) {
+                    add("item.slayer_ring_8", min = 1, max = 1, weight = 15)  // Increased from 5
+                    add("item.eternal_gem_noted", min = 1, max = 1, weight = 8)  // Increased from 2
+                    add("item.mist_battlestaff_noted", min = 1, max = 1, weight = 10)  // Increased from 3
+                    add("item.grimy_ranarr_weed_noted", min = 1, weight = 35)  // Increased from 12
+                    add("item.grimy_irit_leaf_noted", min = 1, weight = 45)  // Increased from 15
+                    add("item.grimy_avantoe_noted", min = 1, weight = 45)  // Increased from 15
+                    add("item.grimy_kwuarm_noted", min = 1, weight = 35)  // Increased from 12
+                    add("item.grimy_cadantine_noted", min = 1, weight = 30)  // Increased from 10
+                    add("item.grimy_dwarf_weed_noted", min = 1, weight = 30)  // Increased from 10
+                    add("item.grimy_lantadyme_noted", min = 1, weight = 25)  // Increased from 8
+                    add("item.grimy_torstol_noted", min = 1, weight = 15)  // Increased from 5
+                    add("item.rune_full_helm_noted", min = 1, weight = 25)  // Increased from 8
+                    add("item.rune_chainbody_noted", min = 1, weight = 20)  // Increased from 6
+                    add("item.rune_platelegs_noted", min = 1, weight = 20)  // Increased from 6
+                    add("item.rune_plateskirt_noted", min = 1, weight = 20)  // Increased from 6
+                    add("item.rune_kiteshield_noted", min = 1, weight = 15)  // Increased from 5
+                    add("item.rune_2h_sword_noted", min = 1, weight = 12)  // Increased from 4
+                    add("item.rune_battleaxe_noted", min = 1, weight = 12)  // Increased from 4
+                    add("item.rune_scimitar_noted", min = 1, weight = 25)  // Increased from 8
+                    add("item.rune_longsword_noted", min = 1, weight = 20)  // Increased from 6
+                    add("item.mystic_robe_top_dark_noted", min = 1, weight = 10)  // Increased from 3
+                    add("item.black_mystic_gloves_noted", min = 1, weight = 8)  // Increased from 2
+                    add("item.red_mystic_gloves_noted", min = 1, weight = 8)  // Increased from 2
+                    add("item.death_rune", min = 3, max = 10, weight = 35)  // Increased from 12
+                    add("item.blood_rune", min = 2, max = 8, weight = 30)  // Increased from 10
+                    add("item.chaos_rune", min = 5, max = 15, weight = 45)  // Increased from 15
+                    add("item.nature_rune", min = 4, max = 12, weight = 35)  // Increased from 12
+                    add("item.adamant_boots_noted", min = 1, weight = 10)  // Increased from 3
+                    add("item.coins_995", min = 100, max = 500, weight = 40)  // Add coins as common drop
                 }
                 
                 tertiary(weight = 128) {
@@ -365,6 +365,76 @@ class SlayerTowerCombatConfigPlugin(
                     add("item.red_mystic_boots_noted", min = 1, weight = 2)
                     add("item.adamant_boots_noted", min = 1, weight = 3)  
                     
+                }
+            }
+        }
+        
+        // ======================
+        // ABYSSAL DEMONS
+        // ======================
+        // High-level demons that can teleport during combat
+        // Combat Level: 124
+        setCombatDef("npc.abyssal_demon_415", "npc.abyssal_demon_416") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 50
+            }
+            
+            stats {
+                hitpoints = 150
+                attack = 97
+                strength = 97
+                defence = 97
+                magic = 1
+                ranged = 1
+            }
+            
+            bonuses {
+                attackStab = 0
+                attackSlash = 0
+                attackCrush = 0
+                attackMagic = 0
+                attackRanged = 0
+                strengthBonus = 0
+                defenceStab = 0
+                defenceSlash = 0
+                defenceCrush = 0
+                defenceMagic = 0
+                defenceRanged = 0
+                magicDamageBonus = 0
+                rangedStrengthBonus = 0
+            }
+            
+            anims {
+                attack = 2796
+                block = 2797
+                death = 2798
+            }
+            
+            aggro {
+                radius = 7
+                searchDelay = 2
+            }
+            
+            drops {
+                always {
+                    add("item.ashes", 1)
+                }
+                
+                main(weight = 128) {
+                    add("item.abyssal_whip", min = 1, weight = 4) // Very rare
+                    add("item.abyssal_dagger", min = 1, weight = 8)
+                    add("item.rune_full_helm_noted", min = 1, weight = 18)
+                    add("item.rune_platelegs_noted", min = 1, weight = 28)
+                    add("item.rune_2h_sword_noted", min = 1, weight = 26)
+                    add("item.chaos_rune", min = 40, max = 60, weight = 25)
+                    add("item.death_rune", min = 8, max = 12, weight = 20)
+                    add("item.blood_rune", min = 4, max = 6, weight = 25)
+                    add("item.coins_995", min = 100, max = 500000, weight = 30)
+                }
+                
+                tertiary(weight = 128) {
+                    add("item.casket_hard", min = 1, weight = 8)
                 }
             }
         }

@@ -25,6 +25,11 @@ import org.alter.game.plugin.PluginRepository
  * - Gargoyles: Stone creatures that require a rock hammer to finish
  * - Nechryael: High-level slayer monsters
  * 
+ * Lower Level (height 3):
+ * - Bloodvelds: Large, aggressive monsters
+ * - Abyssal Demons: High-level demons that can teleport
+ * - Gargoyles: Stone creatures that require a rock hammer to finish
+ * 
  * Coordinates are based on NPCList_OSRS.json
  */
 class SpawnPlugin(
@@ -66,18 +71,13 @@ class SpawnPlugin(
          * 
          * Aberrant spectres are aggressive monsters that require a nose peg or
          * slayer helmet to prevent stat reductions. They use magic attacks.
+         * Spawn count halved from 11 to 5.
          */
         spawnNpc(npc = "npc.aberrant_spectre_5", x = 3420, z = 3537, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_4", x = 3423, z = 3542, height = 1, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.aberrant_spectre_2", x = 3424, z = 3551, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_5", x = 3427, z = 3539, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_2", x = 3428, z = 3543, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_3", x = 3428, z = 3551, height = 1, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.aberrant_spectre_5", x = 3431, z = 3548, height = 1, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.aberrant_spectre_4", x = 3435, z = 3545, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_3", x = 3438, z = 3549, height = 1, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.aberrant_spectre_5", x = 3442, z = 3544, height = 1, walkRadius = 5, direction = Direction.SOUTH)
-        spawnNpc(npc = "npc.aberrant_spectre_4", x = 3442, z = 3550, height = 1, walkRadius = 5, direction = Direction.SOUTH)
         
         /**
          * First Floor (Height 1) - Bloodvelds
@@ -130,6 +130,37 @@ class SpawnPlugin(
          * They can summon death spawns during combat.
          */
         spawnNpc(npc = "npc.nechryael_8", x = 3445, z = 3560, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.nechryael_8", x = 3448, z = 3550, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.nechryael_8", x = 3451, z = 3544, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.nechryael_8", x = 3454, z = 3538, height = 2, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Lower Level (Height 3) - Bloodvelds, Abyssal Demons, and Gargoyles
+         * 
+         * High-level slayer monsters found in the lower level of the Slayer Tower.
+         * Located at coordinates around 3412, 9936, height 3.
+         */
+        
+        // Bloodvelds
+        spawnNpc(npc = "npc.bloodveld_484", x = 3412, z = 9936, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bloodveld_484", x = 3410, z = 9934, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bloodveld_484", x = 3410, z = 9934, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+
+        // Abyssal Demons (using ID 415, the standard abyssal demon)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3434, z = 9962, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3440, z = 9959, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3440, z = 9956, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3441, z = 9973, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3446, z = 9970, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3433, z = 9965, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.abyssal_demon_415", x = 3432, z = 9960, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        
+        // Gargoyles
+        spawnNpc(npc = "npc.gargoyle_412", x = 3441, z = 9942, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.gargoyle_412", x = 3443, z = 9931, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.gargoyle_412", x = 3443, z = 9931, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.gargoyle_412", x = 3443, z = 9931, height = 3, walkRadius = 5, direction = Direction.SOUTH)
+
     }
 }
 
