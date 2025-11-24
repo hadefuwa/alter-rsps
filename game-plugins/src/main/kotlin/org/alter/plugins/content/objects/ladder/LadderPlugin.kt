@@ -179,6 +179,45 @@ class LadderPlugin(
         }
 
         /**Ladders*/
+        
+        // Ladder 30191 - Teleports to (3412, 9932, height 3)
+        // Handle all common ladder options
+        if (objHasOption(obj = "object.ladder_30191", option = "climb")) {
+            onObjOption("object.ladder_30191", option = "climb") {
+                player.queue {
+                    player.message("You climb down the ladder.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3412, 9932, 3)
+                    player.unlock()
+                }
+            }
+        }
+        if (objHasOption(obj = "object.ladder_30191", option = "climb-down")) {
+            onObjOption("object.ladder_30191", option = "climb-down") {
+                player.queue {
+                    player.message("You climb down the ladder.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3412, 9932, 3)
+                    player.unlock()
+                }
+            }
+        }
+        if (objHasOption(obj = "object.ladder_30191", option = "climb-up")) {
+            onObjOption("object.ladder_30191", option = "climb-up") {
+                player.queue {
+                    player.message("You climb down the ladder.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3412, 9932, 3)
+                    player.unlock()
+                }
+            }
+        }
 
         val ladders =
             arrayOf(
@@ -192,7 +231,7 @@ class LadderPlugin(
                 "object.ladder_14746",
                 "object.ladder_14747",
                 "object.ladder_14748",
-                "object.ladder_30191",
+                // object.ladder_30191 is handled separately above
             )
 
         ladders.forEach { ladder ->
@@ -220,6 +259,96 @@ class LadderPlugin(
         }
         onObjOption("object.ladder_17385", option = "climb-up") {
             player.moveTo(3210, 3216, 0)
+        }
+        
+        // H.A.M. Hideout Trapdoor/Ladder (object 5490/5491)
+        // Surface entrance: 3164, 3251, height 0
+        // Underground hideout: 3164, 9627, height 0 (underground level)
+        onObjOption("object.trapdoor_5490", option = "climb-down") {
+            player.queue {
+                player.message("You climb down the trapdoor.")
+                player.animate(827) // Climb down animation
+                player.lock()
+                wait(2)
+                player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                player.message("You find yourself in the H.A.M. hideout.")
+                player.unlock()
+            }
+        }
+        
+        // Ladder 5491 - Climb up from H.A.M. hideout to surface
+        onObjOption("object.trapdoor_5491", option = "climb-up") {
+            player.queue {
+                val playerTile = player.tile
+                // If player is underground (z > 5000), go to surface
+                // If player is on surface (z < 5000), go to underground
+                if (playerTile.z > 5000) {
+                    // Underground, go to surface
+                    player.message("You climb up the ladder.")
+                    player.animate(828) // Climb up animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3164, 3251, 0) // H.A.M. hideout surface entrance
+                    player.message("You climb out of the hideout.")
+                    player.unlock()
+                } else {
+                    // On surface, go to underground
+                    player.message("You climb down the trapdoor.")
+                    player.animate(827) // Climb down animation
+                    player.lock()
+                    wait(2)
+                    player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                    player.message("You find yourself in the H.A.M. hideout.")
+                    player.unlock()
+                }
+            }
+        }
+        
+        // Also handle ladder 5491 with climb-down option
+        onObjOption("object.trapdoor_5491", option = "climb-down") {
+            player.queue {
+                player.message("You climb down the ladder.")
+                player.animate(827) // Climb down animation
+                player.lock()
+                wait(2)
+                player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                player.message("You find yourself in the H.A.M. hideout.")
+                player.unlock()
+            }
+        }
+        
+        // Handle ladder 5491 as a ladder object (if it's registered as a ladder)
+        // Try common ladder options
+        val ladder5491Options = listOf("climb", "climb-up", "climb-down")
+        ladder5491Options.forEach { option ->
+            try {
+                onObjOption(5491, option = option) {
+                    player.queue {
+                        val playerTile = player.tile
+                        if (playerTile.z > 5000) {
+                            // Underground, go to surface
+                            player.message("You climb up the ladder.")
+                            player.animate(828)
+                            player.lock()
+                            wait(2)
+                            player.moveTo(3164, 3251, 0)
+                            player.message("You climb out of the hideout.")
+                            player.unlock()
+                        } else {
+                            // On surface, go to underground
+                            player.message("You climb down the ladder.")
+                            player.animate(827)
+                            player.lock()
+                            wait(2)
+                            player.moveTo(3164, 9627, 0)
+                            player.message("You find yourself in the H.A.M. hideout.")
+                            player.unlock()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist, continue
+            }
         }
         
         // KBD Ladder (object 18987) - Teleports to King Black Dragon lair

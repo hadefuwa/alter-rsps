@@ -6,8 +6,10 @@ import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.World
 import org.alter.game.model.attr.AttributeKey
+import org.alter.game.model.entity.GroundItem
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Player
+import org.alter.game.model.timer.TimeConstants
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 
@@ -56,7 +58,7 @@ object Slayer {
         "merchant", "trader", "farmer", "fisherman", "cook", "bartender", "nurse",
         "tutor", "master", "teacher", "guide", "leprechaun", "null", "spawn",
         "rock", "tentacle", "head", "wing", "twig", "pile",
-        "giant skeleton" // Add more name patterns here as needed
+        "giant skeleton", "zombie swab", "assassin", "assasin", "angry goblin", "baboon thrall", "rebel warrior", "elidinis warden", "rooster", "mourner" // Add more name patterns here as needed
     )
 
     // Cache for valid NPC IDs (lazy initialization)
@@ -208,7 +210,18 @@ class SlayerPlugin(
             val idMatches = npc.id == taskNpcId
             val nameMatches = taskNpcDef != null && npc.name.lowercase() == taskNpcDef.name.lowercase()
             
-            if (idMatches || nameMatches) {
+            // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+            val tzhaarMatches = if (taskNpcDef != null) {
+                val taskNameLower = taskNpcDef.name.lowercase()
+                val killedNameLower = npc.name.lowercase()
+                // Check if both are TzHaar NPCs (name contains "tzhaar")
+                (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+                (killedNameLower.contains("tzhaar") || killedNameLower.contains("tz-haar"))
+            } else {
+                false
+            }
+            
+            if (idMatches || nameMatches || tzhaarMatches) {
                 val amount = killer.attr[Slayer.SLAYER_AMOUNT_ATTR] ?: 0
                 val progress = (killer.attr[Slayer.SLAYER_PROGRESS_ATTR] ?: 0) + 1
 
@@ -217,6 +230,21 @@ class SlayerPlugin(
                 // Add XP based on NPC hitpoints (or use a base amount)
                 val xpGain = npc.combatDef.hitpoints.toDouble().coerceAtLeast(1.0)
                 killer.addXp(Skills.SLAYER, xpGain)
+
+                // Drop 500k coins for slayer task kill
+                val coinItemId = 995
+                val coinAmount = 500_000
+                val coinGroundItem = GroundItem(
+                    item = coinItemId,
+                    amount = coinAmount,
+                    tile = npc.tile,
+                    owner = killer
+                )
+                coinGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE
+                coinGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
+                coinGroundItem.ownerShipType = 1
+                npc.world.spawn(coinGroundItem)
+                killer.message("Slayer task bonus: ${coinAmount} coins!")
 
                 if (progress >= amount) {
                     killer.message("You have completed your slayer task! Return to a slayer master.")
@@ -236,6 +264,13 @@ class SlayerPlugin(
         onCommand("slayer") {
             val p = player
             Slayer.checkProgress(p)
+        }
+        
+        // Command to check slayer points
+        onCommand("slayerpoints") {
+            val p = player
+            val points = Slayer.getSlayerPoints(p)
+            p.message("You have $points slayer point${if (points == 1) "" else "s"}.")
         }
         
         onCommand("resettask") {

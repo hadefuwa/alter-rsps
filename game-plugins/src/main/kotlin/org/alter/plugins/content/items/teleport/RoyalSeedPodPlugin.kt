@@ -14,9 +14,9 @@ import org.alter.plugins.content.magic.teleport
 import org.alter.rscm.RSCM.getRSCM
 
 /**
- * Royal Seed Pod - Custom Coordinate Teleporter (Pnda Only)
+ * Royal Seed Pod - Custom Coordinate Teleporter
  *
- * This plugin allows the Royal Seed Pod to teleport the player "Pnda" to custom coordinates
+ * This plugin allows the Royal Seed Pod to teleport any player to custom coordinates
  * by entering X and Y values through the chatbox.
  *
  * Usage:
@@ -34,7 +34,6 @@ class RoyalSeedPodPlugin(
 
     companion object {
         private const val ROYAL_SEED_POD_ITEM = "item.royal_seed_pod"
-        private const val ALLOWED_USERNAME = "pnda"
     }
 
     init {
@@ -93,12 +92,6 @@ class RoyalSeedPodPlugin(
     }
 
     private suspend fun Player.handleCustomTeleport(it: QueueTask) {
-        // Check if player is Pnda
-        if (!username.equals(ALLOWED_USERNAME, ignoreCase = true)) {
-            message("The Royal Seed Pod glows briefly, but nothing happens...")
-            return
-        }
-
         // Prompt for X coordinate
         message("Enter the X coordinate:")
         val x = it.inputInt(this, "Enter X coordinate:")

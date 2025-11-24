@@ -96,6 +96,27 @@ class SpawnPlugin(
 
         //bear south of mine
         spawnNpc(npc = "npc.grizzly_bear", x = 3279, z = 3349, walkRadius = 8, direction = Direction.SOUTH)
+
+        /**
+         * Bat Spawn
+         * 
+         * Bat spawn at coordinates 3362, 3486
+         */
+        spawnNpc(npc = "npc.bat", x = 3362, z = 3486, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bat", x = 3364, z = 3488, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bat", x = 3366, z = 3490, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bat", x = 3368, z = 3492, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.bat", x = 3370, z = 3494, walkRadius = 5, direction = Direction.SOUTH)
+
+        /**
+         * Slayer Masters
+         * 
+         * Slayer masters in the center of Varrock for easy access.
+         * Location: Varrock Center Square (3206, 3425)
+         */
+        spawnNpc(npc = "npc.krystilia", x = 3206, z = 3425, walkRadius = 0, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.nieve_6797", x = 3204, z = 3423, walkRadius = 0, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.konar_quo_maten", x = 3204, z = 3427, walkRadius = 0, direction = Direction.SOUTH)
     }
 }
 
