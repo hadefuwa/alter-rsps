@@ -28,8 +28,16 @@ class ClueCasketPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
 
-    // Minimum free inventory slots required to open a clue casket
-    private val MIN_FREE_SLOTS = 10
+    /**
+     * Get the minimum free inventory slots required to open a clue casket based on tier
+     */
+    private fun getRequiredSlots(tier: ClueTier): Int {
+        return when (tier) {
+            ClueTier.EASY -> 1
+            ClueTier.MEDIUM -> 2
+            else -> 10
+        }
+    }
 
     init {
         // CRITICAL: Register these items FIRST by direct item ID before any other registrations
@@ -502,10 +510,11 @@ class ClueCasketPlugin(
         player.lock()
         
         try {
-            // Check if player has enough free inventory slots
+            // Check if player has enough free inventory slots based on tier
+            val requiredSlots = getRequiredSlots(tier)
             val freeSlots = player.inventory.freeSlotCount
-            if (freeSlots < MIN_FREE_SLOTS) {
-                player.message("You need at least $MIN_FREE_SLOTS free inventory slots to open this casket.")
+            if (freeSlots < requiredSlots) {
+                player.message("You need at least $requiredSlots free inventory slot${if (requiredSlots == 1) "" else "s"} to open this casket.")
                 return
             }
 
@@ -553,7 +562,7 @@ class ClueCasketPlugin(
             player.playSound(Sound.CASKET_OPEN)
 
             // Generate and give rewards
-            val rewards = generateRewards(tier)
+            val rewards = generateRewards(tier, targetItemId)
 
             player.queue {
                 for (reward in rewards) {
@@ -590,17 +599,22 @@ class ClueCasketPlugin(
         }
     }
 
-    private fun generateRewards(tier: ClueTier): List<ClueReward> {
+    private fun generateRewards(tier: ClueTier, itemId: Int? = null): List<ClueReward> {
         val rewards = mutableListOf<ClueReward>()
         
-        // Generate truly random rewards based on tier: 3, 5, 7, or 9 items
-        val rewardCount = when (tier) {
-            ClueTier.BEGINNER -> 3
-            ClueTier.EASY -> 5
-            ClueTier.MEDIUM -> 7
-            ClueTier.HARD -> 9
-            ClueTier.ELITE -> 9
-            ClueTier.MASTER -> 9
+        // Special case: Item 2724 (hard casket) gives 7 random items
+        val rewardCount = if (itemId == 2724) {
+            7
+        } else {
+            // Generate truly random rewards based on tier: 3, 1, 2, or 9 items
+            when (tier) {
+                ClueTier.BEGINNER -> 3
+                ClueTier.EASY -> 1
+                ClueTier.MEDIUM -> 2
+                ClueTier.HARD -> 9
+                ClueTier.ELITE -> 9
+                ClueTier.MASTER -> 9
+            }
         }
 
         // Get all items from cache and filter valid ones

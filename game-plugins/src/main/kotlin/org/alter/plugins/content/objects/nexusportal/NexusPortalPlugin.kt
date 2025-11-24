@@ -42,13 +42,28 @@ class NexusPortalPlugin(
          * All available teleport destinations organized by category
          */
         private val TELEPORT_LOCATIONS = listOf(
+            // Bosses
+            "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),
+            "Cerberus" to Tile(x = 1240, z = 1253, height = 0),
+            
             // Cities & Towns
             "God Wars Dungeon" to Tile(x = 2881, z = 5309, height = 2),
             "Revenants South" to Tile(x = 3197, z = 10056, height = 0),
             "Revenants Orks" to Tile(x = 3214, z = 10097, height = 0),
             "Revenants North" to Tile(x = 3235, z = 10198, height = 0),
             "Taverley Dungeon" to Tile(x = 2884, z = 9798, height = 0),
+            "Slayer Tower" to Tile(x = 3428, z = 3537, height = 0),
             "Kalphite Queen Dungeon" to Tile(x = 3499, z = 9492, height = 0),
+            "Stronghold of Security" to Tile(x = 3081, z = 3420, height = 0),
+            "TzHaar City" to Tile(x = 2436, z = 5171, height = 0),
+            "Brimhaven Dungeon Steel/Iron dragons" to Tile(x = 2722, z = 9443, height = 0),
+            "Varrock Sewers" to Tile(x = 3239, z = 9866, height = 0),
+            "Bounty Hunter" to Tile(x = 3423, z = 4089, height = 0),
+            "Blue Dragons" to Tile(x = 2899, z = 9802, height = 0),
+            "Crazy Archaeologist" to Tile(x = 2986, z = 3702, height = 0),
+            "White Wolves" to Tile(x = 2856, z = 3482, height = 0),
+
+
             "Varrock Centre" to Tile(x = 3213, z = 3428, height = 0),
             "Varrock East Bank" to Tile(x = 3253, z = 3420, height = 0),
             "Varrock West Bank" to Tile(x = 3185, z = 3436, height = 0),

@@ -13,6 +13,9 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.mechanics.poison.Poison
 import org.alter.rscm.RSCM.getRSCM
 
+// Timer key for divine potion duration (5 minutes = 500 ticks)
+private val DIVINE_POTION_TIMER = TimerKey()
+
 class PotionsPlugin(
     r: PluginRepository,
     world: World,
@@ -52,6 +55,17 @@ class PotionsPlugin(
             "item.agility_potion4", "item.agility_potion3", "item.agility_potion2", "item.agility_potion1",
             // Strength potions
             "item.strength_potion4", "item.strength_potion3", "item.strength_potion2", "item.strength_potion1",
+            // Bastion potions - boost defence and ranged
+            "item.bastion_potion4", "item.bastion_potion3", "item.bastion_potion2", "item.bastion_potion1",
+            // Divine potions - same effects as regular potions but last 5 minutes
+            "item.divine_super_combat_potion4", "item.divine_super_combat_potion3", "item.divine_super_combat_potion2", "item.divine_super_combat_potion1",
+            "item.divine_super_attack_potion4", "item.divine_super_attack_potion3", "item.divine_super_attack_potion2", "item.divine_super_attack_potion1",
+            "item.divine_super_strength_potion4", "item.divine_super_strength_potion3", "item.divine_super_strength_potion2", "item.divine_super_strength_potion1",
+            "item.divine_super_defence_potion4", "item.divine_super_defence_potion3", "item.divine_super_defence_potion2", "item.divine_super_defence_potion1",
+            "item.divine_ranging_potion4", "item.divine_ranging_potion3", "item.divine_ranging_potion2", "item.divine_ranging_potion1",
+            "item.divine_magic_potion4", "item.divine_magic_potion3", "item.divine_magic_potion2", "item.divine_magic_potion1",
+            "item.divine_battlemage_potion4", "item.divine_battlemage_potion3", "item.divine_battlemage_potion2", "item.divine_battlemage_potion1",
+            "item.divine_bastion_potion4", "item.divine_bastion_potion3", "item.divine_bastion_potion2", "item.divine_bastion_potion1",
         )
 
         // Bind all potions to option 2 (Drink)
@@ -298,6 +312,114 @@ class PotionsPlugin(
             potion.contains("antifire") -> {
                 // TODO: Add antifire immunity timer
                 player.message("You are now immune to dragonfire.")
+            }
+            // Bastion potions - boost defence and ranged
+            potion.contains("bastion_potion") && !potion.contains("divine") -> {
+                // Defence boost: 5 + (base / 5)
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                    val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                }
+                // Ranged boost: 4 + (base / 10)
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.RANGED)
+                    val current = player.getSkills().getCurrentLevel(Skills.RANGED)
+                    val boost = 4 + (base / 10)
+                    player.getSkills().setCurrentLevel(Skills.RANGED, (current + boost).coerceAtMost(base + boost))
+                }
+            }
+            // Divine potions - same effects as regular potions but last 5 minutes (500 ticks)
+            potion.contains("divine_super_combat_potion") -> {
+                // Apply same effects as super combat potion
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.ATTACK)
+                    val current = player.getSkills().getCurrentLevel(Skills.ATTACK)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.ATTACK, (current + boost).coerceAtMost(base + boost))
+                }
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.STRENGTH)
+                    val current = player.getSkills().getCurrentLevel(Skills.STRENGTH)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.STRENGTH, (current + boost).coerceAtMost(base + boost))
+                }
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                    val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                }
+                // Set 5 minute timer (500 ticks = 5 minutes)
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_super_attack") -> {
+                val base = player.getSkills().getBaseLevel(Skills.ATTACK)
+                val current = player.getSkills().getCurrentLevel(Skills.ATTACK)
+                val boost = 5 + (base / 5)
+                player.getSkills().setCurrentLevel(Skills.ATTACK, (current + boost).coerceAtMost(base + boost))
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_super_strength") -> {
+                val base = player.getSkills().getBaseLevel(Skills.STRENGTH)
+                val current = player.getSkills().getCurrentLevel(Skills.STRENGTH)
+                val boost = 5 + (base / 5)
+                player.getSkills().setCurrentLevel(Skills.STRENGTH, (current + boost).coerceAtMost(base + boost))
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_super_defence") -> {
+                val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                val boost = 5 + (base / 5)
+                player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_ranging") -> {
+                val base = player.getSkills().getBaseLevel(Skills.RANGED)
+                val current = player.getSkills().getCurrentLevel(Skills.RANGED)
+                val boost = 4 + (base / 10)
+                player.getSkills().setCurrentLevel(Skills.RANGED, (current + boost).coerceAtMost(base + boost))
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_magic") -> {
+                val base = player.getSkills().getBaseLevel(Skills.MAGIC)
+                val current = player.getSkills().getCurrentLevel(Skills.MAGIC)
+                val boost = 4 + (base / 10)
+                player.getSkills().setCurrentLevel(Skills.MAGIC, (current + boost).coerceAtMost(base + boost))
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_battlemage") -> {
+                // Battlemage boosts magic and defence
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.MAGIC)
+                    val current = player.getSkills().getCurrentLevel(Skills.MAGIC)
+                    val boost = 4 + (base / 10)
+                    player.getSkills().setCurrentLevel(Skills.MAGIC, (current + boost).coerceAtMost(base + boost))
+                }
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                    val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                }
+                player.timers[DIVINE_POTION_TIMER] = 500
+            }
+            potion.contains("divine_bastion") -> {
+                // Bastion boosts defence and ranged
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.DEFENCE)
+                    val current = player.getSkills().getCurrentLevel(Skills.DEFENCE)
+                    val boost = 5 + (base / 5)
+                    player.getSkills().setCurrentLevel(Skills.DEFENCE, (current + boost).coerceAtMost(base + boost))
+                }
+                run {
+                    val base = player.getSkills().getBaseLevel(Skills.RANGED)
+                    val current = player.getSkills().getCurrentLevel(Skills.RANGED)
+                    val boost = 4 + (base / 10)
+                    player.getSkills().setCurrentLevel(Skills.RANGED, (current + boost).coerceAtMost(base + boost))
+                }
+                player.timers[DIVINE_POTION_TIMER] = 500
             }
         }
     }

@@ -96,6 +96,10 @@ class VarrockArmorShopPlugin(
         // Magic Armor - 15m-30m
         addArmor("mystic_robe_top", 300000)
         addArmor("mystic_robe_bottom", 300000)
+        
+        // Monk Robes - 100k each
+        addArmor("monks_robe_top", 100000)
+        addArmor("monks_robe", 100000)
 
         // Bandos Armor - 200m-300m
         addArmor("bandos_chestplate", 200000000)

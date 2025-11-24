@@ -1,4 +1,4 @@
-package org.alter.plugins.content.npcs.sewerabomination
+package org.alter.plugins.content.npcs.cerberus
 
 import org.alter.api.*
 import org.alter.api.cfg.*
@@ -17,21 +17,20 @@ import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
 
 /**
- * Sewer Abomination Configuration
+ * Cerberus Configuration
  *
- * A mid-level boss found in the Varrock sewers
- * Spawns in the center of the sewer network
+ * A high-level boss found at coordinates 1240, 1253
+ * Cerberus is a powerful three-headed hellhound boss
  */
-class SewerAbominationConfigsPlugin(
+class CerberusConfigsPlugin(
     r: PluginRepository,
     world: World,
     server: Server
 ) : KotlinPlugin(r, world, server) {
 
     init {
-        // Spawn Cerberus (5862) as Sewer Abomination in Varrock sewers
-        // Coordinates: x=3237, z=9866 (adjust based on your sewer layout)
-        spawnNpc("npc.cerberus", x = 3237, z = 9866, height = 0, walkRadius = 6)
+        // Spawn Cerberus at coordinates 1240, 1253
+        spawnNpc("npc.cerberus", x = 1240, z = 1253, height = 0, walkRadius = 6)
 
         // Add attack option handler (wrap in try-catch to handle duplicate registration)
         try {
@@ -39,47 +38,47 @@ class SewerAbominationConfigsPlugin(
                 player.attack(npc)
             }
         } catch (e: Exception) {
-            // Option already bound by another plugin (e.g., CerberusConfigsPlugin), skip silently
+            // Option already bound by another plugin (e.g., SewerAbominationConfigsPlugin), skip silently
             // This can happen when multiple plugins try to register handlers for the same NPC
         }
 
         setCombatDef("npc.cerberus") {
             configs {
-                attackSpeed = 3  // Fast attack speed (was 5)
+                attackSpeed = 3  // Fast attack speed
                 respawnDelay = 100  // 60 seconds respawn (100 ticks)
             }
 
             aggro {
-                radius = 10  // Increased detection radius (was 8)
+                radius = 10  // Detection radius
                 searchDelay = 1
             }
 
             stats {
-                hitpoints = 500  // Significantly increased from 180
-                attack = 350  // Increased from 250
-                strength = 400  // Increased from 280
-                defence = 200  // Increased from 100
-                magic = 300  // Increased from 220
-                ranged = 280  // Increased from 200
+                hitpoints = 500  // High hitpoints
+                attack = 350
+                strength = 400
+                defence = 200
+                magic = 300
+                ranged = 280
             }
 
             bonuses {
                 attackStab = 50
                 attackSlash = 50
-                attackCrush = 150  // Increased from 80
-                attackMagic = 180  // Increased from 100
-                attackRanged = 140  // Increased from 80
+                attackCrush = 150
+                attackMagic = 180
+                attackRanged = 140
 
-                defenceStab = 100  // Increased from 40
-                defenceSlash = 120  // Increased from 50
-                defenceCrush = 140  // Increased from 60
-                defenceMagic = 80  // Increased from 20
-                defenceRanged = 90  // Increased from 30
+                defenceStab = 100
+                defenceSlash = 120
+                defenceCrush = 140
+                defenceMagic = 80
+                defenceRanged = 90
 
-                attackBonus = 250  // Increased from 150
-                strengthBonus = 220  // Increased from 130
-                rangedStrengthBonus = 120  // Increased from 60
-                magicDamageBonus = 100  // Increased from 50
+                attackBonus = 250
+                strengthBonus = 220
+                rangedStrengthBonus = 120
+                magicDamageBonus = 100
             }
 
             anims {
@@ -107,7 +106,7 @@ class SewerAbominationConfigsPlugin(
                     // Coins
                     add("item.coins_995", min = 500000, max = 2000000, weight = 25)
 
-                    // Runes (poison/nature themed)
+                    // Runes
                     add("item.nature_rune", min = 500, max = 500, weight = 15)
                     add("item.death_rune", min = 500, max = 500, weight = 12)
                     add("item.blood_rune", min = 500, max = 500, weight = 10)
@@ -141,10 +140,6 @@ class SewerAbominationConfigsPlugin(
                 }
             }
         }
-
-        // Note: Minion combat definitions are not set here because these NPCs
-        // (zombie, archer, dark_wizard) already have combat definitions set elsewhere.
-        // The guaranteed random item drop for minions is handled in SewerAbominationCombatPlugin
-        // via onNpcDeath handlers that check if the NPC doesn't respawn (boss minions).
     }
 }
+
