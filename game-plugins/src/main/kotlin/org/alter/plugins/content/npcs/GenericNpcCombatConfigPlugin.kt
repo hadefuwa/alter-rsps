@@ -680,6 +680,51 @@ class GenericNpcCombatConfigPlugin(
         // NOTE: Hellhounds are configured in wilderness/CombatConfigPlugin.kt
         // Removing duplicate configuration to avoid "Npc combat definition has been previously set" error
         // If you need to modify hellhound config, edit wilderness/CombatConfigPlugin.kt instead
+        
+        // ======================
+        // BLACK CHINCHOMPA
+        // ======================
+        setCombatDef("npc.black_chinchompa_2912") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 25
+            }
+            
+            stats {
+                hitpoints = 1
+                attack = 1
+                strength = 1
+                defence = 1
+            }
+            
+            bonuses {
+                attackStab = 0
+                attackSlash = 0
+                attackCrush = 0
+                strengthBonus = 0
+                defenceStab = 0
+                defenceSlash = 0
+                defenceCrush = 0
+                defenceMagic = 0
+                defenceRanged = 0
+            }
+            
+            anims {
+                attack = 4915  // Generic small creature attack animation
+                block = 4916   // Generic small creature block animation
+                death = 5183   // CHINCHOMPA_DEATH animation
+            }
+            
+            aggro {
+                radius = 0
+                searchDelay = 0
+                // Not aggressive
+            }
+            
+            drops {
+                // No drops for chinchompas
+            }
+        }
     }
 }
 

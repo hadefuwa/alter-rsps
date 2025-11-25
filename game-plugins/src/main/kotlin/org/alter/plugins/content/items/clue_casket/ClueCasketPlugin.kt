@@ -43,7 +43,6 @@ class ClueCasketPlugin(
         // CRITICAL: Register these items FIRST by direct item ID before any other registrations
         // This ensures we bind option 2 before any other plugins might bind it
         // We use forceRegisterCasket to bypass item definition checks since we know these work with option 2
-        println("DEBUG: Registering reward items by ID FIRST: 19836, 20544, 28088, 30619")
         forceRegisterCasket(19836, ClueTier.MASTER) // reward_casket_master
         forceRegisterCasket(20544, ClueTier.HARD)   // reward_casket_hard
         forceRegisterCasket(28088, ClueTier.MEDIUM) // bounty_crate_tier_4
@@ -91,10 +90,8 @@ class ClueCasketPlugin(
             world.plugins.bindItem(itemId, 1) {
                 openCasket(player, tier, null, itemId)
             }
-            println("DEBUG: Forced registration for casket ID $itemId (tier=$tier)")
         } catch (e: Exception) {
-            println("DEBUG: Failed to force register casket ID $itemId: ${e.message}")
-            e.printStackTrace()
+            // Failed to register, skip silently
         }
     }
     
@@ -210,14 +207,9 @@ class ClueCasketPlugin(
                         world.plugins.bindItem(itemId, 2) {
                             openCasket(player, tier, null, itemId)
                         }
-                        if (!silent) {
-                            println("DEBUG: ✓ Registered casket ID $itemId (tier=$tier) with option 2")
-                        }
                         registered = true
                     } catch (e: Exception) {
-                        if (!silent) {
-                            println("DEBUG: ✗ Failed to register option 2 for casket ID $itemId: ${e.message}")
-                        }
+                        // Failed to register, continue
                     }
                 }
             }
@@ -229,14 +221,9 @@ class ClueCasketPlugin(
                         world.plugins.bindItem(itemId, 1) {
                             openCasket(player, tier, null, itemId)
                         }
-                        if (!silent) {
-                            println("DEBUG: ✓ Registered casket ID $itemId (tier=$tier) with option 1")
-                        }
                         registered = true
                     } catch (e: Exception) {
-                        if (!silent) {
-                            println("DEBUG: ✗ Failed to register option 1 for casket ID $itemId: ${e.message}")
-                        }
+                        // Failed to register, continue
                     }
                 }
             }
@@ -252,9 +239,6 @@ class ClueCasketPlugin(
                             world.plugins.bindItem(itemId, optionIndex) {
                                 openCasket(player, tier, null, itemId)
                             }
-                            if (!silent) {
-                                println("DEBUG: ✓ Registered casket ID $itemId (tier=$tier) with option $optionIndex")
-                            }
                             registered = true
                             break
                         } catch (e: Exception) {
@@ -266,9 +250,6 @@ class ClueCasketPlugin(
             
             registered
         } catch (e: Exception) {
-            if (!silent) {
-                println("DEBUG: Failed to register casket ID $itemId: ${e.message}")
-            }
             false
         }
     }
@@ -311,17 +292,6 @@ class ClueCasketPlugin(
                 return
             }
             
-            println("DEBUG: registerRewardItemByItemId - Item ID $itemId, name='${itemDef.name}', interfaceOptions.size=${itemDef.interfaceOptions.size}")
-            if (itemDef.interfaceOptions.size > 0) {
-                println("DEBUG:   Option 1: ${itemDef.interfaceOptions[0]}")
-                if (itemDef.interfaceOptions.size > 1) {
-                    println("DEBUG:   Option 2: ${itemDef.interfaceOptions[1]}")
-                }
-                if (itemDef.interfaceOptions.size > 2) {
-                    println("DEBUG:   Option 3: ${itemDef.interfaceOptions[2]}")
-                }
-            }
-            
             var registered = false
             
             // CRITICAL: Always try option 2 first (this is what inventory clicks send)
@@ -329,20 +299,14 @@ class ClueCasketPlugin(
                 try {
                     // Try using bindItem directly - this is what executeItem uses
                     world.plugins.bindItem(itemId, 2) {
-                        println("DEBUG: Handler triggered for item ID $itemId, option 2")
                         openCasket(player, tier, null, itemId)
                     }
-                    println("DEBUG: ✓ Registered reward item ID $itemId (tier=$tier) with option 2 using bindItem")
                     registered = true
                 } catch (e: IllegalStateException) {
                     // Item is already bound - skip silently
-                    println("DEBUG: ⚠ Option 2 already bound for item ID $itemId by another plugin, skipping")
                 } catch (e: Exception) {
-                    println("DEBUG: ✗ Failed to register option 2 for item ID $itemId: ${e.message}")
-                    e.printStackTrace()
+                    // Failed to register, continue
                 }
-            } else {
-                println("DEBUG: ⚠ Item ID $itemId does not have option 2 (interfaceOptions.size=${itemDef.interfaceOptions.size})")
             }
             
             // Try option 3 (secondary click) if option 2 failed
@@ -352,12 +316,11 @@ class ClueCasketPlugin(
                         world.plugins.bindItem(itemId, 3) {
                             openCasket(player, tier, null, itemId)
                         }
-                        println("DEBUG: ✓ Registered reward item ID $itemId (tier=$tier) with option 3 using bindItem")
                         registered = true
                     } catch (e: IllegalStateException) {
                         // Skip silently if already bound
                     } catch (e: Exception) {
-                        println("DEBUG: ✗ Failed to register option 3 for item ID $itemId: ${e.message}")
+                        // Failed to register, continue
                     }
                 }
             }
@@ -369,12 +332,11 @@ class ClueCasketPlugin(
                         world.plugins.bindItem(itemId, 1) {
                             openCasket(player, tier, null, itemId)
                         }
-                        println("DEBUG: ✓ Registered reward item ID $itemId (tier=$tier) with option 1 using bindItem")
                         registered = true
                     } catch (e: IllegalStateException) {
                         // Skip silently if already bound
                     } catch (e: Exception) {
-                        println("DEBUG: ✗ Failed to register option 1 for item ID $itemId: ${e.message}")
+                        // Failed to register, continue
                     }
                 }
             }
@@ -386,22 +348,16 @@ class ClueCasketPlugin(
                         world.plugins.bindItem(itemId, 4) {
                             openCasket(player, tier, null, itemId)
                         }
-                        println("DEBUG: ✓ Registered reward item ID $itemId (tier=$tier) with option 4 using bindItem")
                         registered = true
                     } catch (e: IllegalStateException) {
                         // Skip silently if already bound
                     } catch (e: Exception) {
-                        println("DEBUG: ✗ Failed to register option 4 for item ID $itemId: ${e.message}")
+                        // Failed to register, continue
                     }
                 }
             }
             
-            // Only show warning if we actually tried to register but failed
-            // If all options were already bound, we return early and don't show this message
-            if (!registered) {
-                // This should rarely happen now since we check early, but keep for debugging
-                println("DEBUG: ⚠ Could not register reward item ID $itemId - all available options are bound or unavailable")
-            }
+            // Registration complete (or skipped if already bound)
         } catch (e: Exception) {
             println("Warning: Could not register reward item handler for ID $itemId: ${e.message}")
             e.printStackTrace()
@@ -421,17 +377,13 @@ class ClueCasketPlugin(
                 if (itemDef.interfaceOptions.size >= 2 && itemDef.interfaceOptions[1] != null) {
                     try {
                         onItemOption(itemName, 2) {
-                            println("DEBUG: Handler triggered! itemName=$itemName, optionIndex=2, itemId=$itemId")
                             openCasket(player, tier, itemName)
                         }
-                        println("DEBUG: ✓ Successfully registered option 2 for $itemName (ID: $itemId)")
                         return
                     } catch (e: Exception) {
-                        println("DEBUG: ✗ Failed to register option 2 for $itemName: ${e.message}")
+                        // Failed to register, continue
                     }
                 }
-            } else {
-                println("DEBUG: Option 2 already bound for $itemName (ID: $itemId)")
             }
             
             // Try to register "open" option if it exists and not already bound
@@ -456,14 +408,13 @@ class ClueCasketPlugin(
                     val optionIndex = itemDef.interfaceOptions.indexOfFirst { it?.lowercase() == optionName.lowercase() }
                     if (optionIndex != -1 && !world.plugins.isItemBound(itemId, optionIndex + 1)) {
                         try {
-                            onItemOption(itemName, optionName) {
-                                openCasket(player, tier, itemName)
-                            }
-                            println("DEBUG: Registered '$optionName' option for $itemName")
-                            return
-                        } catch (e: Exception) {
-                            println("DEBUG: Failed to register '$optionName' option: ${e.message}")
+                        onItemOption(itemName, optionName) {
+                            openCasket(player, tier, itemName)
                         }
+                        return
+                    } catch (e: Exception) {
+                        // Failed to register, continue
+                    }
                     }
                 }
             }
@@ -472,7 +423,6 @@ class ClueCasketPlugin(
             val fallbackOptions = listOf(1, 3, 4)
             for (optionIndex in fallbackOptions) {
                 if (world.plugins.isItemBound(itemId, optionIndex)) {
-                    println("DEBUG: Option index $optionIndex already bound for $itemName (ID: $itemId), skipping")
                     continue
                 }
                 
@@ -480,24 +430,13 @@ class ClueCasketPlugin(
                 if (optionIndex <= itemDef.interfaceOptions.size && itemDef.interfaceOptions[optionIndex - 1] != null) {
                     try {
                         onItemOption(itemName, optionIndex) {
-                            println("DEBUG: Handler triggered! itemName=$itemName, optionIndex=$optionIndex, itemId=$itemId")
                             openCasket(player, tier, itemName)
                         }
-                        println("DEBUG: ✓ Successfully registered option index $optionIndex for $itemName (ID: $itemId)")
                         return // Only register one option
                     } catch (e: Exception) {
-                        println("DEBUG: ✗ Failed to register option index $optionIndex for $itemName: ${e.message}")
                         // Option index doesn't exist or already bound, continue to next
                     }
                 }
-            }
-            
-            // Verify registration worked
-            try {
-                val registered = world.plugins.isItemBound(itemId, 1) || world.plugins.isItemBound(itemId, 2)
-                println("DEBUG: Verification - isItemBound($itemId, 1 or 2) = $registered")
-            } catch (e: Exception) {
-                println("DEBUG: Could not verify registration: ${e.message}")
             }
         } catch (e: Exception) {
             println("Warning: Could not register handler for $itemName: ${e.message}")
@@ -506,7 +445,6 @@ class ClueCasketPlugin(
     }
 
     private fun openCasket(player: Player, tier: ClueTier, itemName: String?, itemId: Int? = null) {
-        println("DEBUG: openCasket called for tier=$tier, itemName=$itemName, itemId=$itemId")
         player.lock()
         
         try {
@@ -520,7 +458,6 @@ class ClueCasketPlugin(
 
             // Get the slot of the item being interacted with
             val slot = player.attr[INTERACTING_ITEM_SLOT] ?: -1
-            println("DEBUG: Interacting slot = $slot")
             
             val targetItemId = itemId ?: (itemName?.let { getRSCM(it) } ?: run {
                 if (slot == -1 || slot < 0 || slot >= player.inventory.capacity) {
@@ -529,7 +466,6 @@ class ClueCasketPlugin(
                 }
                 val item = player.inventory[slot]
                 if (item == null) {
-                    println("DEBUG: No item found at slot $slot")
                     player.message("You don't have that item.")
                     return
                 }
@@ -552,11 +488,9 @@ class ClueCasketPlugin(
             // Remove the item
             val removeResult = player.inventory.remove(item = targetItemId, amount = 1, beginSlot = itemSlot)
             if (!removeResult.hasSucceeded()) {
-                println("DEBUG: Failed to remove item from inventory")
                 player.message("Failed to remove item.")
                 return
             }
-            println("DEBUG: Successfully removed item ID $targetItemId")
 
             // Play sound effect
             player.playSound(Sound.CASKET_OPEN)
@@ -660,10 +594,7 @@ class ClueCasketPlugin(
             }
         }
 
-        println("DEBUG: generateRewards - Found ${validItemIds.size} valid items out of ${allItems.size} total items")
-
         if (validItemIds.isEmpty()) {
-            println("DEBUG: generateRewards - No valid items found, using coins fallback")
             // Fallback to coins if no valid items
             val coinsId = getRSCM("item.coins_995")
             return List(rewardCount) { ClueReward(coinsId, Random.nextInt(100, 1000)) }
@@ -716,19 +647,15 @@ class ClueCasketPlugin(
                     else -> 1
                 }
                 
-                println("DEBUG: generateRewards - Adding item ID $itemId (${itemDef.name}) x$amount")
                 rewards.add(ClueReward(itemId, amount))
                 attempts = 0 // Reset attempts on success
             } catch (e: Exception) {
-                println("DEBUG: generateRewards - Error processing item $itemId: ${e.message}")
                 // Skip items that cause errors
                 attempts++
                 usedItemIds.remove(itemId) // Remove from used set so we can try again
                 continue
             }
         }
-
-        println("DEBUG: generateRewards - Generated ${rewards.size} rewards, need $rewardCount")
 
         // If we didn't get enough rewards, fill with random items (not just coins)
         while (rewards.size < rewardCount) {
@@ -744,7 +671,6 @@ class ClueCasketPlugin(
                 
                 // Cap all items at 10 per casket
                 val amount = if (itemDef.stackable) Random.nextInt(1, 11) else 1
-                println("DEBUG: generateRewards - Filling with item ID $itemId (${itemDef.name}) x$amount")
                 rewards.add(ClueReward(itemId, amount))
             } catch (e: Exception) {
                 // If we can't get the item, use coins as last resort (capped at 10)
@@ -753,7 +679,6 @@ class ClueCasketPlugin(
             }
         }
 
-        println("DEBUG: generateRewards - Final reward count: ${rewards.size}")
         return rewards
     }
 

@@ -31,7 +31,7 @@ enum class TeleportSpell(
     KHARYRLL("Kharyrll Teleport", TeleportType.ANCIENT, Area(3491, 3476, 3494, 3478), 76.0),
     LASSAR("Lassar Teleport", TeleportType.ANCIENT, Area(3003, 3473, 3008, 3476), 82.0),
     DAREEYAK("Dareeyak Teleport", TeleportType.ANCIENT, Area(2965, 3693, 2969, 3697), 88.0),
-    CARRALLANGAR("Carrallangar Teleport", TeleportType.ANCIENT, Area(3146, 3668, 3149, 3671), 94.0),
+    CARRALLANGAR("Carrallanger Teleport", TeleportType.ANCIENT, Area(3146, 3668, 3149, 3671), 94.0),
     ANNAKARL("Annakarl Teleport", TeleportType.ANCIENT, Area(3293, 3885, 3297, 3888), 100.0),
     GHORROCK("Ghorrock Teleport", TeleportType.ANCIENT, Area(2966, 3872, 2972, 3878), 106.0),
 
@@ -59,7 +59,7 @@ enum class TeleportSpell(
     HARMONY_ISLAND("Harmony Island Teleport", TeleportType.ARCEUUS, Area(3793, 2857, 3801, 2863), 74.0),
     CEMETERY("Cemetery Teleport", TeleportType.ARCEUUS, Area(2964, 3760, 2969, 3766), 82.0),
     BARROWS("Barrows Teleport", TeleportType.ARCEUUS, Area(3563, 3312, 3566, 3315), 90.0),
-    APE_ATOLL_DUNGEON("Ape Atoll Teleport", TeleportType.ARCEUUS, Area(2764, 9102, 2767, 9104), 100.0, paramItem = 20427),
+    APE_ATOLL_DUNGEON("Ape Atoll Dungeon Teleport", TeleportType.ARCEUUS, Area(2764, 9102, 2767, 9104), 100.0, paramItem = 20427),
     ;
 
     companion object {

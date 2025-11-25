@@ -11,6 +11,8 @@ import org.alter.api.ext.message
 import org.alter.game.model.World
 import org.alter.game.model.entity.Player
 import org.alter.game.model.item.Item
+import org.alter.game.plugin.KotlinPlugin
+import org.alter.game.plugin.Plugin
 import org.alter.rscm.RSCM.getRSCM
 
 /**
@@ -104,8 +106,11 @@ object MagicSpells {
     }
 
     private val metadata = Int2ObjectOpenHashMap<SpellMetadata>()
+    internal val registeredButtons = mutableSetOf<Int>()
 
     fun getMetadata(spellId: Int): SpellMetadata? = metadata[spellId]
+
+    fun getMetadata(name: String): SpellMetadata? = metadata.values.firstOrNull { it.name == name }
 
     fun getCombatSpells(): Map<Int, SpellMetadata> = metadata.filter { it.value.spellType == COMBAT_SPELL_TYPE }
 
@@ -222,16 +227,36 @@ object MagicSpells {
             }
         }
     }
+}
 
-    // fun KotlinPlugin.on_magic_spell_button(name: String, plugin: Plugin.(SpellMetadata) -> Unit) {
-    //    if (!MagicSpells.isLoaded()) {
-    //        MagicSpells.loadSpellRequirements(world)
-    //    }
-    //    // If this line throws an error, it means the spell with said name
-    //    // is not found in cache.
-    //    val spell = metadata.values.first { it.name == name }
-    //    on_button(spell.interfaceId, spell.component) {
-    //        plugin(this, spell)
-    //    }
-    // }
+fun KotlinPlugin.on_magic_spell_button(name: String, plugin: Plugin.(SpellMetadata) -> Unit) {
+    if (!MagicSpells.isLoaded()) {
+        MagicSpells.loadSpellRequirements(world)
+    }
+    // If this line throws an error, it means the spell with said name
+    // is not found in cache.
+    val spell = MagicSpells.getMetadata(name) ?: throw RuntimeException("Spell not found: $name")
+    
+    // Calculate button hash
+    val buttonHash = (spell.interfaceId shl 16) or spell.component
+    
+    // Check if this button is already registered
+    if (MagicSpells.registeredButtons.contains(buttonHash)) {
+        // Button already registered, skip silently
+        return
+    }
+    
+    try {
+        onButton(spell.interfaceId, spell.component) {
+            plugin(this, spell)
+        }
+        // Mark button as registered
+        MagicSpells.registeredButtons.add(buttonHash)
+    } catch (e: IllegalStateException) {
+        // Button is already bound - this can happen if another plugin has already registered this button.
+        // Mark it as registered so we don't try again.
+        MagicSpells.registeredButtons.add(buttonHash)
+        // Log a warning but don't crash.
+        println("Warning: Button [parent=${spell.interfaceId}, child=${spell.component}] for spell '$name' is already bound. Skipping registration.")
+    }
 }

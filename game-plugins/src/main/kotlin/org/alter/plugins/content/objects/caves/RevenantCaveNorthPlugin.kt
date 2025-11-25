@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.caves
 
+import dev.openrune.cache.CacheManager.getObject
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.Tile
@@ -143,24 +144,61 @@ class RevenantCaveNorthPlugin(
         }
 
         // Handle exit stairs object 43868 - teleports to north exit
-        val exitOptions = listOf("climb-up", "go-up", "use", "operate", "climb", "exit", "leave")
+        val STAIRS_43868_ID = 43868
+        val registeredOptions43868 = mutableSetOf<String>()
         
-        var rscmWorked43868 = false
-        exitOptions.forEach { option ->
-            try {
-                if (objHasOption("object.stairs_43868", option)) {
-                    onObjOption(obj = "object.stairs_43868", option = option, logic = exitRevenantCaves)
-                    rscmWorked43868 = true
+        // First, try to get the actual object definition and register handlers for options that exist
+        try {
+            val stairsDef = getObject(STAIRS_43868_ID)
+            val stairsOptions: List<String> = stairsDef.actions.filterNotNull().map { it.lowercase() }
+            
+            // Common stairs options to try
+            val commonOptions = listOf("climb", "climb-up", "climb-down", "use", "operate", "go-up", "exit", "leave")
+            
+            stairsOptions.forEach { option ->
+                if (commonOptions.contains(option) && !registeredOptions43868.contains(option)) {
+                    try {
+                        onObjOption(obj = STAIRS_43868_ID, option = option, logic = exitRevenantCaves)
+                        registeredOptions43868.add(option)
+                    } catch (e: IllegalStateException) {
+                        // Option already bound by another plugin, skip
+                    } catch (e: Exception) {
+                        // Failed to register option
+                    }
                 }
-            } catch (_: Exception) {
+            }
+        } catch (e: Exception) {
+            // Could not get object definition, will try other methods below
+        }
+        
+        // Also try using RSCM name (in case direct ID didn't work or for additional options)
+        if (registeredOptions43868.isEmpty()) {
+            val commonOptions = listOf("climb", "climb-up", "climb-down", "use", "operate", "go-up", "exit", "leave")
+            commonOptions.forEach { option ->
+                try {
+                    if (objHasOption("object.stairs_43868", option) && !registeredOptions43868.contains(option)) {
+                        onObjOption(obj = "object.stairs_43868", option = option, logic = exitRevenantCaves)
+                        registeredOptions43868.add(option)
+                    }
+                } catch (e: IllegalStateException) {
+                    // Option already bound
+                } catch (e: Exception) {
+                    // Failed to register option
+                }
             }
         }
-
-        if (!rscmWorked43868) {
-            exitOptions.forEach { option ->
+        
+        // Fallback: try direct ID registration for common options (in case object definition method didn't work)
+        if (registeredOptions43868.isEmpty()) {
+            val commonOptions = listOf("climb", "climb-up", "climb-down", "use", "operate", "go-up", "exit", "leave")
+            commonOptions.forEach { option ->
                 try {
-                    onObjOption(obj = 43868, option = option, logic = exitRevenantCaves)
-                } catch (_: Exception) {
+                    onObjOption(obj = STAIRS_43868_ID, option = option, logic = exitRevenantCaves)
+                    registeredOptions43868.add(option)
+                } catch (e: IllegalStateException) {
+                    // Option already bound
+                } catch (e: Exception) {
+                    // Option doesn't exist for this object, skip it
                 }
             }
         }
@@ -183,8 +221,9 @@ class RevenantCaveNorthPlugin(
         }
 
         // Handle exit stairs object 31558 - teleports to 3102, 3656
+        val exitOptions31558 = listOf("climb", "climb-up", "climb-down", "use", "operate", "go-up", "exit", "leave")
         var rscmWorked31558 = false
-        exitOptions.forEach { option ->
+        exitOptions31558.forEach { option ->
             try {
                 if (objHasOption("object.stairs_31558", option)) {
                     onObjOption(obj = "object.stairs_31558", option = option, logic = exitRevenantCaves31558)
@@ -195,7 +234,7 @@ class RevenantCaveNorthPlugin(
         }
 
         if (!rscmWorked31558) {
-            exitOptions.forEach { option ->
+            exitOptions31558.forEach { option ->
                 try {
                     onObjOption(obj = 31558, option = option, logic = exitRevenantCaves31558)
                 } catch (_: Exception) {
