@@ -55,6 +55,53 @@ object MagicSpells {
             "item.accursed_sceptre",
             "item.thammarons_sceptre",
         )
+    
+    // Elemental staff items that provide unlimited runes for their element
+    private val AIR_STAFF_ITEMS = arrayOf(
+        "item.staff_of_air",
+        "item.air_battlestaff",
+        "item.mystic_air_staff",
+    )
+    
+    private val WATER_STAFF_ITEMS = arrayOf(
+        "item.staff_of_water",
+        "item.water_battlestaff",
+        "item.mystic_water_staff",
+    )
+    
+    private val EARTH_STAFF_ITEMS = arrayOf(
+        "item.staff_of_earth",
+        "item.earth_battlestaff",
+        "item.mystic_earth_staff",
+    )
+    
+    private val FIRE_STAFF_ITEMS = arrayOf(
+        "item.staff_of_fire",
+        "item.fire_battlestaff",
+        "item.mystic_fire_staff",
+    )
+    
+    // Map rune item IDs to their corresponding staff items
+    private fun getStaffItemsForRune(runeItemId: Int): Array<String>? {
+        val airRuneId = getRSCM("item.air_rune")
+        val waterRuneId = getRSCM("item.water_rune")
+        val earthRuneId = getRSCM("item.earth_rune")
+        val fireRuneId = getRSCM("item.fire_rune")
+        
+        return when (runeItemId) {
+            airRuneId -> AIR_STAFF_ITEMS
+            waterRuneId -> WATER_STAFF_ITEMS
+            earthRuneId -> EARTH_STAFF_ITEMS
+            fireRuneId -> FIRE_STAFF_ITEMS
+            else -> null
+        }
+    }
+    
+    // Check if player has an elemental staff equipped that provides unlimited runes for a specific rune
+    private fun hasElementalStaffForRune(p: Player, runeItemId: Int): Boolean {
+        val staffItems = getStaffItemsForRune(runeItemId) ?: return false
+        return p.hasEquipped(org.alter.api.EquipmentType.WEAPON, *staffItems)
+    }
 
     private val metadata = Int2ObjectOpenHashMap<SpellMetadata>()
 
@@ -86,6 +133,15 @@ object MagicSpells {
         // Skip rune requirements if player has wilderness sceptre or infinite runes enabled
         if (!hasWildernessSceptre && p.getVarbit(INF_RUNES_VARBIT) == 0) {
             for (item in items) {
+                // Check if this is a rune that can be provided by an elemental staff
+                val hasElementalStaff = hasElementalStaffForRune(p, item.id)
+                
+                // If player has an elemental staff for this rune, skip the requirement
+                if (hasElementalStaff) {
+                    continue
+                }
+                
+                // Check if player has enough of this rune/item
                 if (p.inventory.getItemCount(item.id) < item.amount && p.equipment.getItemCount(item.id) < item.amount) {
                     p.message("You do not have enough ${item.getDef().name}s to cast this spell.")
                     return false
@@ -114,6 +170,15 @@ object MagicSpells {
                 if (item.id in getRSCM(STAFF_ITEMS)) {
                     continue
                 }
+                
+                // Check if this is a rune that can be provided by an elemental staff
+                val hasElementalStaff = hasElementalStaffForRune(p, item.id)
+                
+                // If player has an elemental staff for this rune, don't remove it
+                if (hasElementalStaff) {
+                    continue
+                }
+                
                 p.inventory.remove(item)
             }
         }

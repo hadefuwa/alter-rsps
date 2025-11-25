@@ -17,7 +17,20 @@ class SlayerPointCurrency : ShopCurrency {
         val value = shopItem.sellPrice ?: getSellPrice(p.world, shopItem.item)
         val currency = if (value != 1) "slayer points" else "slayer point"
         val itemName = org.alter.game.model.item.Item(shopItem.item).getName()
-        p.message("$itemName: currently costs $value $currency")
+        
+        // Check if this is a clue casket bundle
+        val isClueCasket = shopItem.item == 20544
+        val bundleSize = when {
+            isClueCasket && value == 50 -> 4  // 4-pack bundle
+            isClueCasket && value == 100 -> 10  // 10-pack bundle
+            else -> 1  // Regular purchase or single casket
+        }
+        
+        if (bundleSize > 1) {
+            p.message("$itemName (x$bundleSize): currently costs $value $currency")
+        } else {
+            p.message("$itemName: currently costs $value $currency")
+        }
     }
 
     override fun onBuyValueMessage(p: Player, shop: Shop, item: Int) {
@@ -41,18 +54,33 @@ class SlayerPointCurrency : ShopCurrency {
         val currencyCost = shopItem.sellPrice ?: getSellPrice(p.world, shopItem.item)
         val currencyCount = Slayer.getSlayerPoints(p)
 
-        var amount = Math.min(Math.floor(currencyCount.toDouble() / currencyCost.toDouble()).toInt(), amt)
+        // Check if this is a 100m coins bundle purchase (item ID 995, slot 10, price 200)
+        val is100mCoins = shopItem.item == 995 && currencyCost == 200 && slot == 10
+        
+        // Check if this is a clue casket bundle purchase (item ID 20544)
+        val isClueCasket = shopItem.item == 20544
+        val bundleSize = when {
+            is100mCoins -> 100_000_000  // 100 million coins bundle
+            isClueCasket && currencyCost == 50 -> 4  // 4-pack bundle
+            isClueCasket && currencyCost == 100 -> 10  // 10-pack bundle
+            else -> 1  // Regular purchase or single casket
+        }
 
-        if (amount == 0) {
+        // For bundle purchases, calculate how many bundles can be bought
+        var bundlesToBuy = Math.min(Math.floor(currencyCount.toDouble() / currencyCost.toDouble()).toInt(), amt)
+        
+        if (bundlesToBuy == 0) {
             p.message("You don't have enough slayer points.")
             return
         }
 
-        val moreThanStock = amount > shopItem.currentAmount
+        // Limit by stock (for bundles, stock represents number of bundles available)
+        // For 100m coins, skip stock limit check - it's unlimited
+        val is100mCoinsCheck = shopItem.item == 995 && currencyCost == 200 && slot == 10
+        val moreThanStock = if (is100mCoinsCheck) false else bundlesToBuy > shopItem.currentAmount
+        bundlesToBuy = if (is100mCoinsCheck) bundlesToBuy else Math.min(bundlesToBuy, shopItem.currentAmount)
 
-        amount = Math.min(amount, shopItem.currentAmount)
-
-        if (amount == 0) {
+        if (bundlesToBuy == 0 && !is100mCoinsCheck) {
             p.message("The shop has run out of stock.")
             return
         }
@@ -61,7 +89,10 @@ class SlayerPointCurrency : ShopCurrency {
             p.message("The shop has run out of stock.")
         }
 
-        val totalCost = currencyCost.toLong() * amount.toLong()
+        // Calculate total cost and items to give
+        val totalCost = currencyCost.toLong() * bundlesToBuy.toLong()
+        val itemsToGive = bundlesToBuy * bundleSize
+
         if (totalCost > Int.MAX_VALUE) {
             return
         }
@@ -76,30 +107,66 @@ class SlayerPointCurrency : ShopCurrency {
             return
         }
 
-        val add = p.inventory.add(item = shopItem.item, amount = amount, assureFullInsertion = false)
+        val add = p.inventory.add(item = shopItem.item, amount = itemsToGive, assureFullInsertion = false)
         if (add.completed == 0) {
             p.message("You don't have enough inventory space.")
             // Refund points if we couldn't add the item
             Slayer.addSlayerPoints(p, totalCost.toInt())
         } else {
-            if (add.getLeftOver() > 0) {
-                val refund = add.getLeftOver() * currencyCost
-                Slayer.addSlayerPoints(p, refund)
-            }
-
-            if (add.completed > 0 && shopItem.amount != Int.MAX_VALUE) {
-                val currentShopItem = shop.items[slot]
-                if (currentShopItem != null) {
-                    currentShopItem.currentAmount -= add.completed
-
-                    /*
-                     * Check if the item is temporary and should be removed from the shop.
-                     */
-                    if (currentShopItem.amount == 0 && currentShopItem.isTemporary == true) {
-                        shop.items[slot] = null
-                    }
-
+            // For coins (item 995), they always stack so we don't need bundle logic
+            // For other bundle items, calculate how many complete bundles were actually given
+            if (is100mCoins) {
+                // Coins stack, so all coins given are valid
+                // Calculate how many bundles were actually given based on coins received
+                val bundlesGiven = add.completed / bundleSize
+                val bundlesNotGiven = bundlesToBuy - bundlesGiven
+                
+                // Refund for bundles we couldn't give
+                if (bundlesNotGiven > 0) {
+                    val refund = bundlesNotGiven * currencyCost
+                    Slayer.addSlayerPoints(p, refund)
+                }
+                
+                // For 100m coins, stock is unlimited - don't reduce stock, just refresh display
+                // The display will always show 100m coins available
+                if (bundlesGiven > 0) {
                     shop.refresh(p.world)
+                }
+            } else {
+                // For clue casket bundles, use the existing bundle logic
+                val completeBundlesGiven = add.completed / bundleSize
+                val itemsInCompleteBundles = completeBundlesGiven * bundleSize
+                val extraItems = add.completed - itemsInCompleteBundles
+                
+                // For bundle purchases, we only give complete bundles
+                // Remove any extra items that don't form a complete bundle
+                if (extraItems > 0 && bundleSize > 1) {
+                    p.inventory.remove(item = shopItem.item, amount = extraItems, assureFullRemoval = false)
+                }
+                
+                val bundlesNotGiven = bundlesToBuy - completeBundlesGiven
+                
+                // Refund for bundles we couldn't give (including partial bundles)
+                if (bundlesNotGiven > 0) {
+                    val refund = bundlesNotGiven * currencyCost
+                    Slayer.addSlayerPoints(p, refund)
+                }
+
+                if (completeBundlesGiven > 0 && shopItem.amount != Int.MAX_VALUE) {
+                    val currentShopItem = shop.items[slot]
+                    if (currentShopItem != null) {
+                        // Decrease stock by number of complete bundles sold
+                        currentShopItem.currentAmount -= completeBundlesGiven
+
+                        /*
+                         * Check if the item is temporary and should be removed from the shop.
+                         */
+                        if (currentShopItem.amount == 0 && currentShopItem.isTemporary == true) {
+                            shop.items[slot] = null
+                        }
+
+                        shop.refresh(p.world)
+                    }
                 }
             }
         }

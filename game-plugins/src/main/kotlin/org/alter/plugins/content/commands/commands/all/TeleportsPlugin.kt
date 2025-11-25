@@ -69,6 +69,7 @@ class TeleportsPlugin(
                     "Chaos Temple" to Tile(x = 2964, z = 3819, height = 0),
                     "Bandit Camp" to Tile(x = 3038, z = 3689, height = 0),
                     "Resource Area" to Tile(x = 3184, z = 3944, height = 0),
+                    "Boss Island" to Tile(x = 3423, z = 4089, height = 0),
                     // Page 3: Dungeons & Caves
                     "Taverley Dungeon" to Tile(x = 2884, z = 9798, height = 0),
                     "Brimhaven Dungeon" to Tile(x = 2708, z = 9564, height = 0),

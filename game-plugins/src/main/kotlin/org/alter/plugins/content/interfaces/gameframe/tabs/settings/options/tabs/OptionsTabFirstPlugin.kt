@@ -112,14 +112,17 @@ class OptionsTabFirstPlugin(
                 0..21,
                 setting = InterfaceEvent.ClickOp1,
             )
-            // Enable Shift Drop by default
-            player.setVarbit(5542, 1)
+            // Always enable Shift Drop - this setting should always be checked
+            player.setVarbit(Varbit.SHIFT_CLICK_TO_DROP_ITEMS, 1)
         }
 
         onButton(interfaceId = 134, component = 19) {
             val slot = player.getInteractingSlot()
             if (slot == 160) {
-                player.toggleVarbit(5542)
+                // Shift Drop should always be enabled - don't allow disabling
+                // player.toggleVarbit(Varbit.SHIFT_CLICK_TO_DROP_ITEMS)
+                // Instead, just ensure it stays enabled
+                player.setVarbit(Varbit.SHIFT_CLICK_TO_DROP_ITEMS, 1)
             }
         }
 

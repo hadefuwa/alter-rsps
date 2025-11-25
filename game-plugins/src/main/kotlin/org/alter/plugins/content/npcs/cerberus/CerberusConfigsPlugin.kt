@@ -32,15 +32,8 @@ class CerberusConfigsPlugin(
         // Spawn Cerberus at coordinates 1240, 1253
         spawnNpc("npc.cerberus", x = 1240, z = 1253, height = 0, walkRadius = 6)
 
-        // Add attack option handler (wrap in try-catch to handle duplicate registration)
-        try {
-            onNpcOption("npc.cerberus", option = "attack") {
-                player.attack(npc)
-            }
-        } catch (e: Exception) {
-            // Option already bound by another plugin (e.g., SewerAbominationConfigsPlugin), skip silently
-            // This can happen when multiple plugins try to register handlers for the same NPC
-        }
+        // Note: Attack option handler not needed - setCombatDef makes the NPC attackable automatically
+        // The combat system handles option 2 (attack) automatically via OpNpcHandler
 
         setCombatDef("npc.cerberus") {
             configs {
@@ -54,31 +47,31 @@ class CerberusConfigsPlugin(
             }
 
             stats {
-                hitpoints = 500  // High hitpoints
-                attack = 350
-                strength = 400
-                defence = 200
-                magic = 300
-                ranged = 280
+                hitpoints = 150  // Much lower hitpoints for easier fight
+                attack = 80
+                strength = 90
+                defence = 60
+                magic = 70
+                ranged = 65
             }
 
             bonuses {
-                attackStab = 50
-                attackSlash = 50
-                attackCrush = 150
-                attackMagic = 180
-                attackRanged = 140
+                attackStab = 20
+                attackSlash = 20
+                attackCrush = 25
+                attackMagic = 30
+                attackRanged = 25
 
-                defenceStab = 100
-                defenceSlash = 120
-                defenceCrush = 140
-                defenceMagic = 80
-                defenceRanged = 90
+                defenceStab = 40
+                defenceSlash = 45
+                defenceCrush = 50
+                defenceMagic = 30
+                defenceRanged = 35
 
-                attackBonus = 250
-                strengthBonus = 220
-                rangedStrengthBonus = 120
-                magicDamageBonus = 100
+                attackBonus = 50
+                strengthBonus = 40
+                rangedStrengthBonus = 30
+                magicDamageBonus = 25
             }
 
             anims {
@@ -89,6 +82,7 @@ class CerberusConfigsPlugin(
             drops {
                 always {
                     add("item.big_bones", 1)
+                    add("item.coins_995", min = 500000, max = 500000) // Guaranteed 500k coins
                 }
 
                 main(weight = 128) {
@@ -130,13 +124,28 @@ class CerberusConfigsPlugin(
                     add("item.weapon_poison", min = 1, max = 2, weight = 8)
                 }
 
-                // Rare drop table (additional rare items)
-                tertiary(weight = 256) {
-                    add("item.dragon_spear", min = 1, weight = 50)
-                    add("item.shield_left_half", min = 1, weight = 256)
-                    add("item.dragon_platelegs", min = 1, weight = 200)
-                    add("item.loop_half_of_a_key", min = 1, weight = 128)
-                    add("item.tooth_half_of_a_key", min = 1, weight = 128)
+                // Rare drop table (all rare items in one table)
+                tertiary(weight = 250) {
+                    // Cerberus crystals (1/10 each = 25/250)
+                    add("item.eternal_crystal", min = 1, weight = 25)      // 1/10 chance
+                    add("item.primordial_crystal", min = 1, weight = 25)   // 1/10 chance
+                    add("item.pegasian_crystal", min = 1, weight = 25)     // 1/10 chance
+                    
+                    // Cerberus boots (1/25 each = 10/250)
+                    add("item.pegasian_boots", min = 1, weight = 10)       // 1/25 chance
+                    add("item.primordial_boots", min = 1, weight = 10)     // 1/25 chance  
+                    add("item.eternal_boots", min = 1, weight = 10)        // 1/25 chance
+                    
+                    // Other rare items (much rarer now)
+                    add("item.dragon_spear", min = 1, weight = 15)
+                    add("item.dragon_platelegs", min = 1, weight = 10)
+                    add("item.loop_half_of_a_key", min = 1, weight = 5)
+                    add("item.tooth_half_of_a_key", min = 1, weight = 5)
+                    add("item.shield_left_half", min = 1, weight = 2)
+                    add("item.draconic_visage", min = 1, weight = 1)       // Very rare
+                    
+                    // Nothing drop (to make total weight 250 and balance rates)
+                    // Weight 107 = no rare drop this time
                 }
             }
         }

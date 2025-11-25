@@ -82,10 +82,19 @@ object RangedCombatStrategy : CombatStrategy {
             }
 
             val bow = BowType.values.firstOrNull { it.item == weapon?.id }
-            if (bow != null && bow.ammo.isNotEmpty() && ammo?.id !in bow.ammo) {
-                val message = if (ammo != null) "You can't use that ammo with your bow." else "There is no ammo left in your quiver."
-                pawn.message(message)
-                return false
+            if (bow != null) {
+                // Bows with empty ammo arrays (like bow of faerdhinen, crystal bow) don't require ammo
+                // They generate their own ammunition, so skip ammo validation
+                if (bow.ammo.isEmpty()) {
+                    // No ammo required - bow generates its own
+                    return true
+                }
+                // If bow requires ammo (array is not empty), validate the ammo
+                if (ammo?.id !in bow.ammo) {
+                    val message = if (ammo != null) "You can't use that ammo with your bow." else "There is no ammo left in your quiver."
+                    pawn.message(message)
+                    return false
+                }
             }
         }
         return true
@@ -151,11 +160,22 @@ object RangedCombatStrategy : CombatStrategy {
              */
             if (ammo != null && (ammoProjectile == null || !ammoProjectile.breakOnImpact())) {
                 val chance = world.random(99)
-                val breakAmmo = chance in 0..19
+                val breakAmmo = chance in 0..9  // 10% chance to break ammo (default)
+                
+                // Check if player has any assembler variant equipped
+                val hasAssembler = pawn.hasEquipped(EquipmentType.CAPE, "item.avas_assembler") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.avas_assembler_l") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.assembler_max_cape") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.assembler_max_cape_l") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.masori_assembler") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.masori_assembler_l") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.masori_assembler_max_cape") ||
+                    pawn.hasEquipped(EquipmentType.CAPE, "item.masori_assembler_max_cape_l")
+                
                 val dropAmmo =
                     when {
-                        pawn.hasEquipped(EquipmentType.CAPE, "item.avas_accumulator") -> chance in 20..27
-                        pawn.hasEquipped(EquipmentType.CAPE, "item.avas_assembler") -> false
+                        pawn.hasEquipped(EquipmentType.CAPE, "item.avas_accumulator") -> chance in 10..17  // 8% drop chance (was 20-27)
+                        hasAssembler -> chance in 10..19  // 10% drop chance for all assemblers (90% preservation)
                         else -> !breakAmmo
                     }
 

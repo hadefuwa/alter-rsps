@@ -333,13 +333,14 @@ class CrazyArchaeologistCombatPlugin(
                             }
                         } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
                             this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
-                            // Teleport a random player (only if book rain didn't trigger)
+                            // Teleport multiple players (only if book rain didn't trigger)
                             if (isAlive()) {  // Check before executing special attack
-                                val randomPlayer = nearbyPlayers.random()
-                                teleportAttack(randomPlayer)
+                                teleportMultiplePlayers(nearbyPlayers)
                                 attackCount = 0
-                                // Post attack logic for timing
-                                postAttackLogicWithEnrage(randomPlayer)
+                                // Post attack logic for timing (use first player for enrage)
+                                if (nearbyPlayers.isNotEmpty()) {
+                                    postAttackLogicWithEnrage(nearbyPlayers.first())
+                                }
                             }
                         } else if (attackCount >= UNEQUIP_ATTACK_MIN_COUNT &&
                           this.world.chance(UNEQUIP_ATTACK_CHANCE_NUMERATOR, UNEQUIP_ATTACK_CHANCE_DENOMINATOR)) {
@@ -354,13 +355,14 @@ class CrazyArchaeologistCombatPlugin(
                         }
                     } else if (attackCount >= TELEPORT_ATTACK_MIN_COUNT &&
                         this.world.chance(TELEPORT_ATTACK_CHANCE_NUMERATOR, TELEPORT_ATTACK_CHANCE_DENOMINATOR)) {
-                        // Teleport a random player (single player scenario)
+                        // Teleport multiple players (single or multiple player scenario)
                         if (isAlive()) {  // Check before executing special attack
-                            val randomPlayer = nearbyPlayers.random()
-                            teleportAttack(randomPlayer)
+                            teleportMultiplePlayers(nearbyPlayers)
                             attackCount = 0
                             // Post attack logic for timing
-                            postAttackLogic(randomPlayer)
+                            if (nearbyPlayers.isNotEmpty()) {
+                                postAttackLogic(nearbyPlayers.first())
+                            }
                         }
                     } else if (attackCount >= BOOK_RAIN_ATTACK_MIN_COUNT &&
                               this.world.chance(BOOK_RAIN_ATTACK_CHANCE_NUMERATOR, BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR)) {
@@ -562,6 +564,89 @@ class CrazyArchaeologistCombatPlugin(
             }
             BookType.NORMAL -> {
                 // No special effect, just damage
+            }
+        }
+    }
+    
+    /**
+     * Teleport Multiple Players - Special ability that teleports multiple nearby players next to the archaeologist.
+     * 
+     * This attack:
+     * 1. Fires teleport projectiles at all nearby players
+     * 2. After projectile delay, teleports each player to a random adjacent tile
+     * 3. Deals damage from the teleport itself
+     */
+    private suspend fun Npc.teleportMultiplePlayers(players: List<Player>) {
+        if (players.isEmpty()) return
+        
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        animate(Animation.CRAZY_ARCHAEOLOGIST_BOOK) // Book animation
+        
+        // Fire projectiles at all players
+        val hitDelays = mutableMapOf<Player, Int>()
+        players.forEach { player ->
+            // Special teleport projectile (using custom graphic ID as no constant exists)
+            val projectile = createProjectile(
+                player, 
+                gfx = 1576, // Teleport book projectile - custom graphic for teleport effect
+                startHeight = 43, 
+                endHeight = 31, 
+                delay = 51, 
+                angle = 15, 
+                steepness = 127
+            )
+            
+            world.spawn(projectile)
+            hitDelays[player] = RangedCombatStrategy.getHitDelay(getFrontFacingTile(player), player.getCentreTile())
+        }
+
+        // Teleport all players after their respective delays
+        this.world.queue {
+            // Wait for the longest hit delay to ensure all projectiles have time to travel
+            val maxDelay = hitDelays.values.maxOrNull() ?: 0
+            wait(maxDelay - 1)
+
+            // Check if NPC is still alive before executing teleports
+            if (!this@teleportMultiplePlayers.isAlive() || this@teleportMultiplePlayers.getCurrentHp() <= 0) {
+                return@queue
+            }
+
+            // Find tiles next to the archaeologist to teleport players to
+            val archaeologistTile = this@teleportMultiplePlayers.tile
+            val surroundingTiles = mutableListOf<Tile>()
+
+            // Get tiles in a 5x5 area around the archaeologist (more tiles for multiple players)
+            for (x in -2..2) {
+                for (z in -2..2) {
+                    if (x == 0 && z == 0) continue // Skip the archaeologist's tile
+                    val tile = archaeologistTile.transform(x, z)
+                    surroundingTiles.add(tile)
+                }
+            }
+
+            // Shuffle tiles to randomize teleport locations
+            val shuffledTiles = surroundingTiles.shuffled(this@teleportMultiplePlayers.world.random)
+
+            // Teleport each player to a different tile
+            players.forEachIndexed { index, player ->
+                // Check if player is still alive and in range
+                if (!player.isAlive() || !player.tile.isWithinRadius(archaeologistTile, 10)) {
+                    return@forEachIndexed
+                }
+
+                // Get a tile for this player (cycle through available tiles if needed)
+                val teleportTile = shuffledTiles[index % shuffledTiles.size]
+                
+                player.graphic(id = 1577, height = 0, delay = 0) // Teleport out graphic
+                player.moveTo(teleportTile)
+                player.graphic(id = 1578, height = 0, delay = 1) // Teleport in graphic
+                
+                player.message("The Crazy Archaeologist teleports you to him!")
+
+                // Deal some damage from the teleport
+                val hit = player.hit(this@teleportMultiplePlayers.world.random(8), type = HitType.HIT, delay = 1)
+                // Cancel the hit if the NPC dies or reaches 0 HP before it lands
+                hit.setCancelIf { !this@teleportMultiplePlayers.isAlive() || this@teleportMultiplePlayers.getCurrentHp() <= 0 }
             }
         }
     }

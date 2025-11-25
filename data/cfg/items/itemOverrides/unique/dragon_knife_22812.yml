@@ -1,0 +1,31 @@
+---
+id: 22812
+name: "dragon knife"
+equipment:
+  # equipSlot: Equipment slot where item is worn
+  # Valid values: "hat", "cape", "neck", "weapon", "torso", "shield", "legs", "hands", "feet", "ring", "ammo"
+  # Special values: "head" (hat with hair removal), "nohair" (hat requiring hair removal), "2h" (two-handed weapon), "body" (torso with special type)
+  equip_slot: "weapon"
+  
+  # weaponType: Type of weapon for combat calculations
+  # 0 = NONE, 1 = AXE, 2 = HAMMER, 3 = BOW, 4 = CLAWS, 5 = CROSSBOW, 6 = SALAMANDER, 7 = CHINCHOMPA
+  # 8 = GUN, 9 = LONG_SWORD, 10 = TWO_HANDED, 11 = PICKAXE, 12 = HALBERD, 13 = STAFF, 14 = SCYTHE
+  # 15 = SPEAR, 16 = MACE, 17 = DAGGER, 18 = MAGIC_STAFF, 19 = THROWN, 20 = WHIP, 21 = STAFF_HALBERD
+  # 23 = TRIDENT, 26 = BLUDGEON, 27 = BULWARK
+  weapon_type: 19
+  attack_speed: 4
+  attack_stab: 0
+  attack_slash: 0
+  attack_crush: 0
+  attack_magic: 0
+  attack_ranged: 25
+  defence_stab: 0
+  defence_slash: 0
+  defence_crush: 0
+  defence_magic: 0
+  defence_ranged: 0
+  melee_strength: 0
+  ranged_strength: 25
+  magic_damage: 0
+  prayer: 0
+

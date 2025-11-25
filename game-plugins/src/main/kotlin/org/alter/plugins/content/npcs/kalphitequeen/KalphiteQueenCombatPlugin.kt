@@ -4,7 +4,6 @@ import org.alter.api.*
 import org.alter.api.ext.*
 import org.alter.game.*
 import org.alter.game.model.*
-import org.alter.game.model.attr.AttributeKey
 import org.alter.game.model.combat.AttackStyle
 import org.alter.game.model.combat.CombatClass
 import org.alter.game.model.combat.CombatStyle
@@ -17,18 +16,12 @@ import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.RangedCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
-import org.alter.plugins.content.mechanics.poison.poison
-import org.alter.rscm.RSCM.getRSCM
 
 /**
  * Kalphite Queen Combat Plugin
  * 
- * Handles the Kalphite Queen's combat mechanics for both forms:
- * - First Form (Crawling): Uses melee and magic attacks
- * - Second Form (Flying): Uses ranged and magic attacks
- * - Special spike attack that can hit multiple targets
- * 
- * Note: Form transformation is handled by KalphiteQueenPhasePlugin
+ * Handles the Kalphite Queen's combat mechanics.
+ * Modified to use a single combat pattern (Melee/Magic) throughout the fight.
  */
 class KalphiteQueenCombatPlugin(
     r: PluginRepository,
@@ -37,27 +30,12 @@ class KalphiteQueenCombatPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
-        // Handle Form 1 combat
+        // Handle Combat
         onNpcCombat("npc.kalphite_queen_963") {
             npc.queue {
                 npc.combat(this)
             }
         }
-        
-        // Handle Form 2 combat (using both RSCM name and direct ID check)
-        // Try RSCM name first
-        try {
-            onNpcCombat("npc.kalphite_queen_964") {
-                npc.queue {
-                    npc.combat(this)
-                }
-            }
-        } catch (e: Exception) {
-            // Form 2 NPC not in RSCM, handle via ID check in combat method
-        }
-        
-        // Also handle NPC ID 964 directly (in case it exists but isn't in RSCM)
-        // We'll check for ID 964 in the combat method itself
     }
 
     private suspend fun Npc.combat(it: QueueTask) {
@@ -67,64 +45,36 @@ class KalphiteQueenCombatPlugin(
         while (canEngageCombat(target)) {
             facePawn(target)
             
-            // Determine current form by checking the form attribute
-            // This works even if both forms use the same NPC ID
-            val isForm2 = KalphiteQueenPhasePlugin.isForm2(this)
-            val currentForm = isForm2
-            
-            // Check if target is in range (including same tile for melee)
             val isSameTile = this.tile.sameAs(target.tile)
             val targetDistance = this.tile.getDistance(target.tile)
-            val attackRange = if (currentForm) 10 else 1
             
-            // For crawling form, allow attacks when on same tile or adjacent
-            // For flying form, use normal range check
-            val inRange = if (!currentForm) {
-                // Crawling form: can attack if same tile or adjacent (distance <= 1)
-                isSameTile || targetDistance <= 1
-            } else {
-                // Flying form: use normal range check (but also allow same tile)
-                isSameTile || targetDistance <= attackRange
-            }
+            // Always use "Crawling" form logic: attack if same tile or adjacent
+            val inRange = isSameTile || targetDistance <= 1
             
-            // Try to move to attack range if not in range, or if in range proceed to attack
             val canAttack = if (inRange) {
-                // Already in range - for same tile, we don't need raycast check
                 if (isSameTile) {
                     true
                 } else {
-                    // Check line of sight for adjacent/ranged attacks
-                    this.hasLineOfSightTo(target, projectile = true, maximumDistance = attackRange)
+                    this.hasLineOfSightTo(target, projectile = true, maximumDistance = 1)
                 }
             } else {
-                moveToAttackRange(it, target, distance = attackRange, projectile = true)
+                moveToAttackRange(it, target, distance = 1, projectile = true)
             }
             
             if (canAttack && isAttackDelayReady()) {
                 attackCount++
                 
-                // Special spike attack (can occur in both forms)
+                // Special spike attack
                 if (attackCount >= 5 && this.world.chance(1, 4)) {
                     spikeAttack(target)
                     attackCount = 0
                 } else {
-                    // Regular attacks based on form
-                    if (currentForm) {
-                        // Flying form: ranged and magic attacks
-                        when (this.world.random(3)) {
-                            0 -> rangedAttack(target)
-                            1 -> magicAttack(target)
-                            2 -> magicAttack(target) // Magic is more common in flying form
-                            else -> rangedAttack(target)
-                        }
+                    // Regular attacks: Melee and Magic
+                    // Can use melee if target is on same tile or adjacent
+                    if (targetDistance <= 1 && this.world.chance(1, 2)) {
+                        meleeAttack(target)
                     } else {
-                        // Crawling form: melee and magic attacks
-                        // Can use melee if target is on same tile or adjacent
-                        if (targetDistance <= 1 && this.world.chance(1, 2)) {
-                            meleeAttack(target)
-                        } else {
-                            magicAttack(target)
-                        }
+                        magicAttack(target)
                     }
                 }
                 
@@ -140,7 +90,7 @@ class KalphiteQueenCombatPlugin(
 
 
     /**
-     * Melee attack (crawling form only)
+     * Melee attack
      */
     private fun Npc.meleeAttack(target: Pawn) {
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
@@ -161,7 +111,7 @@ class KalphiteQueenCombatPlugin(
     }
 
     /**
-     * Magic attack (both forms)
+     * Magic attack
      */
     private fun Npc.magicAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
@@ -189,41 +139,6 @@ class KalphiteQueenCombatPlugin(
         ) { hit ->
             if (hit.landed()) {
                 target.graphic(id = 281, height = 0, delay = 1) // Magic hit graphic
-            } else {
-                target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
-            }
-        }
-    }
-
-    /**
-     * Ranged attack (flying form only)
-     */
-    private fun Npc.rangedAttack(target: Pawn) {
-        prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
-        animate(6245) // Kalphite Queen ranged attack
-        
-        val projectile = createProjectile(
-            target, 
-            gfx = 473, // Ranged projectile
-            startHeight = 43, 
-            endHeight = 31, 
-            delay = 51, 
-            angle = 15, 
-            steepness = 127
-        )
-        
-        world.spawn(projectile)
-        
-        val delay = RangedCombatStrategy.getHitDelay(getFrontFacingTile(target), target.getCentreTile()) - 1
-        
-        dealHit(
-            target = target,
-            maxHit = 31,
-            landHit = RangedCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
-            delay = delay
-        ) { hit ->
-            if (hit.landed()) {
-                target.graphic(id = 474, height = 0, delay = 1) // Ranged hit graphic
             } else {
                 target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
             }
@@ -278,4 +193,3 @@ class KalphiteQueenCombatPlugin(
         }
     }
 }
-

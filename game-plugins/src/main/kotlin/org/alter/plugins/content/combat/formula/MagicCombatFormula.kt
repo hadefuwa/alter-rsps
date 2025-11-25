@@ -12,6 +12,8 @@ import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.plugins.content.skills.slayer.Slayer
+import dev.openrune.cache.CacheManager.getNpc
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -47,14 +49,32 @@ object MagicCombatFormula : CombatFormula {
             "item.black_mask_10_i",
         )
 
-    private val SLAYER_HELM_I =
+    private val SLAYER_HELMETS =
         arrayOf(
+            "item.slayer_helmet",
             "item.slayer_helmet_i",
+            "item.black_slayer_helmet",
             "item.black_slayer_helmet_i",
+            "item.green_slayer_helmet",
             "item.green_slayer_helmet_i",
-            "item.purple_slayer_helmet_i",
+            "item.red_slayer_helmet",
             "item.red_slayer_helmet_i",
+            "item.purple_slayer_helmet",
+            "item.purple_slayer_helmet_i",
+            "item.turquoise_slayer_helmet",
             "item.turquoise_slayer_helmet_i",
+            "item.hydra_slayer_helmet",
+            "item.hydra_slayer_helmet_i",
+            "item.twisted_slayer_helmet",
+            "item.twisted_slayer_helmet_i",
+            "item.purple_slayer_helmet_i_25185",
+            "item.turquoise_slayer_helmet_i_25187",
+            "item.hydra_slayer_helmet_i_25189",
+            "item.twisted_slayer_helmet_i_25191",
+            "item.purple_slayer_helmet_i_26678",
+            "item.turquoise_slayer_helmet_i_26679",
+            "item.hydra_slayer_helmet_i_26680",
+            "item.twisted_slayer_helmet_i_26681"
         )
 
     private val MAGE_VOID = arrayOf("item.void_mage_helm", "item.void_knight_top", "item.void_knight_robe", "item.void_knight_gloves")
@@ -153,9 +173,13 @@ object MagicCombatFormula : CombatFormula {
             }
 
             if (target is Npc) {
-                if (pawn.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) || pawn.hasEquipped(EquipmentType.HEAD, *SLAYER_HELM_I)) {
-                    // TODO: check if on slayer task and target is slayer task
+                if (pawn.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I)) {
+                    // Black mask (i) bonus - always 15% for imbued black masks
                     hit *= 1.15
+                    hit = Math.floor(hit)
+                } else if (pawn.hasEquipped(EquipmentType.HEAD, *SLAYER_HELMETS) && isOnSlayerTaskFor(pawn, target)) {
+                    // Slayer helmet bonus - 50% when on slayer task
+                    hit *= 1.5
                     hit = Math.floor(hit)
                 } else if (pawn.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") && target.isSpecies(NpcSpecies.UNDEAD)) {
                     hit *= 1.20
@@ -473,5 +497,41 @@ object MagicCombatFormula : CombatFormula {
                         (target.tile.z >= 10000 && target.tile.z <= 10300 && target.tile.x >= 3100 && target.tile.x <= 3300)
         
         return isWildernessNpc || isRevenant
+    }
+    
+    /**
+     * Checks if a player has a slayer task for the given NPC
+     * @param player The player to check
+     * @param npc The NPC that is being fought
+     * @return true if the player has a slayer task for this NPC type, false otherwise
+     */
+    private fun isOnSlayerTaskFor(player: Player, npc: Npc): Boolean {
+        val taskNpcId = player.attr[Slayer.SLAYER_TASK_ATTR] ?: return false
+        
+        // Get the task NPC definition to compare names
+        val taskNpcDef = try {
+            getNpc(taskNpcId)
+        } catch (e: Exception) {
+            // If we can't get the task NPC definition, just compare IDs
+            null
+        }
+        
+        // Check if the target NPC matches the assigned NPC ID
+        // Also check by name to handle NPC variants (e.g., crawling_hand_448 vs crawling_hand_453)
+        val idMatches = npc.id == taskNpcId
+        val nameMatches = taskNpcDef != null && npc.name.lowercase() == taskNpcDef.name.lowercase()
+        
+        // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+        val tzhaarMatches = if (taskNpcDef != null) {
+            val taskNameLower = taskNpcDef.name.lowercase()
+            val targetNameLower = npc.name.lowercase()
+            // Check if both are TzHaar NPCs (name contains "tzhaar")
+            (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+            (targetNameLower.contains("tzhaar") || targetNameLower.contains("tz-haar"))
+        } else {
+            false
+        }
+        
+        return idMatches || nameMatches || tzhaarMatches
     }
 }

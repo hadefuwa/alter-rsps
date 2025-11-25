@@ -28,7 +28,7 @@ class ArmadylGodswordPlugin(
             world.spawn(AreaSound(tile = player.tile, id = 3869, radius = 10, volume = 1))
 
             val maxHit = MeleeCombatFormula.getMaxHit(player, target, specialAttackMultiplier = 1.375)
-            val accuracy = MeleeCombatFormula.getAccuracy(player, target, specialAttackMultiplier = 2.0)
+            val accuracy = MeleeCombatFormula.getAccuracy(player, target, specialAttackMultiplier = 3.0)
             val landHit = accuracy >= world.randomDouble()
             val delay = 1
             player.dealHit(target = target, maxHit = maxHit, landHit = landHit, delay = delay)
@@ -42,7 +42,7 @@ class ArmadylGodswordPlugin(
             world.spawn(AreaSound(tile = player.tile, id = 3869, radius = 10, volume = 1))
 
             val maxHit = MeleeCombatFormula.getMaxHit(player, target, specialAttackMultiplier = 1.375)
-            val accuracy = MeleeCombatFormula.getAccuracy(player, target, specialAttackMultiplier = 2.0)
+            val accuracy = MeleeCombatFormula.getAccuracy(player, target, specialAttackMultiplier = 3.0)
             val landHit = accuracy >= world.randomDouble()
             val delay = 1
             player.dealHit(target = target, maxHit = maxHit, landHit = landHit, delay = delay)

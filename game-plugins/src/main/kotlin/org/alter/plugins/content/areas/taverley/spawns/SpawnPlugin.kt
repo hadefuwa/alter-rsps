@@ -90,6 +90,15 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.blue_dragon", x = 2910, z = 9777, height = 0, walkRadius = 1, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.blue_dragon", x = 2911, z = 9778, height = 0, walkRadius = 1, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.blue_dragon", x = 2912, z = 9779, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+
+
+        spawnNpc(npc = "npc.blue_dragon", x = 2907, z = 9803, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2914, z = 9800, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2919, z = 9803, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2920, z = 9795, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+
+
+
         spawnNpc(npc = "npc.black_demon", x = 2864, z = 9769, height = 0, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.black_demon", x = 2809, z = 9770, height = 0, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.black_demon", x = 2810, z = 9771, height = 0, walkRadius = 5, direction = Direction.SOUTH)

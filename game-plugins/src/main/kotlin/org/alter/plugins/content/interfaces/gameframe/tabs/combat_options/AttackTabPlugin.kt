@@ -66,10 +66,18 @@ class AttackTabPlugin(
         }
 
         onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 22) {
+            // Ensure spellbook is initialized and set varbit BEFORE opening interface so client knows which spellbook to display
+            val spellbook = player.getSpellbook()
+            player.setSpellbook(spellbook) // Explicitly set to ensure client receives the update
+            // Open autocast interface
             player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
         }
 
         onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 27) {
+            // Ensure spellbook is initialized and set varbit BEFORE opening interface so client knows which spellbook to display
+            val spellbook = player.getSpellbook()
+            player.setSpellbook(spellbook) // Explicitly set to ensure client receives the update
+            // Open autocast interface
             player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
         }
 

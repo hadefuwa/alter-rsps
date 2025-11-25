@@ -26,40 +26,21 @@ class NievePlugin(
         onNpcOption("npc.nieve_6797", option = "assignment") { player.queue { getAssignmentCheck(player) } }
         
         // Trade option - opens a general slayer equipment shop
-        try {
-            onNpcOption("npc.nieve_6797", option = 3) { 
-                player.openShop("Slayer Equipment Shop")
-            }
-        } catch (e: IllegalStateException) {
-            // Option 3 already bound, try string option
-            try {
-                onNpcOption("npc.nieve_6797", option = "trade") { 
-                    player.openShop("Slayer Equipment Shop")
-                }
-            } catch (e2: Exception) {
-                // Both options already bound, skip
-            }
+        onNpcOption("npc.nieve_6797", option = "trade") { 
+            player.openShop("Slayer Equipment Shop")
         }
         
         // Rewards option - opens slayer rewards shop
-        try {
-            onNpcOption("npc.nieve_6797", option = 4) { 
-                player.openShop("Slayer Rewards Shop")
-            }
-        } catch (e: IllegalStateException) {
-            // Option 4 already bound, try string option
-            try {
-                onNpcOption("npc.nieve_6797", option = "rewards") { 
-                    player.openShop("Slayer Rewards Shop")
-                }
-            } catch (e2: Exception) {
-                // Both options already bound, skip
-            }
+        onNpcOption("npc.nieve_6797", option = "rewards") { 
+            player.openShop("Slayer Rewards Shop")
         }
     }
 
     suspend fun QueueTask.dialog(player: Player) {
+        val slayerPoints = org.alter.plugins.content.skills.slayer.Slayer.getSlayerPoints(player)
+        
         chatNpc(player, "Hello, ${player.username}. I am Nieve, a Slayer master.")
+        chatNpc(player, "You currently have $slayerPoints Slayer Point${if (slayerPoints == 1) "" else "s"}.")
         chatNpc(player, "I can assign you challenging slayer tasks. Would you like an assignment?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

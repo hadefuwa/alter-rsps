@@ -11,23 +11,23 @@ highalch: 120
 buy_limit: null
 equipment:
   prayer: 0
-  equipSlot: "weapon"
-  weaponType: 9
-  attackSpeed: 5
-  attackStab: 9999
-  attackSlash: 9999
-  attackCrush: -2
-  attackMagic: 0
-  attackRanged: 0
-  defenceStab: 0
-  defenceSlash: 3
-  defenceCrush: 2
-  defenceMagic: 1
-  defenceRanged: 0
-  meleeStrength: 25
-  rangedStrength: 0
-  magicDamage: 0
-  renderAnimations:
+  equip_slot: "weapon"
+  weapon_type: 9
+  attack_speed: 5
+  attack_stab: 9999
+  attack_slash: 9999
+  attack_crush: -2
+  attack_magic: 0
+  attack_ranged: 0
+  defence_stab: 0
+  defence_slash: 3
+  defence_crush: 2
+  defence_magic: 1
+  defence_ranged: 0
+  melee_strength: 25
+  ranged_strength: 0
+  magic_damage: 0
+  render_animations:
     standAnimId: 808
     turnOnSpotAnim: 823
     walkForwardAnimId: 819
@@ -35,6 +35,6 @@ equipment:
     walkLeftAnimId: 821
     walkRightAnimId: 822
     runAnimId: 824
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 20

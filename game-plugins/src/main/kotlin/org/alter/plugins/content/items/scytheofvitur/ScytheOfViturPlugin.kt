@@ -14,6 +14,8 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.dealHit
 import org.alter.plugins.content.combat.getCombatTarget
+import org.alter.plugins.content.skills.slayer.Slayer
+import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
 
 /**
@@ -77,6 +79,42 @@ class ScytheOfViturPlugin(
                 getRSCM("item.sanguine_scythe_of_vitur") -> getRSCM("item.sanguine_scythe_of_vitur_uncharged")
                 else -> itemId // Already uncharged or corrupted variant
             }
+        }
+        
+        /**
+         * Checks if a player has a slayer task for the given NPC
+         * @param player The player to check
+         * @param npc The NPC that was killed
+         * @return true if the player has a slayer task for this NPC type, false otherwise
+         */
+        fun isOnSlayerTaskFor(player: Player, npc: Npc): Boolean {
+            val taskNpcId = player.attr[Slayer.SLAYER_TASK_ATTR] ?: return false
+            
+            // Get the task NPC definition to compare names
+            val taskNpcDef = try {
+                getNpc(taskNpcId)
+            } catch (e: Exception) {
+                // If we can't get the task NPC definition, just compare IDs
+                null
+            }
+            
+            // Check if the killed NPC matches the assigned NPC ID
+            // Also check by name to handle NPC variants (e.g., crawling_hand_448 vs crawling_hand_453)
+            val idMatches = npc.id == taskNpcId
+            val nameMatches = taskNpcDef != null && npc.name.lowercase() == taskNpcDef.name.lowercase()
+            
+            // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+            val tzhaarMatches = if (taskNpcDef != null) {
+                val taskNameLower = taskNpcDef.name.lowercase()
+                val killedNameLower = npc.name.lowercase()
+                // Check if both are TzHaar NPCs (name contains "tzhaar")
+                (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+                (killedNameLower.contains("tzhaar") || killedNameLower.contains("tz-haar"))
+            } else {
+                false
+            }
+            
+            return idMatches || nameMatches || tzhaarMatches
         }
     }
 

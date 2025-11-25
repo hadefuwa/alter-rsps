@@ -58,8 +58,9 @@ object Slayer {
         "merchant", "trader", "farmer", "fisherman", "cook", "bartender", "nurse",
         "tutor", "master", "teacher", "guide", "leprechaun", "null", "spawn",
         "rock", "tentacle", "head", "wing", "twig", "pile",
-        "giant skeleton", "zombie swab", "assassin", "assasin", "angry goblin", "baboon thrall", "rebel warrior", "elidinis warden", "rooster", "mourner" // Add more name patterns here as needed
-    )
+        "giant skeleton", "zombie swab", "assassin", "assasin", "angry goblin", "baboon thrall", "rebel warrior", "elidinis warden", "rooster", "mourner", // Add more name patterns here as needed
+        "fear repear", "strangled"
+        )
 
     // Cache for valid NPC IDs (lazy initialization)
     private var cachedValidNpcIds: List<Int>? = null
@@ -248,8 +249,8 @@ class SlayerPlugin(
 
                 if (progress >= amount) {
                     killer.message("You have completed your slayer task! Return to a slayer master.")
-                    // Award slayer points (base 5 points per task)
-                    Slayer.addSlayerPoints(killer, 5)
+                    // Award slayer points (20 points per task)
+                    Slayer.addSlayerPoints(killer, 20)
                     killer.attr.remove(Slayer.SLAYER_TASK_ATTR)
                     killer.attr.remove(Slayer.SLAYER_AMOUNT_ATTR)
                     killer.attr.remove(Slayer.SLAYER_PROGRESS_ATTR)

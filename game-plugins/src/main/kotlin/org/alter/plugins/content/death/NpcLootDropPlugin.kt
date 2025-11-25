@@ -18,6 +18,8 @@ import java.lang.ref.WeakReference
 import kotlin.random.Random
 import org.alter.game.model.item.Item
 import org.alter.api.EquipmentType
+import org.alter.plugins.content.skills.slayer.Slayer
+import dev.openrune.cache.CacheManager.getNpc
 
 /**
  * Plugin to handle NPC loot drops when they die.
@@ -163,6 +165,42 @@ class NpcLootDropPlugin(
         
         return validItems.toList()
     }
+    
+    /**
+     * Checks if a player has a slayer task for the given NPC
+     * @param player The player to check
+     * @param npc The NPC that was killed
+     * @return true if the player has a slayer task for this NPC type, false otherwise
+     */
+    private fun isOnSlayerTaskFor(player: Player, npc: Npc): Boolean {
+        val taskNpcId = player.attr[Slayer.SLAYER_TASK_ATTR] ?: return false
+        
+        // Get the task NPC definition to compare names
+        val taskNpcDef = try {
+            getNpc(taskNpcId)
+        } catch (e: Exception) {
+            // If we can't get the task NPC definition, just compare IDs
+            null
+        }
+        
+        // Check if the killed NPC matches the assigned NPC ID
+        // Also check by name to handle NPC variants (e.g., crawling_hand_448 vs crawling_hand_453)
+        val idMatches = npc.id == taskNpcId
+        val nameMatches = taskNpcDef != null && npc.name.lowercase() == taskNpcDef.name.lowercase()
+        
+        // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+        val tzhaarMatches = if (taskNpcDef != null) {
+            val taskNameLower = taskNpcDef.name.lowercase()
+            val killedNameLower = npc.name.lowercase()
+            // Check if both are TzHaar NPCs (name contains "tzhaar")
+            (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+            (killedNameLower.contains("tzhaar") || killedNameLower.contains("tz-haar"))
+        } else {
+            false
+        }
+        
+        return idMatches || nameMatches || tzhaarMatches
+    }
 
     /**
      * Handles the loot drop logic for an NPC that has died.
@@ -189,12 +227,27 @@ class NpcLootDropPlugin(
         }
         
         try {
+            // Check if player is on slayer task for this NPC
+            val isOnSlayerTask = isOnSlayerTaskFor(killer, npc)
+            
             // Use the existing loot table rolling system
             val droppedItems = roll(killer, lootTables)
             println("DEBUG: Generated ${droppedItems.size} dropped items")
             
+            // If on slayer task, roll the loot table again for bonus drops
+            val bonusDrops = if (isOnSlayerTask) {
+                val bonus = roll(killer, lootTables)
+                println("DEBUG: Slayer task bonus - Generated ${bonus.size} additional dropped items")
+                bonus
+            } else {
+                emptySet()
+            }
+            
+            // Process both regular drops and bonus drops
+            val allDrops = droppedItems + bonusDrops
+            
             // Spawn each dropped item on the ground at the NPC's location
-            droppedItems.forEach { groundItem ->
+            allDrops.forEachIndexed { index, groundItem ->
                 // Convert clue scrolls to clue caskets before dropping
                 var itemIdToDrop = convertClueScrollToCasket(groundItem.item)
                 
@@ -249,13 +302,20 @@ class NpcLootDropPlugin(
                 newGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4 // 400 cycles = 4 minutes total
                 newGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
                 
-                println("DEBUG: Dropping item ${itemIdToDrop} x${amountToDrop} at ${npc.tile}")
+                val dropType = if (index < droppedItems.size) "regular" else "slayer bonus"
+                println("DEBUG: Dropping $dropType item ${itemIdToDrop} x${amountToDrop} at ${npc.tile}")
                 npc.world.spawn(newGroundItem)
                 
                 // Optional: Send a message to the player about valuable drops
                 if (amountToDrop > 100) { // If item value is high, could add more sophisticated value checking
-                    killer.message("${npc.def.name} drops: ${amountToDrop}x ${getItem(itemIdToDrop).name}")
+                    val bonusText = if (index >= droppedItems.size && isOnSlayerTask) " (Slayer bonus)" else ""
+                    killer.message("${npc.def.name} drops: ${amountToDrop}x ${getItem(itemIdToDrop).name}$bonusText")
                 }
+            }
+            
+            // Send a message about slayer bonus if any bonus drops were generated
+            if (bonusDrops.isNotEmpty() && isOnSlayerTask) {
+                killer.message("<col=00ff00>Slayer task bonus: Double loot chance activated!</col>")
             }
             
             // Drop one additional random item from the entire game item table (chance scales with NPC level)
@@ -363,19 +423,20 @@ class NpcLootDropPlugin(
     /**
      * Gets the drop chance for a random item based on NPC combat level.
      * Returns the denominator of the chance (e.g., 30 means 1/30 chance).
+     * If on slayer task for this NPC, the denominator is halved (doubling the chance).
      * 
      * Scaling (tripled rarity):
-     * - Level 1-20: 1/30 chance (~3.33%)
-     * - Level 21-50: 1/15 chance (~6.67%)
-     * - Level 51-100: 1/9 chance (~11.11%)
-     * - Level 101-150: 1/6 chance (~16.67%)
-     * - Level 151-199: 1/3 chance (~33.33%)
-     * - Level 200-299: 1/2 chance (50%)
-     * - Level 300-399: 2/3 chance (~66.67%)
-     * - Level 400+: Guaranteed (100%)
+     * - Level 1-20: 1/30 chance (~3.33%) | Slayer: 1/15 chance (~6.67%)
+     * - Level 21-50: 1/15 chance (~6.67%) | Slayer: 1/7 chance (~14.29%) 
+     * - Level 51-100: 1/9 chance (~11.11%) | Slayer: 1/4 chance (~25%)
+     * - Level 101-150: 1/6 chance (~16.67%) | Slayer: 1/3 chance (~33.33%)
+     * - Level 151-199: 1/3 chance (~33.33%) | Slayer: 1/1 chance (100%)
+     * - Level 200-299: 1/2 chance (50%) | Slayer: 1/1 chance (100%)
+     * - Level 300-399: 2/3 chance (~66.67%) | Slayer: 1/1 chance (100%)
+     * - Level 400+: Guaranteed (100%) | Slayer: Guaranteed (100%)
      */
-    private fun getRandomDropChanceDenominator(combatLevel: Int): Int {
-        return when {
+    private fun getRandomDropChanceDenominator(combatLevel: Int, isOnSlayerTask: Boolean = false): Int {
+        val baseDenominator = when {
             combatLevel <= 20 -> 30  // 1/30 chance (~3.33%)
             combatLevel <= 50 -> 15  // 1/15 chance (~6.67%)
             combatLevel <= 100 -> 9  // 1/9 chance (~11.11%)
@@ -385,15 +446,26 @@ class NpcLootDropPlugin(
             combatLevel < 400 -> 3   // 2/3 chance (~66.67%) - using 3 as denominator, roll 0-2
             else -> 1                // Guaranteed (100%)
         }
+        
+        // If on slayer task, double the chance by halving the denominator (minimum 1)
+        return if (isOnSlayerTask) {
+            (baseDenominator / 2).coerceAtLeast(1)
+        } else {
+            baseDenominator
+        }
     }
     
     /**
      * Drops a random item from the entire game item table.
      * Gnome minions (6097, 6098, 6099) get a guaranteed random drop.
      * Other NPCs get a chance based on combat level.
+     * Drop chance is doubled if the player has a slayer task for this NPC.
      */
     private fun dropRandomItemFromGameTable(npc: Npc, killer: Player) {
         try {
+            // Check if player is on slayer task for this NPC
+            val isOnSlayerTask = isOnSlayerTaskFor(killer, npc)
+            
             // Gnome minions get guaranteed random drop
             val isGnomeMinion = npc.id == 6097 || npc.id == 6098 || npc.id == 6099
             
@@ -401,10 +473,11 @@ class NpcLootDropPlugin(
                 // For other NPCs, use the level-based chance system
                 val combatLevel = npc.def.combatLevel
                 if (combatLevel < 0) {
+                    println("DEBUG: Random drop skipped for NPC ${npc.id} - invalid combat level ($combatLevel)")
                     return
                 }
                 
-                val chanceDenominator = getRandomDropChanceDenominator(combatLevel)
+                val chanceDenominator = getRandomDropChanceDenominator(combatLevel, isOnSlayerTask)
                 val roll = Random.nextInt(chanceDenominator)
                 val shouldDrop = if (combatLevel >= 300 && combatLevel < 400) {
                     roll <= 1
@@ -412,13 +485,20 @@ class NpcLootDropPlugin(
                     roll == 0
                 }
                 
+                val slayerBonus = if (isOnSlayerTask) " (SLAYER TASK BONUS)" else ""
+                println("DEBUG: Random drop check for NPC ${npc.id} (level $combatLevel)$slayerBonus: rolled $roll/$chanceDenominator, shouldDrop=$shouldDrop")
+                
                 if (!shouldDrop) {
+                    println("DEBUG: Random drop failed for NPC ${npc.id} - roll did not succeed")
                     return
                 }
+            } else {
+                println("DEBUG: Random drop guaranteed for gnome minion NPC ${npc.id}")
             }
             
             // Use the cached valid item list
             if (validItemIds.isEmpty()) {
+                println("DEBUG: Random drop skipped for NPC ${npc.id} - valid item list is empty")
                 return
             }
             
@@ -435,6 +515,8 @@ class NpcLootDropPlugin(
             } else {
                 1 // Single item for non-stackable
             }
+            
+            println("DEBUG: Random drop SUCCESS for NPC ${npc.id} - dropping ${amount}x ${finalItemDef.name} (ID: $itemIdToDrop)")
 
             // Check for Amulet of Avarice noting effect
             val hasAvarice = killer.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice")
@@ -465,7 +547,12 @@ class NpcLootDropPlugin(
             npc.world.spawn(randomGroundItem)
             
             // Notify the player about the bonus drop
-            killer.message("Bonus drop: ${amount}x ${finalItemDef.name}")
+            val dropMessage = if (isOnSlayerTask) {
+                "Slayer bonus drop: ${amount}x ${finalItemDef.name}"
+            } else {
+                "Bonus drop: ${amount}x ${finalItemDef.name}"
+            }
+            killer.message(dropMessage)
             
         } catch (e: Exception) {
             println("Error dropping random item for NPC ${npc.id}: ${e.message}")

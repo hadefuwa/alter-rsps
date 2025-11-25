@@ -281,6 +281,39 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.wolf", x = 3080, z = 3650, walkRadius = 10, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.wolf", x = 3084, z = 3650, walkRadius = 10, direction = Direction.WEST)
         
+        /**
+         * White Wolves - Coordinates 2857, 3469
+         * 
+         * White wolves that spawn in a pack around the specified coordinates.
+         * 
+         * Spawn Location: Coordinates ~2855-2859, ~3467-3471
+         * Total Spawns: 8 White Wolves
+         * Walk Radius: 8 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.white_wolf", x = 2857, z = 3469, walkRadius = 8, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.white_wolf", x = 2840, z = 3501, walkRadius = 8, direction = Direction.EAST)
+        spawnNpc(npc = "npc.white_wolf", x = 2836, z = 3509, walkRadius = 8, direction = Direction.WEST)
+        spawnNpc(npc = "npc.white_wolf", x = 2845, z = 3487, walkRadius = 8, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.white_wolf", x = 2859, z = 3471, walkRadius = 8, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.white_wolf", x = 2857, z = 3467, walkRadius = 8, direction = Direction.EAST)
+        spawnNpc(npc = "npc.white_wolf", x = 2857, z = 3471, walkRadius = 8, direction = Direction.WEST)
+        spawnNpc(npc = "npc.white_wolf", x = 2859, z = 3469, walkRadius = 8, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.white_wolf", x = 2859, z = 3469, walkRadius = 8, direction = Direction.NORTH)
+        
+        /**
+         * Dwarf - Wilderness
+         * 
+         * A dwarf spawn in the wilderness area.
+         * 
+         * Spawn Location: Coordinates 3023, 3461
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.dwarf_290", x = 3023, z = 3461, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dwarf_290", x = 3025, z = 3461, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.dwarf_290", x = 3023, z = 3463, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.dwarf_290", x = 3025, z = 3463, walkRadius = 6, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.dwarf_290", x = 3023, z = 3461, walkRadius = 6, direction = Direction.SOUTH)
+
         // Additional dark wizards in different areas - spreading them out for better coverage
         spawnNpc(npc = "npc.dark_wizard", x = 3085, z = 3565, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.dark_wizard", x = 3087, z = 3567, walkRadius = 5, direction = Direction.EAST)
@@ -447,6 +480,21 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.ankou", x = 2973, z = 3755, walkRadius = 4, direction = Direction.SOUTH)
 
         /**
+         * Pirates - Wilderness
+         * 
+         * Pirates that spawn in the wilderness area. They are aggressive melee fighters
+         * that drop smithing items, bars, and pickaxes.
+         * 
+         * Spawn Location: Coordinates 3041, 3954
+         * Total Spawns: 4 Pirates
+         * Walk Radius: 6 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.pirate", x = 3041, z = 3954, walkRadius = 6, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.pirate_522", x = 3041, z = 3954, walkRadius = 6, direction = Direction.EAST)
+        spawnNpc(npc = "npc.pirate_523", x = 3041, z = 3954, walkRadius = 6, direction = Direction.WEST)
+        spawnNpc(npc = "npc.pirate_524", x = 3041, z = 3954, walkRadius = 6, direction = Direction.NORTH)
+
+        /**
          * Porazdir - Wilderness Boss
          * 
          * A powerful boss monster found in the wilderness. Porazdir is a dangerous
@@ -459,7 +507,7 @@ class SpawnPlugin(
 
 
 
-        spawnItem(item = "item.casket_hard_2726", amount = 1, x = 2986, z = 3704, height = 0)
+        //spawnItem(item = "item.casket_hard_2726", amount = 1, x = 2986, z = 3704, height = 0)
         spawnItem(item = "item.casket_easy", amount = 1, x = 3187, z = 3925, height = 0)
         spawnItem(item = "item.casket_medium_2812", amount = 1, x = 2982, z = 3845, height = 0)
 

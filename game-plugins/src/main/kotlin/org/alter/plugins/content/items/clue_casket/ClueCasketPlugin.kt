@@ -566,13 +566,16 @@ class ClueCasketPlugin(
 
             player.queue {
                 for (reward in rewards) {
+                    // Cap all reward amounts at 10 per casket (safety check)
+                    val cappedAmount = Math.min(reward.amount, 10)
+                    
                     // Try to add to inventory first
-                    val transaction = player.inventory.add(item = reward.itemId, amount = reward.amount)
+                    val transaction = player.inventory.add(item = reward.itemId, amount = cappedAmount)
                     if (!transaction.hasSucceeded()) {
                         // Inventory full, drop on ground
                         val groundItem = GroundItem(
                             item = reward.itemId,
-                            amount = reward.amount,
+                            amount = cappedAmount,
                             tile = player.tile,
                             owner = player
                         )
@@ -695,20 +698,20 @@ class ClueCasketPlugin(
                 
                 val itemNameLower = itemName.lowercase()
                 
-                // Generate random amount based on item type
+                // Generate random amount - ALL items capped at maximum 10 per casket
                 val amount = when {
-                    // Coins can have a lot
-                    itemId == getRSCM("item.coins_995") -> Random.nextInt(100, 100000)
-                    // Stackable items can have more
-                    itemDef.stackable -> Random.nextInt(1, 1000)
-                    // Runes can stack
-                    itemNameLower.contains("rune") -> Random.nextInt(10, 500)
-                    // Herbs can stack
-                    itemNameLower.contains("herb") || itemNameLower.contains("leaf") || itemNameLower.contains("weed") -> Random.nextInt(1, 50)
-                    // Potions can stack
-                    itemNameLower.contains("potion") -> Random.nextInt(1, 10)
-                    // Gems can stack
-                    itemNameLower.contains("gem") || itemNameLower.contains("uncut") || itemNameLower.contains("sapphire") || itemNameLower.contains("emerald") || itemNameLower.contains("ruby") || itemNameLower.contains("diamond") -> Random.nextInt(1, 20)
+                    // Coins: 1-10
+                    itemId == getRSCM("item.coins_995") -> Random.nextInt(1, 11)
+                    // Stackable items: 1-10
+                    itemDef.stackable -> Random.nextInt(1, 11)
+                    // Runes: 1-10
+                    itemNameLower.contains("rune") -> Random.nextInt(1, 11)
+                    // Herbs: 1-10
+                    itemNameLower.contains("herb") || itemNameLower.contains("leaf") || itemNameLower.contains("weed") -> Random.nextInt(1, 11)
+                    // Potions: 1-10
+                    itemNameLower.contains("potion") -> Random.nextInt(1, 11)
+                    // Gems: 1-10
+                    itemNameLower.contains("gem") || itemNameLower.contains("uncut") || itemNameLower.contains("sapphire") || itemNameLower.contains("emerald") || itemNameLower.contains("ruby") || itemNameLower.contains("diamond") -> Random.nextInt(1, 11)
                     // Everything else is 1
                     else -> 1
                 }
@@ -739,13 +742,14 @@ class ClueCasketPlugin(
                     continue
                 }
                 
-                val amount = if (itemDef.stackable) Random.nextInt(1, 100) else 1
+                // Cap all items at 10 per casket
+                val amount = if (itemDef.stackable) Random.nextInt(1, 11) else 1
                 println("DEBUG: generateRewards - Filling with item ID $itemId (${itemDef.name}) x$amount")
                 rewards.add(ClueReward(itemId, amount))
             } catch (e: Exception) {
-                // If we can't get the item, use coins as last resort
+                // If we can't get the item, use coins as last resort (capped at 10)
                 val coinsId = getRSCM("item.coins_995")
-                rewards.add(ClueReward(coinsId, Random.nextInt(100, 1000)))
+                rewards.add(ClueReward(coinsId, Random.nextInt(1, 11)))
             }
         }
 

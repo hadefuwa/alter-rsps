@@ -89,12 +89,15 @@ class VarrockPotionsShopPlugin(
 
         // Super Antipoison Potions - 1.2k-2k
         addPotion("superantipoison4", 200000)
+        
+        // Bastion Potions - 4k-5k (boosts Defence and Ranged)
+        addPotion("bastion_potion4", 5000)
 
 
         
 
         
-        addPotion("strength_potion4", 1000)
+        addPotion("vial_of_blood", 50000)
 
     
     }

@@ -26,40 +26,21 @@ class KonarPlugin(
         onNpcOption("npc.konar_quo_maten", option = "assignment") { player.queue { getAssignmentCheck(player) } }
         
         // Trade option - opens a general slayer equipment shop
-        try {
-            onNpcOption("npc.konar_quo_maten", option = 3) { 
-                player.openShop("Slayer Equipment Shop")
-            }
-        } catch (e: IllegalStateException) {
-            // Option 3 already bound, try string option
-            try {
-                onNpcOption("npc.konar_quo_maten", option = "trade") { 
-                    player.openShop("Slayer Equipment Shop")
-                }
-            } catch (e2: Exception) {
-                // Both options already bound, skip
-            }
+        onNpcOption("npc.konar_quo_maten", option = "trade") { 
+            player.openShop("Slayer Equipment Shop")
         }
         
         // Rewards option - opens slayer rewards shop
-        try {
-            onNpcOption("npc.konar_quo_maten", option = 4) { 
-                player.openShop("Slayer Rewards Shop")
-            }
-        } catch (e: IllegalStateException) {
-            // Option 4 already bound, try string option
-            try {
-                onNpcOption("npc.konar_quo_maten", option = "rewards") { 
-                    player.openShop("Slayer Rewards Shop")
-                }
-            } catch (e2: Exception) {
-                // Both options already bound, skip
-            }
+        onNpcOption("npc.konar_quo_maten", option = "rewards") { 
+            player.openShop("Slayer Rewards Shop")
         }
     }
 
     suspend fun QueueTask.dialog(player: Player) {
+        val slayerPoints = org.alter.plugins.content.skills.slayer.Slayer.getSlayerPoints(player)
+        
         chatNpc(player, "Greetings, ${player.username}. I am Konar quo Maten, a Slayer master.")
+        chatNpc(player, "You currently have $slayerPoints Slayer Point${if (slayerPoints == 1) "" else "s"}.")
         chatNpc(player, "I assign tasks that must be completed in specific locations. Are you ready for the challenge?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

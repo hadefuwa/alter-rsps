@@ -26,8 +26,8 @@ class ChaosElementalConfigsPlugin(
         // Set the spawning area as multi-combat (wilderness region)
         setMultiCombatRegion(region = 12853) // Wilderness region around Chaos Elemental location
 
-        // Spawn Chaos Elemental at wilderness location
-        spawnNpc("npc.chaos_elemental", x = 3200, z = 3266, walkRadius = 5)
+        // Chaos Elemental spawn removed from Lumbridge (was at 3200, 3266)
+        // Chaos Elemental is now only available on Boss Island
 
         setCombatDef("npc.chaos_elemental") {
             configs {

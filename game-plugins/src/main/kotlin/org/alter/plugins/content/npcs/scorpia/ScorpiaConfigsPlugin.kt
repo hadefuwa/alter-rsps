@@ -73,28 +73,27 @@ class ScorpiaConfigsPlugin(
                 
                 main(weight = 128) {
                     // Scorpion-themed weapons and armour
-                    add("item.rune_crossbow", min = 1, weight = 2)
-                    add("item.magic_shortbow", min = 1, weight = 3)
-                    add("item.rune_kiteshield", min = 1, weight = 2)
-                    add("item.rune_platelegs", min = 1, weight = 2)
-                    add("item.rune_chainbody", min = 1, weight = 3)
-                    add("item.rune_med_helm", min = 1, weight = 3)
-                    add("item.rune_scimitar", min = 1, weight = 3)
-                    add("item.rune_longsword", min = 1, weight = 2)
-                    add("item.rune_battleaxe", min = 1, weight = 2)
+                    add("item.rune_crossbow_noted", min = 10, weight = 2)
+                    add("item.magic_shortbow", min = 10, weight = 3)
+                    add("item.rune_kiteshield_noted", min = 10, weight = 2)
+                    add("item.rune_platelegs_noted", min = 10, weight = 2)
+                    add("item.rune_chainbody_noted", min = 10, weight = 3)
+                    add("item.rune_med_helm", min = 10, weight = 3)
+                    add("item.rune_scimitar", min = 10, weight = 3)
+                    add("item.rune_longsword", min = 10, weight = 2)
+                    add("item.rune_battleaxe_noted", min = 10, weight = 2)
                     
                     // Poison and ranged supplies
-                    add("item.poison_javelin", min = 25, max = 50, weight = 8)
                     add("item.rune_arrow", min = 150, max = 300, weight = 10)
                     add("item.adamant_bolts", min = 75, max = 150, weight = 10)
                     add("item.runite_bolts", min = 20, max = 40, weight = 6)
                     
                     // Runes (poison/nature themed)
-                    add("item.nature_rune", min = 50, max = 100, weight = 12)
-                    add("item.death_rune", min = 35, max = 70, weight = 10)
-                    add("item.chaos_rune", min = 75, max = 150, weight = 12)
-                    add("item.law_rune", min = 25, max = 50, weight = 8)
-                    add("item.cosmic_rune", min = 30, max = 60, weight = 9)
+                    add("item.nature_rune", min = 50, max = 1000, weight = 12)
+                    add("item.death_rune", min = 35, max = 700, weight = 10)
+                    add("item.chaos_rune", min = 75, max = 1500, weight = 12)
+                    add("item.law_rune", min = 25, max = 500, weight = 8)
+                    add("item.cosmic_rune", min = 30, max = 600, weight = 9)
                     
                     // Potions and food
                     add("item.shark", min = 5, max = 12, weight = 18)

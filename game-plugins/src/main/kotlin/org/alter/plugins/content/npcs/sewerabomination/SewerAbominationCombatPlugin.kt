@@ -22,6 +22,8 @@ import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.mechanics.poison.poison
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.game.model.attr.AttributeKey
+import java.lang.ref.WeakReference
 import kotlin.random.Random
 
 /**
@@ -47,8 +49,14 @@ class SewerAbominationCombatPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
 
-
-
+    companion object {
+        // Attribute key to track minions spawned by this boss
+        private val MINIONS_ATTR = AttributeKey<MutableList<WeakReference<Npc>>>("sewer_abomination_minions")
+        private val SPAWNING_MINION_ATTR = AttributeKey<Boolean>("spawning_minion") // Prevent concurrent spawns
+        private const val MAX_MINIONS = 3 // Maximum total minions allowed
+        private const val MINION_CLEANUP_DISTANCE = 20 // Remove minions more than 20 tiles from boss
+        private const val MINION_TIMEOUT_TICKS = 300 // Remove minions after 5 minutes (300 ticks)
+    }
 
 
     init {
@@ -136,6 +144,34 @@ class SewerAbominationCombatPlugin(
 
         // Minions will get random drops through the main NpcLootDropPlugin system
         // based on their combat level defined in CombatConfigPlugin.kt
+        
+        // Clean up minions when boss dies
+        onAnyNpcDeath {
+            val npc = ctx as Npc
+            if (npc.id == getRSCM("npc.cerberus")) {
+                cleanupMinions(npc)
+            }
+        }
+        
+        // Clean up minions when minions die
+        onAnyNpcDeath {
+            val npc = ctx as Npc
+            val minionIds = listOf(
+                getRSCM("npc.gnome_driver"),
+                getRSCM("npc.gnome_archer"),
+                getRSCM("npc.gnome_mage")
+            )
+            if (npc.id in minionIds && !npc.respawns) {
+                // Remove this minion from its boss's minion list
+                world.npcs.forEach { boss ->
+                    if (boss.id == getRSCM("npc.cerberus")) {
+                        val minions = boss.attr[MINIONS_ATTR] ?: mutableListOf()
+                        minions.removeAll { it.get() == null || it.get() == npc }
+                        boss.attr[MINIONS_ATTR] = minions
+                    }
+                }
+            }
+        }
     }
 
 
@@ -147,41 +183,62 @@ class SewerAbominationCombatPlugin(
     private suspend fun Npc.combat(it: QueueTask) {
         var target = getCombatTarget() ?: return
 
-        // Track minion spawns to avoid duplicates
-        var meleeMinionSpawned = false
-        var rangedMinionSpawned = false
-        var mageMinionSpawned = false
+        // Initialize minion tracking if not already set
+        if (attr[MINIONS_ATTR] == null) {
+            attr[MINIONS_ATTR] = mutableListOf()
+        }
+
+        // Track minion spawns per type to avoid duplicates
+        val minions = attr[MINIONS_ATTR]!!
+        val activeMinions = minions.mapNotNull { it.get() }.filter { it.isActive() && it.isSpawned() }
+        
+        // Clean up dead/invalid minions from the list
+        minions.removeAll { it.get() == null || !it.get()!!.isActive() || !it.get()!!.isSpawned() }
+        
+        // Clean up minions that are too far from boss
+        activeMinions.forEach { minion ->
+            val distance = tile.getDistance(minion.tile)
+            if (distance > MINION_CLEANUP_DISTANCE) {
+                world.remove(minion)
+                minions.removeAll { it.get() == minion }
+            }
+        }
+        
+        val meleeMinionSpawned = activeMinions.any { it.id == getRSCM("npc.gnome_driver") }
+        val rangedMinionSpawned = activeMinions.any { it.id == getRSCM("npc.gnome_archer") }
+        val mageMinionSpawned = activeMinions.any { it.id == getRSCM("npc.gnome_mage") }
 
         while (canEngageCombat(target)) {
             facePawn(target)
 
-            // Check HP thresholds and spawn minions
-            val hpPercent = (getCurrentHp().toDouble() / getMaxHp().toDouble()) * 100
+            // Check HP thresholds and spawn minions (only if we haven't reached max)
+            val currentActiveMinions = attr[MINIONS_ATTR]!!.mapNotNull { it.get() }.filter { it.isActive() && it.isSpawned() }
+            
+            if (currentActiveMinions.size < MAX_MINIONS) {
+                val hpPercent = (getCurrentHp().toDouble() / getMaxHp().toDouble()) * 100
 
-            // Spawn melee minion at 70% HP
-            if (!meleeMinionSpawned && hpPercent <= 70) {
-                spawnMinion("melee")
-                meleeMinionSpawned = true
-                if (target is Player) {
-                    target.message("The abomination summons a corrupted melee fighter!")
+                // Spawn melee minion at 40% HP (delayed significantly)
+                if (!meleeMinionSpawned && hpPercent <= 40 && currentActiveMinions.size < MAX_MINIONS) {
+                    spawnMinion("melee")
+                    if (target is Player) {
+                        target.message("The abomination summons a corrupted melee fighter!")
+                    }
                 }
-            }
 
-            // Spawn ranged minion at 35% HP
-            if (!rangedMinionSpawned && hpPercent <= 35) {
-                spawnMinion("ranged")
-                rangedMinionSpawned = true
-                if (target is Player) {
-                    target.message("The abomination summons a corrupted archer!")
+                // Spawn ranged minion at 20% HP (delayed significantly)
+                if (!rangedMinionSpawned && hpPercent <= 20 && currentActiveMinions.size < MAX_MINIONS) {
+                    spawnMinion("ranged")
+                    if (target is Player) {
+                        target.message("The abomination summons a corrupted archer!")
+                    }
                 }
-            }
 
-            // Spawn mage minion at 10% HP
-            if (!mageMinionSpawned && hpPercent <= 10) {
-                spawnMinion("mage")
-                mageMinionSpawned = true
-                if (target is Player) {
-                    target.message("The abomination summons a corrupted sorcerer!")
+                // Spawn mage minion at 5% HP (delayed significantly)
+                if (!mageMinionSpawned && hpPercent <= 5 && currentActiveMinions.size < MAX_MINIONS) {
+                    spawnMinion("mage")
+                    if (target is Player) {
+                        target.message("The abomination summons a corrupted sorcerer!")
+                    }
                 }
             }
 
@@ -216,7 +273,7 @@ class SewerAbominationCombatPlugin(
 
         if (MeleeCombatFormula.getAccuracy(this, target) >= this.world.randomDouble()) {
             val maxHit = MeleeCombatFormula.getMaxHit(this, target)
-            val damage = this.world.random(maxHit + 30)  // Increased bonus from +15 to +30
+            val damage = this.world.random(maxHit + 10)  // Reduced bonus damage for easier fight
             target.hit(damage, type = HitType.HIT, delay = 1)
             target.graphic(id = 254, height = 100, delay = 0) // Impact graphic
 
@@ -253,12 +310,12 @@ class SewerAbominationCombatPlugin(
             wait(hitDelay - 1)
 
             if (MagicCombatFormula.getAccuracy(this@toxicSpitAttack, target) >= this@toxicSpitAttack.world.randomDouble()) {
-                target.hit(this@toxicSpitAttack.world.random(50), type = HitType.HIT)  // Increased from 30 to 50
+                target.hit(this@toxicSpitAttack.world.random(30), type = HitType.HIT)  // Much lower damage for easier fight
                 target.graphic(id = 289, height = 0) // Poison splash
 
-                // 50% chance to poison
-                if (this@toxicSpitAttack.world.chance(1, 2)) {
-                    target.poison(initialDamage = 6) {
+                // 25% chance to poison (reduced for easier fight)
+                if (this@toxicSpitAttack.world.chance(1, 4)) {
+                    target.poison(initialDamage = 3) {  // Much lower poison damage
                         if (target is Player) {
                             target.message("You have been poisoned by toxic spit!")
                         }
@@ -295,11 +352,11 @@ class SewerAbominationCombatPlugin(
             wait(hitDelay - 1)
 
             if (MagicCombatFormula.getAccuracy(this@sewerGasAttack, target) >= this@sewerGasAttack.world.randomDouble()) {
-                target.hit(this@sewerGasAttack.world.random(40), type = HitType.HIT)  // Increased from 25 to 40
+                target.hit(this@sewerGasAttack.world.random(25), type = HitType.HIT)  // Much lower damage for easier fight
 
-                // 75% chance to poison
-                if (this@sewerGasAttack.world.chance(3, 4)) {
-                    target.poison(initialDamage = 4) {
+                // 30% chance to poison (reduced for easier fight)
+                if (this@sewerGasAttack.world.chance(3, 10)) {
+                    target.poison(initialDamage = 2) {  // Much lower poison damage
                         if (target is Player) {
                             target.message("The sewer gas poisons you!")
                         }
@@ -320,12 +377,12 @@ class SewerAbominationCombatPlugin(
 
         if (MeleeCombatFormula.getAccuracy(this, target) >= this.world.randomDouble()) {
             val maxHit = MeleeCombatFormula.getMaxHit(this, target)
-            // Increased damage bonus from +10 to +25
-            val damage = maxOf(1, maxHit + 25)
+            // Much lower damage bonus for easier fight
+            val damage = maxOf(1, maxHit + 5)
             target.hit(this.world.random(damage), type = HitType.HIT, delay = 1)
 
-            // Always poison on successful hit
-            target.poison(initialDamage = 7) {
+            // Always poison on successful hit but with low damage
+            target.poison(initialDamage = 2) {  // Much lower poison damage
                 if (target is Player) {
                     target.message("The abomination's bite poisons you!")
                 }
@@ -361,8 +418,8 @@ class SewerAbominationCombatPlugin(
             wait(hitDelay - 1)
 
             if (MagicCombatFormula.getAccuracy(this@acidWaveAttack, target) >= this@acidWaveAttack.world.randomDouble()) {
-                // First hit - increased from 20 to 35
-                val hit1 = this@acidWaveAttack.world.random(35)
+                // First hit - much lower damage for easier fight
+                val hit1 = this@acidWaveAttack.world.random(20)
                 target.hit(hit1, type = HitType.HIT)
                 target.graphic(id = 167, height = 0) // Acid splash
 
@@ -372,17 +429,17 @@ class SewerAbominationCombatPlugin(
 
                 wait(2)
 
-                // Second hit (50% chance) - increased from 18 to 30
-                if (this@acidWaveAttack.world.chance(1, 2)) {
-                    val hit2 = this@acidWaveAttack.world.random(30)
+                // Second hit (20% chance, much lower) - reduced damage
+                if (this@acidWaveAttack.world.chance(1, 5)) {
+                    val hit2 = this@acidWaveAttack.world.random(15)
                     target.hit(hit2, type = HitType.HIT)
                     target.graphic(id = 167, height = 0)
 
                     wait(2)
 
-                    // Third hit (25% chance) - increased from 15 to 25
-                    if (this@acidWaveAttack.world.chance(1, 4)) {
-                        val hit3 = this@acidWaveAttack.world.random(25)
+                    // Third hit (10% chance, much lower) - reduced damage
+                    if (this@acidWaveAttack.world.chance(1, 10)) {
+                        val hit3 = this@acidWaveAttack.world.random(10)
                         target.hit(hit3, type = HitType.HIT)
                         target.graphic(id = 167, height = 0)
                     }
@@ -417,25 +474,25 @@ class SewerAbominationCombatPlugin(
             wait(hitDelay - 1)
 
             if (MagicCombatFormula.getAccuracy(this@plagueBreathAttack, target) >= this@plagueBreathAttack.world.randomDouble()) {
-                // Deal moderate damage - increased from 28 to 45
-                val damage = this@plagueBreathAttack.world.random(45)
+                // Deal low damage for easier fight
+                val damage = this@plagueBreathAttack.world.random(20)
                 target.hit(damage, type = HitType.HIT)
                 target.graphic(id = 145, height = 100) // Dark cloud splash
 
-                // Drain stats for players
+                // Minimal stat drain for easier fight
                 if (target is Player) {
-                    target.message("The plague breath weakens you!")
+                    target.message("The plague breath weakens you slightly!")
 
-                    // Drain attack by 1-3 levels
-                    val attackDrain = this@plagueBreathAttack.world.random(3) + 1
+                    // Drain attack by 1-2 levels (much reduced)
+                    val attackDrain = this@plagueBreathAttack.world.random(2) + 1
                     target.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = 0 - attackDrain, capValue = 0)
 
-                    // Drain strength by 1-3 levels
-                    val strengthDrain = this@plagueBreathAttack.world.random(3) + 1
+                    // Drain strength by 1-2 levels (much reduced)
+                    val strengthDrain = this@plagueBreathAttack.world.random(2) + 1
                     target.getSkills().alterCurrentLevel(skill = Skills.STRENGTH, value = 0 - strengthDrain, capValue = 0)
 
-                    // Drain defence by 1-3 levels
-                    val defenceDrain = this@plagueBreathAttack.world.random(3) + 1
+                    // Drain defence by 1-2 levels (much reduced)
+                    val defenceDrain = this@plagueBreathAttack.world.random(2) + 1
                     target.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = 0 - defenceDrain, capValue = 0)
                 }
             } else {
@@ -479,8 +536,8 @@ class SewerAbominationCombatPlugin(
         
         if (MeleeCombatFormula.getAccuracy(npc, target) >= npc.world.randomDouble()) {
             val maxHit = MeleeCombatFormula.getMaxHit(npc, target)
-            // Minions hit hard - add significant bonus damage
-            val damage = npc.world.random(maxHit + 20)
+            // Minions hit much softer for easier fight
+            val damage = npc.world.random(maxHit + 10)
             target.hit(damage, type = HitType.HIT, delay = 1)
         } else {
             target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
@@ -512,15 +569,15 @@ class SewerAbominationCombatPlugin(
             
             // Use ranged accuracy formula for ranged attacks
             val accuracy = if (npc.combatDef.ranged > 0) {
-                // Use a high accuracy for minions
-                npc.world.randomDouble() < 0.85 // 85% accuracy
+                // Lower accuracy for easier fight
+                npc.world.randomDouble() < 0.60 // 60% accuracy
             } else {
                 MeleeCombatFormula.getAccuracy(npc, target) >= npc.world.randomDouble()
             }
             
             if (accuracy) {
-                // Ranged minions hit hard
-                val damage = npc.world.random(35)
+                // Ranged minions hit much softer for easier fight
+                val damage = npc.world.random(20)
                 target.hit(damage, type = HitType.HIT)
                 target.graphic(id = 250, height = 0)
             } else {
@@ -553,8 +610,8 @@ class SewerAbominationCombatPlugin(
             wait(hitDelay - 1)
             
             if (MagicCombatFormula.getAccuracy(npc, target) >= npc.world.randomDouble()) {
-                // Magic minions hit hard
-                val damage = npc.world.random(40)
+                // Magic minions hit much softer for easier fight
+                val damage = npc.world.random(25)
                 target.hit(damage, type = HitType.HIT)
                 target.graphic(id = 163, height = 0)
             } else {
@@ -568,14 +625,32 @@ class SewerAbominationCombatPlugin(
     /**
      * Spawns a minion near the boss based on type
      * Minions are temporary and will not respawn after death
-     * Only one minion of each type can exist at a time
+     * Maximum of 3 total minions can exist at once
      */
     private fun Npc.spawnMinion(type: String) {
+        // Prevent concurrent spawns
+        if (attr.getOrDefault(SPAWNING_MINION_ATTR, false)) {
+            return
+        }
+        
         // Visual effect at boss location
         this.graphic(id = 86, height = 100) // Purple spawn effect on boss
 
         val target = getCombatTarget() ?: return
         if (target !is Player) return
+
+        // Get current minion list and clean up dead minions first
+        val minions = attr[MINIONS_ATTR] ?: mutableListOf()
+        // Remove dead or inactive minions from the list
+        minions.removeAll { it.get() == null || !it.get()!!.isActive() || !it.get()!!.isSpawned() }
+        attr[MINIONS_ATTR] = minions
+        
+        val activeMinions = minions.mapNotNull { it.get() }.filter { it.isActive() && it.isSpawned() }
+        
+        // Check if we've reached the max minion limit
+        if (activeMinions.size >= MAX_MINIONS) {
+            return
+        }
 
         // Determine which NPC to spawn based on type
         val npcName = when (type) {
@@ -587,46 +662,90 @@ class SewerAbominationCombatPlugin(
         
         val minionId = getRSCM(npcName)
         
-        // Check if a minion of this type already exists (doesn't respawn = our minion)
-        val existingMinion = world.npcs.firstOrNull { checkNpc ->
-            checkNpc.id == minionId && !checkNpc.respawns && checkNpc.isActive()
-        }
+        // Check if a minion of this type already exists
+        val existingMinion = activeMinions.firstOrNull { it.id == minionId }
         
         // If a minion of this type already exists, don't spawn another one
         if (existingMinion != null) {
             return
         }
-
-        // Find a spawn location near the boss (1-2 tiles away)
-        val bossTile = this.tile
-        val spawnOffsetX = world.random(-2..2) // -2 to 2
-        val spawnOffsetZ = world.random(-2..2) // -2 to 2
-        val spawnTile = bossTile.transform(spawnOffsetX, spawnOffsetZ)
-
-        // Create and spawn the minion
-        val minion = Npc(getRSCM(npcName), spawnTile, world)
-        minion.respawns = false // Minions don't respawn - they're temporary
-        minion.walkRadius = 5 // Allow minions to move to attack players
-        minion.setActive(true)
         
-        // Set combat class based on minion type
-        when (type) {
-            "melee" -> minion.combatClass = CombatClass.MELEE
-            "ranged" -> minion.combatClass = CombatClass.RANGED
-            "mage" -> minion.combatClass = CombatClass.MAGIC
+        // Re-check active minions count after cleanup (in case some were removed)
+        val currentActiveMinions = minions.mapNotNull { it.get() }.filter { it.isActive() && it.isSpawned() }
+        if (currentActiveMinions.size >= MAX_MINIONS) {
+            return
         }
 
-        // Spawn the minion in the world
-        world.spawn(minion)
+        // Set flag to prevent concurrent spawns
+        attr[SPAWNING_MINION_ATTR] = true
 
-        // Use a queue task to ensure minion is fully initialized before attacking
-        minion.queue {
-            wait(1) // Wait one tick for NPC to be fully initialized
-            // Make the minion attack the player immediately
-            minion.attack(target)
+        try {
+            // Find a spawn location near the boss (1-2 tiles away)
+            val bossTile = this.tile
+            val spawnOffsetX = world.random(-2..2) // -2 to 2
+            val spawnOffsetZ = world.random(-2..2) // -2 to 2
+            val spawnTile = bossTile.transform(spawnOffsetX, spawnOffsetZ)
+
+            // Create and spawn the minion
+            val minion = Npc(getRSCM(npcName), spawnTile, world)
+            minion.respawns = false // Minions don't respawn - they're temporary
+            minion.walkRadius = 5 // Allow minions to move to attack players
+            minion.setActive(true)
+            
+            // Set combat class based on minion type
+            when (type) {
+                "melee" -> minion.combatClass = CombatClass.MELEE
+                "ranged" -> minion.combatClass = CombatClass.RANGED
+                "mage" -> minion.combatClass = CombatClass.MAGIC
+            }
+
+            // Spawn the minion in the world
+            world.spawn(minion)
+            
+            // Add minion to boss's minion list
+            minions.add(WeakReference(minion))
+            attr[MINIONS_ATTR] = minions
+
+            // Use a queue task to ensure minion is fully initialized before attacking
+            minion.queue {
+                wait(1) // Wait one tick for NPC to be fully initialized
+                // Make the minion attack the player immediately
+                minion.attack(target)
+            }
+            
+            // Set timeout to remove minion after 5 minutes
+            world.queue {
+                wait(MINION_TIMEOUT_TICKS)
+                if (minion.isSpawned() && minion.isActive()) {
+                    world.remove(minion)
+                    val updatedMinions = attr[MINIONS_ATTR] ?: mutableListOf()
+                    updatedMinions.removeAll { it.get() == null || it.get() == minion }
+                    attr[MINIONS_ATTR] = updatedMinions
+                }
+            }
+
+            // Show effect to player
+            target.graphic(id = 86, height = 0)
+        } catch (e: Exception) {
+            // If spawn fails, log the error but don't crash
+            println("Error spawning minion: ${e.message}")
+            e.printStackTrace()
+        } finally {
+            // Always clear the spawning flag
+            attr[SPAWNING_MINION_ATTR] = false
         }
-
-        // Show effect to player
-        target.graphic(id = 86, height = 0)
+    }
+    
+    /**
+     * Cleans up all minions spawned by the boss when the boss dies
+     */
+    private fun cleanupMinions(boss: Npc) {
+        val minions = boss.attr[MINIONS_ATTR] ?: return
+        minions.mapNotNull { it.get() }.forEach { minion ->
+            if (minion.isSpawned() && minion.isActive()) {
+                world.remove(minion)
+            }
+        }
+        boss.attr.remove(MINIONS_ATTR)
     }
 }

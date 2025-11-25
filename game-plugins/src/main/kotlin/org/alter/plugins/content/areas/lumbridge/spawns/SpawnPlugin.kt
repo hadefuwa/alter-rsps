@@ -82,6 +82,20 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.cow", x = 3207, z = 3297, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.cow", x = 3208, z = 3298, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.cow", x = 3209, z = 3299, walkRadius = 5, direction = Direction.EAST)
+        
+        // Chickens in main Lumbridge area - near castle and town center
+        spawnNpc(npc = "npc.chicken_1173", x = 3230, z = 3220, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chicken_1173", x = 3232, z = 3222, walkRadius = 5, direction = Direction.EAST)
+        spawnNpc(npc = "npc.chicken_1174", x = 3234, z = 3220, walkRadius = 5, direction = Direction.WEST)
+        spawnNpc(npc = "npc.chicken_1173", x = 3236, z = 3218, walkRadius = 5, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.chicken_1174", x = 3238, z = 3220, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chicken_1173", x = 3220, z = 3225, walkRadius = 5, direction = Direction.EAST)
+        spawnNpc(npc = "npc.chicken_1174", x = 3222, z = 3227, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chicken_1173", x = 3224, z = 3225, walkRadius = 5, direction = Direction.WEST)
+        spawnNpc(npc = "npc.chicken_1173", x = 3218, z = 3218, walkRadius = 5, direction = Direction.NORTH)
+        spawnNpc(npc = "npc.chicken_1174", x = 3220, z = 3216, walkRadius = 5, direction = Direction.WEST)
+        
+        // Chickens in original location (keeping existing spawns)
         spawnNpc(npc = "npc.chicken_1173", x = 3117, z = 3276, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.chicken_1173", x = 3118, z = 3277, walkRadius = 5, direction = Direction.EAST)
         spawnNpc(npc = "npc.chicken_1173", x = 3119, z = 3278, walkRadius = 5, direction = Direction.EAST)

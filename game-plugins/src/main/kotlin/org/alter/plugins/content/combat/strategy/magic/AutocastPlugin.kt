@@ -16,9 +16,14 @@ class AutocastPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
+        // Handle Cancel button on autocast interface (201)
+        // Component 0 is typically the Cancel button
+        onButton(interfaceId = 201, component = 0) {
+            player.closeInterface(interfaceId = 201)
+        }
+        
         // Handle autocast spell selection on interface 201
-        // Handle autocast spell selection on interface 201
-        for (componentId in 0..200) {
+        for (componentId in 1..200) {
             onButton(interfaceId = 201, component = componentId) {
                 // Find spell with this autoCastId
                 // We assume the component ID corresponds to the autoCastId
@@ -28,8 +33,14 @@ class AutocastPlugin(
                     player.attr[Combat.CASTING_SPELL] = spell
                     player.setVarbit(Combat.SELECTED_AUTOCAST_VARBIT, spell.autoCastId)
 
-                    // Return to the attack tab
-                    player.openInterface(interfaceId = 593, dest = InterfaceDestination.ATTACK)
+                    // Refresh weapon component information to update attack tab with autocast selection
+                    player.sendWeaponComponentInformation()
+
+                    // Close the autocast interface - the attack tab (593) is already open
+                    player.closeInterface(interfaceId = 201)
+                } else {
+                    // Debug: log if spell not found
+                    player.message("Spell not found for component $componentId")
                 }
             }
         }

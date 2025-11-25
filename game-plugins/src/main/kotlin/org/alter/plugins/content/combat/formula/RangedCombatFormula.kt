@@ -11,6 +11,8 @@ import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.plugins.content.skills.slayer.Slayer
+import dev.openrune.cache.CacheManager.getNpc
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -45,6 +47,33 @@ object RangedCombatFormula : CombatFormula {
             "item.black_mask_9_i",
             "item.black_mask_10_i",
         )
+
+    private val SLAYER_HELMETS = arrayOf(
+        "item.slayer_helmet",
+        "item.slayer_helmet_i", 
+        "item.black_slayer_helmet",
+        "item.black_slayer_helmet_i",
+        "item.green_slayer_helmet",
+        "item.green_slayer_helmet_i",
+        "item.red_slayer_helmet",
+        "item.red_slayer_helmet_i",
+        "item.purple_slayer_helmet",
+        "item.purple_slayer_helmet_i",
+        "item.turquoise_slayer_helmet",
+        "item.turquoise_slayer_helmet_i",
+        "item.hydra_slayer_helmet",
+        "item.hydra_slayer_helmet_i",
+        "item.twisted_slayer_helmet",
+        "item.twisted_slayer_helmet_i",
+        "item.purple_slayer_helmet_i_25185",
+        "item.turquoise_slayer_helmet_i_25187",
+        "item.hydra_slayer_helmet_i_25189",
+        "item.twisted_slayer_helmet_i_25191",
+        "item.purple_slayer_helmet_i_26678",
+        "item.turquoise_slayer_helmet_i_26679",
+        "item.hydra_slayer_helmet_i_26680",
+        "item.twisted_slayer_helmet_i_26681"
+    )
 
     private val RANGED_VOID = arrayOf("item.void_ranger_helm", "item.void_knight_top", "item.void_knight_robe", "item.void_knight_gloves")
 
@@ -139,9 +168,23 @@ object RangedCombatFormula : CombatFormula {
             } else {
                 0.0
             }
-        val b = getEquipmentAttackBonus(pawn)
+        var b = getEquipmentAttackBonus(pawn)
+
+        // Ensure throwing weapons have a minimum attack bonus for reasonable accuracy
+        // This prevents extremely low accuracy when using throwing weapons with no other equipment
+        // Negative attack bonuses can occur from certain equipment, so we ensure at least 0 bonus
+        if (pawn is Player && pawn.hasWeaponType(WeaponType.THROWN) && b < 0) {
+            b = 0.0
+        }
 
         var maxRoll = a * (b + 64.0)
+        
+        // Ensure minimum attack roll for throwing weapons to prevent extremely low accuracy
+        // This ensures reasonable base accuracy even with minimal equipment and low levels
+        if (pawn is Player && pawn.hasWeaponType(WeaponType.THROWN) && a > 0) {
+            val minAttackRoll = a * 64.0 // Minimum roll with 0 attack bonus
+            maxRoll = Math.max(maxRoll, minAttackRoll)
+        }
         if (pawn is Player) {
             maxRoll = applyAttackSpecials(pawn, target, maxRoll, specialAttackMultiplier)
         }
@@ -189,7 +232,7 @@ object RangedCombatFormula : CombatFormula {
     ): Int {
         var hit = base.toDouble()
 
-        hit *= getEquipmentMultiplier(player)
+        hit *= getEquipmentMultiplier(player, target)
         hit = Math.floor(hit)
 
         if (specialAttackMultiplier == 1.0) {
@@ -263,7 +306,7 @@ object RangedCombatFormula : CombatFormula {
     ): Double {
         var hit = base
 
-        hit *= getEquipmentMultiplier(player)
+        hit *= getEquipmentMultiplier(player, target)
         hit = Math.floor(hit)
 
         if (specialAttackMultiplier == 1.0) {
@@ -440,7 +483,7 @@ object RangedCombatFormula : CombatFormula {
             else -> 1.0
         }
 
-    private fun getEquipmentMultiplier(player: Player): Double =
+    private fun getEquipmentMultiplier(player: Player, target: Pawn? = null): Double =
         when {
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") -> 7.0 / 6.0
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2
@@ -450,11 +493,48 @@ object RangedCombatFormula : CombatFormula {
             // TODO: this should only apply when target is slayer task?
             player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) -> 7.0 / 6.0
             player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) -> 1.15
+            player.hasEquipped(EquipmentType.HEAD, *SLAYER_HELMETS) && target is Npc && isOnSlayerTaskFor(player, target) -> 1.5 // 50% damage bonus
             else -> 1.0
         }
 
     private fun isRevenantCaves(tile: org.alter.game.model.Tile): Boolean {
         return tile.z >= 10000 && tile.z <= 10300 && tile.x >= 3100 && tile.x <= 3300
+    }
+    
+    /**
+     * Checks if a player has a slayer task for the given NPC
+     * @param player The player to check
+     * @param npc The NPC that is being fought
+     * @return true if the player has a slayer task for this NPC type, false otherwise
+     */
+    private fun isOnSlayerTaskFor(player: Player, npc: Npc): Boolean {
+        val taskNpcId = player.attr[Slayer.SLAYER_TASK_ATTR] ?: return false
+        
+        // Get the task NPC definition to compare names
+        val taskNpcDef = try {
+            getNpc(taskNpcId)
+        } catch (e: Exception) {
+            // If we can't get the task NPC definition, just compare IDs
+            null
+        }
+        
+        // Check if the target NPC matches the assigned NPC ID
+        // Also check by name to handle NPC variants (e.g., crawling_hand_448 vs crawling_hand_453)
+        val idMatches = npc.id == taskNpcId
+        val nameMatches = taskNpcDef != null && npc.name.lowercase() == taskNpcDef.name.lowercase()
+        
+        // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+        val tzhaarMatches = if (taskNpcDef != null) {
+            val taskNameLower = taskNpcDef.name.lowercase()
+            val targetNameLower = npc.name.lowercase()
+            // Check if both are TzHaar NPCs (name contains "tzhaar")
+            (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+            (targetNameLower.contains("tzhaar") || targetNameLower.contains("tz-haar"))
+        } else {
+            false
+        }
+        
+        return idMatches || nameMatches || tzhaarMatches
     }
 
     private fun applyPassiveMultiplier(

@@ -123,6 +123,12 @@ class TradingPlugin(
 
                 // The item being traded
                 val item = inventory[slot] ?: return@onButton
+                
+                // Safety check: skip corrupted items (negative amounts except -2)
+                if (item.amount < 0 && item.amount != -2) {
+                    player.message("Unable to trade corrupted item.")
+                    return@onButton
+                }
 
                 // Queue the action, as we might need to access queued dialogue
                 player.queue(TaskPriority.WEAK) {
@@ -136,9 +142,47 @@ class TradingPlugin(
                             5 -> inputInt(player, "Enter amount:")
                             else -> 1
                         }
+                    
+                    // Safety check: ensure amount is valid
+                    if (amount <= 0) {
+                        return@queue
+                    }
 
-                    // Offer the amount to the trade
-                    trade.offer(slot, amount)
+                    // Try to offer using the slot directly first (should match since inventory is copied at trade start)
+                    // If that fails, find the item by ID starting from the slot
+                    val tradeItem = trade.inventory[slot]
+                    if (tradeItem != null && tradeItem.id == item.id && tradeItem.amount > 0) {
+                        // Slot matches, use it directly
+                        trade.offer(slot, amount)
+                    } else {
+                        // Slot doesn't match (inventory changed or corrupted), find by ID starting from slot
+                        var tradeSlot = -1
+                        for (i in slot until trade.inventory.capacity) {
+                            val it = trade.inventory[i]
+                            if (it != null && it.id == item.id && it.amount > 0) {
+                                tradeSlot = i
+                                break
+                            }
+                        }
+                        
+                        if (tradeSlot == -1) {
+                            // Try searching from the beginning if not found from slot
+                            for (i in 0 until trade.inventory.capacity) {
+                                val it = trade.inventory[i]
+                                if (it != null && it.id == item.id && it.amount > 0) {
+                                    tradeSlot = i
+                                    break
+                                }
+                            }
+                            if (tradeSlot != -1) {
+                                trade.offer(tradeSlot, amount)
+                            } else {
+                                player.message("Item not found in trade inventory.")
+                            }
+                        } else {
+                            trade.offer(tradeSlot, amount)
+                        }
+                    }
                 }
             }
         }

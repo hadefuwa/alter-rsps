@@ -90,6 +90,11 @@ class OSRSPlugin(
                 setVarbit(Varbit.COMBAT_LEVEL_VARBIT, combatLevel)
                 setVarbit(Varbit.CHATBOX_UNLOCKED, 1)
                 setVarbit(Varbit.HIDE_ROOFS, 1) // Disable all roofs in the game
+                // Initialize spellbook to NORMAL if not already set
+                val currentSpellbook = getVarbit(Varbit.PLAYER_SPELL_BOOK)
+                if (currentSpellbook < 0 || currentSpellbook > 3) {
+                    setSpellbook(Spellbook.NORMAL)
+                }
                 runClientScript(CommonClientScripts.INTRO_MUSIC_RESTORE)
                 if (getVarp(Varp.PLAYER_HAS_DISPLAY_NAME) == 0 && username.isNotBlank()) {
                     syncVarp(Varp.PLAYER_HAS_DISPLAY_NAME)

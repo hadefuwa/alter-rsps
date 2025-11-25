@@ -146,19 +146,29 @@ object Combat {
                 }
             } else if (target is Player) {
                 // Check if auto retaliate is enabled (varp == 0 means enabled, varp == 1 means disabled)
-                if (target.getVarp(AttackTab.DISABLE_AUTO_RETALIATE_VARP) == 0 && target.getCombatTarget() != pawn) {
-                    // Check if player has a focus timer active - if so, don't switch targets
-                    // This prevents players from being pulled around by multiple NPCs
+                if (target.getVarp(AttackTab.DISABLE_AUTO_RETALIATE_VARP) == 0) {
+                    val currentTarget = target.getCombatTarget()
+                    
+                    // Allow auto-retaliate if:
+                    // 1. Player has no target, OR
+                    // 2. Player has a different target (will switch), OR
+                    // 3. Player is already targeting this NPC (will continue/resume attacking)
+                    // The focus timer prevents excessive target switching when hit by multiple NPCs
                     val hasFocusTimer = target.timers.has(AUTO_RETALIATE_FOCUS_TIMER)
                     
-                    // Only switch targets if focus timer has expired or doesn't exist
-                    if (!hasFocusTimer) {
+                    // Only auto-retaliate if:
+                    // - No focus timer (allows switching targets), OR
+                    // - Already targeting this NPC (allows resuming combat even with focus timer)
+                    if (!hasFocusTimer || currentTarget == pawn) {
                         // Initiate attack - the combat system will handle movement to attack range if needed
                         target.attack(pawn)
 
                         // Set focus timer to prevent switching targets for 50 cycles (~30 seconds)
                         // This allows the player to focus on one NPC before switching to another
-                        target.timers[AUTO_RETALIATE_FOCUS_TIMER] = 50
+                        // Only set timer if switching to a new target (not if already targeting this one)
+                        if (currentTarget != pawn) {
+                            target.timers[AUTO_RETALIATE_FOCUS_TIMER] = 50
+                        }
                     }
                 }
             }

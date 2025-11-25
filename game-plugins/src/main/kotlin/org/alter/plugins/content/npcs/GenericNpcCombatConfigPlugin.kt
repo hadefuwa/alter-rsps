@@ -503,7 +503,9 @@ class GenericNpcCombatConfigPlugin(
         // ======================
         // BLACK DEMON
         // ======================
-        setCombatDef("npc.black_demon") {
+        setCombatDef(
+            "npc.black_demon", "npc.black_demon_2048", "npc.black_demon_2049", "npc.black_demon_2050"
+        ) {
             configs {
                 attackSpeed = 4
                 respawnDelay = 50
@@ -613,6 +615,61 @@ class GenericNpcCombatConfigPlugin(
                     add("item.raw_tuna_noted", min = 30, max = 60, weight = 10)
                     add("item.purple_partyhat", min = 1, max = 1, weight = 10)
                     add("item.marrentill_potion_unf_noted", min = 25, max = 50, weight = 10)
+                }
+            }
+        }
+        
+        // ======================
+        // WILD DOG
+        // ======================
+        setCombatDef("npc.wild_dog") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 25
+            }
+            
+            stats {
+                hitpoints = 30
+                attack = 50
+                strength = 50
+                defence = 50
+                magic = 1
+                ranged = 1
+            }
+            
+            bonuses {
+                attackStab = 15
+                attackSlash = 15
+                attackCrush = 15
+                strengthBonus = 12
+                defenceStab = 15
+                defenceSlash = 15
+                defenceCrush = 15
+                defenceMagic = 10
+                defenceRanged = 15
+            }
+            
+            anims {
+                attack = 6560  // Wild dog attack animation (similar to wolf)
+                block = 6561   // Wild dog block animation
+                death = 6562   // Wild dog death animation
+            }
+            
+            aggro {
+                radius = 7
+                searchDelay = 3
+                alwaysAggro()
+            }
+            
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 2, max = 10, weight = 40)
+                    add("item.raw_beef", min = 1, weight = 25)
+                    add("item.cowhide", min = 1, weight = 20)
                 }
             }
         }

@@ -51,12 +51,17 @@ class TuraelPlugin(
     }
 
     suspend fun QueueTask.getAssignment(player: Player) {
-        // For now, give a simple task - you can expand this with a proper slayer system
-        chatNpc(player, "Your task is to kill 15 goblins. You can find them around Lumbridge.")
-        chatNpc(player, "Come back to me when you have completed this task!")
+        if (player.attr.has(org.alter.plugins.content.skills.slayer.Slayer.SLAYER_TASK_ATTR)) {
+             chatNpc(player, "You already have a task. You need to finish it first.")
+             return
+        }
+        // TURAEL has been removed - functionality disabled
+        // org.alter.plugins.content.skills.slayer.Slayer.assign(player, org.alter.plugins.content.skills.slayer.SlayerMaster.TURAEL)
+        chatNpc(player, "I'm sorry, but I'm no longer available as a slayer master. Please visit Krystillia in Varrock centre.")
         
-        // TODO: Implement proper slayer task system
-        // This would normally set the player's slayer task, amount, etc.
-        player.message("You have been assigned to kill 15 goblins.")
+        // Check if assigned
+        if (player.attr.has(org.alter.plugins.content.skills.slayer.Slayer.SLAYER_TASK_ATTR)) {
+             // Message is sent in assign
+        }
     }
 }

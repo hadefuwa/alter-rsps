@@ -21,8 +21,17 @@ import org.alter.plugins.service.marketvalue.ItemMarketValueService
 class TradeSession(private val player: Player, private val partner: Player) {
     /**
      * A copy of this player's inventory, so we don't interfere with the player's real inventory unless necessary
+     * Clean corrupted items (negative amounts except -2) when creating the copy
      */
-    val inventory = ItemContainer(player.inventory)
+    val inventory = ItemContainer(player.inventory).apply {
+        // Clean corrupted items from the trade inventory copy
+        rawItems.forEachIndexed { index, item ->
+            if (item != null && item.amount < 0 && item.amount != -2) {
+                // Remove corrupted items from trade inventory
+                this[index] = null
+            }
+        }
+    }
 
     /**
      * The trade container for this trade session, in the current player's context
@@ -188,11 +197,36 @@ class TradeSession(private val player: Player, private val partner: Player) {
         if (stage != TradeStage.TRADE_SCREEN) return
 
         val item = inventory[slot] ?: return
+        
+        // Safety check: skip corrupted items (negative amounts except -2)
+        if (item.amount < 0 && item.amount != -2) {
+            player.message("Unable to offer corrupted item.")
+            return
+        }
+        
+        // Safety check: ensure amount is valid
+        if (amount <= 0) {
+            return
+        }
+        
         val count = Math.min(amount, inventory.getItemCount(item.id))
+        
+        // Safety check: ensure we have enough items
+        if (count <= 0) {
+            player.message("You don't have enough of that item.")
+            return
+        }
 
         val transaction = inventory.remove(item.id, count, assureFullRemoval = true, beginSlot = slot)
         if (transaction.hasSucceeded()) {
-            container.add(item.id, count)
+            val addResult = container.add(item.id, count)
+            if (addResult.completed == 0) {
+                // Couldn't add to trade container, restore to inventory
+                inventory.add(item.id, count)
+                player.message("Not enough space in trade window.")
+            }
+        } else {
+            player.message("Unable to offer item.")
         }
 
         refresh()

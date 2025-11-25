@@ -194,25 +194,29 @@ class Gate11766Plugin(
             // Options might not exist
         }
         
-        // Also register numeric options as fallback (using RSCM names)
-        try {
-            onObjOption(obj = "object.gate_11766", option = 1, lineOfSightDistance = 1) {
-                openGate()
+        // Only register numeric options as fallback if no string options were successfully registered
+        if (registeredOpenOptions.isEmpty()) {
+            try {
+                onObjOption(obj = "object.gate_11766", option = 1, lineOfSightDistance = 1) {
+                    openGate()
+                }
+            } catch (e: IllegalStateException) {
+                // Option already bound by another plugin, skip
+            } catch (e: Exception) {
+                // Option might not exist
             }
-        } catch (e: IllegalStateException) {
-            // Option already bound by another plugin, skip
-        } catch (e: Exception) {
-            // Option might not exist
         }
         
-        try {
-            onObjOption(obj = "object.gate_11767", option = 1, lineOfSightDistance = 1) {
-                closeGate()
+        if (registeredCloseOptions.isEmpty()) {
+            try {
+                onObjOption(obj = "object.gate_11767", option = 1, lineOfSightDistance = 1) {
+                    closeGate()
+                }
+            } catch (e: IllegalStateException) {
+                // Option already bound by another plugin, skip
+            } catch (e: Exception) {
+                // Option might not exist
             }
-        } catch (e: IllegalStateException) {
-            // Option already bound by another plugin, skip
-        } catch (e: Exception) {
-            // Option might not exist
         }
     }
 }

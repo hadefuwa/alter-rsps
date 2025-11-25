@@ -39,7 +39,10 @@ class EtherealSlayerMastersPlugin(
     }
 
     suspend fun QueueTask.dialog(player: Player) {
+        val slayerPoints = org.alter.plugins.content.skills.slayer.Slayer.getSlayerPoints(player)
+        
         chatNpc(player, "Greetings, ${player.username}. I am an Ethereal Slayer master.")
+        chatNpc(player, "You currently have $slayerPoints Slayer Point${if (slayerPoints == 1) "" else "s"}.")
         chatNpc(player, "I can assign you slayer tasks. Would you like an assignment?")
 
         when (options(player, *dialogOptions.toTypedArray())) {

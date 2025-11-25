@@ -43,9 +43,9 @@ class NexusPortalPlugin(
          */
         private val TELEPORT_LOCATIONS = listOf(
             // Bosses
-            "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),
             "Cerberus" to Tile(x = 1240, z = 1253, height = 0),
-            
+            "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),
+            "Jormungands Prison" to Tile(x = 2437, z = 3936, height = 0),
             // Cities & Towns
             "God Wars Dungeon" to Tile(x = 2881, z = 5309, height = 2),
             "Revenants South" to Tile(x = 3197, z = 10056, height = 0),

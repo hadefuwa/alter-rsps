@@ -31,7 +31,7 @@ class CrazyArchaeologistConfigsPlugin(
 
         setCombatDef("npc.crazy_archaeologist") {
             configs {
-                attackSpeed = 6 // Reduced attack frequency (6 cycles = 3.6 seconds between attacks)
+                attackSpeed = 5 // Faster attack frequency (5 cycles = 3.0 seconds between attacks)
                 respawnDelay = 4 // 2 seconds respawn delay (4 cycles = 2.4 seconds, ensures at least 2 seconds)
             }
 
@@ -56,7 +56,7 @@ class CrazyArchaeologistConfigsPlugin(
                 defenceCrush = 40
                 defenceMagic = 100
                 defenceRanged = 40
-                attackMagic = 150  // Increased from 50 to 150 for significantly higher magic damage
+                attackMagic = 250  // Increased from 150 to 250 for significantly higher magic accuracy
             }
 
             anims {

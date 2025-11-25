@@ -123,6 +123,9 @@ class PrayersPlugin(
         onItemOption(item = "item.wolf_bones", option = 1) {
             buryBone(player, "item.wolf_bones", 4.5)
         }
+        onItemOption(item = "item.wolf_bones", option = 2) {
+            buryAllBones(player, "item.wolf_bones", 4.5)
+        }
         
         // Shaikahan bones: XP 25
         onItemOption(item = "item.shaikahan_bones", option = 1) {

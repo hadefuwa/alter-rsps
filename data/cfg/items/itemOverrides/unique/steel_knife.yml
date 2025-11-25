@@ -1,0 +1,10 @@
+---
+id: 865
+name: "steel knife"
+equipment:
+  equip_slot: "weapon"
+  weapon_type: 19
+  attack_speed: 4
+  attack_ranged: 5
+  ranged_strength: 5
+

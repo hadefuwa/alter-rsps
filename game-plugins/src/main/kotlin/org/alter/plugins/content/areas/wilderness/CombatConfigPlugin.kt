@@ -342,6 +342,52 @@ class CombatConfigPlugin(
         }
         
         /**
+         * White Wolves Combat Configuration
+         * 
+         * White wolves with unique drop table including noted bones.
+         * - Hitpoints: 20 (low HP but fast)
+         * - Aggressive Radius: 7 tiles
+         * - Uses wolf-specific animations (6559, 6558, 6557)
+         */
+        setCombatDef("npc.white_wolf") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 25
+            }
+            stats {
+                hitpoints = 20  // Low HP but fast attackers
+            }
+            anims {
+                attack = 6559  // Wolf-specific attack animation
+                block = 6558   // Wolf-specific block animation
+                death = 6557   // Wolf-specific death animation
+            }
+            aggro {
+                radius = 7
+                searchDelay = 3
+                alwaysAggro()
+            }
+            
+            // Add loot drops for White Wolves - noted bones
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    // Noted bones drops
+                    add("item.big_bones_noted", min = 1, max = 50, weight = 30)
+                    add("item.wolf_bones_noted", min = 1, max = 50, weight = 30)
+                    
+                    // Other drops
+                    add("item.coins_995", min = 10, max = 50000, weight = 20)
+                    add("item.raw_beef_noted", min = 1, max = 20, weight = 15)
+                    add("item.cowhide_noted", min = 1, max = 20, weight = 5)
+                }
+            }
+        }
+        
+        /**
          * Dark Warriors Combat Configuration
          * 
          * Elite warriors with high combat stats.
@@ -574,6 +620,140 @@ class CombatConfigPlugin(
         //         }
         //     }
         // }
+        
+        /**
+         * Dwarf Combat Configuration
+         * 
+         * Dwarfs that spawn in the wilderness with mining-related drops.
+         * - Hitpoints: 30 (moderate HP)
+         * - Aggressive Radius: 6 tiles
+         */
+        setCombatDef("npc.dwarf_290") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 25
+            }
+            stats {
+                hitpoints = 30
+            }
+            anims {
+                attack = 422
+                block = 424
+                death = 836
+            }
+            aggro {
+                radius = 6
+                searchDelay = 3
+                alwaysAggro()
+            }
+            
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    // Noted pickaxes - various tiers
+                    add("item.bronze_pickaxe_noted", min = 1, max = 5, weight = 25)
+                    add("item.iron_pickaxe_noted", min = 1, max = 5, weight = 20)
+                    add("item.steel_pickaxe_noted", min = 1, max = 5, weight = 15)
+                    add("item.mithril_pickaxe_noted", min = 1, max = 3, weight = 12)
+                    add("item.adamant_pickaxe_noted", min = 1, max = 2, weight = 8)
+                    add("item.rune_pickaxe_noted", min = 1, max = 2, weight = 5)
+                    
+                    // Noted ores - various types
+                    add("item.copper_ore_noted", min = 5, max = 20, weight = 20)
+                    add("item.tin_ore_noted", min = 5, max = 20, weight = 20)
+                    add("item.iron_ore_noted", min = 3, max = 15, weight = 18)
+                    add("item.silver_ore_noted", min = 2, max = 10, weight = 15)
+                    add("item.gold_ore_noted", min = 2, max = 10, weight = 12)
+                    add("item.mithril_ore_noted", min = 1, max = 5, weight = 10)
+                    add("item.adamantite_ore_noted", min = 1, max = 3, weight = 6)
+                    add("item.runite_ore_noted", min = 1, max = 2, weight = 3)
+                    
+                    // Other drops
+                    add("item.coins_995", min = 50, max = 500, weight = 25)
+                }
+            }
+        }
+        
+        /**
+         * Pirates - Wilderness
+         * 
+         * Aggressive pirates found in the wilderness. They drop smithing items,
+         * bars, and pickaxes (all noted).
+         * 
+         * Combat Level: Varies
+         * - Aggressive Radius: 6 tiles
+         */
+        setCombatDef("npc.pirate", "npc.pirate_522", "npc.pirate_523", "npc.pirate_524") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 30
+            }
+            stats {
+                hitpoints = 50
+                attack = 40
+                strength = 40
+                defence = 35
+            }
+            bonuses {
+                attackStab = 10
+                attackSlash = 12
+                attackCrush = 8
+                defenceStab = 15
+                defenceSlash = 15
+                defenceCrush = 15
+            }
+            anims {
+                attack = 422
+                block = 424
+                death = 836
+            }
+            aggro {
+                radius = 6
+                searchDelay = 2
+                alwaysAggro()
+            }
+            
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                // Comprehensive drop table with smithing items, bars, and pickaxes (all noted)
+                // Total item weights: ~280, using weight = 300 for ~93% drop chance
+                main(weight = 300) {
+                    // ========== NOTED BARS ==========
+                    add("item.bronze_bar_noted", min = 5, max = 50, weight = 30)
+                    add("item.iron_bar_noted", min = 5, max = 50, weight = 28)
+                    add("item.steel_bar_noted", min = 3, max = 30, weight = 25)
+                    add("item.mithril_bar_noted", min = 2, max = 20, weight = 20)
+                    add("item.adamantite_bar_noted", min = 1, max = 15, weight = 15)
+                    add("item.runite_bar_noted", min = 1, max = 10, weight = 10)
+                    
+                    // ========== NOTED PICKAXES ==========
+                    add("item.bronze_pickaxe_noted", min = 1, max = 10, weight = 25)
+                    add("item.iron_pickaxe_noted", min = 1, max = 10, weight = 22)
+                    add("item.steel_pickaxe_noted", min = 1, max = 8, weight = 18)
+                    add("item.mithril_pickaxe_noted", min = 1, max = 5, weight = 15)
+                    add("item.adamant_pickaxe_noted", min = 1, max = 3, weight = 12)
+                    add("item.rune_pickaxe_noted", min = 1, max = 2, weight = 8)
+                    
+                    // ========== NOTED SMITHING ITEMS (HAMMERS) ==========
+                    add("item.hammer_noted", min = 1, max = 10, weight = 20)
+                    add("item.bronze_warhammer_noted", min = 1, max = 5, weight = 15)
+                    add("item.iron_warhammer_noted", min = 1, max = 5, weight = 12)
+                    add("item.steel_warhammer_noted", min = 1, max = 3, weight = 10)
+                    add("item.mithril_warhammer_noted", min = 1, max = 3, weight = 8)
+                    add("item.adamant_warhammer_noted", min = 1, max = 2, weight = 6)
+                    add("item.rune_warhammer_noted", min = 1, max = 2, weight = 4)
+                    
+                    // ========== OTHER SMITHING ITEMS ==========
+                    add("item.coins_995", min = 100, max = 1000, weight = 30)
+                }
+            }
+        }
     }
 }
 

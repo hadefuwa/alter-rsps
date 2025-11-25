@@ -345,26 +345,70 @@ class SlayerTowerCombatConfigPlugin(
                     add("item.bones", 1)
                 }
                 
-                main(weight = 256) {
-                    add("item.slayer_ring_8", min = 1, max = 1, weight = 4)
-                    add("item.eternal_gem_noted", min = 1, max = 1, weight = 1)
-                    add("item.mist_battlestaff_noted", min = 1, max = 1, weight = 3)
-                    add("item.death_rune", min = 5, max = 15, weight = 25)
-                    add("item.blood_rune", min = 3, max = 10, weight = 20)
-                    add("item.chaos_rune", min = 5, max = 15, weight = 25)
-                    add("item.law_rune", min = 3, max = 10, weight = 18)
-                    add("item.nature_rune", min = 4, max = 12, weight = 20)
-                    add("item.fire_rune", min = 10, max = 30, weight = 15)
-                    add("item.mystic_hat_dark_noted", min = 1, weight = 4)
-                    add("item.mystic_robe_top_dark_noted", min = 1, weight = 3)
-                    add("item.mystic_robe_bottom_dark_noted", min = 1, weight = 3)
-                    add("item.mystic_hat_light_noted", min = 1, weight = 4)
-                    add("item.mystic_robe_top_light_noted", min = 1, weight = 3)
-                    add("item.mystic_robe_bottom_light_noted", min = 1, weight = 3)
-                    add("item.black_mystic_boots_noted", min = 1, weight = 2)
-                    add("item.red_mystic_boots_noted", min = 1, weight = 2)
-                    add("item.adamant_boots_noted", min = 1, weight = 3)  
+                // Comprehensive drop table with 1-5000 runes, noted staffs/battlestaffs, and runecrafting materials
+                // Total item weights: ~450, using weight = 500 for ~90% drop chance
+                main(weight = 500) {
+                    // ========== RUNES (1-5000) ==========
+                    add("item.air_rune", min = 1, max = 5000, weight = 30)
+                    add("item.water_rune", min = 1, max = 5000, weight = 30)
+                    add("item.earth_rune", min = 1, max = 5000, weight = 30)
+                    add("item.fire_rune", min = 1, max = 5000, weight = 30)
+                    add("item.mind_rune", min = 1, max = 5000, weight = 25)
+                    add("item.body_rune", min = 1, max = 5000, weight = 25)
+                    add("item.chaos_rune", min = 1, max = 5000, weight = 25)
+                    add("item.death_rune", min = 1, max = 5000, weight = 25)
+                    add("item.nature_rune", min = 1, max = 5000, weight = 25)
+                    add("item.law_rune", min = 1, max = 5000, weight = 20)
+                    add("item.cosmic_rune", min = 1, max = 5000, weight = 20)
+                    add("item.blood_rune", min = 1, max = 5000, weight = 18)
+                    add("item.soul_rune", min = 1, max = 5000, weight = 15)
                     
+                    // ========== NOTED STAFFS ==========
+                    add("item.staff_noted", min = 1, max = 10, weight = 15)
+                    add("item.staff_of_air_noted", min = 1, max = 10, weight = 12)
+                    add("item.staff_of_water_noted", min = 1, max = 10, weight = 12)
+                    add("item.staff_of_earth_noted", min = 1, max = 10, weight = 12)
+                    add("item.staff_of_fire_noted", min = 1, max = 10, weight = 12)
+                    add("item.magic_staff_noted", min = 1, max = 5, weight = 8)
+                    
+                    // ========== NOTED BATTLE STAFFS ==========
+                    add("item.battlestaff_noted", min = 1, max = 10, weight = 15)
+                    add("item.air_battlestaff_noted", min = 1, max = 10, weight = 12)
+                    add("item.water_battlestaff_noted", min = 1, max = 10, weight = 12)
+                    add("item.earth_battlestaff_noted", min = 1, max = 10, weight = 12)
+                    add("item.fire_battlestaff_noted", min = 1, max = 10, weight = 12)
+                    
+                    // ========== NOTED MYSTIC STAFFS ==========
+                    add("item.mystic_air_staff_noted", min = 1, max = 5, weight = 10)
+                    add("item.mystic_water_staff_noted", min = 1, max = 5, weight = 10)
+                    add("item.mystic_earth_staff_noted", min = 1, max = 5, weight = 10)
+                    add("item.mystic_fire_staff_noted", min = 1, max = 5, weight = 10)
+                    
+                    // ========== NOTED COMBINATION BATTLE STAFFS ==========
+                    add("item.mist_battlestaff_noted", min = 1, max = 5, weight = 8)
+                    add("item.dust_battlestaff_noted", min = 1, max = 5, weight = 8)
+                    add("item.lava_battlestaff_noted", min = 1, max = 5, weight = 8)
+                    add("item.steam_battlestaff_noted", min = 1, max = 5, weight = 8)
+                    
+                    // ========== RUNECRAFTING MATERIALS ==========
+                    add("item.rune_essence_noted", min = 100, max = 5000, weight = 25)
+                    add("item.pure_essence_noted", min = 100, max = 5000, weight = 25)
+                    
+                    // ========== OTHER MAGIC ITEMS ==========
+                    add("item.mystic_hat_dark_noted", min = 1, max = 3, weight = 5)
+                    add("item.mystic_robe_top_dark_noted", min = 1, max = 3, weight = 4)
+                    add("item.mystic_robe_bottom_dark_noted", min = 1, max = 3, weight = 4)
+                    add("item.mystic_hat_light_noted", min = 1, max = 3, weight = 5)
+                    add("item.mystic_robe_top_light_noted", min = 1, max = 3, weight = 4)
+                    add("item.mystic_robe_bottom_light_noted", min = 1, max = 3, weight = 4)
+                    add("item.black_mystic_boots_noted", min = 1, max = 3, weight = 3)
+                    add("item.red_mystic_boots_noted", min = 1, max = 3, weight = 3)
+                }
+                
+                // Tertiary drops for rare items
+                tertiary(weight = 512) {
+                    add("item.slayer_ring_8", min = 1, max = 1, weight = 1)
+                    add("item.eternal_gem_noted", min = 1, max = 1, weight = 1)
                 }
             }
         }

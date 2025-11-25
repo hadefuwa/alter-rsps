@@ -52,13 +52,18 @@ class SharedLootDropPlugin(
          */
         private val SHARED_LOOT_NPCS = setOf(
             "npc.crazy_archaeologist",
-            // Add more NPCs here as needed:
-            // "npc.callisto",
-            // "npc.venenatis",
-            // "npc.vetion",
-            // "npc.chaos_elemental",
-            // "npc.scorpia",
-            // "npc.chaos_fanatic",
+            // Boss Island bosses - all get shared loot distribution
+            "npc.venenatis",
+            "npc.callisto", 
+            "npc.vetion",
+            "npc.scorpia",
+            "npc.king_black_dragon",
+            "npc.kalphite_queen_963",
+            "npc.kalphite_queen_964", // Form 2 (if it transforms)
+            "npc.cerberus", // Sewer Abomination
+            "npc.crazy_archaeologist",
+            "npc.chaos_fanatic",
+            "npc.chaos_elemental"
         )
     }
     

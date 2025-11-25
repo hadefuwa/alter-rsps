@@ -46,27 +46,29 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.blue_dragonhide", 1)
+                    add("item.dragon_bones_noted", 3)
+                    add("item.blue_dragonhide_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 75, max = 200, weight = 25)
-                    add("item.nature_rune", min = 20, max = 40, weight = 20)
-                    add("item.law_rune", min = 5, max = 10, weight = 15)
-                    add("item.air_rune", min = 40, max = 80, weight = 18)
-                    add("item.fire_rune", min = 30, max = 60, weight = 16)
-                    add("item.adamant_arrow", min = 15, max = 30, weight = 12)
-                    add("item.rune_sword", min = 1, weight = 8)
-                    add("item.rune_dagger", min = 1, weight = 4)
+                    add("item.coins_995", min = 75000, max = 300000, weight = 25)
+                    add("item.rune_platebody_noted", min = 5, max = 50, weight = 20)
+                    add("item.rune_platelegs_noted", min = 5, max = 50, weight = 15)
+                    add("item.rune_full_helm_noted", min = 5, max = 50, weight = 18)
+                    add("item.rune_kiteshield_noted", min = 5, max = 50, weight = 16)
+                    add("item.rune_boots_noted", min = 15, max = 30, weight = 12)
+                    add("item.rune_shield_noted", min = 5, max = 50, weight = 16)
+                    add("item.rune_med_helm_noted", min = 5, max = 50, weight = 12) 
+
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
-                    add("item.shield_left_half", min = 1, weight = 256)
+                    add("item.dragon_med_helm_noted", min = 1, max = 50, weight = 128)
+                    add("item.shield_left_half", min = 1, max = 1, weight = 256)
                 }
             }
         }
 
         // Red Dragons (Combat Level 152) 
+        // Note: "npc.red_dragon" and "npc.red_dragon_247" both map to NPC ID 247, so we only include "npc.red_dragon"
         setCombatDef(
             "npc.red_dragon", "npc.red_dragon_248", "npc.red_dragon_249",
             "npc.red_dragon_250", "npc.red_dragon_251", "npc.red_dragon_8075",
@@ -78,6 +80,11 @@ class DragonConfigsPlugin(
             }
             stats {
                 hitpoints = 140
+                attack = 120
+                strength = 120
+                defence = 120
+                magic = 1
+                ranged = 1
             }
             anims {
                 attack = 91
@@ -94,21 +101,21 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.red_dragonhide", 1)
+                    add("item.dragon_bones_noted", 3)
+                    add("item.red_dragonhide_noted", 1)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 100, max = 300, weight = 25)
-                    add("item.nature_rune", min = 25, max = 50, weight = 20)
-                    add("item.law_rune", min = 8, max = 15, weight = 15)
-                    add("item.air_rune", min = 50, max = 100, weight = 18)
-                    add("item.fire_rune", min = 40, max = 80, weight = 16)
-                    add("item.rune_arrow", min = 10, max = 20, weight = 12)
-                    add("item.rune_sword", min = 1, weight = 8)
-                    add("item.rune_dagger", min = 1, weight = 6)
+                    add("item.coins_995", min = 100000, max = 300000, weight = 25)
+                    add("item.dragon_platelegs_noted", min = 5, max = 15, weight = 20)
+                    add("item.dragon_platebody_noted", min = 5, max = 15, weight = 15)
+                    add("item.dragon_full_helm_noted", min = 5, max = 15, weight = 18)
+                    add("item.dragon_kiteshield_noted", min = 5, max = 15, weight = 16)
+                    add("item.dragon_shield_noted", min = 5, max = 15, weight = 12)
+                    add("item.dragon_battleaxe_noted", min = 5, max = 15, weight = 8)
+                    add("item.dragon_dagger_noted", min = 5, max = 15, weight = 6)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
+                    add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half", min = 1, weight = 256)
                 }
             }
@@ -143,23 +150,23 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.black_dragonhide", 1)
+                    add("item.dragon_bones_noted", 3)
+                    add("item.black_dragonhide_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 150, max = 400, weight = 25)
-                    add("item.nature_rune", min = 30, max = 60, weight = 20)
-                    add("item.law_rune", min = 10, max = 20, weight = 15)
-                    add("item.air_rune", min = 60, max = 120, weight = 18)
-                    add("item.fire_rune", min = 50, max = 100, weight = 16)
+                    add("item.coins_995", min = 2500000, max = 4000000 , weight = 25)
+                    add("item.ani_dragon_shield", min = 1, max = 1, weight = 20)
+                    add("item.dragon_arrow_tips ", min = 10, max = 20, weight = 15)
+                    add("item.dragon_arrow", min = 60, max = 120, weight = 18)
+                    add("item.dragon_longsword", min = 50, max = 100, weight = 16)
                     add("item.rune_arrow", min = 15, max = 30, weight = 12)
                     add("item.dragon_sword", min = 1, weight = 6)
                     add("item.dragon_dagger", min = 1, weight = 4)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
+                    add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half", min = 1, weight = 256)
-                    add("item.visage", min = 1, weight = 5000) // Very rare
+                    add("item.draconic_visage", min = 1, weight = 5000) // Very rare
                 }
             }
         }
@@ -172,6 +179,11 @@ class DragonConfigsPlugin(
             }
             stats {
                 hitpoints = 105
+                attack = 100
+                strength = 100
+                defence = 100
+                magic = 1
+                ranged = 1
             }
             anims {
                 attack = 91
@@ -188,19 +200,19 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
+                    add("item.dragon_bones_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 100, max = 250, weight = 30)
-                    add("item.bronze_bar", min = 1, max = 3, weight = 20)
-                    add("item.nature_rune", min = 15, max = 30, weight = 15)
-                    add("item.law_rune", min = 3, max = 8, weight = 12)
-                    add("item.mithril_sword", min = 1, weight = 10)
-                    add("item.adamant_dagger", min = 1, weight = 8)
+                    add("item.coins_995", min = 50000, max = 100000, weight = 30)
+                    add("item.bronze_bar_noted", min = 5, max = 50, weight = 20)
+                    add("item.bronze_platebody_noted", min = 5, max = 50, weight = 15)
+                    add("item.bronze_platelegs_noted", min = 5, max = 50, weight = 12)
+                    add("item.bronze_full_helm_noted", min = 1, weight = 10)
+                    add("item.bronze_kiteshield_noted", min = 1, weight = 8)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
-                    add("item.shield_left_half", min = 1, weight = 256)
+                    add("item.dragon_med_helm_noted", min = 1, weight = 128)
+                    add("item.shield_left_half_noted", min = 1, weight = 256)
                 }
             }
         }
@@ -213,6 +225,11 @@ class DragonConfigsPlugin(
             }
             stats {
                 hitpoints = 160
+                attack = 150
+                strength = 150
+                defence = 150
+                magic = 1
+                ranged = 1
             }
             anims {
                 attack = 91
@@ -229,20 +246,20 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
+                    add("item.dragon_bones_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 150, max = 350, weight = 30)
-                    add("item.iron_bar", min = 1, max = 5, weight = 25)
-                    add("item.nature_rune", min = 20, max = 40, weight = 15)
-                    add("item.law_rune", min = 5, max = 12, weight = 12)
-                    add("item.adamant_sword", min = 1, weight = 10)
-                    add("item.rune_dagger", min = 1, weight = 8)
+                    add("item.coins_995", min = 100000, max = 200000, weight = 30)
+                    add("item.iron_bar_noted", min = 5, max = 50, weight = 25)
+                    add("item.iron_platebody_noted", min = 5, max = 50, weight = 15)
+                    add("item.iron_platelegs_noted", min = 5, max = 50, weight = 12)
+                    add("item.iron_full_helm_noted", min = 5, max = 50, weight = 10)
+                    add("item.iron_kiteshield_noted", min = 5, max = 50, weight = 8)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
-                    add("item.shield_left_half", min = 1, weight = 256)
-                    add("item.visage", min = 1, weight = 10000) // Rare
+                    add("item.dragon_med_helm_noted", min = 1, weight = 128)
+                    add("item.shield_left_half_noted", min = 1, weight = 256)
+                    add("item.draconic_visage", min = 1, weight = 10000) // Rare
                 }
             }
         }
@@ -255,6 +272,11 @@ class DragonConfigsPlugin(
             }
             stats {
                 hitpoints = 210
+                attack = 200
+                strength = 200
+                defence = 200
+                magic = 1
+                ranged = 1
             }
             anims {
                 attack = 91
@@ -271,20 +293,20 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
+                    add("item.dragon_bones_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 200, max = 500, weight = 30)
-                    add("item.steel_bar", min = 2, max = 8, weight = 25)
-                    add("item.nature_rune", min = 30, max = 60, weight = 15)
-                    add("item.law_rune", min = 8, max = 15, weight = 12)
-                    add("item.rune_sword", min = 1, weight = 10)
-                    add("item.dragon_dagger", min = 1, weight = 6)
+                    add("item.coins_995", min = 250000, max = 500000, weight = 30)
+                    add("item.steel_bar", min = 5, max = 50, weight = 25)
+                    add("item.steel_platebody_noted", min = 30, max = 60, weight = 15)
+                    add("item.steel_platelegs_noted", min = 8, max = 15, weight = 12)
+                    add("item.steel_full_helm_noted", min = 1, weight = 10)
+                    add("item.steel_kiteshield_noted", min = 1, weight = 6)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 128)
+                    add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half", min = 1, weight = 256)
-                    add("item.visage", min = 1, weight = 5000) // Rare
+                    add("item.draconic_visage", min = 1, weight = 5000) // Rare
                 }
             }
         }
@@ -313,18 +335,21 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.green_dragonhide", 2) // More hides
+                    add("item.dragon_bones_noted", 3)
+                    add("item.green_dragonhide_noted", 3) // More hides
                 }
                 main(weight = 100) {
                     add("item.coins_995", min = 300, max = 800, weight = 25)
-                    add("item.nature_rune", min = 40, max = 80, weight = 20)
-                    add("item.law_rune", min = 15, max = 25, weight = 15)
-                    add("item.dragon_sword", min = 1, weight = 8)
-                    add("item.dragon_dagger", min = 1, weight = 6)
+                    add("item.adamant_bar_noted", min = 40, max = 80, weight = 20)
+                    add("item.adamant_platebody_noted", min = 15, max = 25, weight = 15)
+                    add("item.adamant_platelegs_noted", min = 1, weight = 8)
+                    add("item.adamant_full_helm_noted", min = 1, weight = 6)
+                    add("item.adamant_kiteshield_noted", min = 1, weight = 4)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 64) // Better drop rate
+                    add("item.dragon_med_helm_noted", min = 5, max = 50, weight = 128)
+                    add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
+                    add("item.draconic_visage", min = 1, max = 1, weight = 10000) // Rare  add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
                 }
             }
         }
@@ -352,18 +377,20 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.red_dragonhide", 2)
+                    add("item.dragon_bones_noted", 3)
+                    add("item.red_dragonhide_noted", 3)
                 }
                 main(weight = 100) {
                     add("item.coins_995", min = 400, max = 1000, weight = 25)
-                    add("item.nature_rune", min = 50, max = 100, weight = 20)
-                    add("item.law_rune", min = 20, max = 35, weight = 15)
-                    add("item.dragon_sword", min = 1, weight = 10)
-                    add("item.dragon_dagger", min = 1, weight = 8)
+                    add("item.dragon_platebody_noted", min = 50, max = 100, weight = 20)
+                    add("item.dragon_platelegs_noted", min = 20, max = 35, weight = 15)
+                    add("item.dragon_sword_noted", min = 5, max = 50, weight = 10)
+                    add("item.dragon_dagger_noted", min = 5, max = 50, weight = 8)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 64)
+                    add("item.dragon_med_helm_noted", min = 5, max = 50, weight = 64)
+                    add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
+                    add("item.draconic_visage", min = 1, max = 1, weight = 10000) // Rare
                 }
             }
         }
@@ -391,19 +418,20 @@ class DragonConfigsPlugin(
             }
             drops {
                 always {
-                    add("item.dragon_bones", 1)
-                    add("item.black_dragonhide", 2)
+                    add("item.dragon_bones_noted", 3)
+                    add("item.black_dragonhide_noted", 3)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 500, max = 1200, weight = 25)
-                    add("item.nature_rune", min = 60, max = 120, weight = 20)
-                    add("item.law_rune", min = 25, max = 40, weight = 15)
-                    add("item.dragon_sword", min = 1, weight = 12)
-                    add("item.dragon_dagger", min = 1, weight = 10)
+                    add("item.coins_995", min = 750000, max = 1000000, weight = 25)
+                    add("item.dragon_gloves_noted", min = 3, max = 5, weight = 20)
+                    add("item.dragon_kiteshield_noted", min = 3, max = 5, weight = 15)
+                    add("item.ant_dragon_shield", min = 1, max = 1, weight = 12)
+                    add("item.antfire", min = 1, max = 3, weight = 10)
                 }
                 tertiary(weight = 256) {
-                    add("item.dragon_med_helm", min = 1, weight = 32) // Best drop rate
-                    add("item.visage", min = 1, weight = 3000) // Good visage chance
+                    add("item.dragon_med_helm", min = 5, max = 50, weight = 32) // Best drop rate
+                    add("item.shield_left_half_noted", min = 1, max = 10, weight = 256)
+                    add("item.draconic_visage", min = 1, max = 1, weight = 3000) // Good visage chance
                 }
             }
         }
@@ -419,6 +447,11 @@ class DragonConfigsPlugin(
             }
             stats {
                 hitpoints = 48
+                attack = 40
+                strength = 40
+                defence = 40
+                magic = 1
+                ranged = 1
             }
             anims {
                 attack = 91
@@ -434,11 +467,11 @@ class DragonConfigsPlugin(
                     add("item.dragon_bones", 1)
                 }
                 main(weight = 100) {
-                    add("item.coins_995", min = 10, max = 50, weight = 40)
-                    add("item.air_rune", min = 5, max = 15, weight = 20)
-                    add("item.fire_rune", min = 5, max = 10, weight = 20)
-                    add("item.bronze_sword", min = 1, weight = 15)
-                    add("item.iron_dagger", min = 1, weight = 5)
+                    add("item.coins_995", min = 10000, max = 20000, weight = 40)
+                    add("iten.dragon_chainbody_noted", min = 3, max = 5, weight = 20)
+                    add("item.rune_chainbody_noted", min = 3, max = 5, weight = 20)
+                    add("item.adamant_chainbody_noted", min = 3, max = 5, weight = 15)
+                    add("item.steel_chainbody_noted", min = 3, max = 5, weight = 5)
                 }
             }
         }

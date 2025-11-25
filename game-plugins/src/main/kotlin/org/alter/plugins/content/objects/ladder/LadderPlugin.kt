@@ -1,5 +1,6 @@
 package org.alter.plugins.content.objects.ladder
 
+import dev.openrune.cache.CacheManager.getObject
 import org.alter.api.*
 import org.alter.api.cfg.*
 import org.alter.api.dsl.*
@@ -261,72 +262,194 @@ class LadderPlugin(
             player.moveTo(3210, 3216, 0)
         }
         
-        // H.A.M. Hideout Trapdoor/Ladder (object 5490/5491)
+        // H.A.M. Hideout Ladder (objects 5491/5492)
         // Surface entrance: 3164, 3251, height 0
         // Underground hideout: 3164, 9627, height 0 (underground level)
-        onObjOption("object.trapdoor_5490", option = "climb-down") {
-            player.queue {
-                player.message("You climb down the trapdoor.")
-                player.animate(827) // Climb down animation
-                player.lock()
-                wait(2)
-                player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
-                player.message("You find yourself in the H.A.M. hideout.")
-                player.unlock()
-            }
-        }
+        // Note: Object 5490 is the closed trapdoor (has "Open" option, not "climb-down")
+        // Object 5491 is the opened ladder that can be climbed
+        // Object 5492 is the opened state of 5491 (has "Open" option 1, "Pick-Lock" option 5)
         
-        // Ladder 5491 - Climb up from H.A.M. hideout to surface
-        onObjOption("object.trapdoor_5491", option = "climb-up") {
-            player.queue {
-                val playerTile = player.tile
-                // If player is underground (z > 5000), go to surface
-                // If player is on surface (z < 5000), go to underground
-                if (playerTile.z > 5000) {
-                    // Underground, go to surface
-                    player.message("You climb up the ladder.")
-                    player.animate(828) // Climb up animation
-                    player.lock()
-                    wait(2)
-                    player.moveTo(3164, 3251, 0) // H.A.M. hideout surface entrance
-                    player.message("You climb out of the hideout.")
-                    player.unlock()
-                } else {
-                    // On surface, go to underground
-                    player.message("You climb down the trapdoor.")
-                    player.animate(827) // Climb down animation
-                    player.lock()
-                    wait(2)
-                    player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
-                    player.message("You find yourself in the H.A.M. hideout.")
-                    player.unlock()
+        // Handle object 5492 - opened trapdoor (using numeric ID since RSCM name is null_5492)
+        // Check what options object 5492 has and bind to the appropriate one
+        try {
+            val obj5492Def = getObject(5492)
+            val obj5492Options = obj5492Def.actions.filterNotNull().map { it.lowercase() }
+            
+            // Try common trapdoor options
+            val possibleOptions = listOf("open", "climb-down", "climb-up", "climb", "operate")
+            var optionBound = false
+            
+            for (option in possibleOptions) {
+                if (obj5492Options.contains(option) && !optionBound) {
+                    try {
+                        onObjOption(5492, option = option, lineOfSightDistance = 1) {
+                            player.queue {
+                                val playerTile = player.tile
+                                if (playerTile.z > 5000) {
+                                    // Underground, go to surface
+                                    player.message("You climb up the ladder.")
+                                    player.animate(828) // Climb up animation
+                                    player.lock()
+                                    wait(2)
+                                    player.moveTo(3164, 3251, 0) // H.A.M. hideout surface entrance
+                                    player.message("You climb out of the hideout.")
+                                    player.unlock()
+                                } else {
+                                    // On surface, go to underground
+                                    player.message("You climb down the trapdoor.")
+                                    player.animate(827) // Climb down animation
+                                    player.lock()
+                                    wait(2)
+                                    player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                                    player.message("You find yourself in the H.A.M. hideout.")
+                                    player.unlock()
+                                }
+                            }
+                        }
+                        optionBound = true
+                        break
+                    } catch (e: IllegalStateException) {
+                        // Option already bound, try next
+                        continue
+                    } catch (e: Exception) {
+                        // Other error, try next option
+                        continue
+                    }
                 }
             }
-        }
-        
-        // Also handle ladder 5491 with climb-down option
-        onObjOption("object.trapdoor_5491", option = "climb-down") {
-            player.queue {
-                player.message("You climb down the ladder.")
-                player.animate(827) // Climb down animation
-                player.lock()
-                wait(2)
-                player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
-                player.message("You find yourself in the H.A.M. hideout.")
-                player.unlock()
+            
+            // If no string option worked, try binding directly to option index 1
+            if (!optionBound && obj5492Options.isNotEmpty()) {
+                try {
+                    r.bindObject(5492, 1, 1) {
+                        player.queue {
+                            val playerTile = player.tile
+                            if (playerTile.z > 5000) {
+                                // Underground, go to surface
+                                player.message("You climb up the ladder.")
+                                player.animate(828) // Climb up animation
+                                player.lock()
+                                wait(2)
+                                player.moveTo(3164, 3251, 0) // H.A.M. hideout surface entrance
+                                player.message("You climb out of the hideout.")
+                                player.unlock()
+                            } else {
+                                // On surface, go to underground
+                                player.message("You climb down the trapdoor.")
+                                player.animate(827) // Climb down animation
+                                player.lock()
+                                wait(2)
+                                player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                                player.message("You find yourself in the H.A.M. hideout.")
+                                player.unlock()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Option might already be bound or object doesn't exist
+                }
             }
+        } catch (e: Exception) {
+            // Object might not exist in cache, skip
         }
         
-        // Handle ladder 5491 as a ladder object (if it's registered as a ladder)
-        // Try common ladder options
-        val ladder5491Options = listOf("climb", "climb-up", "climb-down")
-        ladder5491Options.forEach { option ->
+        // Ladder 5491 - Handle all climbing options dynamically
+        try {
+            val obj5491Def = getObject(5491)
+            val obj5491Options = obj5491Def.actions.filterNotNull().map { it.lowercase() }
+            
+            // Common climbing options to try
+            val climbingOptions = listOf("climb-down", "climb-up", "climb", "open", "operate")
+            val registeredOptions = mutableSetOf<String>()
+            
+            // Handler function for climbing logic
+            val climbHandler: Plugin.() -> Unit = {
+                player.queue {
+                    val playerTile = player.tile
+                    if (playerTile.z > 5000) {
+                        // Underground, go to surface
+                        player.message("You climb up the ladder.")
+                        player.animate(828) // Climb up animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3164, 3251, 0) // H.A.M. hideout surface entrance
+                        player.message("You climb out of the hideout.")
+                        player.unlock()
+                    } else {
+                        // On surface, go to underground
+                        player.message("You climb down the ladder.")
+                        player.animate(827) // Climb down animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3164, 9627, 0) // H.A.M. hideout underground
+                        player.message("You find yourself in the H.A.M. hideout.")
+                        player.unlock()
+                    }
+                }
+            }
+            
+            // Try to bind to available climbing options
+            for (option in climbingOptions) {
+                if (obj5491Options.contains(option) && !registeredOptions.contains(option)) {
+                    try {
+                        onObjOption(5491, option = option, lineOfSightDistance = 1) {
+                            climbHandler()
+                        }
+                        registeredOptions.add(option)
+                    } catch (e: IllegalStateException) {
+                        // Option already bound, skip
+                        continue
+                    } catch (e: Exception) {
+                        // Other error, try next option
+                        continue
+                    }
+                }
+            }
+            
+            // Also try using RSCM name if numeric ID didn't work
+            if (registeredOptions.isEmpty()) {
+                try {
+                    for (option in climbingOptions) {
+                        if (objHasOption("object.trapdoor_5491", option) && !registeredOptions.contains(option)) {
+                            try {
+                                onObjOption("object.trapdoor_5491", option = option, lineOfSightDistance = 1) {
+                                    climbHandler()
+                                }
+                                registeredOptions.add(option)
+                                break
+                            } catch (e: IllegalStateException) {
+                                // Option already bound, skip
+                                continue
+                            } catch (e: Exception) {
+                                // Other error, try next option
+                                continue
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // RSCM name might not work
+                }
+            }
+            
+            // Fallback: bind directly to option index 1 if no string options worked
+            if (registeredOptions.isEmpty() && obj5491Options.isNotEmpty()) {
+                try {
+                    r.bindObject(5491, 1, 1) {
+                        climbHandler()
+                    }
+                } catch (e: Exception) {
+                    // Option might already be bound
+                }
+            }
+        } catch (e: Exception) {
+            // Object might not exist in cache, try RSCM name as fallback
+            // Only try if we haven't registered any options yet (registeredOptions is not accessible here,
+            // so we'll catch IllegalStateException if it's already bound)
             try {
-                onObjOption(5491, option = option) {
+                onObjOption("object.trapdoor_5491", option = "climb-down", lineOfSightDistance = 1) {
                     player.queue {
                         val playerTile = player.tile
                         if (playerTile.z > 5000) {
-                            // Underground, go to surface
                             player.message("You climb up the ladder.")
                             player.animate(828)
                             player.lock()
@@ -335,7 +458,6 @@ class LadderPlugin(
                             player.message("You climb out of the hideout.")
                             player.unlock()
                         } else {
-                            // On surface, go to underground
                             player.message("You climb down the ladder.")
                             player.animate(827)
                             player.lock()
@@ -346,10 +468,15 @@ class LadderPlugin(
                         }
                     }
                 }
-            } catch (e: Exception) {
-                // Option might not exist, continue
+            } catch (e2: IllegalStateException) {
+                // Option already bound, skip
+            } catch (e2: Exception) {
+                // Could not register
             }
         }
+        
+        // Note: Object 5491 is already handled above with dynamic option detection.
+        // The duplicate binding section has been removed to prevent "already bound" errors.
         
         // KBD Ladder (object 18987) - Teleports to King Black Dragon lair
         onObjOption("object.ladder_18987", option = "climb-down") {

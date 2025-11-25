@@ -13,7 +13,7 @@ object Knives {
     val MITHRIL_KNIVES = arrayOf(getRSCM("item.mithril_knife"), getRSCM("item.mithril_knifep"), getRSCM("item.mithril_knifep_5657"), getRSCM("item.mithril_knifep_5664"))
     val ADAMANT_KNIVES = arrayOf(getRSCM("item.adamant_knife"), getRSCM("item.adamant_knifep"), getRSCM("item.adamant_knifep_5659"), getRSCM("item.adamant_knifep_5666"))
     val RUNE_KNIVES = arrayOf(getRSCM("item.rune_knife"), getRSCM("item.rune_knifep"), getRSCM("item.rune_knifep_5660"), getRSCM("item.rune_knifep_5667"))
-    val DRAGON_KNIVES = arrayOf(getRSCM("item.dragon_knife"), getRSCM("item.dragon_knifep"), getRSCM("item.dragon_knifep_22808"), getRSCM("item.dragon_knifep_22810"))
+    val DRAGON_KNIVES = arrayOf(getRSCM("item.dragon_knife"), getRSCM("item.dragon_knifep"), getRSCM("item.dragon_knifep_22808"), getRSCM("item.dragon_knifep_22810"), getRSCM("item.dragon_knife_22812"))
 
     val KNIVES = BRONZE_KNIVES + IRON_KNIVES + STEEL_KNIVES + BLACK_KNIVES + MITHRIL_KNIVES + ADAMANT_KNIVES + RUNE_KNIVES + DRAGON_KNIVES
 }
