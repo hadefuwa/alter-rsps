@@ -242,6 +242,23 @@ class ItemMetadataService : Service {
             } catch (e: Exception) {
                 // Item might not exist or already configured, ignore
             }
+            
+            // Fix dragon knife (22812) appearance - ensure it appears in weapon hand, not shield hand
+            try {
+                val dragonKnifeId = 22812
+                val ironKnifeId = 863 // Iron knife for reference
+                val dragonKnifeDef = getItem(dragonKnifeId)
+                val ironKnifeDef = getItem(ironKnifeId)
+                
+                // Copy equipType from iron knife to ensure dragon knife appears in weapon hand
+                if (dragonKnifeDef.equipSlot == 3) {
+                    dragonKnifeDef.equipType = ironKnifeDef.equipType
+                    // Also copy appearanceOverride1 to ensure correct hand rendering
+                    dragonKnifeDef.appearanceOverride1 = ironKnifeDef.appearanceOverride1
+                }
+            } catch (e: Exception) {
+                // Item might not exist or already configured, ignore
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

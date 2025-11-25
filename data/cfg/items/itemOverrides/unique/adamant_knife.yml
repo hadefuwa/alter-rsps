@@ -4,7 +4,7 @@ name: "adamant knife"
 equipment:
   equip_slot: "weapon"
   weapon_type: 19
-  attack_speed: 4
+  attack_speed: 3
   attack_ranged: 10
   ranged_strength: 10
 

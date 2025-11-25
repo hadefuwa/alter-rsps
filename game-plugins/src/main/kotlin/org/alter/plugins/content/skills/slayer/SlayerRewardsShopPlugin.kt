@@ -118,6 +118,9 @@ class SlayerRewardsShopPlugin(
             items[12] = ShopItem(20544, 10000, sellPrice = 50, buyPrice = null)
             // 10 caskets: 100 points total (10 points each - 50% discount)
             items[13] = ShopItem(20544, 10000, sellPrice = 100, buyPrice = null)
+            
+            // Old School Bond - 200 slayer points
+            items[14] = ShopItem(13190, 10000, sellPrice = 200, buyPrice = null)
         }
     }
     

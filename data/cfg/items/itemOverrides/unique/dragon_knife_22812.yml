@@ -13,7 +13,7 @@ equipment:
   # 15 = SPEAR, 16 = MACE, 17 = DAGGER, 18 = MAGIC_STAFF, 19 = THROWN, 20 = WHIP, 21 = STAFF_HALBERD
   # 23 = TRIDENT, 26 = BLUDGEON, 27 = BULWARK
   weapon_type: 19
-  attack_speed: 4
+  attack_speed: 3
   attack_stab: 0
   attack_slash: 0
   attack_crush: 0

@@ -10,6 +10,8 @@ import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.game.info.NpcInfo
+import org.alter.game.model.Tile
 import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 import org.alter.rscm.RSCM.getRSCM
 
@@ -19,7 +21,7 @@ import org.alter.rscm.RSCM.getRSCM
  * An NPC in Varrock who accepts high-value items in exchange for Doom Points.
  * Players can then spend Doom Points to unlock permanent account perks.
  * 
- * Using "Mysterious Old Man" NPC (ID 410) as the Dark Merchant
+ * Using shopkeeper NPC with proper options (talk-to, trade)
  */
 class DarkMerchantPlugin(
     r: PluginRepository,
@@ -27,24 +29,34 @@ class DarkMerchantPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
     
+    private val darkMerchantNpc = "npc.shop_keeper_2817"
+    private val darkMerchantTile = Tile(x = 3210, z = 3424, height = 0)
+    
     init {
         // Spawn the Dark Merchant in Varrock (near the fountain)
-        spawnNpc("npc.mysterious_old_man", x = 3210, z = 3424, walkRadius = 2, direction = Direction.SOUTH)
+        spawnNpc(darkMerchantNpc, x = 3210, z = 3424, walkRadius = 2, direction = Direction.SOUTH)
         
-        // Use numeric option IDs since the NPC has no string options defined
-        // Option 1 = first click (talk-to)
-        onNpcOption("npc.mysterious_old_man", option = 1, lineOfSightDistance = 4) {
-            player.queue { dialog(player) }
+        // Set custom name for the Dark Merchant when it spawns
+        onNpcSpawn(darkMerchantNpc) {
+            if (npc.tile == darkMerchantTile) {
+                npc.setTempName("Dark Merchant")
+            }
         }
         
-        // Option 2 = second click (trade)
-        onNpcOption("npc.mysterious_old_man", option = 2, lineOfSightDistance = 4) {
-            player.queue { showTradeMenu(player) }
+        // Use string options since shopkeeper NPC has "talk-to" and "trade" options
+        onNpcOption(darkMerchantNpc, option = "talk-to", lineOfSightDistance = 4) {
+            val npc = player.getInteractingNpc()
+            if (npc.tile == darkMerchantTile) {
+                player.queue { dialog(player) }
+            }
         }
         
-        // Option 3 = third click (perks)
-        onNpcOption("npc.mysterious_old_man", option = 3, lineOfSightDistance = 4) {
-            player.queue { showPerksMenu(player) }
+        // Trade option
+        onNpcOption(darkMerchantNpc, option = "trade", lineOfSightDistance = 4) {
+            val npc = player.getInteractingNpc()
+            if (npc.tile == darkMerchantTile) {
+                player.queue { showTradeMenu(player) }
+            }
         }
         
         // Command to check doom points
