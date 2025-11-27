@@ -300,7 +300,7 @@ class CombatConfigPlugin(
          * 
          * TzTok-Jad is the final boss of the TzHaar Fight Cave minigame.
          * Combat Level: 702
-         * Uses all three combat styles: melee, ranged, and magic
+         * Uses only ranged and magic attacks (melee disabled)
          * 
          * Drops:
          * - Fire Cape (guaranteed drop)
@@ -314,20 +314,20 @@ class CombatConfigPlugin(
             
             stats {
                 hitpoints = 250  // High HP for a boss
-                attack = 150
-                strength = 150
+                attack = 0  // Melee disabled
+                strength = 0  // Melee disabled
                 defence = 150
                 magic = 150
                 ranged = 150
             }
             
             bonuses {
-                attackStab = 100
-                attackSlash = 100
-                attackCrush = 100
+                attackStab = 0  // Melee disabled
+                attackSlash = 0  // Melee disabled
+                attackCrush = 0  // Melee disabled
                 attackMagic = 100
                 attackRanged = 100
-                strengthBonus = 100
+                strengthBonus = 0  // Melee disabled
                 defenceStab = 100
                 defenceSlash = 100
                 defenceCrush = 100
@@ -339,6 +339,11 @@ class CombatConfigPlugin(
                 attack = 2656  // Jad attack animation
                 block = 2655  // Jad block animation
                 death = 2657  // Jad death animation
+            }
+            
+            sound {
+                // Note: Attack sounds are handled in TzTokJadCombatPlugin for ranged/magic distinction
+                deathSound = Sound.TZTOK_JAD_DEATH
             }
             
             aggro {

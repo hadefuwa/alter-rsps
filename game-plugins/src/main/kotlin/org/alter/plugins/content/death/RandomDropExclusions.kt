@@ -43,7 +43,8 @@ object RandomDropExclusions {
     val EXCLUDED_RANDOM_DROP_ITEMS = setOf(
         "item.elysian_spirit_shield",
         "item.spectral_spirit_shield",
-        "item.arcane_spirit_shield"
+        "item.arcane_spirit_shield",
+        "item.bandos_godsword_20782"
         // Add more excluded items here using the format: "item.item_name"
     )
 }

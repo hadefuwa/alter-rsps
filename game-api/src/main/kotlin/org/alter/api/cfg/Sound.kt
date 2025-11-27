@@ -388,6 +388,10 @@ object Sound {
     const val TZHAAR_XIL_ATTACK_RING = 269
     const val TZHAAR_XIL_DEATH = 270
     const val TZHAAR_XIL_HIT = 271
+    // TzTok-Jad sounds
+    const val TZTOK_JAD_RANGED_ATTACK = 2595  // Ranged attack sound (front legs raised)
+    const val TZTOK_JAD_MAGIC_ATTACK = 2597  // Magic attack sound (back legs raised)
+    const val TZTOK_JAD_DEATH = 2598  // Death sound
     const val SPECTRE_ATTACK = 272
     const val GOO_HIT = 273
     const val SPECTRE_DEATH = 274

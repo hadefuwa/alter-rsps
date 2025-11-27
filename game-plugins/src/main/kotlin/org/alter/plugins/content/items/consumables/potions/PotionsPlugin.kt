@@ -39,6 +39,8 @@ class PotionsPlugin(
             "item.saradomin_brew4", "item.saradomin_brew3", "item.saradomin_brew2", "item.saradomin_brew1",
             // Ranging potions
             "item.ranging_potion4", "item.ranging_potion3", "item.ranging_potion2", "item.ranging_potion1",
+            // Super ranging potions
+            "item.super_ranging_4", "item.super_ranging_3", "item.super_ranging_2", "item.super_ranging_1",
             // Antifire potions
             "item.antifire_potion4", "item.antifire_potion3", "item.antifire_potion2", "item.antifire_potion1",
             // Super attack potions
@@ -236,7 +238,7 @@ class PotionsPlugin(
                 }
             }
             // Ranging potions - boost ranged
-            potion.contains("ranging_potion") -> {
+            potion.contains("ranging_potion") || potion.contains("super_ranging") -> {
                 val base = player.getSkills().getBaseLevel(Skills.RANGED)
                 val current = player.getSkills().getCurrentLevel(Skills.RANGED)
                 val boost = 4 + (base / 10)

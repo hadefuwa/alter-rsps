@@ -1,6 +1,7 @@
 package org.alter.plugins.content.npcs.tztokjad
 
 import org.alter.api.*
+import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
 import org.alter.game.*
 import org.alter.game.model.*
@@ -100,6 +101,28 @@ class TzTokJadCombatPlugin(
         while (canEngageCombat(target)) {
             facePawn(target)
             
+            // Jad only uses ranged and magic attacks - never melee
+            // Ensure Jad maintains distance (minimum 5 tiles) to prevent melee attacks
+            val distance = tile.getDistance(target.tile)
+            if (distance < 5) {
+                // Move away from target if too close to prevent melee
+                val dx = target.tile.x - tile.x
+                val dz = target.tile.z - tile.z
+                
+                // Calculate direction away from target
+                val awayX = if (dx > 0) -1 else if (dx < 0) 1 else 0
+                val awayZ = if (dz > 0) -1 else if (dz < 0) 1 else 0
+                
+                // Try to move away
+                val awayTile = tile.transform(awayX, awayZ)
+                if (awayTile != null && canMoveTo(awayTile)) {
+                    pathTo(awayTile)
+                    it.wait(1)
+                    target = getCombatTarget() ?: break
+                    continue
+                }
+            }
+            
             // Jad attacks from range, so use distance = 10 (or whatever range is appropriate)
             if (moveToAttackRange(it, target, distance = 10, projectile = true) && isAttackDelayReady()) {
                 // Randomly choose between ranged and magic attack (50/50)
@@ -131,6 +154,13 @@ class TzTokJadCombatPlugin(
         
         // Animate with front legs raised (ranged animation)
         animate(RANGED_ATTACK_ANIM)
+        
+        // Play ranged attack sound - area sound so all nearby players can hear it
+        if (target is Player) {
+            this.world.spawn(
+                AreaSound(this.tile, Sound.TZTOK_JAD_RANGED_ATTACK, radius = 10, volume = 50)
+            )
+        }
         
         // Create ranged projectile
         val projectile = createProjectile(
@@ -182,6 +212,13 @@ class TzTokJadCombatPlugin(
         
         // Animate with back legs raised (magic animation)
         animate(MAGIC_ATTACK_ANIM)
+        
+        // Play magic attack sound - area sound so all nearby players can hear it
+        if (target is Player) {
+            this.world.spawn(
+                AreaSound(this.tile, Sound.TZTOK_JAD_MAGIC_ATTACK, radius = 10, volume = 50)
+            )
+        }
         
         // Create magic projectile (fireball)
         val projectile = createProjectile(
