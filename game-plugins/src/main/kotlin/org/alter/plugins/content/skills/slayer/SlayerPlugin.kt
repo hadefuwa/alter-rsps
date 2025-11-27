@@ -282,6 +282,14 @@ class SlayerPlugin(
             p.message("Slayer task reset.")
         }
         
+        onCommand("r") {
+            val p = player
+            p.attr.remove(Slayer.SLAYER_TASK_ATTR)
+            p.attr.remove(Slayer.SLAYER_AMOUNT_ATTR)
+            p.attr.remove(Slayer.SLAYER_PROGRESS_ATTR)
+            p.message("Slayer task reset.")
+        }
+        
         // Debug command to check task details
         onCommand("slayerdebug") {
             val p = player
