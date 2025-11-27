@@ -10708,3 +10708,8 @@
 [2025-11-27 18:58:02.942] INFO  org.alter.game.service.GameService - Server running - RAM: 1051MB / 1472MB (Max: 8180MB) 
 [2025-11-27 18:58:09.563] INFO  org.alter.game.service.GameService - Server running - RAM: 1197MB / 1472MB (Max: 8180MB) 
 [2025-11-27 18:58:16.141] INFO  org.alter.game.service.GameService - Server running - RAM: 483MB / 1472MB (Max: 8180MB) 
+[2025-11-27 18:58:22.746] INFO  org.alter.game.service.GameService - Server running - RAM: 631MB / 1472MB (Max: 8180MB) 
+[2025-11-27 18:58:29.347] INFO  org.alter.game.service.GameService - Server running - RAM: 771MB / 1472MB (Max: 8180MB) 
+[2025-11-27 18:58:35.954] INFO  org.alter.game.service.GameService - Server running - RAM: 903MB / 1472MB (Max: 8180MB) 
+[2025-11-27 18:58:42.539] INFO  org.alter.game.service.GameService - Server running - RAM: 1045MB / 1472MB (Max: 8180MB) 
+[2025-11-27 18:58:49.161] INFO  org.alter.game.service.GameService - Server running - RAM: 1191MB / 1472MB (Max: 8180MB) 
