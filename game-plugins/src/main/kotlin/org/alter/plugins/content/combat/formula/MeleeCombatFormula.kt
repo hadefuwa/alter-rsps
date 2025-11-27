@@ -14,6 +14,7 @@ import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
+import org.alter.rscm.RSCM.getRSCM
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -190,6 +191,12 @@ object MeleeCombatFormula : CombatFormula {
         // Apply Kalphite Queen form-based damage reduction
         if (target is Npc) {
             hit *= getKQDamageMultiplier(target, CombatStyle.SLASH) // Melee uses SLASH as default
+            hit = Math.floor(hit)
+        }
+        
+        // Apply Corporeal Beast damage reduction (50% for non-spear/hasta weapons)
+        if (target is Npc) {
+            hit *= getCorporealBeastDamageMultiplier(player, target)
             hit = Math.floor(hit)
         }
 
@@ -456,6 +463,29 @@ object MeleeCombatFormula : CombatFormula {
                 CombatStyle.STAB, CombatStyle.SLASH, CombatStyle.CRUSH -> 0.25
                 else -> 1.0
             }
+        }
+    }
+
+    /**
+     * Get Corporeal Beast damage multiplier - 50% reduction for non-spear/hasta weapons
+     */
+    private fun getCorporealBeastDamageMultiplier(player: Player, target: Npc): Double {
+        // Check if this is the Corporeal Beast
+        val isCorporealBeast = target.id == getRSCM("npc.corporeal_beast") || 
+                              target.def.name.lowercase().contains("corporeal beast")
+        if (!isCorporealBeast) return 1.0
+        
+        // Check if player is using a spear or hasta
+        val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return 0.5
+        val weaponName = weapon.def.name.lowercase()
+        
+        // Check if weapon is a spear or hasta
+        val isSpearOrHasta = weaponName.contains("spear") || weaponName.contains("hasta")
+        
+        return if (isSpearOrHasta) {
+            1.0 // Full damage for spears/hastae
+        } else {
+            0.5 // 50% damage reduction for all other weapons
         }
     }
 

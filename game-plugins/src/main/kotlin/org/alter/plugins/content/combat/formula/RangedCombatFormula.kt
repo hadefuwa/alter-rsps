@@ -13,6 +13,7 @@ import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
+import org.alter.rscm.RSCM.getRSCM
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -292,6 +293,12 @@ object RangedCombatFormula : CombatFormula {
         // Apply Kalphite Queen form-based damage reduction
         if (target is Npc) {
             hit *= getKQDamageMultiplier(target, CombatStyle.RANGED)
+            hit = Math.floor(hit)
+        }
+        
+        // Apply Corporeal Beast damage reduction (50% for all non-spear/hasta weapons)
+        if (target is Npc && pawn is Player) {
+            hit *= getCorporealBeastDamageMultiplier(pawn, target)
             hit = Math.floor(hit)
         }
 
@@ -586,6 +593,20 @@ object RangedCombatFormula : CombatFormula {
     private fun getDamageDealMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_DEAL_MULTIPLIER] ?: 1.0
 
     private fun getDamageTakeMultiplier(pawn: Pawn): Double = pawn.attr[Combat.DAMAGE_TAKE_MULTIPLIER] ?: 1.0
+    
+    /**
+     * Get Corporeal Beast damage multiplier - 50% reduction for all non-spear/hasta weapons
+     * (Ranged and Magic always get 50% reduction since they don't use spears/hastae)
+     */
+    private fun getCorporealBeastDamageMultiplier(player: Player, target: Npc): Double {
+        // Check if this is the Corporeal Beast
+        val isCorporealBeast = target.id == getRSCM("npc.corporeal_beast") || 
+                              target.def.name.lowercase().contains("corporeal beast")
+        if (!isCorporealBeast) return 1.0
+        
+        // Ranged and Magic always get 50% reduction (they don't use spears/hastae)
+        return 0.5
+    }
     
     /**
      * Get Kalphite Queen damage multiplier based on form and attack style
