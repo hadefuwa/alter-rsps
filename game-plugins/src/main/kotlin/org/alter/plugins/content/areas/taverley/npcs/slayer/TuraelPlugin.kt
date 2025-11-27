@@ -34,6 +34,13 @@ class TuraelPlugin(
 
     suspend fun QueueTask.dialog(player: Player) {
         chatNpc(player, "Hello there, ${player.username}. I am Turael, a Slayer master.")
+        
+        // Show current task if player has one
+        val currentTaskInfo = org.alter.plugins.content.skills.slayer.Slayer.getCurrentTaskInfo(player)
+        if (currentTaskInfo != null) {
+            chatNpc(player, currentTaskInfo)
+        }
+        
         chatNpc(player, "I can give you tasks to slay certain creatures. Would you like an assignment?")
 
         when (options(player, *dialogOptions.toTypedArray())) {
@@ -52,7 +59,8 @@ class TuraelPlugin(
 
     suspend fun QueueTask.getAssignment(player: Player) {
         if (player.attr.has(org.alter.plugins.content.skills.slayer.Slayer.SLAYER_TASK_ATTR)) {
-             chatNpc(player, "You already have a task. You need to finish it first.")
+             val taskMessage = org.alter.plugins.content.skills.slayer.Slayer.getCurrentTaskName(player)
+             chatNpc(player, taskMessage ?: "You already have a task. You need to finish it first.")
              return
         }
         // TURAEL has been removed - functionality disabled

@@ -62,13 +62,14 @@ object Slayer {
         "fear repear", "strangled", "prince itzla arkan"
         )
 
-    // Cache for valid NPC IDs (lazy initialization)
-    private var cachedValidNpcIds: List<Int>? = null
+    // Cache for valid NPC IDs from spawned NPCs (lazy initialization per world)
+    private var cachedSpawnedNpcIds: Set<Int>? = null
+    private var cacheWorldInstance: World? = null
 
     /**
-     * Checks if an NPC is valid for slayer tasks
+     * Checks if an NPC is valid for slayer tasks based on its definition
      */
-    private fun isValidSlayerNpc(npcId: Int): Boolean {
+    private fun isValidSlayerNpcDefinition(npcId: Int): Boolean {
         if (npcId in excludedNpcIds) return false
         
         return try {
@@ -90,37 +91,58 @@ object Slayer {
     }
 
     /**
-     * Gets a list of valid NPC IDs for slayer tasks
-     * Scans a reasonable range of NPC IDs (0-20000 should cover most NPCs)
-     * Results are cached for performance
+     * Gets a set of valid NPC IDs that are actually spawned in the world.
+     * This ensures players only get assigned tasks for NPCs that exist in the game.
+     * Results are cached for performance but will refresh if world instance changes.
      */
-    private fun getValidNpcIds(): List<Int> {
-        if (cachedValidNpcIds != null) {
-            return cachedValidNpcIds!!
+    private fun getSpawnedNpcIds(world: World): Set<Int> {
+        // Invalidate cache if world instance changed
+        if (cacheWorldInstance !== world) {
+            cachedSpawnedNpcIds = null
+            cacheWorldInstance = world
         }
         
-        val validIds = mutableListOf<Int>()
-        // Scan NPC IDs from 0 to 20000 (adjust range if needed)
-        for (npcId in 0..20000) {
-            if (isValidSlayerNpc(npcId)) {
-                validIds.add(npcId)
+        if (cachedSpawnedNpcIds != null) {
+            return cachedSpawnedNpcIds!!
+        }
+        
+        val spawnedIds = mutableSetOf<Int>()
+        
+        // Use forEach to iterate only non-null NPCs (more efficient than checking all 32k indices)
+        world.npcs.forEach { npc ->
+            if (isValidSlayerNpcDefinition(npc.id)) {
+                spawnedIds.add(npc.id)
             }
         }
         
-        cachedValidNpcIds = validIds
-        return validIds
+        cachedSpawnedNpcIds = spawnedIds
+        return spawnedIds
     }
 
+    /**
+     * Clears the cached spawned NPC IDs.
+     * Call this if NPCs are dynamically spawned/removed and you want to refresh the cache.
+     */
+    fun clearCache() {
+        cachedSpawnedNpcIds = null
+        cacheWorldInstance = null
+    }
+
+    /**
+     * Public accessor for getting spawned NPC IDs (for debug commands)
+     */
+    fun getSpawnedNpcIdsPublic(world: World): Set<Int> = getSpawnedNpcIds(world)
+
     fun assign(player: Player, master: SlayerMaster) {
-        // Get all valid NPC IDs
-        val validNpcIds = getValidNpcIds()
+        // Get all valid NPC IDs that are actually spawned in the world
+        val validNpcIds = getSpawnedNpcIds(player.world).toList()
         
         if (validNpcIds.isEmpty()) {
             player.message("No valid slayer tasks available.")
             return
         }
 
-        // Pick a random NPC
+        // Pick a random NPC from the spawned NPCs
         val npcId = validNpcIds.random()
         val npcDef = getNpc(npcId)
         
@@ -163,6 +185,44 @@ object Slayer {
 
         val npcName = npcDef.name.lowercase()
         player.message("You are assigned to kill $npcName; only $left more to go.")
+    }
+
+    /**
+     * Gets the current task info as a formatted string for dialogue.
+     * Returns null if the player doesn't have a task.
+     */
+    fun getCurrentTaskInfo(player: Player): String? {
+        val npcId = player.attr[SLAYER_TASK_ATTR] ?: return null
+
+        val npcDef = try {
+            getNpc(npcId)
+        } catch (e: Exception) {
+            return null
+        }
+
+        val amount = player.attr[SLAYER_AMOUNT_ATTR] ?: 0
+        val progress = player.attr[SLAYER_PROGRESS_ATTR] ?: 0
+        val left = amount - progress
+
+        val npcName = npcDef.name.lowercase()
+        return "You're currently assigned to kill $amount $npcName; you've killed $progress, so you have $left left to kill."
+    }
+    
+    /**
+     * Gets a simple current task message.
+     * Returns null if the player doesn't have a task.
+     */
+    fun getCurrentTaskName(player: Player): String? {
+        val npcId = player.attr[SLAYER_TASK_ATTR] ?: return null
+
+        val npcDef = try {
+            getNpc(npcId)
+        } catch (e: Exception) {
+            return null
+        }
+
+        val npcName = npcDef.name
+        return "Your current task is $npcName."
     }
 }
 
@@ -315,6 +375,34 @@ class SlayerPlugin(
             p.message("  Amount: $amount")
             p.message("  Progress: $progress")
             p.message("  Remaining: ${amount - progress}")
+        }
+        
+        // Command to refresh the slayer NPC cache (useful after spawning new NPCs)
+        onCommand("slayerrefresh") {
+            val p = player
+            Slayer.clearCache()
+            p.message("Slayer NPC cache cleared. Next task assignment will use fresh data.")
+        }
+        
+        // Debug command to list valid slayer NPCs (shows unique NPC names)
+        onCommand("slayerlist") {
+            val p = player
+            val validNpcIds = Slayer.getSpawnedNpcIdsPublic(p.world)
+            val npcNames = validNpcIds.mapNotNull { id ->
+                try {
+                    getNpc(id).name
+                } catch (e: Exception) {
+                    null
+                }
+            }.distinct().sorted()
+            
+            p.message("Valid slayer NPCs (${npcNames.size} unique types, ${validNpcIds.size} total spawns):")
+            npcNames.take(20).forEach { name ->
+                p.message("  - $name")
+            }
+            if (npcNames.size > 20) {
+                p.message("  ... and ${npcNames.size - 20} more")
+            }
         }
     }
 }

@@ -40,6 +40,13 @@ class KonarPlugin(
         val slayerPoints = org.alter.plugins.content.skills.slayer.Slayer.getSlayerPoints(player)
         
         chatNpc(player, "Greetings, ${player.username}. I am Konar quo Maten, a Slayer master.")
+        
+        // Show current task if player has one
+        val currentTaskInfo = org.alter.plugins.content.skills.slayer.Slayer.getCurrentTaskInfo(player)
+        if (currentTaskInfo != null) {
+            chatNpc(player, currentTaskInfo)
+        }
+        
         chatNpc(player, "You currently have $slayerPoints Slayer Point${if (slayerPoints == 1) "" else "s"}.")
         chatNpc(player, "I assign tasks that must be completed in specific locations. Are you ready for the challenge?")
 
@@ -70,7 +77,8 @@ class KonarPlugin(
 
     suspend fun QueueTask.getAssignment(player: Player) {
         if (player.attr.has(org.alter.plugins.content.skills.slayer.Slayer.SLAYER_TASK_ATTR)) {
-             chatNpc(player, "You already have a task. You need to finish it first.")
+             val taskMessage = org.alter.plugins.content.skills.slayer.Slayer.getCurrentTaskName(player)
+             chatNpc(player, taskMessage ?: "You already have a task. You need to finish it first.")
              return
         }
         org.alter.plugins.content.skills.slayer.Slayer.assign(player, org.alter.plugins.content.skills.slayer.SlayerMaster.KONAR)
