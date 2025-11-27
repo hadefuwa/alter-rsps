@@ -18,6 +18,9 @@ import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.api.PrayerIcon
+import org.alter.game.model.attr.KILLER_ATTR
+import org.alter.rscm.RSCM.getRSCM
+import java.lang.ref.WeakReference
 import kotlin.random.Random
 
 /**
@@ -69,6 +72,21 @@ class TzTokJadCombatPlugin(
         onNpcCombat("npc.tztokjad") {
             npc.queue {
                 npc.combat(this)
+            }
+        }
+        
+        /**
+         * Restore Jad's health immediately when he kills a player
+         */
+        onPlayerPreDeath {
+            val player = ctx as Player
+            val killer = player.attr[KILLER_ATTR]?.get()
+            
+            // Check if the killer is Jad
+            if (killer is Npc && killer.id == getRSCM("npc.tztokjad")) {
+                // Restore Jad's health to full immediately
+                val maxHp = killer.getMaxHp()
+                killer.setCurrentHp(maxHp)
             }
         }
     }
