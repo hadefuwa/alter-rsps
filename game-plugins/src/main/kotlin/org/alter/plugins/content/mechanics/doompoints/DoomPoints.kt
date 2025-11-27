@@ -110,15 +110,37 @@ object DoomPoints {
      */
     val TRADE_IN_VALUES = mapOf(
         // Tier 1: Low-value items (1-5 points)
-        995 to 1,      // 1M coins = 1 point (per million)
+        //995 to 1,      // 1M coins = 1 point (per million)
         
         // Tier 2: Medium-value items (10-50 points)
         11834 to 10,   // Bandos chestplate
         11836 to 10,   // Bandos tassets
-        11832 to 15,   // Bandos boots
         6585 to 20,    // Amulet of fury
         11773 to 25,   // Berserker ring
         6737 to 30,    // Berserker ring (i)
+        
+        // Vesta's Armour Set (10 points each)
+        13887 to 10,   // Vesta's chainbody
+        13893 to 10,   // Vesta's plateskirt
+        13899 to 10,   // Vesta's longsword
+        13905 to 10,   // Vesta's spear
+        
+        // Statius's Armour Set (10 points each)
+        13884 to 10,   // Statius's full helm
+        13890 to 10,   // Statius's platebody
+        13896 to 10,   // Statius's platelegs
+        13902 to 10,   // Statius's warhammer
+        
+        // Zuriel's Armour Set (10 points each)
+        13885 to 10,   // Zuriel's hood
+        13891 to 10,   // Zuriel's robe top
+        13897 to 10,   // Zuriel's robe bottom
+        13903 to 10,   // Zuriel's staff
+        
+        // Morrigan's Armour Set (10 points each)
+        13886 to 10,   // Morrigan's coif
+        13892 to 10,   // Morrigan's leather body
+        13898 to 10,   // Morrigan's leather chaps
         
         // Tier 3: High-value items (50-100 points)
         13576 to 50,   // Dragon warhammer
@@ -126,6 +148,8 @@ object DoomPoints {
         12002 to 75,   // Occult necklace
         19481 to 80,   // Heavy ballista
         13652 to 90,   // Dragon claws
+        21012 to 80,  // Dragon Hunter Crossbow
+        24422 to 80,  // Nightmare Staff
         
         // Tier 4: Very high-value items (100-250 points)
         11802 to 100,  // Armadyl godsword
@@ -133,24 +157,98 @@ object DoomPoints {
         11806 to 100,  // Saradomin godsword
         11808 to 100,  // Zamorak godsword
         20997 to 150,  // Twisted bow
-        21021 to 150,  // Elder maul
-        21003 to 200,  // Kodai wand
+        21003 to 150,  // Elder maul (fixed ID)
+        21006 to 200,  // Kodai wand
+        21015 to 100,  // Dinh's Bulwark
+        22327 to 100,  // Justiciar Chestguard
+        22328 to 100,  // Justiciar Legguards
+        22326 to 100,  // Justiciar Faceguard
+        26235 to 100,  // Nex's Zaryte Vambraces (fixed ID)
+        26374 to 100,  // Zaryte Crossbow
+        24417 to 100,  // Inquisitor's Mace
+        24419 to 100,  // Inquisitor's Great Helm
+        24420 to 100,  // Inquisitor's Hauberk
+        24421 to 100,  // Inquisitor's Plateskirt
+        24551 to 100,  // Blade of Saeldor (charged)
+        27226 to 100,  // Masori Mask (F)
+        27229 to 100,  // Masori Chestplate (F)
+        27232 to 100,  // Masori Chaps (F)
+        
+        // 3rd Age Items (100-150 points)
+        10334 to 100,  // 3rd Age Range Coif
+        10330 to 100,  // 3rd Age Range Body
+        10332 to 100,  // 3rd Age Range Legs
+        10348 to 100,  // 3rd Age Melee Platebody
+        10346 to 100,  // 3rd Age Melee Platelegs
+        10350 to 100,  // 3rd Age Melee Full Helmet
+        12422 to 100,  // 3rd Age Wand
+        12437 to 100,  // 3rd Age Cloak
+        10344 to 100,  // 3rd Age Amulet
+        10352 to 100,  // 3rd Age Kiteshield
+        12424 to 100,  // 3rd Age Bow
+        20014 to 100,  // 3rd Age Pickaxe
+        12426 to 100,  // 3rd Age Longsword
+        20011 to 100,  // 3rd Age Axe
+        23336 to 150,  // 3rd Age Druidic Robe Top
+        23339 to 150,  // 3rd Age Druidic Robe Bottom
+        23345 to 150,  // 3rd Age Druidic Cloak
         
         // Tier 5: Ultra rare items (250-500 points)
         13239 to 250,  // Primordial boots
         13235 to 250,  // Eternal boots
         13237 to 250,  // Pegasian boots
-        22324 to 300,  // Sanguinesti staff
-        22322 to 350,  // Scythe of vitur
-        21015 to 400,  // Ancestral robe top
-        21018 to 400,  // Ancestral robe bottom
+        22323 to 300,  // Sanguinesti staff (fixed ID)
+        
+        // Scythe of Vitur Variants
+        22325 to 350,  // Scythe of vitur
+        22486 to 250,  // Scythe of vitur (uncharged)
+        22664 to 350,  // Scythe of vitur (variant)
+        
+        21021 to 400,  // Ancestral robe top (fixed ID)
+        21024 to 400,  // Ancestral robe bottom (fixed ID)
+        22324 to 300,  // Ghrazi Rapier
+        24511 to 250,  // Harmonised Orb
+        24514 to 250,  // Volatile Orb
+        24517 to 250,  // Eldritch Orb
+        27251 to 300,  // Elidinis' Ward (F)
+        
+        // Torva Armour Set (400 points each)
+        26382 to 400,  // Torva Full Helm
+        26384 to 400,  // Torva Platebody
+        26386 to 400,  // Torva Platelegs
+        
+        // Torva Armour Set (Damaged) (300 points each)
+        26376 to 300,  // Torva Full Helm (Damaged)
+        26378 to 300,  // Torva Platebody (Damaged)
+        26380 to 300,  // Torva Platelegs (Damaged)
+        
+        // Sanguine Torva Armour Set (500 points each)
+        28254 to 500,  // Sanguine Torva Full Helm
+        28256 to 500,  // Sanguine Torva Platebody
+        28258 to 500,  // Sanguine Torva Platelegs
+        
+        // Torva Armour Set (Variant) (400 points each)
+        30302 to 400,  // Torva Full Helm (Variant)
+        30303 to 400,  // Torva Platebody (Variant)
+        30304 to 400,  // Torva Platelegs (Variant)
+        
+        24423 to 400,  // Harmonised Nightmare Staff
         
         // Tier 6: Legendary items (500+ points)
         20784 to 500,  // Dragon claws (ornament kit)
         21295 to 600,  // Infernal cape
-        13652 to 700,  // Elysian spirit shield
+        12817 to 700,  // Elysian spirit shield (fixed ID)
         22613 to 800,  // Avernic defender
-        25739 to 1000, // Holy scythe of vitur
+        
+        // Scythe of Vitur - Special Variants
+        25736 to 1000, // Holy scythe of vitur
+        25738 to 700,  // Holy scythe of vitur (uncharged)
+        25739 to 1000, // Sanguine scythe of vitur
+        25741 to 700,  // Sanguine scythe of vitur (uncharged)
+        28543 to 500,  // Corrupted scythe of vitur
+        28545 to 350,  // Corrupted scythe of vitur (uncharged)
+        
+        27277 to 1200, // Tumeken's Shadow
     )
     
     /**
