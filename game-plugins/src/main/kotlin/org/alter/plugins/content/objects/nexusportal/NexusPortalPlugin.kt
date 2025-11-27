@@ -61,6 +61,8 @@ class NexusPortalPlugin(
             "Bounty Hunter" to Tile(x = 3423, z = 4089, height = 0),
             "Blue Dragons" to Tile(x = 2899, z = 9802, height = 0),
             "Crazy Archaeologist" to Tile(x = 2986, z = 3702, height = 0),
+            "Corporeal Beast" to Tile(x = 2986, z = 4386, height = 2),
+            "TzHaar Fight Cave" to Tile(x = 2413, z = 5117, height = 0),
             "White Wolves" to Tile(x = 2856, z = 3482, height = 0),
 
 
@@ -122,7 +124,7 @@ class NexusPortalPlugin(
             // Special & Island Locations
             "Karamja" to Tile(x = 2944, z = 3146, height = 0),
             "Ape Atoll" to Tile(x = 2754, z = 2784, height = 0),
-            "TzHaar Fight Cave" to Tile(x = 2413, z = 5117, height = 0),
+            
             "TzHaar Fight Pit" to Tile(x = 2398, z = 5177, height = 0),
 
             // From TELEPORT_LOCATIONS.md

@@ -477,7 +477,7 @@ object MeleeCombatFormula : CombatFormula {
         
         // Check if player is using a spear or hasta
         val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return 0.5
-        val weaponName = weapon.def.name.lowercase()
+        val weaponName = weapon.getDef().name.lowercase()
         
         // Check if weapon is a spear or hasta
         val isSpearOrHasta = weaponName.contains("spear") || weaponName.contains("hasta")

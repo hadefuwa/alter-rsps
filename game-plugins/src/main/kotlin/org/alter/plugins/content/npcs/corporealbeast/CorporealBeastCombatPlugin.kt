@@ -15,6 +15,8 @@ import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.game.model.move.moveTo
+import org.alter.game.model.move.walkTo
+import org.alter.rscm.RSCM.getRSCM
 import java.lang.ref.WeakReference
 
 /**
@@ -33,9 +35,9 @@ class CorporealBeastCombatPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     companion object {
-        private const val CORES_ATTR = "corporeal_beast_cores"
-        private const val LAST_DAMAGE_ATTR = "corporeal_beast_last_damage"
-        private const val LAST_DAMAGE_TIME_ATTR = "corporeal_beast_last_damage_time"
+        private val CORES_ATTR = AttributeKey<MutableList<WeakReference<Npc>>>("corporeal_beast_cores")
+        private val LAST_DAMAGE_ATTR = AttributeKey<Int>("corporeal_beast_last_damage")
+        private val LAST_DAMAGE_TIME_ATTR = AttributeKey<Int>("corporeal_beast_last_damage_time")
         private const val CORE_SUMMON_THRESHOLD = 5000 // Damage threshold to trigger core
         private const val MAX_CORES = 10 // Maximum number of cores at once
     }
@@ -44,28 +46,6 @@ class CorporealBeastCombatPlugin(
         onNpcCombat("npc.corporeal_beast") {
             npc.queue {
                 npc.combat(this)
-            }
-        }
-
-        // Track damage taken to trigger core summoning
-        onAnyNpcHit {
-            val npc = ctx as? Npc ?: return@onAnyNpcHit
-            if (npc.id != getRSCM("npc.corporeal_beast")) return@onAnyNpcHit
-            
-            val damage = hit.hitmarks.sumOf { it.damage }
-            if (damage > 0) {
-                val lastDamage = npc.attr[LAST_DAMAGE_ATTR] as? Int ?: 0
-                val totalDamage = lastDamage + damage
-                npc.attr[LAST_DAMAGE_ATTR] = totalDamage
-                npc.attr[LAST_DAMAGE_TIME_ATTR] = world.currentTick
-                
-                // If damage exceeds threshold, trigger core summon
-                if (totalDamage >= CORE_SUMMON_THRESHOLD) {
-                    npc.attr[LAST_DAMAGE_ATTR] = 0 // Reset counter
-                    npc.queue {
-                        summonDarkEnergyCore(npc, getCombatTarget() ?: return@queue)
-                    }
-                }
             }
         }
 
@@ -212,30 +192,21 @@ class CorporealBeastCombatPlugin(
                 target.graphic(id = 317, height = 0, delay = 1)
                 if (target is Player) {
                     val magicLevel = target.getSkills().getCurrentLevel(Skills.MAGIC)
-                    val summoningLevel = target.getSkills().getCurrentLevel(Skills.SUMMONING)
                     val prayerLevel = target.getSkills().getCurrentLevel(Skills.PRAYER)
                     
                     // Drain stats - if already at 0, deal extra damage
                     var extraDamage = 0
                     if (magicLevel > 0) {
                         val drain = world.random(3) + 1
-                        target.getSkills().drainLevel(Skills.MAGIC, drain)
+                        target.getSkills().alterCurrentLevel(skill = Skills.MAGIC, value = -drain, capValue = 0)
                         target.message("Your Magic level has been drained!")
-                    } else {
-                        extraDamage += world.random(5) + 5
-                    }
-                    
-                    if (summoningLevel > 0) {
-                        val drain = world.random(3) + 1
-                        target.getSkills().drainLevel(Skills.SUMMONING, drain)
-                        target.message("Your Summoning level has been drained!")
                     } else {
                         extraDamage += world.random(5) + 5
                     }
                     
                     if (prayerLevel > 0) {
                         val drain = world.random(5) + 5
-                        target.getSkills().drainLevel(Skills.PRAYER, drain)
+                        target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drain, capValue = 0)
                         target.message("Your Prayer level has been drained!")
                     } else {
                         extraDamage += world.random(10) + 10
@@ -360,28 +331,32 @@ class CorporealBeastCombatPlugin(
         
         // Make core move toward players and deal damage
         core.queue {
-            var lastDamageTick = world.currentTick
+            var lastDamageCycle = world.currentCycle
             
             while (core.isSpawned() && core.isActive() && boss.isSpawned() && boss.isActive()) {
                 // Find nearest player
-                val nearestPlayer = world.players
-                    .filter { it.getCurrentHp() > 0 && it.tile.height == core.tile.height }
-                    .minByOrNull { it.tile.getDistance(core.tile) }
+                val validPlayers = mutableListOf<Player>()
+                world.players.forEach { player ->
+                    if (player.getCurrentHp() > 0 && player.tile.height == core.tile.height) {
+                        validPlayers.add(player)
+                    }
+                }
+                val nearestPlayer = validPlayers.minByOrNull { it.tile.getDistance(core.tile) }
                 
                 if (nearestPlayer != null) {
                     val distance = core.tile.getDistance(nearestPlayer.tile)
                     
                     // Move toward player if not adjacent
                     if (distance > 1) {
-                        val direction = core.tile.getDirectionTo(nearestPlayer.tile)
+                        val direction = Direction.calculateAttackDirection(core.tile, nearestPlayer.tile)
                         val nextTile = core.tile.step(direction, 1)
-                        if (nextTile != null && world.canMove(core, nextTile)) {
+                        if (nextTile != null && world.canTraverse(core.tile, direction, core)) {
                             core.walkTo(nextTile)
                         }
                     }
                     
                     // Deal damage if player is in 3x3 area
-                    if (distance <= 1 && world.currentTick - lastDamageTick >= 1) {
+                    if (distance <= 1 && world.currentCycle - lastDamageCycle >= 1) {
                         val damage = world.random(200) + 400 // 400-600 damage
                         nearestPlayer.hit(damage, type = HitType.HIT, delay = 0)
                         nearestPlayer.graphic(id = 319, height = 0, delay = 0)
@@ -390,7 +365,7 @@ class CorporealBeastCombatPlugin(
                         if (nearestPlayer is Player) {
                             val currentPrayer = nearestPlayer.getSkills().getCurrentLevel(Skills.PRAYER)
                             val drainAmount = minOf(20, currentPrayer)
-                            nearestPlayer.getSkills().drainLevel(Skills.PRAYER, drainAmount)
+                            nearestPlayer.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drainAmount, capValue = 0)
                             nearestPlayer.message("The Dark Energy Core drains your Prayer!")
                             
                             // Heal boss
@@ -398,11 +373,11 @@ class CorporealBeastCombatPlugin(
                             val maxHp = boss.getMaxHp()
                             if (currentHp < maxHp) {
                                 val healAmount = minOf(damage, maxHp - currentHp)
-                                boss.heal(healAmount)
+                                boss.setCurrentHp(minOf(currentHp + healAmount, maxHp))
                             }
                         }
                         
-                        lastDamageTick = world.currentTick
+                        lastDamageCycle = world.currentCycle
                     }
                 }
                 

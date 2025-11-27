@@ -297,8 +297,8 @@ object RangedCombatFormula : CombatFormula {
         }
         
         // Apply Corporeal Beast damage reduction (50% for all non-spear/hasta weapons)
-        if (target is Npc && pawn is Player) {
-            hit *= getCorporealBeastDamageMultiplier(pawn, target)
+        if (target is Npc) {
+            hit *= getCorporealBeastDamageMultiplier(player, target)
             hit = Math.floor(hit)
         }
 
