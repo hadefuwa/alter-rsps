@@ -176,6 +176,24 @@ object MeleeCombatFormula : CombatFormula {
             hit = Math.floor(hit)
         }
 
+        // Bounty Hunter set bonus: Double damage on Boss Island with full set, 0 damage outside Boss Island
+        if (target is Npc) {
+            val isOnBossIsland = BountyHunterUtils.isOnBossIsland(player)
+            val hasFullSet = BountyHunterUtils.hasFullBountyHunterSet(player)
+            val hasAnyBountyItem = BountyHunterUtils.hasAnyBountyHunterItem(player)
+            
+            if (hasAnyBountyItem) {
+                if (isOnBossIsland && hasFullSet) {
+                    // Double damage on Boss Island with full set
+                    hit *= 2.0
+                    hit = Math.floor(hit)
+                } else if (!isOnBossIsland) {
+                    // Force 0 damage outside Boss Island
+                    return 0
+                }
+            }
+        }
+
         // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
             hit *= 4.0
@@ -211,6 +229,17 @@ object MeleeCombatFormula : CombatFormula {
 
         hit *= (if (player.hasEquipped(EquipmentType.WEAPON, "item.arclight") && isDemon(target)) 1.7 else specialAttackMultiplier)
         hit = Math.floor(hit)
+
+        // Bounty Hunter set bonus: Force 0 accuracy outside Boss Island
+        if (target is Npc) {
+            val isOnBossIsland = BountyHunterUtils.isOnBossIsland(player)
+            val hasAnyBountyItem = BountyHunterUtils.hasAnyBountyHunterItem(player)
+            
+            if (hasAnyBountyItem && !isOnBossIsland) {
+                // Force 0 accuracy outside Boss Island (will result in misses)
+                return 0.0
+            }
+        }
 
         // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
