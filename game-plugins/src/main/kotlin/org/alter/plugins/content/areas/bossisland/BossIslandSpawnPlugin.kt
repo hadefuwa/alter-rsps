@@ -72,8 +72,6 @@ class BossIslandSpawnPlugin(
         
         // Spawn all major bosses around the island center
         spawnBossesOnIsland()
-        
-        println("Boss Island: Initialized with all major bosses at Bounty Hunter location (${ISLAND_CENTER_X}, ${ISLAND_CENTER_Z})")
     }
     
     /**
@@ -116,18 +114,8 @@ class BossIslandSpawnPlugin(
                 spawnedLocations.add(spawnLocation)
                 spawnedBosses.add(config.displayName)
                 spawnedCount++
-                
-                println("Boss Island: Spawned ${config.displayName} at (${spawnLocation.first}, ${spawnLocation.second})")
-            } else {
-                println("Boss Island: WARNING - Could not find valid spawn location for ${config.displayName}")
             }
         }
-        
-        println("Boss Island: Successfully spawned $spawnedCount/10 major bosses with collision prevention")
-        println("Boss Island: Spawned bosses: ${spawnedBosses.joinToString(", ")}")
-        println("Boss Island: Multi-combat enabled for intense PvM challenges")
-        println("Boss Island: Tripled drops will be handled by BossIslandDropPlugin")
-        println("Boss Island: Minimum distance between bosses: $MIN_BOSS_DISTANCE tiles")
     }
     
     /**

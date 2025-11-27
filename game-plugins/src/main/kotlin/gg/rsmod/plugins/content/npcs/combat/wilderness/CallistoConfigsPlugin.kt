@@ -57,8 +57,8 @@ class CallistoConfigsPlugin(
 
             stats {
                 hitpoints = 1000
-                attack = 300
-                strength = 300
+                attack = 450  // Increased from 300 for better accuracy
+                strength = 450  // Increased from 300 for more damage
                 defence = 250
                 magic = 1
                 ranged = 1
@@ -71,10 +71,11 @@ class CallistoConfigsPlugin(
                 defenceMagic = 100
                 defenceRanged = 150
                 attackStab = 0
-                attackSlash = 120
-                attackCrush = 120
+                attackSlash = 200  // Increased from 120 for better accuracy
+                attackCrush = 200  // Increased from 120 for better accuracy
                 attackMagic = 0
                 attackRanged = 0
+                strengthBonus = 150  // High strength bonus for more damage
             }
 
             anims {

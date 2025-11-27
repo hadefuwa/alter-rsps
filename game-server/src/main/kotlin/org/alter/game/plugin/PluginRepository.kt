@@ -1567,16 +1567,26 @@ class PluginRepository(
         plugin: Plugin.() -> Unit,
     ) {
         val optMap = npcPlugins[npc] ?: Int2ObjectOpenHashMap(1)
-        if (optMap.containsKey(opt)) {
-            logger.error { "Npc is already bound to a plugin: $npc [opt=$opt]" }
-            throw IllegalStateException("Npc is already bound to a plugin: $npc [opt=$opt]")
+        val existingPlugin = optMap[opt]
+        
+        if (existingPlugin != null) {
+            // Chain the handlers: execute both, each will check their own tile conditions
+            val chainedPlugin: Plugin.() -> Unit = {
+                // Execute the existing handler first
+                existingPlugin.invoke(this)
+                // Then execute the new handler
+                plugin.invoke(this)
+            }
+            optMap[opt] = chainedPlugin
+            logger.debug { "Chaining NPC plugin handlers for npc=$npc [opt=$opt]" }
+        } else {
+            optMap[opt] = plugin
         }
 
         if (lineOfSightDistance != -1) {
             npcInteractionDistancePlugins[npc] = lineOfSightDistance
         }
 
-        optMap[opt] = plugin
         npcPlugins[npc] = optMap
     }
 

@@ -44,6 +44,16 @@
     "endTileHeight": 1,
     "animationId": 828,
     "useRelativePosition": true
+  },
+  {
+    "objectId": 30198,
+    "option": "squeeze-through",
+    "requiredLevel": 1,
+    "endTileX": 2680,
+    "endTileZ": 9437,
+    "endTileHeight": 0,
+    "animationId": 762,
+    "useRelativePosition": false
   }
 ]
 

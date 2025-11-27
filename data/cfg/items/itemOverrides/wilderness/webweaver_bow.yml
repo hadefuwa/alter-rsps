@@ -2,24 +2,24 @@
 id: 27655
 name: "Webweaver bow"
 equipment:
-  equipSlot: "weapon"
-  weaponType: 3
-  attackSpeed: 5
-  attackStab: 0
-  attackSlash: 0
-  attackCrush: 0
-  attackMagic: 0
-  attackRanged: 80
-  defenceStab: 0
-  defenceSlash: 0
-  defenceCrush: 0
-  defenceMagic: 0
-  defenceRanged: 0
-  meleeStrength: 0
-  rangedStrength: 65
-  magicDamage: 0
+  equip_slot: "weapon"
+  weapon_type: 3
+  attack_speed: 5
+  attack_stab: 0
+  attack_slash: 0
+  attack_crush: 0
+  attack_magic: 0
+  attack_ranged: 80
+  defence_stab: 0
+  defence_slash: 0
+  defence_crush: 0
+  defence_magic: 0
+  defence_ranged: 0
+  melee_strength: 0
+  ranged_strength: 65
+  magic_damage: 0
   prayer: 0
-  skillReqs:
+  skill_reqs:
     - skill: "ranged"
       level: 70
 

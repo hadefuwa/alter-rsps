@@ -3,7 +3,7 @@ id: 4724
 name: "Guthan's helm"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4904
 name: "Guthan's helm 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4905
 name: "Guthan's helm 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4906
 name: "Guthan's helm 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -39,6 +39,6 @@ id: 4907
 name: "Guthan's helm 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70

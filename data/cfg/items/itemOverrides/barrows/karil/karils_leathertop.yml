@@ -3,7 +3,7 @@ id: 4736
 name: "Karil's leathertop"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -14,7 +14,7 @@ id: 4940
 name: "Karil's leathertop 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -25,7 +25,7 @@ id: 4941
 name: "Karil's leathertop 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -36,7 +36,7 @@ id: 4942
 name: "Karil's leathertop 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -47,7 +47,7 @@ id: 4943
 name: "Karil's leathertop 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"

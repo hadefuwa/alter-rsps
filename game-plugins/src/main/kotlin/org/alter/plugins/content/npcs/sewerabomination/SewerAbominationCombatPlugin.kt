@@ -19,10 +19,13 @@ import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
+import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
+import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.poison.poison
 import org.alter.rscm.RSCM.getRSCM
 import org.alter.game.model.attr.AttributeKey
+import org.alter.api.PrayerIcon
 import java.lang.ref.WeakReference
 import kotlin.random.Random
 
@@ -56,14 +59,66 @@ class SewerAbominationCombatPlugin(
         private const val MAX_MINIONS = 3 // Maximum total minions allowed
         private const val MINION_CLEANUP_DISTANCE = 20 // Remove minions more than 20 tiles from boss
         private const val MINION_TIMEOUT_TICKS = 300 // Remove minions after 5 minutes (300 ticks)
+        
+        /**
+         * Sewer Abomination spawn location (to differentiate from Cerberus which uses the same NPC ID)
+         */
+        private const val SEWER_ABOMINATION_SPAWN_X = 3237
+        private const val SEWER_ABOMINATION_SPAWN_Z = 9866
+        
+        /**
+         * Cerberus spawn location
+         */
+        private const val CERBERUS_SPAWN_X = 1240
+        private const val CERBERUS_SPAWN_Z = 1253
+        
+        private const val LOCATION_TOLERANCE = 10 // Allow 10 tile radius from spawn point
+        
+        /**
+         * Cerberus combat constants
+         */
+        private const val MELEE_ATTACK_CHANCE_NUMERATOR = 1
+        private const val MELEE_ATTACK_CHANCE_DENOMINATOR = 4
+        private const val MELEE_MIN_DAMAGE = 30
+        private const val MELEE_MAX_DAMAGE = 60
+    }
+    
+    /**
+     * Checks if this NPC is the Sewer Abomination (not Cerberus)
+     * Both use the same NPC ID (5862), so we check location
+     */
+    private fun Npc.isSewerAbomination(): Boolean {
+        val distanceX = Math.abs(tile.x - SEWER_ABOMINATION_SPAWN_X)
+        val distanceZ = Math.abs(tile.z - SEWER_ABOMINATION_SPAWN_Z)
+        return distanceX <= LOCATION_TOLERANCE && distanceZ <= LOCATION_TOLERANCE
+    }
+    
+    /**
+     * Checks if this NPC is the actual Cerberus (not the Sewer Abomination)
+     */
+    private fun Npc.isActualCerberus(): Boolean {
+        val distanceX = Math.abs(tile.x - CERBERUS_SPAWN_X)
+        val distanceZ = Math.abs(tile.z - CERBERUS_SPAWN_Z)
+        return distanceX <= LOCATION_TOLERANCE && distanceZ <= LOCATION_TOLERANCE
     }
 
-
     init {
-        // Using Cerberus NPC model (5862) as the Sewer Abomination
+        // Set Cerberus's default combat class to MAGIC (only for actual Cerberus)
+        onNpcSpawn("npc.cerberus") {
+            if (npc.isActualCerberus()) {
+                npc.combatClass = CombatClass.MAGIC
+            }
+        }
+        
+        // Using Cerberus NPC model (5862) - handle both Sewer Abomination and Cerberus
         onNpcCombat("npc.cerberus") {
             npc.queue {
-                npc.combat(this)
+                // Route to appropriate combat logic based on location
+                if (npc.isSewerAbomination()) {
+                    npc.combat(this) // Sewer Abomination combat
+                } else if (npc.isActualCerberus()) {
+                    npc.cerberusCombat(this) // Cerberus combat
+                }
             }
         }
 
@@ -747,5 +802,105 @@ class SewerAbominationCombatPlugin(
             }
         }
         boss.attr.remove(MINIONS_ATTR)
+    }
+    
+    /**
+     * ========== CERBERUS COMBAT LOGIC ==========
+     * Cerberus uses magic as his main attack, with a special melee attack
+     * that shouts "Raaa" and hits 30-60 damage (fully negated by Protect from Melee).
+     */
+    
+    /**
+     * Main combat loop for Cerberus
+     */
+    private suspend fun Npc.cerberusCombat(it: QueueTask) {
+        var target = getCombatTarget() ?: return
+        
+        while (canEngageCombat(target)) {
+            facePawn(target)
+            
+            if (moveToAttackRange(it, target, distance = 10, projectile = true) && isAttackDelayReady()) {
+                // Decide between magic attack (main) or special melee attack
+                val useMeleeAttack = world.chance(MELEE_ATTACK_CHANCE_NUMERATOR, MELEE_ATTACK_CHANCE_DENOMINATOR)
+                
+                if (useMeleeAttack) {
+                    cerberusSpecialMeleeAttack(target, it)
+                } else {
+                    cerberusMagicAttack(target)
+                }
+                
+                postAttackLogic(target)
+            }
+            
+            it.wait(1)
+            target = getCombatTarget() ?: break
+        }
+        
+        resetFacePawn()
+        removeCombatTarget()
+    }
+    
+    /**
+     * Cerberus's main magic attack
+     */
+    private fun Npc.cerberusMagicAttack(target: Pawn) {
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        
+        // Use a fire-based spell for Cerberus
+        val spell = CombatSpell.FIRE_BLAST
+        val projectile = createProjectile(
+            target,
+            gfx = spell.projectile,
+            type = ProjectileType.MAGIC,
+            endHeight = spell.projectilEndHeight,
+        )
+        
+        animate(spell.castAnimation)
+        world.spawn(projectile)
+        
+        val hitDelay = MagicCombatStrategy.getHitDelay(getFrontFacingTile(target), target.getCentreTile())
+        dealHit(target, MagicCombatFormula, delay = hitDelay - 1)
+        
+        // Show impact graphic
+        spell.impactGfx?.let { impact ->
+            target.graphic(impact.id, impact.height, delay = hitDelay - 1)
+        }
+    }
+    
+    /**
+     * Cerberus's special melee attack
+     * Shouts "Raaa" above his head, waits 1 second, then hits 30-60 damage
+     * Fully negated by Protect from Melee prayer
+     */
+    private suspend fun Npc.cerberusSpecialMeleeAttack(target: Pawn, it: QueueTask) {
+        // Shout "Raaa" above his head
+        forceChat("Raaa")
+        
+        // Wait 1 second (2 ticks = ~1.2 seconds)
+        it.wait(2)
+        
+        // Check if target is still valid
+        if (!isAlive() || target.isDead() || !canEngageCombat(target)) {
+            return
+        }
+        
+        // Prepare melee attack
+        prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.AGGRESSIVE)
+        animate(4925) // Melee attack animation (can be adjusted)
+        
+        // Check for Protect from Melee prayer
+        if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+            // Fully negate the attack
+            target.hit(0, type = HitType.BLOCK, delay = 1)
+            target.message("Your protection prayer fully negates Cerberus's melee attack!")
+        } else {
+            // Deal 30-60 damage
+            val damage = world.random(MELEE_MIN_DAMAGE..MELEE_MAX_DAMAGE)
+            target.hit(damage, type = HitType.HIT, delay = 1)
+            
+            if (target is Player) {
+                target.message("Cerberus's powerful melee strike hits you!")
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.specialattack.SpecialAttacks
+import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.interfaces.attack.AttackTab
 import org.alter.plugins.content.interfaces.attack.AttackTab.ATTACK_STYLE_VARP
 import org.alter.plugins.content.interfaces.attack.AttackTab.ATTACK_TAB_INTERFACE_ID
@@ -69,16 +70,26 @@ class AttackTabPlugin(
             // Ensure spellbook is initialized and set varbit BEFORE opening interface so client knows which spellbook to display
             val spellbook = player.getSpellbook()
             player.setSpellbook(spellbook) // Explicitly set to ensure client receives the update
+            
+            // Set defensive mode to false
+            player.attr[Combat.DEFENSIVE_AUTOCAST_SELECTION] = false
+            
             // Open autocast interface
             player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
+            player.setInterfaceEvents(interfaceId = 201, component = 1, range = 0..200, setting = 2)
         }
 
         onButton(interfaceId = ATTACK_TAB_INTERFACE_ID, component = 27) {
             // Ensure spellbook is initialized and set varbit BEFORE opening interface so client knows which spellbook to display
             val spellbook = player.getSpellbook()
             player.setSpellbook(spellbook) // Explicitly set to ensure client receives the update
+            
+            // Set defensive mode to true
+            player.attr[Combat.DEFENSIVE_AUTOCAST_SELECTION] = true
+            
             // Open autocast interface
             player.openInterface(interfaceId = 201, dest = InterfaceDestination.ATTACK)
+            player.setInterfaceEvents(interfaceId = 201, component = 1, range = 0..200, setting = 2)
         }
 
         /**

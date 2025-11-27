@@ -128,7 +128,6 @@ class WildernessObeliskPlugin(
                             onObjOption(obj = obeliskId, option = option) {
                                 activateObelisk(player)
                             }
-                            println("Successfully bound obelisk $obeliskId with option: $option")
                             optionBound = true
                             break // Found a working option, no need to try others
                         }
@@ -144,7 +143,6 @@ class WildernessObeliskPlugin(
                         r.bindObject(obeliskId, 1, -1) {
                             activateObelisk(player)
                         }
-                        println("Successfully bound obelisk $obeliskId with option index 1")
                         optionBound = true
                     } catch (e: Exception) {
                         println("Failed to bind obelisk $obeliskId with option index 1: ${e.message}")

@@ -124,23 +124,44 @@ object DoomPoints {
         13893 to 10,   // Vesta's plateskirt
         13899 to 10,   // Vesta's longsword
         13905 to 10,   // Vesta's spear
+        22610 to 10,   // Vesta's spear (variant)
+        22616 to 10,   // Vesta's chainbody (variant)
+        22619 to 10,   // Vesta's plateskirt (variant)
+        23615 to 10,   // Vesta's longsword (variant 2)
         
         // Statius's Armour Set (10 points each)
         13884 to 10,   // Statius's full helm
         13890 to 10,   // Statius's platebody
         13896 to 10,   // Statius's platelegs
         13902 to 10,   // Statius's warhammer
+        22622 to 10,   // Statius's warhammer (variant)
+        22625 to 10,   // Statius's full helm (variant)
+        22626 to 10,   // Statius's full helm (noted)
+        22628 to 10,   // Statius's platebody (variant)
+        22631 to 10,   // Statius's platelegs (variant)
+        23620 to 10,   // Statius's warhammer (variant 2)
         
         // Zuriel's Armour Set (10 points each)
         13885 to 10,   // Zuriel's hood
         13891 to 10,   // Zuriel's robe top
         13897 to 10,   // Zuriel's robe bottom
         13903 to 10,   // Zuriel's staff
+        22647 to 10,   // Zuriel's staff (variant)
+        22650 to 10,   // Zuriel's hood (variant)
+        22653 to 10,   // Zuriel's robe top (variant)
+        22656 to 10,   // Zuriel's robe bottom (variant)
+        23617 to 10,   // Zuriel's staff (variant 2)
         
         // Morrigan's Armour Set (10 points each)
         13886 to 10,   // Morrigan's coif
         13892 to 10,   // Morrigan's leather body
         13898 to 10,   // Morrigan's leather chaps
+        22634 to 10,   // Morrigan's throwing axe
+        22636 to 10,   // Morrigan's javelin
+        22638 to 10,   // Morrigan's coif (variant)
+        22641 to 10,   // Morrigan's leather body (variant)
+        22644 to 10,   // Morrigan's leather chaps (variant)
+        23619 to 10,   // Morrigan's javelin (variant 2)
         
         // Tier 3: High-value items (50-100 points)
         13576 to 50,   // Dragon warhammer

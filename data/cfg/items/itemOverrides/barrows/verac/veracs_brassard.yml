@@ -3,7 +3,7 @@ id: 4757
 name: "Verac's brassard"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4988
 name: "Verac's brassard 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4989
 name: "Verac's brassard 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4990
 name: "Verac's brassard 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -39,6 +39,6 @@ id: 4991
 name: "Verac's brassard 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70

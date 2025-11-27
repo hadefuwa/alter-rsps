@@ -87,9 +87,15 @@ class Item(val id: Int, var amount: Int = 1) {
     }
 
     companion object {
-        fun fromDocument(doc: Document): Item {
+        fun fromDocument(doc: Document): Item? {
             val id = doc.getInteger("id")
             val amount = doc.getInteger("amount")
+            
+            // Safety check: reject corrupted items with negative amounts (except -2 which is used for bank placeholders)
+            if (amount < 0 && amount != -2) {
+                return null
+            }
+            
             val item = Item(id, amount)
 
             val attributesDoc = doc.get("attributes", Document::class.java)

@@ -51,7 +51,18 @@ fun Player.openShop(shop: String) {
         shopDirty = true
         openInterface(interfaceId = 300, dest = InterfaceDestination.MAIN_SCREEN)
         openInterface(interfaceId = 301, dest = InterfaceDestination.TAB_AREA)
-        runClientScript(CommonClientScripts.SHOP_INIT, 3, s.name, -1, 0, 1)
+        
+        // Check if this is the Slayer Rewards Shop and display points
+        val shopTitle = if (s.name == "Slayer Rewards Shop") {
+            // Access slayer points via attribute key
+            val slayerPointsAttr = org.alter.game.model.attr.AttributeKey<Int>("slayer_points")
+            val points = attr[slayerPointsAttr] ?: 0
+            "${s.name} - Points: $points"
+        } else {
+            s.name
+        }
+        
+        runClientScript(CommonClientScripts.SHOP_INIT, 3, shopTitle, -1, 0, 1)
         setInterfaceEvents(interfaceId = 300, component = 16, range = 0..s.items.size, setting = 1086)
         setInterfaceEvents(interfaceId = 301, component = 0, range = 0 until inventory.capacity, setting = 1086)
     } else {
@@ -66,7 +77,18 @@ fun Player.openShop(shopId: Int) {
         shopDirty = true
         openInterface(interfaceId = 300, dest = InterfaceDestination.MAIN_SCREEN)
         openInterface(interfaceId = 301, dest = InterfaceDestination.TAB_AREA)
-        runClientScript(CommonClientScripts.SHOP_INIT, 3, s.name, -1, 0, 1)
+        
+        // Check if this is the Slayer Rewards Shop and display points
+        val shopTitle = if (s.name == "Slayer Rewards Shop") {
+            // Access slayer points via attribute key
+            val slayerPointsAttr = org.alter.game.model.attr.AttributeKey<Int>("slayer_points")
+            val points = attr[slayerPointsAttr] ?: 0
+            "${s.name} - Points: $points"
+        } else {
+            s.name
+        }
+        
+        runClientScript(CommonClientScripts.SHOP_INIT, 3, shopTitle, -1, 0, 1)
         setInterfaceEvents(interfaceId = 300, component = 16, range = 0..s.items.size, setting = 1086)
         setInterfaceEvents(interfaceId = 301, component = 0, range = 0 until inventory.capacity, setting = 1086)
     } else {
@@ -756,7 +778,11 @@ fun Player.getTarget(): Pawn? = attr[COMBAT_TARGET_FOCUS_ATTR]?.get()
 
 fun Player.hasSpellbook(book: Spellbook): Boolean = getVarbit(Varbit.PLAYER_SPELL_BOOK) == book.id
 
-fun Player.getSpellbook(): Spellbook = Spellbook.values.first { getVarbit(Varbit.PLAYER_SPELL_BOOK) == it.id }
+fun Player.getSpellbook(): Spellbook {
+    val varbitValue = getVarbit(Varbit.PLAYER_SPELL_BOOK)
+    // If varbit is uninitialized or invalid, default to NORMAL spellbook
+    return Spellbook.values.firstOrNull { it.id == varbitValue } ?: Spellbook.NORMAL
+}
 
 fun Player.setSpellbook(book: Spellbook) = setVarbit(Varbit.PLAYER_SPELL_BOOK, book.id)
 

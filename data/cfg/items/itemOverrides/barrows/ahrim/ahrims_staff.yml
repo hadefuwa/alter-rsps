@@ -3,7 +3,7 @@ id: 23653
 name: "Ahrims's staff"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4710
 name: "Ahrims's staff"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4862
 name: "Ahrims's staff 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4863
 name: "Ahrims's staff 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -39,7 +39,7 @@ id: 4864
 name: "Ahrims's staff 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -48,6 +48,6 @@ id: 4865
 name: "Ahrims's staff 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70

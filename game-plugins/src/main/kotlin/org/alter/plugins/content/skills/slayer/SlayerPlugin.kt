@@ -59,7 +59,7 @@ object Slayer {
         "tutor", "master", "teacher", "guide", "leprechaun", "null", "spawn",
         "rock", "tentacle", "head", "wing", "twig", "pile",
         "giant skeleton", "zombie swab", "assassin", "assasin", "angry goblin", "baboon thrall", "rebel warrior", "elidinis warden", "rooster", "mourner", // Add more name patterns here as needed
-        "fear repear", "strangled"
+        "fear repear", "strangled", "prince itzla arkan"
         )
 
     // Cache for valid NPC IDs (lazy initialization)

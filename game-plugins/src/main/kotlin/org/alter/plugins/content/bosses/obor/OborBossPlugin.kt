@@ -49,9 +49,6 @@ class OborBossPlugin(
         
         // Set up combat mechanics
         setupOborCombat()
-        
-        println("Obor Boss: Initialized at location (${OBOR_LOCATION.x}, ${OBOR_LOCATION.z})")
-        println("Obor Boss: Combat Level $OBOR_COMBAT_LEVEL with enhanced mechanics")
     }
     
     /**
@@ -83,7 +80,6 @@ class OborBossPlugin(
         onNpcSpawn("npc.obor") {
             // Set enhanced damage multiplier for Obor
             npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = 1.5 // 50% more damage
-            println("Obor Boss: Enhanced Obor spawned with increased damage")
         }
         
         // Message nearby players when Obor dies

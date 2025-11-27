@@ -50,9 +50,6 @@ class SpawnPlugin(
      * - height: Height level (defaults to 0 for underground levels)
      */
     init {
-        // Debug: Verify plugin is loading
-        println("Stronghold of Security SpawnPlugin: Loading spawns...")
-        
         /**
          * FLOOR 1: The Vault of War
          * 
@@ -236,9 +233,6 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.ankou", x = 2358, z = 5220, walkRadius = 6, direction = Direction.EAST)
         spawnNpc(npc = "npc.ankou", x = 2344, z = 5220, walkRadius = 6, direction = Direction.WEST)
         spawnNpc(npc = "npc.ankou", x = 2346, z = 5218, walkRadius = 6, direction = Direction.NORTH)
-        
-        // Debug: Verify plugin loaded successfully
-        println("Stronghold of Security SpawnPlugin: Loaded successfully - all spawns registered")
     }
 }
 

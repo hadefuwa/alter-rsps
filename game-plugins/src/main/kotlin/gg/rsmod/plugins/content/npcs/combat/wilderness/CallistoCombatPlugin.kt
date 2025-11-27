@@ -24,6 +24,7 @@ import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
  * - Bear Swipe: High damage melee attack
  * - Ground Slam: Creates traps that stun players
  * - Roar: Fear effect that can force players to move
+ * - Knockback Attack: Sends players flying with a powerful blow
  * 
  * Combat Level: 470, Hitpoints: 1000
  * Location: Callisto's Den (Multi-combat wilderness)
@@ -62,19 +63,21 @@ class CallistoCombatPlugin(
                 when (attackType) {
                     "enraged" -> {
                         // Enraged phase - more frequent special attacks
-                        when (this.world.random(3)) {
-                            0 -> shockwaveAttack(target)
-                            1 -> groundSlamAttack(target)
-                            2 -> bearRoarAttack(target)
-                        }
-                    }
-                    "special" -> {
-                        // Random special attack
                         when (this.world.random(4)) {
                             0 -> shockwaveAttack(target)
                             1 -> groundSlamAttack(target)
                             2 -> bearRoarAttack(target)
+                            3 -> knockbackAttack(target)
+                        }
+                    }
+                    "special" -> {
+                        // Random special attack
+                        when (this.world.random(5)) {
+                            0 -> shockwaveAttack(target)
+                            1 -> groundSlamAttack(target)
+                            2 -> bearRoarAttack(target)
                             3 -> bearSwipeAttack(target)
+                            4 -> knockbackAttack(target)
                         }
                     }
                     else -> {
@@ -281,6 +284,75 @@ class CallistoCombatPlugin(
                     player.message("You resist Callisto's intimidating roar.")
                 }
             }
+        }
+    }
+
+    private suspend fun Npc.knockbackAttack(target: Pawn) {
+        prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
+        forceChat("*CHARGES WITH DEVASTATING FORCE*")
+        animate(4925) // Bear charge/swipe animation
+        graphic(245) // Powerful impact graphic
+        
+        if (target is Player) {
+            // Deal high damage first
+            val hit = dealHit(
+                target = target,
+                formula = MeleeCombatFormula,
+                delay = 1
+            )
+            
+            val damage = hit.hit.hitmarks.sumOf { it.damage }
+            target.message("Callisto's massive blow sends you flying!")
+            
+            // Calculate knockback direction (away from Callisto)
+            val npcTile = this.tile
+            val playerTile = target.tile
+            
+            // Calculate direction from NPC to player
+            val direction = Direction.between(npcTile, playerTile)
+            val directionAngle = direction.angle
+            
+            // Calculate knockback distance (3-5 tiles away)
+            val knockbackDistance = this.world.random(3..5)
+            val endTile = when (direction) {
+                Direction.NORTH -> Tile(playerTile.x, playerTile.z + knockbackDistance, playerTile.height)
+                Direction.SOUTH -> Tile(playerTile.x, playerTile.z - knockbackDistance, playerTile.height)
+                Direction.EAST -> Tile(playerTile.x + knockbackDistance, playerTile.z, playerTile.height)
+                Direction.WEST -> Tile(playerTile.x - knockbackDistance, playerTile.z, playerTile.height)
+                Direction.NORTH_EAST -> Tile(playerTile.x + knockbackDistance, playerTile.z + knockbackDistance, playerTile.height)
+                Direction.NORTH_WEST -> Tile(playerTile.x - knockbackDistance, playerTile.z + knockbackDistance, playerTile.height)
+                Direction.SOUTH_EAST -> Tile(playerTile.x + knockbackDistance, playerTile.z - knockbackDistance, playerTile.height)
+                Direction.SOUTH_WEST -> Tile(playerTile.x - knockbackDistance, playerTile.z - knockbackDistance, playerTile.height)
+                else -> Tile(playerTile.x, playerTile.z + knockbackDistance, playerTile.height) // Default to north
+            }
+            
+            // Create flying knockback movement with smooth animation
+            val movement = ForcedMovement.of(
+                src = playerTile,
+                dst = endTile,
+                clientDuration1 = 20,  // Fast initial movement
+                clientDuration2 = 40,  // Slower landing
+                directionAngle = directionAngle
+            )
+            
+            // Execute the flying knockback
+            target.queue {
+                target.graphic(157) // Flying/knockback graphic
+                target.forceMove(this, movement, cycleDuration = 2)
+                target.message("You crash to the ground!")
+                
+                // Additional damage on landing (fall damage)
+                val fallDamage = this@knockbackAttack.world.random(5..15)
+                target.hit(fallDamage, type = HitType.HIT, delay = 0)
+                target.message("The impact hurts!")
+            }
+        } else {
+            // For non-player targets, just deal damage
+            dealHit(
+                target = target,
+                formula = MeleeCombatFormula,
+                delay = 1
+            )
         }
     }
 }

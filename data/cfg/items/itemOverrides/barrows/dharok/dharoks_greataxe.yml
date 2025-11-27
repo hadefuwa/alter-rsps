@@ -3,7 +3,7 @@ id: 25516
 name: "Dharok's greataxe"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"
@@ -14,7 +14,7 @@ id: 4718
 name: "Dharok's greataxe"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"
@@ -25,7 +25,7 @@ id: 4886
 name: "Dharok's greataxe 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"
@@ -36,7 +36,7 @@ id: 4887
 name: "Dharok's greataxe 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"
@@ -47,7 +47,7 @@ id: 4888
 name: "Dharok's greataxe 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"
@@ -58,7 +58,7 @@ id: 4889
 name: "Dharok's greataxe 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
     - skill: "strength"

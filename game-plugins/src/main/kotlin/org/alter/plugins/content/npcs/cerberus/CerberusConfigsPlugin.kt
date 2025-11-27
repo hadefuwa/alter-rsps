@@ -38,7 +38,7 @@ class CerberusConfigsPlugin(
         setCombatDef("npc.cerberus") {
             configs {
                 attackSpeed = 3  // Fast attack speed
-                respawnDelay = 100  // 60 seconds respawn (100 ticks)
+                respawnDelay = 8  // 5 seconds respawn (8 ticks, matching OSRS)
             }
 
             aggro {
@@ -47,31 +47,31 @@ class CerberusConfigsPlugin(
             }
 
             stats {
-                hitpoints = 150  // Much lower hitpoints for easier fight
-                attack = 80
-                strength = 90
-                defence = 60
-                magic = 70
-                ranged = 65
+                hitpoints = 250  // Balanced HP - challenging but not too tanky
+                attack = 250
+                strength = 280
+                defence = 220
+                magic = 240
+                ranged = 230
             }
 
             bonuses {
-                attackStab = 20
-                attackSlash = 20
-                attackCrush = 25
-                attackMagic = 30
-                attackRanged = 25
+                attackStab = 120
+                attackSlash = 120
+                attackCrush = 130
+                attackMagic = 140
+                attackRanged = 130
 
-                defenceStab = 40
-                defenceSlash = 45
-                defenceCrush = 50
-                defenceMagic = 30
-                defenceRanged = 35
+                defenceStab = 150
+                defenceSlash = 160
+                defenceCrush = 170
+                defenceMagic = 120
+                defenceRanged = 140
 
-                attackBonus = 50
-                strengthBonus = 40
-                rangedStrengthBonus = 30
-                magicDamageBonus = 25
+                attackBonus = 150
+                strengthBonus = 180
+                rangedStrengthBonus = 140
+                magicDamageBonus = 250  // Increased from 160 - makes magic attacks hit much harder
             }
 
             anims {
@@ -85,9 +85,10 @@ class CerberusConfigsPlugin(
                     add("item.coins_995", min = 500000, max = 500000) // Guaranteed 500k coins
                 }
 
-                main(weight = 128) {
-                    // Unique drops
-                    add("item.draconic_visage", min = 1, weight = 1) // Very rare
+                // Total item weights: 185 (2+3+8+7+10+8+25+15+12+10+15+8+5+3+10+6+10+7+12+8)
+                // Using weight = 200 for ~93% drop chance (200 >= 185)
+                main(weight = 200) {
+                    // Unique drops (draconic visage removed - should only be in tertiary table)
                     add("item.dragon_med_helm", min = 1, weight = 2)
                     add("item.dragon_dagger", min = 1, weight = 3)
 
@@ -125,27 +126,27 @@ class CerberusConfigsPlugin(
                 }
 
                 // Rare drop table (all rare items in one table)
-                tertiary(weight = 250) {
-                    // Cerberus crystals (1/10 each = 25/250)
-                    add("item.eternal_crystal", min = 1, weight = 25)      // 1/10 chance
-                    add("item.primordial_crystal", min = 1, weight = 25)   // 1/10 chance
-                    add("item.pegasian_crystal", min = 1, weight = 25)     // 1/10 chance
+                // Tertiary tables roll each item independently: Random.nextInt(weight) == 0 means drop
+                // Higher weight = rarer drop (weight 1000 = 1/1000 chance, weight 1 = 100% chance)
+                // Total item weights: 1142 (25+25+25+10+10+10+15+10+5+5+2+1000)
+                tertiary(weight = 1200) {
+                    // Cerberus crystals (1/25 chance each)
+                    add("item.eternal_crystal", min = 1, weight = 25)      // 1/25 chance
+                    add("item.primordial_crystal", min = 1, weight = 25)   // 1/25 chance
+                    add("item.pegasian_crystal", min = 1, weight = 25)     // 1/25 chance
                     
-                    // Cerberus boots (1/25 each = 10/250)
-                    add("item.pegasian_boots", min = 1, weight = 10)       // 1/25 chance
-                    add("item.primordial_boots", min = 1, weight = 10)     // 1/25 chance  
-                    add("item.eternal_boots", min = 1, weight = 10)        // 1/25 chance
+                    // Cerberus boots (1/10 chance each)
+                    add("item.pegasian_boots", min = 1, weight = 10)       // 1/10 chance
+                    add("item.primordial_boots", min = 1, weight = 10)     // 1/10 chance  
+                    add("item.eternal_boots", min = 1, weight = 10)        // 1/10 chance
                     
-                    // Other rare items (much rarer now)
-                    add("item.dragon_spear", min = 1, weight = 15)
-                    add("item.dragon_platelegs", min = 1, weight = 10)
-                    add("item.loop_half_of_a_key", min = 1, weight = 5)
-                    add("item.tooth_half_of_a_key", min = 1, weight = 5)
-                    add("item.shield_left_half", min = 1, weight = 2)
-                    add("item.draconic_visage", min = 1, weight = 1)       // Very rare
-                    
-                    // Nothing drop (to make total weight 250 and balance rates)
-                    // Weight 107 = no rare drop this time
+                    // Other rare items
+                    add("item.dragon_spear", min = 1, weight = 15)        // 1/15 chance
+                    add("item.dragon_platelegs", min = 1, weight = 10)     // 1/10 chance
+                    add("item.loop_half_of_key", min = 1, weight = 5)    // 1/5 chance
+                    add("item.tooth_half_of_key", min = 1, weight = 5)   // 1/5 chance
+                    add("item.shield_left_half", min = 1, weight = 2)      // 1/2 chance
+                    add("item.draconic_visage", min = 1, weight = 1000)    // Very rare: 1/1000 chance
                 }
             }
         }

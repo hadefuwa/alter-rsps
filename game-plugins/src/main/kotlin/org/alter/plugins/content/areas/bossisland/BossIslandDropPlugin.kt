@@ -89,17 +89,13 @@ class BossIslandDropPlugin(
             try {
                 val npcId = getRSCM(rscmName)
                 bossIslandNpcIds.add(npcId)
-                println("Boss Island Drops: Registered $rscmName (ID: $npcId) for enhanced drops")
             } catch (e: Exception) {
-                println("Boss Island Drops: Warning - Could not find NPC $rscmName: ${e.message}")
+                // NPC not found, skip
             }
         }
         
         // Set up drop enhancement system
         setupDropEnhancement()
-        
-        println("Boss Island Drops: Initialized tripled drop system for ${bossIslandNpcIds.size} boss types")
-        println("Boss Island Drops: Island location (${ISLAND_CENTER_X}, ${ISLAND_CENTER_Z}) with radius ${ISLAND_RADIUS}")
     }
     
     /**
@@ -133,8 +129,6 @@ class BossIslandDropPlugin(
                 playersWhoDamaged.forEach { player ->
                     player.message("<col=ff6600>Boss Island: This boss drops ${DROP_MULTIPLIER}x the normal loot + 3M coins!</col>")
                 }
-                
-                println("Boss Island Drops: Set ${DROP_MULTIPLIER}x multiplier for ${npc.def.name} (ID: ${npc.id}) with ${playersWhoDamaged.size} damage dealers")
                 
                 // Generate guaranteed 3M coins and bonus loot for each player who dealt damage
                 playersWhoDamaged.forEach { player ->
@@ -185,7 +179,6 @@ class BossIslandDropPlugin(
         guaranteedCoins.ownerShipType = 1
         
         npc.world.spawn(guaranteedCoins)
-        println("Boss Island: Spawned guaranteed 3M coins for ${npc.def.name} kill for ${player.username}")
     }
 
     /**
@@ -220,12 +213,8 @@ class BossIslandDropPlugin(
                     npc.world.spawn(bonusGroundItem)
                 }
             }
-            
-            println("Boss Island Drops: Generated ${DROP_MULTIPLIER - 1} bonus loot sets for ${npc.def.name} for ${player.username}")
-            
         } catch (e: Exception) {
-            println("Boss Island Drops: Error generating bonus loot for ${npc.def.name} for ${player.username}: ${e.message}")
-            e.printStackTrace()
+            // Error generating bonus loot, skip
         }
     }
 }

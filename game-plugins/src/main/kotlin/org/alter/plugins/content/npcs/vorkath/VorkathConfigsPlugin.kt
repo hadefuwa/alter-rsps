@@ -147,8 +147,8 @@ class VorkathConfigsPlugin(
                     add("item.shield_left_half", min = 1, weight = 256)
                     add("item.dragon_platelegs", min = 1, weight = 150)
                     add("item.dragon_platebody", min = 1, weight = 150)
-                    add("item.loop_half_of_a_key", min = 1, weight = 128)
-                    add("item.tooth_half_of_a_key", min = 1, weight = 128)
+                    add("item.loop_half_of_key", min = 1, weight = 128)
+                    add("item.tooth_half_of_key", min = 1, weight = 128)
                 }
             }
         }

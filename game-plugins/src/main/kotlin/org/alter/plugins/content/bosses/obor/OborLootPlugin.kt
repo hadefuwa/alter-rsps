@@ -29,8 +29,6 @@ class OborLootPlugin(
     init {
         // Set up Obor loot drops
         setupOborLoot()
-        
-        println("Obor Loot: Initialized enhanced loot system for Obor boss")
     }
     
     /**
@@ -85,7 +83,5 @@ class OborLootPlugin(
                 world.spawn(GroundItem(item = getRSCM(item), amount = 1, tile = npc.tile, owner = player))
             }
         }
-        
-        println("Obor Loot: Generated enhanced loot for ${player.username}")
     }
 }

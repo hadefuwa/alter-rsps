@@ -77,17 +77,13 @@ class BossIslandCombatPlugin(
             try {
                 val npcId = getRSCM(rscmName)
                 bossIslandNpcIds.add(npcId)
-                println("Boss Island Combat: Registered $rscmName (ID: $npcId) for enhanced damage")
             } catch (e: Exception) {
-                println("Boss Island Combat: Warning - Could not find NPC $rscmName: ${e.message}")
+                // NPC not found, skip
             }
         }
         
         // Set up damage enhancement system
         setupDamageEnhancement()
-        
-        println("Boss Island Combat: Initialized double damage system for ${bossIslandNpcIds.size} boss types")
-        println("Boss Island Combat: Island location (${ISLAND_CENTER_X}, ${ISLAND_CENTER_Z}) with radius ${ISLAND_RADIUS}")
     }
     
     /**
@@ -102,7 +98,6 @@ class BossIslandCombatPlugin(
                     if (isBossOnIsland(npc)) {
                         // Set the damage multiplier attribute
                         npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = DAMAGE_MULTIPLIER.toDouble()
-                        println("Boss Island Combat: Applied ${DAMAGE_MULTIPLIER}x damage multiplier to ${npc.def.name} (ID: ${npc.id})")
                         
                         // Message nearby players about the enhanced damage
                         npc.world.players.forEach { player ->
@@ -114,7 +109,7 @@ class BossIslandCombatPlugin(
                     }
                 }
             } catch (e: Exception) {
-                println("Boss Island Combat: Warning - Could not register spawn hook for $rscmName: ${e.message}")
+                // Spawn hook registration failed, skip
             }
         }
     }

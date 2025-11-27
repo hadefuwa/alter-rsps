@@ -3,7 +3,7 @@ id: 4730
 name: "Guthan's chainskirt"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4922
 name: "Guthan's chainskirt 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4923
 name: "Guthan's chainskirt 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4924
 name: "Guthan's chainskirt 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -39,6 +39,6 @@ id: 4925
 name: "Guthan's chainskirt 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70

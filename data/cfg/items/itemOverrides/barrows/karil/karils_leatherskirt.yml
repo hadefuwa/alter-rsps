@@ -3,7 +3,7 @@ id: 4738
 name: "Karil's leatherskirt"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -14,7 +14,7 @@ id: 4946
 name: "Karil's leatherskirt 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -25,7 +25,7 @@ id: 4947
 name: "Karil's leatherskirt 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -36,7 +36,7 @@ id: 4948
 name: "Karil's leatherskirt 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"
@@ -47,7 +47,7 @@ id: 4949
 name: "Karil's leatherskirt 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "ranged"

@@ -104,9 +104,8 @@ class SharedLootDropPlugin(
             try {
                 val npcId = getRSCM(rscmName)
                 sharedLootNpcIds.add(npcId)
-                println("SharedLootDropPlugin: Added ${rscmName} (ID: $npcId) to shared loot system")
             } catch (e: Exception) {
-                println("SharedLootDropPlugin: Warning - Could not find NPC ${rscmName}: ${e.message}")
+                // NPC not found, skip
             }
         }
         
@@ -115,9 +114,8 @@ class SharedLootDropPlugin(
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             alwaysRandomDropNpcIds.add(crazyArchId)
-            println("SharedLootDropPlugin: Added Crazy Archaeologist (ID: $crazyArchId) to always-random-drop list")
         } catch (e: Exception) {
-            println("SharedLootDropPlugin: Warning - Could not find NPC npc.crazy_archaeologist: ${e.message}")
+            // NPC not found, skip
         }
         
         // Add NPCs that should always drop guaranteed coins
@@ -125,9 +123,8 @@ class SharedLootDropPlugin(
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             guaranteedCoinDrops[crazyArchId] = 500000 // 500k coins
-            println("SharedLootDropPlugin: Added Crazy Archaeologist (ID: $crazyArchId) to guaranteed-coin-drop list (500k per player)")
         } catch (e: Exception) {
-            println("SharedLootDropPlugin: Warning - Could not find NPC npc.crazy_archaeologist for coin drops: ${e.message}")
+            // NPC not found, skip
         }
         
         // Add NPCs that should drop loot at player locations instead of NPC location
@@ -135,12 +132,9 @@ class SharedLootDropPlugin(
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             dropAtPlayerLocationNpcIds.add(crazyArchId)
-            println("SharedLootDropPlugin: Added Crazy Archaeologist (ID: $crazyArchId) to drop-at-player-location list")
         } catch (e: Exception) {
-            println("SharedLootDropPlugin: Warning - Could not find NPC npc.crazy_archaeologist for drop location: ${e.message}")
+            // NPC not found, skip
         }
-        
-        println("SharedLootDropPlugin: Initialized with ${sharedLootNpcIds.size} NPCs using shared loot")
         
         // Register handler for any NPC death
         onAnyNpcDeath {
@@ -185,7 +179,6 @@ class SharedLootDropPlugin(
         
         // Determine if loot should drop at player locations or NPC location
         val dropAtPlayerLocation = dropAtPlayerLocationNpcIds.contains(npc.id)
-        println("SharedLootDropPlugin: NPC ${npc.id} (${npc.def.name}) - dropAtPlayerLocation: $dropAtPlayerLocation")
         
         // Give each player their own loot roll
         playersWhoDamaged.forEach { player ->
@@ -199,8 +192,6 @@ class SharedLootDropPlugin(
                 } else {
                     npc.tile
                 }
-                
-                println("SharedLootDropPlugin: Dropping ${droppedItems.size} items for player ${player.username} at tile $dropTile (player tile: ${player.tile}, npc tile: ${npc.tile})")
                 
                 // Spawn each dropped item on the ground at the determined location
                 droppedItems.forEach { groundItem ->

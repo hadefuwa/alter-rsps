@@ -43,8 +43,6 @@ class OborKeyPlugin(
     init {
         // Set up Giant Key drops from Hill Giants
         setupGiantKeyDrops()
-        
-        println("Obor Key: Initialized Giant Key drops from Hill Giants")
     }
     
     /**
@@ -75,8 +73,6 @@ class OborKeyPlugin(
                             // Inventory full, drop on ground using exact SearchHayPlugin pattern
                             world.spawn(GroundItem(item = getRSCM(GIANT_KEY_ID), amount = 1, tile = npc.tile, owner = topDamager))
                         }
-                        
-                        println("Giant Key: Dropped for ${topDamager.username} from ${npc.def.name}")
                     }
                 }
             }

@@ -42,16 +42,11 @@ class NpcLootDropPlugin(
     }
 
     init {
-        println("NpcLootDropPlugin: Plugin initialized")
-        
         // Pre-build the valid item list (lazy initialization will trigger on first use)
-        println("NpcLootDropPlugin: Building valid item list...")
-        val itemCount = validItemIds.size
-        println("NpcLootDropPlugin: Found $itemCount valid items in game item table")
+        validItemIds.size
         
         // Register a handler for ANY NPC death to handle loot drops
         onAnyNpcDeath {
-            println("NpcLootDropPlugin: onAnyNpcDeath triggered")
             val npc = ctx as Npc
             
             // Skip NPCs that use shared loot system (handled by SharedLootDropPlugin)
@@ -66,7 +61,6 @@ class NpcLootDropPlugin(
             // If multiple players dealt damage, this is likely a shared loot NPC - skip default handler
             // SharedLootDropPlugin will handle it instead
             if (playersWhoDamaged.size > 1) {
-                println("NpcLootDropPlugin: Skipping NPC ${npc.id} (${npc.def.name}) - multiple players dealt damage, likely uses shared loot")
                 return@onAnyNpcDeath
             }
             
@@ -74,7 +68,6 @@ class NpcLootDropPlugin(
             try {
                 val crazyArchId = getRSCM("npc.crazy_archaeologist")
                 if (npc.id == crazyArchId) {
-                    println("NpcLootDropPlugin: Skipping Crazy Archaeologist - handled by SharedLootDropPlugin")
                     return@onAnyNpcDeath
                 }
             } catch (e: Exception) {

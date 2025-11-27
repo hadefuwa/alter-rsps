@@ -1,7 +1,9 @@
 dependencies {
     implementation(project(":plugins:filestore"))
     implementation("io.netty:netty-buffer:4.1.107.Final")
-    implementation("dev.openrune:js5server:1.0.6")
+    implementation("dev.openrune:js5server:1.0.6") {
+        exclude(group = "org.slf4j", module = "slf4j-simple")
+    }
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation("cc.ekblad:4koma:1.1.0")
     implementation("me.tongfei:progressbar:0.9.2")

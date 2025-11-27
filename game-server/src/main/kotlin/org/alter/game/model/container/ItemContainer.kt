@@ -509,11 +509,19 @@ class ItemContainer(val key: ContainerKey) : Iterable<Item?> {
         for (i in index until capacity) {
             val curItem = items[i] ?: continue
             if (curItem.id == item) {
+                // Safety check: skip corrupted items with negative amounts (except -2 which is used for bank placeholders)
+                if (curItem.amount < 0 && curItem.amount != -2) {
+                    logger.warn { "Skipping corrupted item at slot $i in container ${key.name}: ID=${curItem.id}, amount=${curItem.amount}" }
+                    items[i] = null
+                    continue
+                }
+                
                 val removeCount = Math.min(curItem.amount, amount - totalRemoved)
                 totalRemoved += removeCount
 
                 curItem.amount -= removeCount
-                if (curItem.amount == 0) {
+                // Check for <= 0 to catch both zero and negative amounts (corruption)
+                if (curItem.amount <= 0) {
                     val removedItem = Item(items[i]!!)
                     items[i] = null
                     removed.add(SlotItem(i, removedItem))
@@ -542,11 +550,19 @@ class ItemContainer(val key: ContainerKey) : Iterable<Item?> {
             for (i in skippedIndices) {
                 val curItem = items[i] ?: continue
                 if (curItem.id == item) {
+                    // Safety check: skip corrupted items with negative amounts (except -2 which is used for bank placeholders)
+                    if (curItem.amount < 0 && curItem.amount != -2) {
+                        logger.warn { "Skipping corrupted item at slot $i in container ${key.name}: ID=${curItem.id}, amount=${curItem.amount}" }
+                        items[i] = null
+                        continue
+                    }
+                    
                     val removeCount = Math.min(curItem.amount, amount - totalRemoved)
                     totalRemoved += removeCount
 
                     curItem.amount -= removeCount
-                    if (curItem.amount == 0) {
+                    // Check for <= 0 to catch both zero and negative amounts (corruption)
+                    if (curItem.amount <= 0) {
                         val removedItem = Item(items[i]!!)
                         items[i] = null
                         removed.add(SlotItem(i, removedItem))
@@ -783,7 +799,13 @@ class ItemContainer(val key: ContainerKey) : Iterable<Item?> {
         index: Int,
         item: Item?,
     ) {
-        items[index] = item
+        // Safety check: prevent setting items with negative amounts (except -2 which is used for bank placeholders)
+        if (item != null && item.amount < 0 && item.amount != -2) {
+            logger.warn { "Preventing setting corrupted item at slot $index in container ${key.name}: ID=${item.id}, amount=${item.amount}" }
+            items[index] = null
+        } else {
+            items[index] = item
+        }
         dirty = true
     }
 

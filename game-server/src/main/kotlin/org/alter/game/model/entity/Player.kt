@@ -292,6 +292,19 @@ open class Player(world: World) : Pawn(world) {
             world.plugins.executeRegionEnter(this, tile.regionId)
         }
         if (inventory.dirty) {
+            // Proactive safety check: remove corrupted inventory items with invalid amounts
+            var inventoryHasCorruptedItems = false
+            inventory.rawItems.forEachIndexed { index, item ->
+                if (item != null && (item.amount < 0 && item.amount != -2 || item.amount > Int.MAX_VALUE)) {
+                    World.logger.warn { "Removing corrupted inventory item at slot $index: ID=${item.id}, amount=${item.amount} (player: ${username})" }
+                    inventory[index] = null
+                    inventoryHasCorruptedItems = true
+                }
+            }
+            if (inventoryHasCorruptedItems) {
+                inventory.dirty = true
+            }
+            
             val items = inventory.rawItems
             write(
                 UpdateInvFull(
@@ -308,6 +321,19 @@ open class Player(world: World) : Pawn(world) {
         }
 
         if (equipment.dirty) {
+            // Proactive safety check: remove corrupted equipment items with invalid amounts
+            var equipmentHasCorruptedItems = false
+            equipment.rawItems.forEachIndexed { index, item ->
+                if (item != null && (item.amount < 0 && item.amount != -2 || item.amount > Int.MAX_VALUE)) {
+                    World.logger.warn { "Removing corrupted equipment item at slot $index: ID=${item.id}, amount=${item.amount} (player: ${username})" }
+                    equipment[index] = null
+                    equipmentHasCorruptedItems = true
+                }
+            }
+            if (equipmentHasCorruptedItems) {
+                equipment.dirty = true
+            }
+            
             val items = equipment.rawItems
             write(UpdateInvFull(inventoryId = 94, capacity = items.size, provider = RsModObjectProvider(items)))
             equipment.dirty = false
@@ -316,15 +342,24 @@ open class Player(world: World) : Pawn(world) {
             org.alter.game.info.PlayerInfo(this).syncAppearance()
         }
 
+        // Proactive safety check: remove corrupted bank items with negative amounts
+        // This ensures corrupted items are removed even if bank isn't marked as dirty
+        // Note: -2 is allowed as it's used for bank placeholders
+        var bankHasCorruptedItems = false
+        bank.rawItems.forEachIndexed { index, item ->
+            if (item != null && item.amount < 0 && item.amount != -2) {
+                World.logger.warn { "Removing corrupted bank item at slot $index: ID=${item.id}, amount=${item.amount} (player: ${username})" }
+                bank[index] = null
+                bankHasCorruptedItems = true
+            }
+        }
+        // Mark bank as dirty if we removed corrupted items, so it gets synced to client
+        if (bankHasCorruptedItems) {
+            bank.dirty = true
+        }
+
         if (bank.dirty) {
             val items = bank.rawItems
-            // Safety check: remove corrupted items with negative amounts
-            items.forEachIndexed { index, item ->
-                if (item != null && item.amount < 0) {
-                    println("WARNING: Removing corrupted bank item at slot $index: ID=${item.id}, amount=${item.amount}")
-                    bank[index] = null
-                }
-            }
             write(UpdateInvFull(inventoryId = 95, capacity = items.size, provider = RsModObjectProvider(items)))
             bank.dirty = false
         }

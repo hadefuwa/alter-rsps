@@ -483,10 +483,8 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.gracefull_top_dark", min = 1, max = 1, weight = 5)
-                    add("item.gracefull_bottom_dark", min = 1, max = 1, weight = 5)
                     add("item.yew_logs_noted", min = 10, max = 20, weight = 10)
-                    add("item.raw_strimp_noted", min = 100, max = 200, weight = 10)
+                    add("item.raw_shrimps_noted", min = 100, max = 200, weight = 10)
                     add("item.purple_partyhat", min = 1, max = 1, weight = 10)
                     add("item.guam_potion_unf_noted", min = 25, max = 50, weight = 10)
                 }

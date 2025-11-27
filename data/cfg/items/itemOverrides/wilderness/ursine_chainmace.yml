@@ -2,24 +2,24 @@
 id: 27660
 name: "Ursine chainmace"
 equipment:
-  equipSlot: "weapon"
-  weaponType: 16
-  attackSpeed: 4
-  attackStab: 0
-  attackSlash: 0
-  attackCrush: 72
-  attackMagic: 0
-  attackRanged: 0
-  defenceStab: 0
-  defenceSlash: 0
-  defenceCrush: 0
-  defenceMagic: 0
-  defenceRanged: 0
-  meleeStrength: 71
-  rangedStrength: 0
-  magicDamage: 0
+  equip_slot: "weapon"
+  weapon_type: 16
+  attack_speed: 4
+  attack_stab: 0
+  attack_slash: 0
+  attack_crush: 72
+  attack_magic: 0
+  attack_ranged: 0
+  defence_stab: 0
+  defence_slash: 0
+  defence_crush: 0
+  defence_magic: 0
+  defence_ranged: 0
+  melee_strength: 71
+  ranged_strength: 0
+  magic_damage: 0
   prayer: 0
-  skillReqs:
+  skill_reqs:
     - skill: "attack"
       level: 70
 

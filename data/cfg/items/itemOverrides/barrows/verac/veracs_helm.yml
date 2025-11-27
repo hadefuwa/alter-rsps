@@ -3,7 +3,7 @@ id: 4753
 name: "Verac's helm"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4976
 name: "Verac's helm 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4977
 name: "Verac's helm 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4978
 name: "Verac's helm 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
 
@@ -39,6 +39,6 @@ id: 4979
 name: "Verac's helm 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70

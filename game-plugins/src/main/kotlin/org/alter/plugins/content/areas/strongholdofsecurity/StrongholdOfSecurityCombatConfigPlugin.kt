@@ -128,8 +128,16 @@ class StrongholdOfSecurityCombatConfigPlugin(
         /**
          * Zombie Combat Configuration
          * Level 11-12 creatures, undead warriors.
+         * Includes all zombie variants (zombie, zombie_27, zombie_28, etc.)
          */
-        setCombatDef("npc.zombie") {
+        setCombatDef(
+            "npc.zombie",
+            "npc.zombie_27",
+            "npc.zombie_28",
+            "npc.zombie_29",
+            "npc.zombie_30",
+            "npc.zombie_31"
+        ) {
             configs {
                 attackSpeed = 4
                 respawnDelay = 25
@@ -167,7 +175,8 @@ class StrongholdOfSecurityCombatConfigPlugin(
                     add("item.bones", 1)
                 }
 
-                main(weight = 128) {
+                // Total item weights: ~254, using weight = 300 for ~85% drop chance
+                main(weight = 300) {
                     // Low-tier weapons
                     add("item.iron_sword", min = 1, weight = 15)
                     add("item.iron_scimitar", min = 1, weight = 12)
@@ -175,6 +184,16 @@ class StrongholdOfSecurityCombatConfigPlugin(
                     add("item.steel_sword", min = 1, weight = 8)
                     add("item.steel_scimitar", min = 1, weight = 6)
                     add("item.steel_longsword", min = 1, weight = 5)
+                    
+                    // Axes (regular and noted)
+                    add("item.bronze_axe", min = 1, weight = 10)
+                    add("item.bronze_axe_noted", min = 1, max = 5, weight = 8)
+                    add("item.iron_axe", min = 1, weight = 12)
+                    add("item.iron_axe_noted", min = 1, max = 5, weight = 10)
+                    add("item.steel_axe", min = 1, weight = 8)
+                    add("item.steel_axe_noted", min = 1, max = 3, weight = 6)
+                    add("item.mithril_axe", min = 1, weight = 5)
+                    add("item.mithril_axe_noted", min = 1, max = 2, weight = 4)
 
                     // Low-tier armor
                     add("item.iron_full_helm", min = 1, weight = 10)
@@ -188,7 +207,7 @@ class StrongholdOfSecurityCombatConfigPlugin(
                     // Coins & supplies
                     add("item.coins_995", min = 10, max = 200, weight = 25)
                     add("item.bread", min = 1, max = 2, weight = 12)
-                    add("item.meat", min = 1, max = 2, weight = 10)
+                    add("item.cooked_meat", min = 1, max = 2, weight = 10)
 
                     // Runes
                     add("item.mind_rune", min = 3, max = 10, weight = 15)
@@ -199,6 +218,14 @@ class StrongholdOfSecurityCombatConfigPlugin(
                     add("item.grimy_guam", min = 1, weight = 8)
                     add("item.grimy_marrentill", min = 1, weight = 6)
                     add("item.grimy_tarromin", min = 1, weight = 4)
+                }
+                
+                // Very rare drop: Zombie Axe (~1/512 chance per specific axe) - both regular and noted versions
+                // Tertiary tables roll each item independently: Random.nextInt(weight) == 0 means drop
+                // Higher weight = rarer drop (weight 512 = 1/512 chance, weight 1 = 100% chance)
+                tertiary(weight = 512) {
+                    add("item.zombie_axe", min = 1, weight = 512)      // 1/512 chance
+                    add("item.zombie_axe_noted", min = 1, weight = 512) // 1/512 chance
                 }
             }
         }

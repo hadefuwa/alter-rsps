@@ -3,7 +3,7 @@ id: 4708
 name: "Ahrims's hood"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "magic"
@@ -14,7 +14,7 @@ id: 4856
 name: "Ahrims's hood 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "magic"
@@ -25,7 +25,7 @@ id: 4857
 name: "Ahrims's hood 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "magic"
@@ -36,7 +36,7 @@ id: 4858
 name: "Ahrims's hood 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "magic"
@@ -47,7 +47,7 @@ id: 4859
 name: "Ahrims's hood 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "defence"
       level: 70
     - skill: "magic"

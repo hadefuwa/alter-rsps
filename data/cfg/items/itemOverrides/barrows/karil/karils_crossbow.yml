@@ -3,7 +3,7 @@ id: 4734
 name: "Karil's crossbow"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -12,7 +12,7 @@ id: 4934
 name: "Karil's crossbow 100"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -21,7 +21,7 @@ id: 4935
 name: "Karil's crossbow 75"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -30,7 +30,7 @@ id: 4936
 name: "Karil's crossbow 50"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70
 
@@ -39,6 +39,6 @@ id: 4937
 name: "Karil's crossbow 25"
 
 equipment:
-  skillReqs:
+  skill_reqs:
     - skill: "magic"
       level: 70

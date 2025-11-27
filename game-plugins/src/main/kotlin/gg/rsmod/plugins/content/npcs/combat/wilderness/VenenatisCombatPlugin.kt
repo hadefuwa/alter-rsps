@@ -17,6 +17,8 @@ import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.mechanics.poison.poison
+import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.game.model.timer.TimeConstants
 
 /**
  * @author Alycia <https://github.com/alycii>
@@ -27,6 +29,7 @@ import org.alter.plugins.content.mechanics.poison.poison
  * - Spawn Spiderlings: Summons smaller spider minions
  * - Venom Spit: Poison damage over time
  * - Web Trap: Creates sticky traps that slow players
+ * - Web Stick: Sticks player in place and removes overhead prayers
  * 
  * Combat Level: 464, Hitpoints: 850
  * Location: Silk Chasm (Multi-combat wilderness)
@@ -59,21 +62,23 @@ class VenenatisCombatPlugin(
                 when {
                     getCurrentHp() <= getMaxHp() * 0.25 -> {
                         // Enraged phase - spawn more spiderlings and web traps
-                        when (this.world.random(3)) {
+                        when (this.world.random(4)) {
                             0 -> spawnSpiderlingsAttack(target)
                             1 -> webTrapAttack(target)
                             2 -> venomSpitAttack(target)
+                            3 -> webStickAttack(target)
                             else -> webProjectileAttack(target)
                         }
                         attackCount = 0
                     }
                     attackCount >= 4 && this.world.chance(1, 3) -> {
                         // Special attacks
-                        when (this.world.random(4)) {
+                        when (this.world.random(5)) {
                             0 -> webProjectileAttack(target)
                             1 -> spawnSpiderlingsAttack(target)
                             2 -> venomSpitAttack(target)
                             3 -> webTrapAttack(target)
+                            4 -> webStickAttack(target)
                             else -> webProjectileAttack(target)
                         }
                         attackCount = 0
@@ -379,6 +384,62 @@ class VenenatisCombatPlugin(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun Npc.webStickAttack(target: Pawn) {
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        forceChat("*SHOOTS STICKY WEB STRANDS*")
+        animate(5320) // Web animation
+        graphic(170) // Web casting graphic
+        
+        if (target is Player) {
+            target.message("Venenatis shoots sticky web strands at you!")
+        }
+        
+        // Create projectile
+        val projectile = createProjectile(
+            target, 
+            gfx = 1749,  // Web projectile graphic
+            startHeight = 43, 
+            endHeight = 31, 
+            delay = 51, 
+            angle = 15, 
+            steepness = 127
+        )
+        
+        world.spawn(projectile)
+        
+        val delay = RangedCombatStrategy.getHitDelay(getFrontFacingTile(target), target.getCentreTile())
+        
+        // Apply web stick effect after delay
+        this.world.queue {
+            wait(delay)
+            
+            if (target is Player && target.isAlive()) {
+                val damage = this@webStickAttack.world.random(15..30) // 15-30 damage
+                target.hit(damage, type = HitType.HIT, delay = 0)
+                target.graphic(id = 171, height = 0, delay = 0) // Web entangle graphic
+                
+                // Stick player in place (freeze for 2 seconds)
+                // 2 seconds ≈ 3-4 cycles (using TimeConstants conversion)
+                val freezeCycles = TimeConstants.secondsToCycles(2) ?: 4
+                target.message("You are stuck in Venenatis's sticky web!")
+                target.freeze(cycles = freezeCycles) {
+                    target.message("You break free from the sticky web!")
+                }
+                
+                // Remove overhead prayers and disable them for 2 seconds
+                Prayers.deactivateAll(target)
+                val disableCycles = TimeConstants.secondsToCycles(2) ?: 4
+                Prayers.disableOverheads(target, disableCycles)
+                target.message("Your overhead prayer has been knocked off!")
+                target.message("You cannot use overhead prayers for a short time.")
+            } else if (target.isAlive()) {
+                // For non-player targets, just deal damage
+                val damage = this@webStickAttack.world.random(15..30)
+                target.hit(damage, type = HitType.HIT, delay = 0)
             }
         }
     }
