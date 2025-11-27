@@ -63,8 +63,10 @@ class SharedLootDropPlugin(
             "npc.cerberus", // Sewer Abomination
             "npc.crazy_archaeologist",
             "npc.chaos_fanatic",
-            "npc.chaos_elemental"
+            "npc.chaos_elemental",
+            "npc.corporeal_beast" // Corporeal Beast - shared loot for all damage dealers
         )
+        
     }
     
     /**
@@ -91,6 +93,12 @@ class SharedLootDropPlugin(
     private val dropAtPlayerLocationNpcIds = mutableSetOf<Int>()
     
     /**
+     * Set of item IDs that should be excluded from random drops.
+     * This is populated at plugin initialization from EXCLUDED_RANDOM_DROP_ITEMS.
+     */
+    private val excludedRandomDropItemIds = mutableSetOf<Int>()
+    
+    /**
      * Cached list of valid item IDs from the entire game item table.
      * This is built once when the plugin initializes to avoid rebuilding it on every NPC death.
      */
@@ -106,6 +114,17 @@ class SharedLootDropPlugin(
                 sharedLootNpcIds.add(npcId)
             } catch (e: Exception) {
                 // NPC not found, skip
+            }
+        }
+        
+        // Convert excluded item RSCM names to item IDs at initialization
+        // Uses shared exclusion list from RandomDropExclusions
+        RandomDropExclusions.EXCLUDED_RANDOM_DROP_ITEMS.forEach { rscmName ->
+            try {
+                val itemId = getRSCM(rscmName)
+                excludedRandomDropItemIds.add(itemId)
+            } catch (e: Exception) {
+                // Item not found, skip
             }
         }
         
@@ -388,6 +407,11 @@ class SharedLootDropPlugin(
         // Most RuneScape servers use item IDs in the range 0-30000
         for (itemId in 0..30000) {
             try {
+                // Skip items that are in the exclusion list
+                if (excludedRandomDropItemIds.contains(itemId)) {
+                    continue
+                }
+                
                 val itemDef = getItem(itemId)
                 val itemName = itemDef.name.lowercase()
                 

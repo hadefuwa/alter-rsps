@@ -33,6 +33,13 @@ class NpcLootDropPlugin(
     server: Server
 ) : KotlinPlugin(r, world, server) {
 
+
+    /**
+     * Set of item IDs that should be excluded from random drops.
+     * This is populated at plugin initialization from EXCLUDED_RANDOM_DROP_ITEMS.
+     */
+    private val excludedRandomDropItemIds = mutableSetOf<Int>()
+
     /**
      * Cached list of valid item IDs from the entire game item table.
      * This is built once when the plugin initializes to avoid rebuilding it on every NPC death.
@@ -42,6 +49,17 @@ class NpcLootDropPlugin(
     }
 
     init {
+        // Convert excluded item RSCM names to item IDs at initialization
+        // Uses shared exclusion list from RandomDropExclusions
+        RandomDropExclusions.EXCLUDED_RANDOM_DROP_ITEMS.forEach { rscmName ->
+            try {
+                val itemId = getRSCM(rscmName)
+                excludedRandomDropItemIds.add(itemId)
+            } catch (e: Exception) {
+                // Item not found, skip
+            }
+        }
+        
         // Pre-build the valid item list (lazy initialization will trigger on first use)
         validItemIds.size
         
@@ -64,11 +82,21 @@ class NpcLootDropPlugin(
                 return@onAnyNpcDeath
             }
             
-            // Also check if this is Crazy Archaeologist specifically (known shared loot NPC)
+            // Also check if this is a known shared loot NPC (handled by SharedLootDropPlugin)
             try {
-                val crazyArchId = getRSCM("npc.crazy_archaeologist")
-                if (npc.id == crazyArchId) {
-                    return@onAnyNpcDeath
+                val sharedLootNpcs = listOf(
+                    "npc.crazy_archaeologist",
+                    "npc.corporeal_beast"
+                )
+                sharedLootNpcs.forEach { rscmName ->
+                    try {
+                        val npcId = getRSCM(rscmName)
+                        if (npc.id == npcId) {
+                            return@onAnyNpcDeath
+                        }
+                    } catch (e: Exception) {
+                        // NPC not found, continue
+                    }
                 }
             } catch (e: Exception) {
                 // If we can't find the ID, continue with normal handling
@@ -138,13 +166,18 @@ class NpcLootDropPlugin(
     
     /**
      * Builds a list of valid item IDs from the entire game item table.
-     * Filters out placeholders, null names, and empty names.
+     * Filters out placeholders, null names, empty names, and excluded items.
      */
     private fun buildValidItemList(): List<Int> {
         val validItems = mutableListOf<Int>()
         
         for (itemId in 0 until itemSize()) {
             try {
+                // Skip items that are in the exclusion list
+                if (excludedRandomDropItemIds.contains(itemId)) {
+                    continue
+                }
+                
                 val def = getItem(itemId)
                 // Filter out invalid items: placeholders, null names, and empty names
                 if (!def.isPlaceholder && def.name.isNotBlank() && def.name.lowercase() != "null") {
