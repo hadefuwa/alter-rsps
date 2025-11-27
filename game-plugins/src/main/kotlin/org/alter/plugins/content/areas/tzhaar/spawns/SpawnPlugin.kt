@@ -99,6 +99,14 @@ class SpawnPlugin(
         
         // TzHaar-Mej-Roh - Quest or dialogue NPC
         spawnNpc(npc = "npc.tzhaarmejroh", x = 2442, z = 5170, height = 0, walkRadius = 2, direction = Direction.SOUTH)
+        
+        /**
+         * TzTok-Jad
+         * 
+         * TzTok-Jad, the final boss of the Fight Cave minigame
+         * Spawned at coordinates 2394, 5087 in the Fight Cave area
+         */
+        spawnNpc(npc = "npc.tztokjad", x = 2394, z = 5087, height = 0, walkRadius = 0, direction = Direction.SOUTH)
     }
 }
 

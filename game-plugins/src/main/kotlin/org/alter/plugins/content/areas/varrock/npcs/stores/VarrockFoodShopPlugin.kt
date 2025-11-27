@@ -15,6 +15,7 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.items.consumables.food.Food
 import org.alter.plugins.content.mechanics.shops.CoinCurrency
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.game.model.item.Item
 
 /**
  * Varrock Food Shop
@@ -41,6 +42,10 @@ class VarrockFoodShopPlugin(
             try {
                 val itemId = getRSCM(food.item)
                 if (itemId != -1) {
+                    // Convert to noted version if available
+                    val notedItem = Item(itemId).toNoted()
+                    val finalItemId = if (notedItem.id != itemId) notedItem.id else itemId
+                    
                     // Price all foods between 1k-10k based on heal amount
                     // Heal range is 1-22, so we scale linearly: heal 1 = 1k, heal 22 = 10k
                     // Anglerfish has heal = 0 but can heal up to 22 at max level, so treat it as high-tier
@@ -60,7 +65,7 @@ class VarrockFoodShopPlugin(
                     }
                     
                     // Stock: 100 of each food, restock to 50
-                    add(ShopItem(itemId, 100, finalPrice, 50))
+                    add(ShopItem(finalItemId, 100, finalPrice, 50))
                 }
             } catch (e: Exception) {
                 // Skip items not found in RSCM
