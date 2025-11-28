@@ -37,7 +37,7 @@ class CerberusConfigsPlugin(
 
         setCombatDef("npc.cerberus") {
             configs {
-                attackSpeed = 3  // Fast attack speed
+                attackSpeed = 5  // Attack speed (2 ticks slower than before)
                 respawnDelay = 8  // 5 seconds respawn (8 ticks, matching OSRS)
             }
 

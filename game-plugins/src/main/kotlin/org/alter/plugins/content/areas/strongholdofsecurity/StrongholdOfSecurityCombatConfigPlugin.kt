@@ -215,7 +215,7 @@ class StrongholdOfSecurityCombatConfigPlugin(
                     add("item.chaos_rune", min = 1, max = 3, weight = 5)
 
                     // Herbs (uncommon)
-                    add("item.grimy_guam", min = 1, weight = 8)
+                    add("item.grimy_guam_leaf", min = 1, weight = 8)
                     add("item.grimy_marrentill", min = 1, weight = 6)
                     add("item.grimy_tarromin", min = 1, weight = 4)
                 }
