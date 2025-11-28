@@ -46,6 +46,12 @@ class NexusPortalPlugin(
             "Cerberus" to Tile(x = 1240, z = 1253, height = 0),
             "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),
             "Jormungands Prison" to Tile(x = 2460, z = 10415, height = 0),
+            // GWD Bosses
+            "Commander Zilyana" to Tile(x = 2899, z = 5268, height = 2),
+            "General Graardor" to Tile(x = 2864, z = 5354, height = 2),
+            "K'ril Tsutsaroth" to Tile(x = 2925, z = 5330, height = 2),
+            "Kree'arra" to Tile(x = 2833, z = 5303, height = 2),
+            "Nex" to Tile(x = 2925, z = 5203, height = 0),
             // Cities & Towns
             "God Wars Dungeon" to Tile(x = 2881, z = 5309, height = 2),
             "Revenants South" to Tile(x = 3197, z = 10056, height = 0),
