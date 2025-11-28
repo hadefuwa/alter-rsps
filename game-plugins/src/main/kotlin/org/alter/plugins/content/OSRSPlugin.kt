@@ -95,6 +95,8 @@ class OSRSPlugin(
                 if (currentSpellbook < 0 || currentSpellbook > 3) {
                     setSpellbook(Spellbook.NORMAL)
                 }
+                // Unlock Desert Treasure quest to enable Ancient spells
+                setVarbit(Varbit.DESERT_TREASURE, 2) // Set to 2 to ensure quest is marked as completed
                 runClientScript(CommonClientScripts.INTRO_MUSIC_RESTORE)
                 if (getVarp(Varp.PLAYER_HAS_DISPLAY_NAME) == 0 && username.isNotBlank()) {
                     syncVarp(Varp.PLAYER_HAS_DISPLAY_NAME)

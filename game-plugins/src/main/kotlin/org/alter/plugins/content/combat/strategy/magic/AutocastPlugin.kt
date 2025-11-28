@@ -19,7 +19,12 @@ class AutocastPlugin(
         // Handle Cancel button on autocast interface (201)
         // Component 0 is typically the Cancel button
         onButton(interfaceId = 201, component = 0) {
+            // Close the autocast interface
             player.closeInterface(interfaceId = 201)
+            // Reopen the attack tab (593) that was replaced by the autocast interface
+            player.openInterface(dest = InterfaceDestination.ATTACK)
+            // Refresh weapon component information to ensure combat options work correctly
+            player.sendWeaponComponentInformation()
         }
         
         // Handle autocast spell selection on interface 201
@@ -40,8 +45,9 @@ class AutocastPlugin(
                     // Refresh weapon component information to update attack tab with autocast selection
                     player.sendWeaponComponentInformation()
 
-                    // Close the autocast interface - the attack tab (593) is already open
+                    // Close the autocast interface and reopen the attack tab (593)
                     player.closeInterface(interfaceId = 201)
+                    player.openInterface(dest = InterfaceDestination.ATTACK)
                     
                     // Debug
                     player.message("Selected autocast spell: ${spell.name} (Defensive: $defensive)")

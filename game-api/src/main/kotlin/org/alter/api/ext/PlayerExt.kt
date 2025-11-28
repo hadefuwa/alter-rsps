@@ -784,7 +784,13 @@ fun Player.getSpellbook(): Spellbook {
     return Spellbook.values.firstOrNull { it.id == varbitValue } ?: Spellbook.NORMAL
 }
 
-fun Player.setSpellbook(book: Spellbook) = setVarbit(Varbit.PLAYER_SPELL_BOOK, book.id)
+fun Player.setSpellbook(book: Spellbook) {
+    setVarbit(Varbit.PLAYER_SPELL_BOOK, book.id)
+    // Unlock Desert Treasure quest when switching to Ancient spellbook to enable all Ancient spells
+    if (book == Spellbook.ANCIENTS) {
+        setVarbit(Varbit.DESERT_TREASURE, 2) // Set to 2 to ensure quest is marked as completed
+    }
+}
 
 fun Player.getWeaponType(): Int = getVarbit(Varbit.WEAPON_TYPE_VARBIT)
 

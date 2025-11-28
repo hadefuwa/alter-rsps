@@ -121,6 +121,22 @@ class SlayerRewardsShopPlugin(
             
             // Old School Bond - 200 slayer points
             items[14] = ShopItem(13190, 10000, sellPrice = 200, buyPrice = null)
+            
+            // Dwarf Multicannon Set (contains all 4 parts: base, stand, barrels, furnace)
+            try {
+                val cannonSet = getRSCM("item.dwarf_cannon_set")
+                if (cannonSet != -1) {
+                    items[15] = ShopItem(cannonSet, 100, sellPrice = 750, buyPrice = null)
+                }
+            } catch (e: Exception) {}
+            
+            // Cannonballs
+            try {
+                val cannonballs = getRSCM("item.cannonball")
+                if (cannonballs != -1) {
+                    items[16] = ShopItem(cannonballs, 10000, sellPrice = 1, buyPrice = null)
+                }
+            } catch (e: Exception) {}
         }
     }
     

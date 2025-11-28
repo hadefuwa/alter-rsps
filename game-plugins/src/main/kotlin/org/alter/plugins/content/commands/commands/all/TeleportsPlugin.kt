@@ -11,6 +11,7 @@ import org.alter.game.model.queue.TaskPriority
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.magic.prepareForTeleport
+import org.alter.plugins.content.magic.TeleportType
 
 class TeleportsPlugin(
     r: PluginRepository,
@@ -20,7 +21,7 @@ class TeleportsPlugin(
 
     init {
         /**
-         * Home teleport button handler (interface 218, component 7).
+         * Home teleport button handler for all spellbooks (interface 218, 219, 220, 221, component 7).
          * Left-click (option 1 - "Cast"): Instantly teleports player to home location.
          * Right-click option 10 ("Animation"): Opens teleport menu.
          * 
@@ -28,10 +29,19 @@ class TeleportsPlugin(
          * and cannot be changed dynamically. We're using option 10 ("Animation") to trigger
          * the teleport menu.
          * 
+         * Different spellbooks use different interface IDs:
+         * - Standard: 218
+         * - Ancient: 219
+         * - Lunar: 220
+         * - Arceuus: 221
+         * 
          * TO DISABLE TELEPORT MENU: Comment out the entire "if (option == 10)" block below
          */
-        onButton(interfaceId = 218, component = 7) {
-            val option = player.getInteractingOption()
+        // Register home teleport handler for all spellbook interfaces
+        val spellbookInterfaces = listOf(218, 219, 220, 221)
+        spellbookInterfaces.forEach { interfaceId ->
+            onButton(interfaceId = interfaceId, component = 7) {
+                val option = player.getInteractingOption()
             
             // Right-click option 10 ("Animation" in menu) - Teleport Menu
             // TO DISABLE: Comment out this entire if block
@@ -206,8 +216,9 @@ class TeleportsPlugin(
             }
 
             val home = world.gameContext.home
-            player.prepareForTeleport()
-            player.moveTo(home)
+            // Use the teleport function with MODERN type for proper animations and behavior
+            player.teleport(home, TeleportType.MODERN)
+            }
         }
 
         onCommand("home", description = "Teleports you home") {
