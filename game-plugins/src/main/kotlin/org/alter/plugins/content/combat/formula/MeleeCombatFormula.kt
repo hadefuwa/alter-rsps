@@ -143,6 +143,10 @@ object MeleeCombatFormula : CombatFormula {
                 maxRoll *= 10.0
             }
         }
+        // Apply Corporeal Beast accuracy bonus for spears/hastas
+        if (pawn is Player && target is Npc) {
+            maxRoll *= getCorporealBeastAccuracyMultiplier(pawn, target)
+        }
         return maxRoll.toInt()
     }
 
@@ -152,6 +156,10 @@ object MeleeCombatFormula : CombatFormula {
 
         var maxRoll = a * (b + 64.0)
         maxRoll = applyDefenceSpecials(target, maxRoll)
+        // Apply Corporeal Beast defense reduction when attacked by spears/hastas
+        if (pawn is Player && target is Npc) {
+            maxRoll *= getCorporealBeastDefenceMultiplier(pawn, target)
+        }
         return maxRoll.toInt()
     }
 
@@ -503,6 +511,52 @@ object MeleeCombatFormula : CombatFormula {
         }
     }
 
+    /**
+     * Get Corporeal Beast accuracy multiplier - increased accuracy for spears/hastas
+     */
+    private fun getCorporealBeastAccuracyMultiplier(player: Player, target: Npc): Double {
+        // Check if this is the Corporeal Beast
+        val isCorporealBeast = target.id == getRSCM("npc.corporeal_beast") || 
+                              target.def.name.lowercase().contains("corporeal beast")
+        if (!isCorporealBeast) return 1.0
+        
+        // Check if player is using a spear or hasta
+        val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return 1.0
+        val weaponName = weapon.getDef().name.lowercase()
+        
+        // Check if weapon is a spear or hasta
+        val isSpearOrHasta = weaponName.contains("spear") || weaponName.contains("hasta")
+        
+        return if (isSpearOrHasta) {
+            2.0 // 2x accuracy multiplier for spears/hastas against Corporeal Beast
+        } else {
+            1.0 // Normal accuracy for all other weapons
+        }
+    }
+    
+    /**
+     * Get Corporeal Beast defense multiplier - reduced defense when attacked by spears/hastas
+     */
+    private fun getCorporealBeastDefenceMultiplier(player: Player, target: Npc): Double {
+        // Check if this is the Corporeal Beast
+        val isCorporealBeast = target.id == getRSCM("npc.corporeal_beast") || 
+                              target.def.name.lowercase().contains("corporeal beast")
+        if (!isCorporealBeast) return 1.0
+        
+        // Check if player is using a spear or hasta
+        val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return 1.0
+        val weaponName = weapon.getDef().name.lowercase()
+        
+        // Check if weapon is a spear or hasta
+        val isSpearOrHasta = weaponName.contains("spear") || weaponName.contains("hasta")
+        
+        return if (isSpearOrHasta) {
+            0.5 // 50% defense reduction for spears/hastas (makes them much more accurate)
+        } else {
+            1.0 // Normal defense for all other weapons
+        }
+    }
+    
     /**
      * Get Corporeal Beast damage multiplier - 50% reduction for non-spear/hasta weapons
      */

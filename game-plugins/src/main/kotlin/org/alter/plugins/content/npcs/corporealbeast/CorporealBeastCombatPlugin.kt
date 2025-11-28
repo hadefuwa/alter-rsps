@@ -357,7 +357,7 @@ class CorporealBeastCombatPlugin(
                     
                     // Deal damage if player is in 3x3 area
                     if (distance <= 1 && world.currentCycle - lastDamageCycle >= 1) {
-                        val damage = world.random(200) + 400 // 400-600 damage
+                        val damage = world.random(4) // 0-3 damage (max hit 3)
                         nearestPlayer.hit(damage, type = HitType.HIT, delay = 0)
                         nearestPlayer.graphic(id = 319, height = 0, delay = 0)
                         

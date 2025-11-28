@@ -13,6 +13,10 @@ class AttributeSerialisation(override val name: String = "attribute") : Document
             val attributeKey = AttributeKey<Any>(key)
             val processedValue = when {
                 value is Double -> value.toInt()
+                value is Boolean && key == "doom_perk_passive_xp" -> {
+                    // Convert old Boolean format to Int (true = 1, false = 0)
+                    if (value) 1 else 0
+                }
                 value is Document -> {
                     // Convert Document to Map<String, Int> for boss killcounts
                     val map = ConcurrentHashMap<String, Int>()

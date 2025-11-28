@@ -46,16 +46,16 @@ class WeightedTableBuilder {
         val builder = MainTableBuilder(weight = weight)
         builder.init()
     }
-    inner class preroll {
+    inner class preroll(val weight: Int = 0) {
         fun add(item: Any?, min: Int = 1, max: Int = 1, steepness: Int = 1, weight: Int = 0, description: String ? = null, announce : Boolean = false, block: (Player) -> Boolean = { true }) {
-            addToTable(TableType.PRE_ROLL, loot = Loot(item = item, min = min, max = max, steepness = steepness, weight = weight, description = description, announce = announce, block = block))
+            addToTable(TableType.PRE_ROLL, loot = Loot(item = item, min = min, max = max, steepness = steepness, weight = weight, description = description, announce = announce, block = block), weight = this.weight)
         }
         fun add(item: Any?, amount: Int, weight: Int = 0, description: String ? = null, announce : Boolean = false, block: (Player) -> Boolean = { true }) {
-            addToTable(TableType.PRE_ROLL, loot = Loot(item = item, min = amount, max = amount, steepness = 1, weight = weight, description = description, announce = announce, block = block))
+            addToTable(TableType.PRE_ROLL, loot = Loot(item = item, min = amount, max = amount, steepness = 1, weight = weight, description = description, announce = announce, block = block), weight = this.weight)
         }
     }
-    fun preroll(init: preroll.() -> Unit) {
-        val builder = preroll()
+    fun preroll(weight: Int = 0, init: preroll.() -> Unit) {
+        val builder = preroll(weight = weight)
         builder.init()
     }
     inner class tertiary(val weight: Int = 0) {
