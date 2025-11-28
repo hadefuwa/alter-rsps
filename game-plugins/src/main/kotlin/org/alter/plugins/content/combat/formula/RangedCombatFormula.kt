@@ -14,6 +14,7 @@ import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -304,6 +305,13 @@ object RangedCombatFormula : CombatFormula {
 
         hit *= getDamageDealMultiplier(player)
         hit = Math.floor(hit)
+        
+        // Apply doom points damage multiplier perk
+        val damageMultiplier = DoomPoints.getDamageMultiplier(player)
+        if (damageMultiplier > 0) {
+            hit *= (1.0 + damageMultiplier / 100.0)
+            hit = Math.floor(hit)
+        }
 
         hit *= getDamageTakeMultiplier(target)
         hit = Math.floor(hit)

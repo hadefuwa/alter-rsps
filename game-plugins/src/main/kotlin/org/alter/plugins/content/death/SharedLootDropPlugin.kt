@@ -14,6 +14,7 @@ import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.rscm.RSCM.getRSCM
 import kotlin.random.Random
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 /**
  * Global Shared Loot Drop Plugin
@@ -266,10 +267,17 @@ class SharedLootDropPlugin(
         try {
             val coinsItemId = getRSCM("item.coins_995")
             
+            // Apply doom points coin multiplier perk
+            var finalAmount = amount
+            val coinMultiplier = DoomPoints.getCoinMultiplier(player)
+            if (coinMultiplier > 0) {
+                finalAmount = (finalAmount * (1.0 + coinMultiplier / 100.0)).toInt()
+            }
+            
             // Create and spawn the coins
             val coinsGroundItem = GroundItem(
                 item = coinsItemId,
-                amount = amount,
+                amount = finalAmount,
                 tile = dropTile,
                 owner = player
             )
@@ -282,7 +290,7 @@ class SharedLootDropPlugin(
             npc.world.spawn(coinsGroundItem)
             
             // Notify the player about the coin drop
-            player.message("You receive ${amount} coins from ${npc.def.name}!")
+            player.message("You receive ${finalAmount} coins from ${npc.def.name}!")
             
         } catch (e: Exception) {
             println("Error dropping coins for player ${player.username} from NPC ${npc.id} (${npc.def.name}): ${e.message}")

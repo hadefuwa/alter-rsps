@@ -20,6 +20,7 @@ import org.alter.game.model.item.Item
 import org.alter.api.EquipmentType
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 /**
  * Plugin to handle NPC loot drops when they die.
@@ -418,6 +419,12 @@ class NpcLootDropPlugin(
                 coinAmount = (coinAmount * 0.3).toInt()
             }
             
+            // Apply doom points coin multiplier perk
+            val coinMultiplier = DoomPoints.getCoinMultiplier(killer)
+            if (coinMultiplier > 0) {
+                coinAmount = (coinAmount * (1.0 + coinMultiplier / 100.0)).toInt()
+            }
+            
             // Coin item ID is 995
             val coinItemId = 995
             
@@ -503,7 +510,15 @@ class NpcLootDropPlugin(
                     return
                 }
                 
-                val chanceDenominator = getRandomDropChanceDenominator(combatLevel, isOnSlayerTask)
+                var chanceDenominator = getRandomDropChanceDenominator(combatLevel, isOnSlayerTask)
+                
+                // Apply doom points drop rate multiplier perk
+                val dropRateMultiplier = DoomPoints.getDropRateMultiplier(killer)
+                if (dropRateMultiplier > 0) {
+                    // Reduce denominator by the multiplier percentage (e.g., 10% = divide by 1.1)
+                    chanceDenominator = (chanceDenominator / (1.0 + dropRateMultiplier / 100.0)).toInt().coerceAtLeast(1)
+                }
+                
                 val roll = Random.nextInt(chanceDenominator)
                 val shouldDrop = if (combatLevel >= 300 && combatLevel < 400) {
                     roll <= 1

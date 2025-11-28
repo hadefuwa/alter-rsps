@@ -1,8 +1,10 @@
 package org.alter.plugins.content.items.bond
 
+import dev.openrune.cache.CacheManager.getItem
 import org.alter.api.ext.*
 import org.alter.game.Server
 import org.alter.game.model.World
+import org.alter.game.model.entity.Player
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.mechanics.doompoints.DoomPoints
@@ -26,48 +28,44 @@ class BondPlugin(
     }
 
     init {
-        // Handle bond clicks - try option 2 first (inventory click)
+        // Handle bond clicks - try "redeem" option first, then fallback to other options
         try {
             val bondItemId = getRSCM(BOND_ITEM)
             val itemDef = getItem(bondItemId)
             
-            // Try option 2 (first click in inventory)
-            if (itemDef.interfaceOptions.size >= 2 && itemDef.interfaceOptions[1] != null) {
-                if (!world.plugins.isItemBound(bondItemId, 2)) {
-                    onItemOption(BOND_ITEM, 2) {
-                        redeemBond(player)
-                    }
-                }
-            }
-            
-            // Try option 1 as fallback
-            if (itemDef.interfaceOptions.size >= 1 && itemDef.interfaceOptions[0] != null) {
-                if (!world.plugins.isItemBound(bondItemId, 1)) {
-                    onItemOption(BOND_ITEM, 1) {
-                        redeemBond(player)
-                    }
-                }
-            }
-            
-            // Try "redeem" option if it exists
-            if (itemDef.interfaceOptions.any { it?.lowercase() == "redeem" }) {
+            // Try "redeem" option by name (most reliable)
+            val hasRedeemOption = itemDef.interfaceOptions.any { it?.lowercase() == "redeem" }
+            if (hasRedeemOption) {
                 try {
                     onItemOption(BOND_ITEM, "redeem") {
                         redeemBond(player)
                     }
                 } catch (e: Exception) {
-                    // Option not available, continue
+                    println("Failed to bind 'redeem' option for bond: ${e.message}")
                 }
             }
             
-            // Try "use" option if it exists
-            if (itemDef.interfaceOptions.any { it?.lowercase() == "use" }) {
+            // Also try option 2 (left-click in inventory) as fallback
+            val bondItemIdInt = getRSCM(BOND_ITEM)
+            if (!world.plugins.isItemBound(bondItemIdInt, 2)) {
+                try {
+                    onItemOption(BOND_ITEM, 2) {
+                        redeemBond(player)
+                    }
+                } catch (e: Exception) {
+                    // Option 2 might not exist or already bound, continue
+                }
+            }
+            
+            // Try "use" option as another fallback
+            val hasUseOption = itemDef.interfaceOptions.any { it?.lowercase() == "use" }
+            if (hasUseOption) {
                 try {
                     onItemOption(BOND_ITEM, "use") {
                         redeemBond(player)
                     }
                 } catch (e: Exception) {
-                    // Option not available, continue
+                    // "use" option might not exist or already bound, continue
                 }
             }
         } catch (e: Exception) {
@@ -82,7 +80,7 @@ class BondPlugin(
     private fun redeemBond(player: Player) {
         // Check if player has a bond in inventory
         val bondItemId = getRSCM(BOND_ITEM)
-        if (!player.inventory.hasItem(bondItemId)) {
+        if (!player.hasItem(bondItemId)) {
             player.message("You don't have a bond to redeem.")
             return
         }

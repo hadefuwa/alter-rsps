@@ -15,6 +15,7 @@ import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -160,6 +161,31 @@ object MagicCombatFormula : CombatFormula {
                 multiplier += 0.1
             }
 
+            // Ancient Sceptre bonuses (base and enhanced versions)
+            if (spell != null && spell.isAncient() && pawn is Player) {
+                // Enhanced Ancient Sceptres: +10% damage, +15% accuracy
+                if (hasEquippedSafely(pawn, EquipmentType.WEAPON,
+                        "item.enhanced_ice_ancient_sceptre",
+                        "item.enhanced_blood_ancient_sceptre",
+                        "item.enhanced_smoke_ancient_sceptre",
+                        "item.enhanced_shadow_ancient_sceptre"
+                    )
+                ) {
+                    multiplier += 0.10
+                }
+                // Base Ancient Sceptre: +5% damage, +10% accuracy
+                else if (hasEquippedSafely(pawn, EquipmentType.WEAPON,
+                        "item.ancient_sceptre",
+                        "item.ice_ancient_sceptre",
+                        "item.blood_ancient_sceptre",
+                        "item.smoke_ancient_sceptre",
+                        "item.shadow_ancient_sceptre"
+                    )
+                ) {
+                    multiplier += 0.05
+                }
+            }
+
             if (pawn.hasEquipped(MAGE_ELITE_VOID)) {
                 multiplier += 0.025
             }
@@ -222,6 +248,17 @@ object MagicCombatFormula : CombatFormula {
         }
 
         hit *= getDamageDealMultiplier(pawn)
+        hit = Math.floor(hit)
+        
+        // Apply doom points damage multiplier perk (only for players)
+        if (pawn is Player) {
+            val damageMultiplier = DoomPoints.getDamageMultiplier(pawn)
+            if (damageMultiplier > 0) {
+                hit *= (1.0 + damageMultiplier / 100.0)
+                hit = Math.floor(hit)
+            }
+        }
+        
         // Apply 6x base damage multiplier for revenants
         if (pawn is Npc) {
             val isRevenant = pawn.def.name.lowercase().contains("revenant") || 
@@ -345,6 +382,34 @@ object MagicCombatFormula : CombatFormula {
         if (player.hasEquipped(EquipmentType.WEAPON, "item.mystic_smoke_staff")) {
             hit *= 1.1
             hit = Math.floor(hit)
+        }
+
+        // Ancient Sceptre accuracy bonuses (base and enhanced versions)
+        val spell = player.attr[Combat.CASTING_SPELL]
+        if (spell != null && spell.isAncient()) {
+            // Enhanced Ancient Sceptres: +15% accuracy
+            if (hasEquippedSafely(player, EquipmentType.WEAPON,
+                    "item.enhanced_ice_ancient_sceptre",
+                    "item.enhanced_blood_ancient_sceptre",
+                    "item.enhanced_smoke_ancient_sceptre",
+                    "item.enhanced_shadow_ancient_sceptre"
+                )
+            ) {
+                hit *= 1.15
+                hit = Math.floor(hit)
+            }
+            // Base Ancient Sceptre: +10% accuracy
+            else if (hasEquippedSafely(player, EquipmentType.WEAPON,
+                    "item.ancient_sceptre",
+                    "item.ice_ancient_sceptre",
+                    "item.blood_ancient_sceptre",
+                    "item.smoke_ancient_sceptre",
+                    "item.shadow_ancient_sceptre"
+                )
+            ) {
+                hit *= 1.10
+                hit = Math.floor(hit)
+            }
         }
 
         // Bounty Hunter set bonus: Force 0 accuracy outside Boss Island
@@ -581,5 +646,27 @@ object MagicCombatFormula : CombatFormula {
         }
         
         return idMatches || nameMatches || tzhaarMatches
+    }
+    
+    /**
+     * Safely check if a player has an item equipped, catching exceptions if the item doesn't exist in the cache
+     */
+    private fun hasEquippedSafely(player: Player, slot: EquipmentType, vararg items: String): Boolean {
+        if (items.isEmpty()) return false
+        return try {
+            val itemIds = items.mapNotNull { itemName ->
+                try {
+                    getRSCM(itemName)
+                } catch (e: Exception) {
+                    // Item doesn't exist in cache, skip it
+                    null
+                }
+            }
+            if (itemIds.isEmpty()) return false
+            itemIds.any { player.equipment.hasAt(slot.id, it) }
+        } catch (e: Exception) {
+            // If anything goes wrong, return false
+            false
+        }
     }
 }

@@ -1,5 +1,6 @@
 package org.alter.plugins.content.combat.strategy.magic
 
+import org.alter.api.ext.enumSetOf
 import org.alter.game.model.Graphic
 
 /**
@@ -532,6 +533,67 @@ enum class CombatSpell(
         baseXp = 52.0,
     ),
     ;
+
+    /**
+     * Check if this spell is an Ancient Magicks spell
+     */
+    fun isAncient(): Boolean {
+        return this in enumSetOf(
+            SMOKE_RUSH, SHADOW_RUSH, BLOOD_RUSH, ICE_RUSH,
+            SMOKE_BURST, SHADOW_BURST, BLOOD_BURST, ICE_BURST,
+            SMOKE_BLITZ, SHADOW_BLITZ, BLOOD_BLITZ, ICE_BLITZ,
+            SMOKE_BARRAGE, SHADOW_BARRAGE, BLOOD_BARRAGE, ICE_BARRAGE
+        )
+    }
+
+    /**
+     * Check if this spell is an Ice spell
+     */
+    fun isIce(): Boolean {
+        return this in enumSetOf(ICE_RUSH, ICE_BURST, ICE_BLITZ, ICE_BARRAGE)
+    }
+
+    /**
+     * Check if this spell is a Blood spell
+     */
+    fun isBlood(): Boolean {
+        return this in enumSetOf(BLOOD_RUSH, BLOOD_BURST, BLOOD_BLITZ, BLOOD_BARRAGE)
+    }
+
+    /**
+     * Check if this spell is a Smoke spell
+     */
+    fun isSmoke(): Boolean {
+        return this in enumSetOf(SMOKE_RUSH, SMOKE_BURST, SMOKE_BLITZ, SMOKE_BARRAGE)
+    }
+
+    /**
+     * Check if this spell is a Shadow spell
+     */
+    fun isShadow(): Boolean {
+        return this in enumSetOf(SHADOW_RUSH, SHADOW_BURST, SHADOW_BLITZ, SHADOW_BARRAGE)
+    }
+
+    /**
+     * Check if this spell is a Burst spell (AoE with 1-tile radius)
+     */
+    fun isBurst(): Boolean {
+        return this in enumSetOf(ICE_BURST, BLOOD_BURST, SMOKE_BURST, SHADOW_BURST)
+    }
+
+    /**
+     * Check if this spell is a Barrage spell (AoE with 1.5-tile radius / 3x3 area)
+     */
+    fun isBarrage(): Boolean {
+        return this in enumSetOf(ICE_BARRAGE, BLOOD_BARRAGE, SMOKE_BARRAGE, SHADOW_BARRAGE)
+    }
+
+    /**
+     * Check if this spell has AoE (Burst or Barrage)
+     */
+    fun hasAoE(): Boolean {
+        return isBurst() || isBarrage()
+    }
 
     companion object {
         val values = enumValues<CombatSpell>()

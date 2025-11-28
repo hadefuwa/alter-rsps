@@ -842,6 +842,7 @@ class SewerAbominationCombatPlugin(
     
     /**
      * Cerberus's main magic attack
+     * Hits 5-25 if player is not praying, 0 if player is praying Protect from Magic
      */
     private fun Npc.cerberusMagicAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
@@ -859,7 +860,16 @@ class SewerAbominationCombatPlugin(
         world.spawn(projectile)
         
         val hitDelay = MagicCombatStrategy.getHitDelay(getFrontFacingTile(target), target.getCentreTile())
-        dealHit(target, MagicCombatFormula, delay = hitDelay - 1)
+        
+        // Check for Protect from Magic prayer
+        if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+            // Protect from Magic completely blocks Cerberus's magic damage
+            target.hit(0, type = HitType.BLOCK, delay = hitDelay - 1, attackersIndex = index)
+        } else {
+            // Cerberus hits 5-25 damage when player is not praying
+            val damage = world.random(5..25) // Random between 5 and 25 (inclusive)
+            target.hit(damage, type = HitType.HIT, delay = hitDelay - 1, attackersIndex = index)
+        }
         
         // Show impact graphic
         spell.impactGfx?.let { impact ->

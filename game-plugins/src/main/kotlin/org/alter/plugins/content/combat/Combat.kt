@@ -33,6 +33,7 @@ object Combat {
     val CASTING_SPELL = AttributeKey<CombatSpell>()
     val DAMAGE_DEAL_MULTIPLIER = AttributeKey<Double>()
     val DAMAGE_TAKE_MULTIPLIER = AttributeKey<Double>()
+    val ACCURACY_MULTIPLIER = AttributeKey<Double>()
     val BOLT_ENCHANTMENT_EFFECT = AttributeKey<Boolean>()
     val DEFENSIVE_AUTOCAST_SELECTION = AttributeKey<Boolean>()
     const val PRIORITY_PID_VARP = 1075
