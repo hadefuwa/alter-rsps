@@ -59,7 +59,7 @@ class VenenatisConfigsPlugin(
             }
             
             stats {
-                hitpoints = 850
+                hitpoints = 255
                 attack = 250
                 strength = 250
                 defence = 200
@@ -68,7 +68,7 @@ class VenenatisConfigsPlugin(
             }
             
             anims {
-                attack = 422   // Spider attack animation
+                attack = 5319  // Spider attack animation (matches custom combat attacks)
                 block = 424    // Spider block animation  
                 death = 836    // Standard death animation
             }

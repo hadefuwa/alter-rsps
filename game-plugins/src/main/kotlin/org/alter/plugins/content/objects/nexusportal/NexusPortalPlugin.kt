@@ -42,6 +42,10 @@ class NexusPortalPlugin(
          * All available teleport destinations organized by category
          */
         private val TELEPORT_LOCATIONS = listOf(
+            // Wilderness Bosses (at top for easy access)
+            "Venenatis" to Tile(x = 3319, z = 3754, height = 0),
+            "Vet'ion" to Tile(x = 3229, z = 3788, height = 0),
+            "Callisto" to Tile(x = 3294, z = 3846, height = 0),
             // Bosses
             "Cerberus" to Tile(x = 1240, z = 1253, height = 0),
             "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),

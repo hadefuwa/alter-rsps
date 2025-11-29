@@ -493,7 +493,7 @@ class VenenatisCombatPlugin(
 
     private fun Npc.normalRangedAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
-        forceChat("*Shoots web projectile*")
+        forceChat("*Hssssss*")
         animate(5320) // Spider ranged animation
         
         val projectile = createProjectile(
@@ -647,7 +647,7 @@ class VenenatisCombatPlugin(
 
     private suspend fun Npc.venomSpitAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
-        forceChat("*SPITS DEADLY VENOM*")
+        forceChat("*blaaaargh*")
         animate(5321) // Venom animation
         graphic(175) // Venom charge graphic
         
@@ -695,7 +695,7 @@ class VenenatisCombatPlugin(
 
     private suspend fun Npc.webTrapAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
-        forceChat("*LAYS WEB TRAPS*")
+        forceChat("*Ssssssss*")
         animate(5323) // Web trap animation
         
         if (target is Player) {

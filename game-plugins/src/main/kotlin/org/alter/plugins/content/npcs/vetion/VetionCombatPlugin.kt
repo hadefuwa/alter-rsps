@@ -332,7 +332,15 @@ class VetionCombatPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
+        // Handle combat for Phase 1 (Purple) - 6611
         onNpcCombat("npc.vetion") {
+            npc.queue {
+                npc.combat(this)
+            }
+        }
+        
+        // Handle combat for Phase 2 (Orange/Reborn) - 6612
+        onNpcCombat("npc.vetion_6612") {
             npc.queue {
                 npc.combat(this)
             }
@@ -420,18 +428,92 @@ class VetionCombatPlugin(
                     }
                 }
                 
-                // Random skeletal taunts during combat
-                // Every 3 attacks, 20% chance (1 in 5) to say a taunt
-                // Change 3 to 2 for every 2 attacks, or (1, 5) to (1, 3) for 33% chance
-                if (attackCount >= 3 && this.world.chance(1, 5) && target is Player) {
-                    // Randomly picks one of 6 taunt messages (16.7% chance each)
-                    when (this.world.random(6)) {
-                        0 -> target.message("Vet'ion: Death comes for all mortals!")
-                        1 -> target.message("Vet'ion: Your bones will join my collection!")
-                        2 -> target.message("Vet'ion: The skeletal army awakens!")
-                        3 -> target.message("Vet'ion: Feel the power of undeath!")
-                        4 -> target.message("Vet'ion: Your flesh will rot from your bones!")
-                        5 -> target.message("Vet'ion: The bone yard claims another victim!")
+                // Random skeletal taunts and mocking speech during combat
+                // Every 2 attacks, 30% chance (1 in 3) to say a taunt or mock
+                // Change 2 to 1 for every attack, or (1, 3) to (1, 2) for 50% chance
+                if (attackCount >= 2 && this.world.chance(1, 3) && target is Player) {
+                    // Randomly picks one of many mocking messages
+                    when (this.world.random(20)) {
+                        0 -> {
+                            forceChat("*You're Useless*")
+                            target.message("Vet'ion: You're Useless!")
+                        }
+                        1 -> {
+                            forceChat("*Pathetic Mortal*")
+                            target.message("Vet'ion: Pathetic Mortal!")
+                        }
+                        2 -> {
+                            forceChat("*You Can't Even Hit Me*")
+                            target.message("Vet'ion: You Can't Even Hit Me!")
+                        }
+                        3 -> {
+                            forceChat("*Weakling*")
+                            target.message("Vet'ion: Weakling!")
+                        }
+                        4 -> {
+                            forceChat("*Is That All You've Got?*")
+                            target.message("Vet'ion: Is That All You've Got?")
+                        }
+                        5 -> {
+                            forceChat("*You're So Weak*")
+                            target.message("Vet'ion: You're So Weak!")
+                        }
+                        6 -> {
+                            forceChat("*Laughs Mockingly*")
+                            target.message("Vet'ion: *Laughs Mockingly*")
+                        }
+                        7 -> {
+                            forceChat("*You're Nothing*")
+                            target.message("Vet'ion: You're Nothing!")
+                        }
+                        8 -> {
+                            forceChat("*Too Easy*")
+                            target.message("Vet'ion: Too Easy!")
+                        }
+                        9 -> {
+                            forceChat("*You're A Joke*")
+                            target.message("Vet'ion: You're A Joke!")
+                        }
+                        10 -> {
+                            forceChat("*Can't Even Touch Me*")
+                            target.message("Vet'ion: Can't Even Touch Me!")
+                        }
+                        11 -> {
+                            forceChat("*You're Wasting My Time*")
+                            target.message("Vet'ion: You're Wasting My Time!")
+                        }
+                        12 -> {
+                            forceChat("*Death comes for all mortals!*")
+                            target.message("Vet'ion: Death comes for all mortals!")
+                        }
+                        13 -> {
+                            forceChat("*Your bones will join my collection!*")
+                            target.message("Vet'ion: Your bones will join my collection!")
+                        }
+                        14 -> {
+                            forceChat("*The skeletal army awakens!*")
+                            target.message("Vet'ion: The skeletal army awakens!")
+                        }
+                        15 -> {
+                            forceChat("*Feel the power of undeath!*")
+                            target.message("Vet'ion: Feel the power of undeath!")
+                        }
+                        16 -> {
+                            forceChat("*Your flesh will rot from your bones!*")
+                            target.message("Vet'ion: Your flesh will rot from your bones!")
+                        }
+                        17 -> {
+                            forceChat("*The bone yard claims another victim!*")
+                            target.message("Vet'ion: The bone yard claims another victim!")
+                        }
+                        18 -> {
+                            forceChat("*You're Not Even A Challenge*")
+                            target.message("Vet'ion: You're Not Even A Challenge!")
+                        }
+                        19 -> {
+                            forceChat("*This Is Too Easy*")
+                            target.message("Vet'ion: This Is Too Easy!")
+                        }
                     }
                 }
                 
@@ -502,10 +584,29 @@ class VetionCombatPlugin(
                 target.graphic(id = 80, height = 0, delay = 1)
                 if (target is Player) {
                     target.message("Vet'ion's skeletal claws tear into you!")
+                    // Random mocking when hitting the player
+                    if (this.world.chance(1, 3)) {
+                        when (this.world.random(5)) {
+                            0 -> forceChat("*Too Easy*")
+                            1 -> forceChat("*You're So Weak*")
+                            2 -> forceChat("*Can't Even Dodge That*")
+                            3 -> forceChat("*Pathetic*")
+                            4 -> forceChat("*Laughs*")
+                        }
+                    }
                 }
             } else {
                 // Show miss graphic when attack misses
                 target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
+                // Mock the player when they dodge
+                if (target is Player && this.world.chance(1, 4)) {
+                    when (this.world.random(4)) {
+                        0 -> forceChat("*You Got Lucky*")
+                        1 -> forceChat("*Next Time You Won't*")
+                        2 -> forceChat("*Can't Dodge Forever*")
+                        3 -> forceChat("*Close One*")
+                    }
+                }
             }
         }
     }
@@ -538,9 +639,26 @@ class VetionCombatPlugin(
                 target.graphic(id = 10, height = 0, delay = 1) // Bone hit graphic
                 if (target is Player) {
                     target.message("A skeletal bone strikes you!")
+                    // Random mocking when hitting the player
+                    if (this.world.chance(1, 3)) {
+                        when (this.world.random(4)) {
+                            0 -> forceChat("*Direct Hit*")
+                            1 -> forceChat("*You're Useless*")
+                            2 -> forceChat("*Too Slow*")
+                            3 -> forceChat("*Can't Dodge Bones*")
+                        }
+                    }
                 }
             } else {
                 target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
+                // Mock the player when they dodge
+                if (target is Player && this.world.chance(1, 4)) {
+                    when (this.world.random(3)) {
+                        0 -> forceChat("*Lucky Dodge*")
+                        1 -> forceChat("*Next One Will Hit*")
+                        2 -> forceChat("*Running Scared?*")
+                    }
+                }
             }
         }
     }
@@ -573,9 +691,26 @@ class VetionCombatPlugin(
                 target.graphic(id = 101, height = 0, delay = 1) // Dark magic hit graphic
                 if (target is Player) {
                     target.message("Necromantic energy courses through you!")
+                    // Random mocking when hitting the player
+                    if (this.world.chance(1, 3)) {
+                        when (this.world.random(4)) {
+                            0 -> forceChat("*Feel My Power*")
+                            1 -> forceChat("*You're Useless*")
+                            2 -> forceChat("*Darkness Consumes You*")
+                            3 -> forceChat("*Can't Resist Magic*")
+                        }
+                    }
                 }
             } else {
                 target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
+                // Mock the player when they dodge
+                if (target is Player && this.world.chance(1, 4)) {
+                    when (this.world.random(3)) {
+                        0 -> forceChat("*Magic Resisted?*")
+                        1 -> forceChat("*Lucky Block*")
+                        2 -> forceChat("*Next Spell Will Hit*")
+                    }
+                }
             }
         }
     }
@@ -594,9 +729,26 @@ class VetionCombatPlugin(
                 target.graphic(id = 80, height = 0, delay = 1) // Bite graphic
                 if (target is Player) {
                     target.message("Vet'ion's skeletal jaws snap at you!")
+                    // Random mocking when hitting the player
+                    if (this.world.chance(1, 3)) {
+                        when (this.world.random(4)) {
+                            0 -> forceChat("*Crunch!*")
+                            1 -> forceChat("*You're Useless*")
+                            2 -> forceChat("*Bones Breaking*")
+                            3 -> forceChat("*Can't Escape My Jaws*")
+                        }
+                    }
                 }
             } else {
                 target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
+                // Mock the player when they dodge
+                if (target is Player && this.world.chance(1, 4)) {
+                    when (this.world.random(3)) {
+                        0 -> forceChat("*Missed The Bite*")
+                        1 -> forceChat("*Too Quick For You*")
+                        2 -> forceChat("*Next Bite Will Get You*")
+                    }
+                }
             }
         }
     }
@@ -608,6 +760,14 @@ class VetionCombatPlugin(
         
         if (target is Player) {
             target.message("Vet'ion: Rise, my skeletal hounds!")
+            // Mocking when summoning
+            if (this.world.chance(1, 2)) {
+                when (this.world.random(3)) {
+                    0 -> forceChat("*You're Surrounded Now*")
+                    1 -> forceChat("*No Escape*")
+                    2 -> forceChat("*My Hounds Will Get You*")
+                }
+            }
         }
         
         // Create summoning effects around Vet'ion
@@ -642,6 +802,14 @@ class VetionCombatPlugin(
         
         if (target is Player) {
             target.message("Vet'ion unleashes a barrage of ancient bones!")
+            // Mocking when using bone barrage
+            if (this.world.chance(1, 2)) {
+                when (this.world.random(3)) {
+                    0 -> forceChat("*Can't Dodge All Of These*")
+                    1 -> forceChat("*Bone Storm!*")
+                    2 -> forceChat("*You're Useless*")
+                }
+            }
         }
         
         // Launch 4 bone projectiles in sequence
@@ -682,6 +850,14 @@ class VetionCombatPlugin(
         
         if (target is Player) {
             target.message("Vet'ion: The very earth trembles before me!")
+            // Mocking when using earth shake
+            if (this.world.chance(1, 2)) {
+                when (this.world.random(3)) {
+                    0 -> forceChat("*The Ground Rejects You*")
+                    1 -> forceChat("*Earthquake!*")
+                    2 -> forceChat("*You're Useless*")
+                }
+            }
         }
         
         val shakeCenter = this.tile

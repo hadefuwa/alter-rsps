@@ -56,7 +56,7 @@ class CallistoConfigsPlugin(
             }
 
             stats {
-                hitpoints = 1000
+                hitpoints = 255
                 attack = 450  // Increased from 300 for better accuracy
                 strength = 450  // Increased from 300 for more damage
                 defence = 250

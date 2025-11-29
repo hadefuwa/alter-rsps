@@ -56,7 +56,7 @@ class SharedLootDropPlugin(
             // Boss Island bosses - all get shared loot distribution
             "npc.venenatis",
             "npc.callisto", 
-            "npc.vetion",
+            "npc.vetion_6612", // Vetion Phase 2 (Orange) only - Phase 1 doesn't drop loot
             "npc.scorpia",
             "npc.king_black_dragon",
             "npc.kalphite_queen_963",

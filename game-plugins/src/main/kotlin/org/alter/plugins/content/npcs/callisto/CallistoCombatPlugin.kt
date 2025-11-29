@@ -14,6 +14,8 @@ import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
+import org.alter.plugins.content.mechanics.prayer.Prayer
+import org.alter.plugins.content.mechanics.prayer.Prayers
 
 /**
  * @author Alycia <https://github.com/alycii>
@@ -26,7 +28,7 @@ import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
  * - Roar: Fear effect that can force players to move
  * - Knockback Attack: Sends players flying with a powerful blow
  * 
- * Combat Level: 470, Hitpoints: 1000
+ * Combat Level: 470, Hitpoints: 255
  * Location: Callisto's Den (Multi-combat wilderness)
  * 
  * ============================================================================
@@ -469,18 +471,28 @@ class CallistoCombatPlugin(
         // To find other animation IDs, look in the game's animation files
         animate(4925)
         
-        // Deal damage to the target
-        val hit = dealHit(
-            target = target,                    // Who to hit
-            formula = MeleeCombatFormula,       // Use melee damage formula
-            delay = 1                           // Delay before hit lands (1 = immediate)
-        )
-        
-        // Check if the hit dealt significant damage and make player react
-        // hit.hit.hitmarks.sumOf { it.damage } gets the total damage dealt
-        // > 25 means only react if damage was more than 25
-        if (hit.hit.hitmarks.sumOf { it.damage } > 25 && target is Player) {
-            target.forceChat("Oof!")  // Make player say something
+        // Check if player has Protect from Melee - if not, deal 20-80 damage
+        if (target is Player && !target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+            // Player doesn't have Protect from Melee - deal 20-80 damage
+            val damage = this.world.random(20..80)
+            target.hit(damage, type = HitType.HIT, delay = 1)
+            if (damage > 25) {
+                target.forceChat("Oof!")  // Make player say something
+            }
+        } else {
+            // Player has Protect from Melee or is not a player - use normal formula
+            val hit = dealHit(
+                target = target,                    // Who to hit
+                formula = MeleeCombatFormula,       // Use melee damage formula
+                delay = 1                           // Delay before hit lands (1 = immediate)
+            )
+            
+            // Check if the hit dealt significant damage and make player react
+            // hit.hit.hitmarks.sumOf { it.damage } gets the total damage dealt
+            // > 25 means only react if damage was more than 25
+            if (hit.hit.hitmarks.sumOf { it.damage } > 25 && target is Player) {
+                target.forceChat("Oof!")  // Make player say something
+            }
         }
     }
 
@@ -583,12 +595,13 @@ class CallistoCombatPlugin(
         animate(4925) // Swipe animation
         graphic(245) // Claw slash graphic
         
-        val hit = dealHit(
-            target = target,
-            formula = MeleeCombatFormula,
-            delay = 1
-        ) { hit ->
-            if (hit.hit.hitmarks.sumOf { it.damage } > 30 && target is Player) {
+        // Check if player has Protect from Melee - if not, deal 20-80 damage
+        if (target is Player && !target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+            // Player doesn't have Protect from Melee - deal 20-80 damage
+            val damage = this.world.random(20..80)
+            target.hit(damage, type = HitType.HIT, delay = 1)
+            
+            if (damage > 30) {
                 target.forceChat("Argh!")
                 target.message("Callisto's claws leave deep wounds!")
                 
@@ -600,6 +613,30 @@ class CallistoCombatPlugin(
                             val bleedDamage = this@bearSwipeAttack.world.random(1..3) // 1-3 bleed damage
                             target.hit(bleedDamage, type = HitType.POISON, delay = 0)
                             target.message("You bleed from Callisto's claws.")
+                        }
+                    }
+                }
+            }
+        } else {
+            // Player has Protect from Melee or is not a player - use normal formula
+            val hit = dealHit(
+                target = target,
+                formula = MeleeCombatFormula,
+                delay = 1
+            ) { hit ->
+                if (hit.hit.hitmarks.sumOf { it.damage } > 30 && target is Player) {
+                    target.forceChat("Argh!")
+                    target.message("Callisto's claws leave deep wounds!")
+                    
+                    // Apply bleeding effect (small damage over time)
+                    target.queue {
+                        repeat(5) { // 5 ticks of bleeding
+                            wait(2)
+                            if (target.isAlive()) {
+                                val bleedDamage = this@bearSwipeAttack.world.random(1..3) // 1-3 bleed damage
+                                target.hit(bleedDamage, type = HitType.POISON, delay = 0)
+                                target.message("You bleed from Callisto's claws.")
+                            }
                         }
                     }
                 }
@@ -666,15 +703,27 @@ class CallistoCombatPlugin(
         graphic(245) // Powerful impact graphic
         
         if (target is Player) {
-            // Deal high damage first
-            val hit = dealHit(
-                target = target,
-                formula = MeleeCombatFormula,
-                delay = 1
-            )
+            // Check if player has Protect from Melee - if not, deal 20-80 damage
+            if (!target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+                // Player doesn't have Protect from Melee - deal 20-80 damage
+                val damage = this.world.random(20..80)
+                target.hit(damage, type = HitType.HIT, delay = 1)
+            } else {
+                // Player has Protect from Melee - use normal formula
+                dealHit(
+                    target = target,
+                    formula = MeleeCombatFormula,
+                    delay = 1
+                )
+            }
             
-            val damage = hit.hit.hitmarks.sumOf { it.damage }
             target.message("Callisto's massive blow sends you flying!")
+            
+            // Disable all protection prayers
+            Prayers.deactivate(target, Prayer.PROTECT_FROM_MELEE)
+            Prayers.deactivate(target, Prayer.PROTECT_FROM_MAGIC)
+            Prayers.deactivate(target, Prayer.PROTECT_FROM_MISSILES)
+            target.message("The powerful blow disrupts your prayers!")
             
             // Calculate knockback direction (away from Callisto)
             val npcTile = this.tile
