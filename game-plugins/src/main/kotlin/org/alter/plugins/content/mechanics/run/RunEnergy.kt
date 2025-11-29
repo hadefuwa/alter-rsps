@@ -10,6 +10,7 @@ import org.alter.game.model.bits.InfiniteVarsType
 import org.alter.game.model.entity.Player
 import org.alter.game.model.move.hasMoveDestination
 import org.alter.game.model.timer.TimerKey
+import org.alter.plugins.content.mechanics.doompoints.addXpWithPassiveCheck
 import kotlin.math.max
 import kotlin.math.min
 
@@ -59,7 +60,7 @@ object RunEnergy {
                     val gracefulPieces = countGracefulPieces(p)
                     val bonusMultiplier = 1.0 + (gracefulPieces * 0.50) // 50% bonus per piece
                     val xpGained = baseXp * bonusMultiplier
-                    p.addXp(Skills.AGILITY, xpGained)
+                    p.addXpWithPassiveCheck(Skills.AGILITY, xpGained)
                     p.attr[AGILITY_XP_COUNTER] = 4 // Reset counter to 4 ticks
                 }
             }

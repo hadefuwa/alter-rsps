@@ -16,7 +16,7 @@ object DoomPoints {
     val DOOM_POINTS_ATTR = AttributeKey<Int>("doom_points")
     val DAMAGE_MULTIPLIER_PERK = AttributeKey<Int>("doom_perk_damage_mult")
     val DROP_RATE_PERK = AttributeKey<Int>("doom_perk_drop_rate")
-    val PASSIVE_XP_PERK = AttributeKey<Boolean>("doom_perk_passive_xp")
+    val PASSIVE_XP_PERK = AttributeKey<Int>("doom_perk_passive_xp")
     val COIN_MULTIPLIER_PERK = AttributeKey<Int>("doom_perk_coin_mult")
     val SLAYER_POINTS_PERK = AttributeKey<Int>("doom_perk_slayer_points")
     
@@ -66,7 +66,19 @@ object DoomPoints {
      * Check if passive XP perk is active
      */
     fun hasPassiveXpPerk(player: Player): Boolean {
-        return player.attr[PASSIVE_XP_PERK] ?: false
+        return (player.attr[PASSIVE_XP_PERK] ?: 0) > 0
+    }
+    
+    /**
+     * Get the passive XP perk level (0 = inactive, 1-5 = active levels)
+     */
+    fun getPassiveXpPerkLevel(player: Player): Int {
+        val value = player.attr[PASSIVE_XP_PERK]
+        return when (value) {
+            is Int -> value
+            is Boolean -> if (value) 1 else 0  // Convert old Boolean format to Int
+            else -> 0
+        }
     }
     
     /**
@@ -84,10 +96,25 @@ object DoomPoints {
     }
     
     /**
-     * Apply passive XP to the player's lowest skill
+     * Try to apply passive XP to the player's lowest skill with a chance based on perk level
+     * Called whenever the player gains XP from any skill
+     * 
+     * @param player The player who gained XP
+     * @param xpGained The amount of XP that was just gained (used for chance calculation)
+     * @return true if passive XP was granted, false otherwise
      */
-    fun applyPassiveXp(player: Player) {
-        if (!hasPassiveXpPerk(player)) return
+    fun tryApplyPassiveXp(player: Player, xpGained: Double): Boolean {
+        val perkLevel = getPassiveXpPerkLevel(player)
+        if (perkLevel == 0) return false
+        
+        // Chance increases with perk level: 5% per level (5% at level 1, 10% at level 2, etc.)
+        // Base chance is 5% per level, so level 5 = 25% chance
+        val chancePercent = perkLevel * 5
+        val roll = player.world.random(100)
+        
+        if (roll >= chancePercent) {
+            return false // Didn't roll the chance
+        }
         
         // Find the lowest skill (23 total skills: 0-22)
         var lowestSkill = Skills.ATTACK
@@ -101,8 +128,10 @@ object DoomPoints {
             }
         }
         
-        // Grant passive XP (1 XP per game tick, adjust as needed)
-        player.addXp(lowestSkill, 1.0)
+        // Grant passive XP (10% of the XP that was just gained, minimum 1 XP)
+        val passiveXp = maxOf(1.0, xpGained * 0.10)
+        player.addXp(lowestSkill, passiveXp)
+        return true
     }
     
     /**
@@ -215,9 +244,12 @@ object DoomPoints {
         23345 to 150,  // 3rd Age Druidic Cloak
         
         // Tier 5: Ultra rare items (250-500 points)
-        13239 to 250,  // Primordial boots
-        13235 to 250,  // Eternal boots
-        13237 to 250,  // Pegasian boots
+        13239 to 50,  // Primordial boots
+        13235 to 50,  // Eternal boots
+        13237 to 50,  // Pegasian boots
+        13231 to 50,  // Primordial crystal
+        13227 to 50,  // Eternal crystal
+        13229 to 50,  // Pegasian crystal
         22323 to 300,  // Sanguinesti staff (fixed ID)
         
         // Scythe of Vitur Variants
@@ -307,11 +339,12 @@ object DoomPoints {
         Perk(
             name = "Passive XP",
             cost = 200,
-            description = "Gain passive XP to your lowest skill over time",
-            maxLevel = 1
-        ) { player, _ ->
-            player.attr[PASSIVE_XP_PERK] = true
-            player.message("Passive XP perk unlocked! Your lowest skill will gain XP over time.")
+            description = "Chance to gain passive XP to your lowest skill when gaining XP (5% per level, max 25%)",
+            maxLevel = 5
+        ) { player, level ->
+            player.attr[PASSIVE_XP_PERK] = level
+            val chance = level * 5
+            player.message("Passive XP perk level $level unlocked! You now have a $chance% chance to gain passive XP when training.")
         },
         
         Perk(
@@ -342,7 +375,7 @@ object DoomPoints {
         return when (perkIndex) {
             0 -> (player.attr[DAMAGE_MULTIPLIER_PERK] ?: 0) / 5
             1 -> (player.attr[DROP_RATE_PERK] ?: 0) / 10
-            2 -> if (player.attr[PASSIVE_XP_PERK] == true) 1 else 0
+            2 -> player.attr[PASSIVE_XP_PERK] ?: 0
             3 -> (player.attr[COIN_MULTIPLIER_PERK] ?: 0) / 20
             4 -> (player.attr[SLAYER_POINTS_PERK] ?: 0) / 50
             else -> 0

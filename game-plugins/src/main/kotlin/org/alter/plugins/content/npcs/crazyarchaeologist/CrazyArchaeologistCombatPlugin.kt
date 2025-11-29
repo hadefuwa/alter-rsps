@@ -36,9 +36,9 @@ class CrazyArchaeologistCombatPlugin(
          * Special attack configuration constants.
          * These control when and how often special attacks occur.
          */
-        private const val TELEPORT_ATTACK_MIN_COUNT = 2  // Minimum attacks before teleport can trigger (reduced from 4)
-        private const val TELEPORT_ATTACK_CHANCE_NUMERATOR = 1  // 1 in TELEPORT_ATTACK_CHANCE_DENOMINATOR
-        private const val TELEPORT_ATTACK_CHANCE_DENOMINATOR = 2  // 50% chance when conditions are met (increased from 33%)
+        private const val TELEPORT_ATTACK_MIN_COUNT = 1  // Minimum attacks before teleport can trigger (reduced to 1 for more frequent teleports)
+        private const val TELEPORT_ATTACK_CHANCE_NUMERATOR = 2  // 2 in TELEPORT_ATTACK_CHANCE_DENOMINATOR
+        private const val TELEPORT_ATTACK_CHANCE_DENOMINATOR = 3  // 67% chance when conditions are met (increased for more frequent teleports)
 
         private const val BOOK_RAIN_ATTACK_MIN_COUNT = 2  // Minimum attacks before book rain can trigger (reduced from 3)
         private const val BOOK_RAIN_ATTACK_CHANCE_NUMERATOR = 2  // 2 in BOOK_RAIN_ATTACK_CHANCE_DENOMINATOR
@@ -224,9 +224,10 @@ class CrazyArchaeologistCombatPlugin(
                 hasTaunted = true
             }
             
-            // Face the first player (or closest)
+            // Randomly select a target to face (changes target more frequently)
             if (nearbyPlayers.isNotEmpty()) {
-                facePawn(nearbyPlayers.first())
+                val targetPlayer = nearbyPlayers.random()
+                facePawn(targetPlayer)
             }
             
             // Check if NPC is still alive and has HP before attacking

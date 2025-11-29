@@ -28,6 +28,295 @@ import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
  * 
  * Combat Level: 470, Hitpoints: 1000
  * Location: Callisto's Den (Multi-combat wilderness)
+ * 
+ * ============================================================================
+ * 🎮 GUIDE FOR EDITING CALLISTO COMBAT 🎮
+ * ============================================================================
+ * 
+ * This guide will help you customize Callisto's combat behavior!
+ * 
+ * 📋 TABLE OF CONTENTS:
+ * 1. Changing Attack Speed
+ * 2. Adding/Modifying Attacks
+ * 3. Checking Protection Prayers
+ * 4. Setting Max Hit Damage
+ * 5. Changing Attack Patterns
+ * 6. Adding Special Effects
+ * 
+ * 
+ * ⚡ 1. CHANGING ATTACK SPEED ⚡
+ * ==============================
+ * 
+ * Attack speed is controlled in the NPC's config file (not this file).
+ * Look for a file like "CallistoConfigsPlugin.kt" and find:
+ * 
+ *     attackSpeed = 4  // This is in game cycles (ticks)
+ * 
+ * Lower number = faster attacks:
+ * - attackSpeed = 2  → Very fast (attacks every 2 cycles = 1.2 seconds)
+ * - attackSpeed = 3  → Fast (attacks every 3 cycles = 1.8 seconds)
+ * - attackSpeed = 4  → Normal (attacks every 4 cycles = 2.4 seconds) ← DEFAULT
+ * - attackSpeed = 5  → Slow (attacks every 5 cycles = 3.0 seconds)
+ * - attackSpeed = 7  → Very slow (attacks every 7 cycles = 4.2 seconds)
+ * 
+ * Note: 1 game cycle = 0.6 seconds
+ * 
+ * 
+ * 🎯 2. ADDING/MODIFYING ATTACKS 🎯
+ * ==================================
+ * 
+ * To add a new attack, create a new function like this:
+ * 
+ *     private fun Npc.myNewAttack(target: Pawn) {
+ *         // Set the attack type (MELEE, RANGED, or MAGIC)
+ *         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
+ *         
+ *         // Make Callisto say something
+ *         forceChat("*Roars ferociously!*")
+ *         
+ *         // Play an animation (find animation IDs in the game)
+ *         animate(4925) // Replace with your animation ID
+ *         
+ *         // Optional: Show a graphic effect
+ *         graphic(157) // Replace with your graphic ID
+ *         
+ *         // Deal damage to the target
+ *         val hit = dealHit(
+ *             target = target,
+ *             formula = MeleeCombatFormula,  // Use MeleeCombatFormula, RangedCombatFormula, or MagicCombatFormula
+ *             delay = 1  // Delay before hit lands (1 = immediate)
+ *         ) { hit ->
+ *             // This code runs when the hit lands
+ *             if (hit.landed() && target is Player) {
+ *                 target.message("You got hit!")
+ *             }
+ *         }
+ *     }
+ * 
+ * Then add it to the attack selection in the combat() function:
+ * 
+ *     when (this.world.random(5)) {
+ *         0 -> shockwaveAttack(target)
+ *         1 -> groundSlamAttack(target)
+ *         2 -> bearRoarAttack(target)
+ *         3 -> bearSwipeAttack(target)
+ *         4 -> myNewAttack(target)  // ← Add your new attack here!
+ *     }
+ * 
+ * 
+ * 🛡️ 3. CHECKING PROTECTION PRAYERS 🛡️
+ * =====================================
+ * 
+ * You can check if a player has a protection prayer active:
+ * 
+ *     if (target is Player) {
+ *         // Check for Protect from Melee
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+ *             target.message("Your Protect from Melee blocks some damage!")
+ *             // Reduce damage by 40% (protection prayers reduce damage by 60%, so 40% gets through)
+ *         }
+ *         
+ *         // Check for Protect from Magic
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+ *             target.message("Your Protect from Magic blocks the attack!")
+ *             // Magic protection completely blocks magic damage
+ *         }
+ *         
+ *         // Check for Protect from Missiles (Ranged)
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)) {
+ *             target.message("Your Protect from Missiles blocks some damage!")
+ *             // Ranged protection reduces damage by 40%
+ *         }
+ *     }
+ * 
+ * Example: Make an attack that ignores protection prayers:
+ * 
+ *     private fun Npc.ignoresPrayerAttack(target: Pawn) {
+ *         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
+ *         forceChat("*This attack ignores prayers!*")
+ *         animate(4925)
+ *         
+ *         // Calculate max hit manually (ignoring prayer reduction)
+ *         val maxHit = MeleeCombatFormula.getMaxHit(this, target)
+ *         
+ *         // Deal damage directly without using dealHit (which respects prayers)
+ *         val damage = this.world.random(maxHit + 1)
+ *         target.hit(damage, type = HitType.HIT, delay = 1)
+ *         target.message("This attack cannot be blocked by prayers!")
+ *     }
+ * 
+ * 
+ * 💥 4. SETTING MAX HIT DAMAGE 💥
+ * ================================
+ * 
+ * There are three ways to set max hit:
+ * 
+ * METHOD 1: Use the formula (recommended - respects prayers and bonuses)
+ * 
+ *     val hit = dealHit(
+ *         target = target,
+ *         formula = MeleeCombatFormula,  // Automatically calculates max hit
+ *         delay = 1
+ *     )
+ * 
+ * METHOD 2: Set a custom max hit manually
+ * 
+ *     // Get the base max hit from the formula
+ *     val baseMaxHit = MeleeCombatFormula.getMaxHit(this, target)
+ *     
+ *     // Add bonus damage (e.g., +10 extra damage)
+ *     val customMaxHit = baseMaxHit + 10
+ *     
+ *     // Or set a fixed max hit
+ *     val fixedMaxHit = 50  // Always maxes at 50 damage
+ *     
+ *     // Deal the hit with custom max
+ *     val hit = dealHit(
+ *         target = target,
+ *         formula = MeleeCombatFormula,
+ *         delay = 1,
+ *         maxHit = customMaxHit  // Use your custom max hit
+ *     )
+ * 
+ * METHOD 3: Deal damage directly (bypasses formulas)
+ * 
+ *     // Deal a fixed amount of damage
+ *     val damage = this.world.random(20..40)  // Random damage between 20-40
+ *     target.hit(damage, type = HitType.HIT, delay = 1)
+ *     
+ *     // Or deal a specific amount
+ *     target.hit(30, type = HitType.HIT, delay = 1)  // Always deals 30 damage
+ * 
+ * 
+ * 🎲 5. CHANGING ATTACK PATTERNS 🎲
+ * ==================================
+ * 
+ * The attack pattern is controlled in the combat() function:
+ * 
+ *     when {
+ *         // When HP is below 30%, use enraged attacks
+ *         getCurrentHp() <= getMaxHp() * 0.3 -> {
+ *             // Change 0.3 to 0.5 for enraged at 50% HP instead
+ *             // Change 0.3 to 0.1 for enraged at 10% HP instead
+ *         }
+ *         
+ *         // Special attacks happen with 25% chance (1 in 4)
+ *         this.world.chance(1, 4) -> {
+ *             // Change (1, 4) to (1, 2) for 50% chance instead of 25%
+ *             // Change (1, 4) to (1, 3) for 33% chance
+ *         }
+ *     }
+ * 
+ * To change how often special attacks happen:
+ * 
+ *     this.world.chance(1, 2) -> {
+ *         // This means: 50% chance for special attack every turn
+ *     }
+ * 
+ * To change which attacks are used:
+ * 
+ *     when (this.world.random(5)) {
+ *         0 -> shockwaveAttack(target)    // 20% chance
+ *         1 -> groundSlamAttack(target)   // 20% chance
+ *         2 -> bearRoarAttack(target)     // 20% chance
+ *         3 -> bearSwipeAttack(target)    // 20% chance
+ *         4 -> knockbackAttack(target)    // 20% chance
+ *     }
+ * 
+ * To make one attack more common:
+ * 
+ *     when {
+ *         this.world.chance(1, 2) -> shockwaveAttack(target)  // 50% chance
+ *         this.world.chance(1, 2) -> bearRoarAttack(target)   // 25% chance (50% of remaining)
+ *         else -> normalBearAttack(target)                      // 25% chance
+ *     }
+ * 
+ * 
+ * ✨ 6. ADDING SPECIAL EFFECTS ✨
+ * ================================
+ * 
+ * STUN EFFECT:
+ * 
+ *     if (target is Player) {
+ *         target.stun(3)  // Stun for 3 cycles (1.8 seconds)
+ *         target.graphic(80)  // Show stun graphic
+ *     }
+ * 
+ * KNOCKBACK EFFECT:
+ * 
+ *     val knockbackTile = Tile(
+ *         target.tile.x + 3,  // Move 3 tiles east
+ *         target.tile.z,      // Same Z coordinate
+ *         target.tile.height
+ *     )
+ *     target.moveTo(knockbackTile)
+ * 
+ * AREA OF EFFECT DAMAGE:
+ * 
+ *     world.players.forEach { player ->
+ *         if (player.tile.getDistance(this.tile) <= 3 && player.isAlive()) {
+ *             val damage = this.world.random(10..20)
+ *             player.hit(damage, type = HitType.HIT, delay = 1)
+ *         }
+ *     }
+ * 
+ * DAMAGE OVER TIME (BLEEDING):
+ * 
+ *     target.queue {
+ *         repeat(5) {  // Repeat 5 times
+ *             wait(2)  // Wait 2 cycles between each
+ *             if (target.isAlive()) {
+ *                 val damage = this.world.random(1..3)
+ *                 target.hit(damage, type = HitType.POISON, delay = 0)
+ *             }
+ *         }
+ *     }
+ * 
+ * STAT REDUCTION:
+ * 
+ *     if (target is Player) {
+ *         val reduction = this.world.random(3..7)
+ *         player.getSkills().alterCurrentLevel(0, -reduction) // Reduce Attack
+ *         player.getSkills().alterCurrentLevel(1, -reduction) // Reduce Strength
+ *         player.getSkills().alterCurrentLevel(2, -reduction) // Reduce Defence
+ *     }
+ * 
+ * FORCE MOVEMENT:
+ * 
+ *     val escapeDirection = Tile(
+ *         player.tile.x + 3,  // 3 tiles east
+ *         player.tile.z,      // Same Z
+ *         player.tile.height
+ *     )
+ *     player.moveTo(escapeDirection)
+ * 
+ * 
+ * 📝 QUICK REFERENCE 📝
+ * =====================
+ * 
+ * Combat Classes: CombatClass.MELEE, CombatClass.RANGED, CombatClass.MAGIC
+ * Combat Styles: CombatStyle.STAB, CombatStyle.SLASH, CombatStyle.CRUSH, CombatStyle.RANGED, CombatStyle.MAGIC
+ * Attack Styles: AttackStyle.ACCURATE, AttackStyle.AGGRESSIVE, AttackStyle.DEFENSIVE, AttackStyle.CONTROLLED
+ * 
+ * Formulas: MeleeCombatFormula, RangedCombatFormula, MagicCombatFormula
+ * 
+ * Hit Types: HitType.HIT, HitType.POISON, HitType.DISEASE
+ * 
+ * Prayer Icons: PrayerIcon.PROTECT_FROM_MELEE, PrayerIcon.PROTECT_FROM_MAGIC, PrayerIcon.PROTECT_FROM_MISSILES
+ * 
+ * 
+ * 💡 TIPS 💡
+ * ===========
+ * 
+ * - Always test your changes in-game!
+ * - Start with small changes and test each one
+ * - Use target.message() to send messages to players for debugging
+ * - Check if target is Player before using player-specific functions
+ * - Use this.world.random() for random numbers
+ * - Use this.world.chance(numerator, denominator) for percentages
+ * - Callisto is melee-focused, so most attacks use MeleeCombatFormula
+ * 
+ * ============================================================================
  */
 
 class CallistoCombatPlugin(
@@ -44,40 +333,83 @@ class CallistoCombatPlugin(
         }
     }
 
+    /**
+     * Main combat loop for Callisto
+     * 
+     * HOW TO EDIT THIS FUNCTION:
+     * 
+     * 1. Change attack distance:
+     *    - distance = 1  → Must be next to target (melee only, current)
+     *    - distance = 3  → Can attack from 3 tiles away
+     *    - distance = 5  → Can attack from 5 tiles away
+     * 
+     * 2. Change when enraged phase starts:
+     *    - getCurrentHp() <= getMaxHp() * 0.3  → Enraged at 30% HP (current)
+     *    - getCurrentHp() <= getMaxHp() * 0.5  → Enraged at 50% HP
+     *    - getCurrentHp() <= getMaxHp() * 0.1  → Enraged at 10% HP
+     * 
+     * 3. Change special attack chance:
+     *    - this.world.chance(1, 4) → 25% chance (1 in 4, current)
+     *    - this.world.chance(1, 2) → 50% chance (1 in 2)
+     *    - this.world.chance(1, 3) → 33% chance (1 in 3)
+     * 
+     * 4. Change which attacks are used:
+     *    - Change the numbers in when (this.world.random(4)) or when (this.world.random(5))
+     *    - Add more -> when (this.world.random(6)) { 0, 1, 2, 3, 4, 5 -> ... }
+     */
     private suspend fun Npc.combat(it: QueueTask) {
-        var target = getCombatTarget() ?: return
-        var attackCount = 0
+        var target = getCombatTarget() ?: return  // Get the target Callisto is fighting
+        var attackCount = 0  // Counts how many attacks have been made
 
+        // Main combat loop - runs while Callisto can fight the target
         while (canEngageCombat(target)) {
-            facePawn(target)
+            facePawn(target)  // Face the target
+            
+            // Move to attack range and check if ready to attack
+            // distance = 1 means Callisto must be next to target (melee range)
+            // projectile = false means this is a melee attack (no projectiles)
             if (moveToAttackRange(it, target, distance = 1, projectile = false) && isAttackDelayReady()) {
-                attackCount++
+                attackCount++  // Increment attack counter
                 
-                // Determine attack based on combat cycle and HP
+                // ============================================================
+                // ATTACK SELECTION LOGIC
+                // ============================================================
+                // This decides which attack to use based on HP and chance
+                
                 val attackType = when {
-                    getCurrentHp() <= getMaxHp() * 0.3 -> "enraged" // Below 30% HP
-                    this.world.chance(1, 4) -> "special" // 25% chance for special attack
+                    // ENRAGED PHASE: When HP is below 30%
+                    // Change 0.3 to 0.5 for enraged at 50% HP, or 0.1 for 10% HP
+                    getCurrentHp() <= getMaxHp() * 0.3 -> "enraged"
+                    
+                    // SPECIAL ATTACKS: 25% chance (1 in 4)
+                    // Change (1, 4) to (1, 2) for 50% chance, or (1, 3) for 33% chance
+                    this.world.chance(1, 4) -> "special"
+                    
+                    // NORMAL ATTACKS: Default behavior
                     else -> "normal"
                 }
                 
+                // Execute the selected attack type
                 when (attackType) {
                     "enraged" -> {
                         // Enraged phase - more frequent special attacks
+                        // Randomly picks one of 4 special attacks (25% chance each)
                         when (this.world.random(4)) {
-                            0 -> shockwaveAttack(target)
-                            1 -> groundSlamAttack(target)
-                            2 -> bearRoarAttack(target)
-                            3 -> knockbackAttack(target)
+                            0 -> shockwaveAttack(target)   // Area damage
+                            1 -> groundSlamAttack(target)  // Trap attack
+                            2 -> bearRoarAttack(target)    // Fear attack
+                            3 -> knockbackAttack(target)   // Knockback attack
                         }
                     }
                     "special" -> {
                         // Random special attack
+                        // Randomly picks one of 5 special attacks (20% chance each)
                         when (this.world.random(5)) {
-                            0 -> shockwaveAttack(target)
-                            1 -> groundSlamAttack(target)
-                            2 -> bearRoarAttack(target)
-                            3 -> bearSwipeAttack(target)
-                            4 -> knockbackAttack(target)
+                            0 -> shockwaveAttack(target)   // Area damage
+                            1 -> groundSlamAttack(target)  // Trap attack
+                            2 -> bearRoarAttack(target)    // Fear attack
+                            3 -> bearSwipeAttack(target)   // High damage swipe
+                            4 -> knockbackAttack(target)   // Knockback attack
                         }
                     }
                     else -> {
@@ -86,29 +418,69 @@ class CallistoCombatPlugin(
                     }
                 }
                 
-                postAttackLogic(target)
+                postAttackLogic(target)  // Handle post-attack effects
             }
-            it.wait(1)
-            target = getCombatTarget() ?: break
+            
+            it.wait(1)  // Wait 1 cycle before checking again
+            target = getCombatTarget() ?: break  // Update target (might have changed)
         }
 
-        resetFacePawn()
-        removeCombatTarget()
+        // Clean up when combat ends
+        resetFacePawn()      // Stop facing the target
+        removeCombatTarget() // Clear the combat target
     }
 
+    /**
+     * Normal melee bear attack
+     * 
+     * HOW TO EDIT:
+     * 
+     * 1. Change attack type:
+     *    - CombatClass.MELEE → Use melee formula (current)
+     *    - CombatClass.RANGED → Use ranged formula
+     *    - CombatClass.MAGIC → Use magic formula
+     * 
+     * 2. Change combat style:
+     *    - CombatStyle.CRUSH → Crush attack (current)
+     *    - CombatStyle.STAB → Stab attack
+     *    - CombatStyle.SLASH → Slash attack
+     * 
+     * 3. Change attack style:
+     *    - AttackStyle.ACCURATE → More accurate (current)
+     *    - AttackStyle.AGGRESSIVE → More damage
+     *    - AttackStyle.DEFENSIVE → More defense
+     * 
+     * 4. Change animation:
+     *    - animate(4925) → Change 4925 to a different animation ID
+     * 
+     * 5. Change damage threshold for reaction:
+     *    - hit.hit.hitmarks.sumOf { it.damage } > 25 → Reacts if damage > 25 (current)
+     *    - hit.hit.hitmarks.sumOf { it.damage } > 30 → Reacts if damage > 30
+     *    - hit.hit.hitmarks.sumOf { it.damage } > 20 → Reacts if damage > 20
+     */
     private fun Npc.normalBearAttack(target: Pawn) {
+        // Prepare the attack - tells the game what type of attack this is
         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
-        forceChat("*Growls menacingly*")
-        animate(4925) // Bear attack animation
         
+        // Make Callisto say something (optional)
+        forceChat("*Growls menacingly*")
+        
+        // Play the attack animation (4925 = bear attack animation)
+        // To find other animation IDs, look in the game's animation files
+        animate(4925)
+        
+        // Deal damage to the target
         val hit = dealHit(
-            target = target,
-            formula = MeleeCombatFormula,
-            delay = 1
+            target = target,                    // Who to hit
+            formula = MeleeCombatFormula,       // Use melee damage formula
+            delay = 1                           // Delay before hit lands (1 = immediate)
         )
         
+        // Check if the hit dealt significant damage and make player react
+        // hit.hit.hitmarks.sumOf { it.damage } gets the total damage dealt
+        // > 25 means only react if damage was more than 25
         if (hit.hit.hitmarks.sumOf { it.damage } > 25 && target is Player) {
-            target.forceChat("Oof!")
+            target.forceChat("Oof!")  // Make player say something
         }
     }
 

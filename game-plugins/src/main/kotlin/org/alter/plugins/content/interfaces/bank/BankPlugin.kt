@@ -417,7 +417,9 @@ class BankPlugin(
             val slot = player.getInteractingSlot()
             val opt = player.getInteractingOption()
             val item = player.inventory[slot] ?: return@onButton
-            if (opt == 0) {
+            
+            // Handle equip actions (option 0, 1, or 3 - different clients may send different options)
+            if (opt == 0 || opt == 1 || opt == 3) {
                 val result = EquipAction.equip(player, item, inventorySlot = slot)
                 if (result == EquipAction.Result.SUCCESS) {
                     player.calculateBonuses()
@@ -425,8 +427,17 @@ class BankPlugin(
                 } else if (result == EquipAction.Result.UNHANDLED) {
                     player.message("You can't equip that.")
                 }
-            } else if (opt == 9) {
+            } else if (opt == 9 || opt == 10) {
+                // Examine
                 world.sendExamine(player, item.id, ExamineEntityType.ITEM)
+            } else {
+                // Let other options fall through to item plugin system
+                if (!world.plugins.executeItem(player, item.id, opt)) {
+                    // If no plugin handled it, try to execute as normal item action
+                    if (world.devContext.debugItemActions) {
+                        player.message("Unhandled item action in bank: [item=${item.id}, slot=$slot, option=$opt]")
+                    }
+                }
             }
         }
     }

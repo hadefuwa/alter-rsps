@@ -16,15 +16,18 @@ import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
+import org.alter.plugins.content.combat.formula.RangedCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
+import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.rscm.RSCM.getRSCM
 import java.lang.ref.WeakReference
 
 /**
  * General Graardor Combat Plugin
  * 
- * General Graardor is a slow, high-damage melee boss with special mechanics:
- * - Default Attack: Melee, long interval, very high max hit
+ * General Graardor is a slow, high-damage boss with special mechanics:
+ * - Melee Attack: Heavy punches, very high max hit
+ * - Ranged Attack: Big ranged attacks that alternate randomly with melee
  * - Range Stomp: If player stands under him (same tile), deals small damage
  * - Magic Shockwave Special: Random chance, typeless damage, cannot be prayed
  * 
@@ -51,17 +54,20 @@ class GeneralGraardorCombatPlugin(
          * Animation IDs for Graardor's attacks
          */
         private const val MELEE_ATTACK_ANIM = Animation.GENERAL_GRAARDOR_MELEE_ATTACK
+        private const val RANGED_ATTACK_ANIM = Animation.GENERAL_GRAARDOR_RANGED_ATTACK
         
         /**
          * Graphics for Graardor's attacks
          */
         private const val STOMP_GFX = 157 // Ground shake graphic
         private const val SHOCKWAVE_GFX = 1203 // Magic shockwave graphic
+        private const val RANGED_PROJECTILE_GFX = 249 // Ranged projectile graphic
         
         /**
          * Damage ranges
          */
         private const val MELEE_MAX_HIT = 100 // Very high max hit
+        private const val RANGED_MAX_HIT = 80 // High ranged max hit
         private const val STOMP_DAMAGE_MIN = 5
         private const val STOMP_DAMAGE_MAX = 15
         private const val SHOCKWAVE_DAMAGE_MIN = 20
@@ -173,18 +179,37 @@ class GeneralGraardorCombatPlugin(
                 continue
             }
             
-            // Move to melee range
-            if (moveToAttackRange(it, target, distance = 1, projectile = false) && isAttackDelayReady()) {
-                // Randomly choose between magic shockwave special or melee attack
-                val useShockwave = this.world.random(100) < SHOCKWAVE_CHANCE
-                
-                if (useShockwave) {
-                    magicShockwave(target)
-                } else {
-                    meleeAttack(target)
+            // Check if we should use ranged attack (can attack from distance)
+            val useRanged = this.world.random(100) < 50 // 50% chance for ranged attack
+            
+            if (useRanged) {
+                // Move to ranged attack range (distance 10)
+                if (moveToAttackRange(it, target, distance = 10, projectile = true) && isAttackDelayReady()) {
+                    // Randomly choose between magic shockwave special or ranged attack
+                    val useShockwave = this.world.random(100) < SHOCKWAVE_CHANCE
+                    
+                    if (useShockwave) {
+                        magicShockwave(target)
+                    } else {
+                        rangedAttack(target)
+                    }
+                    
+                    postAttackLogic(target)
                 }
-                
-                postAttackLogic(target)
+            } else {
+                // Move to melee range
+                if (moveToAttackRange(it, target, distance = 1, projectile = false) && isAttackDelayReady()) {
+                    // Randomly choose between magic shockwave special or melee attack
+                    val useShockwave = this.world.random(100) < SHOCKWAVE_CHANCE
+                    
+                    if (useShockwave) {
+                        magicShockwave(target)
+                    } else {
+                        meleeAttack(target)
+                    }
+                    
+                    postAttackLogic(target)
+                }
             }
             
             it.wait(1)
@@ -210,6 +235,47 @@ class GeneralGraardorCombatPlugin(
             target.graphic(id = 254, height = 100, delay = 0) // Impact graphic
         } else {
             target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
+        }
+    }
+    
+    /**
+     * Ranged attack - big ranged attacks with projectile
+     */
+    private fun Npc.rangedAttack(target: Pawn) {
+        prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
+        animate(RANGED_ATTACK_ANIM)
+        
+        // Create ranged projectile
+        val projectile = createProjectile(
+            target,
+            gfx = RANGED_PROJECTILE_GFX,
+            startHeight = 43,
+            endHeight = 31,
+            delay = 51,
+            angle = 10,
+            steepness = 11
+        )
+        this.world.spawn(projectile)
+        
+        // Calculate hit delay
+        val hitDelay = RangedCombatStrategy.getHitDelay(
+            getFrontFacingTile(target),
+            target.getCentreTile()
+        )
+        
+        // Deal damage after projectile hits
+        this.world.queue {
+            wait(hitDelay - 1)
+            
+            if (RangedCombatFormula.getAccuracy(this@rangedAttack, target) >= this@rangedAttack.world.randomDouble()) {
+                val maxHit = RangedCombatFormula.getMaxHit(this@rangedAttack, target)
+                // Cap at RANGED_MAX_HIT (80) - high ranged damage
+                val damage = minOf(this@rangedAttack.world.random(maxHit + 1), RANGED_MAX_HIT)
+                target.hit(damage, type = HitType.HIT)
+                target.graphic(id = 254, height = 100, delay = 0) // Impact graphic
+            } else {
+                target.hit(damage = 0, type = HitType.BLOCK)
+            }
         }
     }
     

@@ -213,7 +213,7 @@ class DoomsayerPlugin(
         val dropBonus = DoomPoints.getDropRateMultiplier(player)
         val coinBonus = DoomPoints.getCoinMultiplier(player)
         val slayerBonus = DoomPoints.getSlayerPointsBonus(player)
-        val hasPassiveXp = DoomPoints.hasPassiveXpPerk(player)
+        val passiveXpLevel = DoomPoints.getPassiveXpPerkLevel(player)
         
         chatNpc(
             player,
@@ -225,9 +225,12 @@ class DoomsayerPlugin(
         if (dropBonus > 0) player.message("Drop Rate Boost: +${dropBonus}%")
         if (coinBonus > 0) player.message("Coin Drop Boost: +${coinBonus}%")
         if (damageBonus > 0) player.message("Damage Boost: +${damageBonus}%")
-        if (hasPassiveXp) player.message("Passive XP: Active")
+        if (passiveXpLevel > 0) {
+            val chance = passiveXpLevel * 5
+            player.message("Passive XP: Level $passiveXpLevel ($chance% chance)")
+        }
         
-        if (damageBonus == 0 && dropBonus == 0 && coinBonus == 0 && slayerBonus == 0 && !hasPassiveXp) {
+        if (damageBonus == 0 && dropBonus == 0 && coinBonus == 0 && slayerBonus == 0 && passiveXpLevel == 0) {
             player.message("No perks unlocked yet.")
         }
         

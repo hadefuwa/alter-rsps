@@ -61,8 +61,7 @@ class SharedLootDropPlugin(
             "npc.king_black_dragon",
             "npc.kalphite_queen_963",
             "npc.kalphite_queen_964", // Form 2 (if it transforms)
-            "npc.cerberus", // Sewer Abomination
-            "npc.crazy_archaeologist",
+            "npc.cerberus", // Cerberus - shared loot for all damage dealers
             "npc.chaos_fanatic",
             "npc.chaos_elemental",
             "npc.corporeal_beast" // Corporeal Beast - shared loot for all damage dealers
@@ -130,28 +129,82 @@ class SharedLootDropPlugin(
         }
         
         // Add NPCs that should always drop a random item
-        // Currently: Crazy Archaeologist
+        // Currently: Crazy Archaeologist, Venenatis, Callisto, Vetion
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             alwaysRandomDropNpcIds.add(crazyArchId)
         } catch (e: Exception) {
             // NPC not found, skip
         }
+        try {
+            val venenatisId = getRSCM("npc.venenatis")
+            alwaysRandomDropNpcIds.add(venenatisId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val callistoId = getRSCM("npc.callisto")
+            alwaysRandomDropNpcIds.add(callistoId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val vetionId = getRSCM("npc.vetion")
+            alwaysRandomDropNpcIds.add(vetionId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
         
         // Add NPCs that should always drop guaranteed coins
-        // Currently: Crazy Archaeologist (500k per player)
+        // Currently: Crazy Archaeologist (500k per player), Venenatis (500k per player), Callisto (500k per player), Vetion (500k per player)
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             guaranteedCoinDrops[crazyArchId] = 500000 // 500k coins
         } catch (e: Exception) {
             // NPC not found, skip
         }
+        try {
+            val venenatisId = getRSCM("npc.venenatis")
+            guaranteedCoinDrops[venenatisId] = 500000 // 500k coins
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val callistoId = getRSCM("npc.callisto")
+            guaranteedCoinDrops[callistoId] = 500000 // 500k coins
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val vetionId = getRSCM("npc.vetion")
+            guaranteedCoinDrops[vetionId] = 500000 // 500k coins
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
         
         // Add NPCs that should drop loot at player locations instead of NPC location
-        // Currently: Crazy Archaeologist (players can't stand on same tile)
+        // Currently: Crazy Archaeologist (players can't stand on same tile), Venenatis, Callisto, Vetion
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             dropAtPlayerLocationNpcIds.add(crazyArchId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val venenatisId = getRSCM("npc.venenatis")
+            dropAtPlayerLocationNpcIds.add(venenatisId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val callistoId = getRSCM("npc.callisto")
+            dropAtPlayerLocationNpcIds.add(callistoId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val vetionId = getRSCM("npc.vetion")
+            dropAtPlayerLocationNpcIds.add(vetionId)
         } catch (e: Exception) {
             // NPC not found, skip
         }

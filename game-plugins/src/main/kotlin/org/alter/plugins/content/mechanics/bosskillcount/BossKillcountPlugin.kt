@@ -55,7 +55,7 @@ class BossKillcountPlugin(
             "npc.bryophyta",
             "npc.general_graardor",
             "npc.commander_zilyana",
-            "npc.kree_arra",
+            "npc.kreearra_3162",
             "npc.kril_tsutsaroth",
             "npc.zulrah",
             "npc.vorkath",
@@ -74,7 +74,7 @@ class BossKillcountPlugin(
             "npc.dagannoth_supreme",
             "npc.giant_mole",
             "npc.kalphite_queen",
-            "npc.kree_arra",
+            "npc.kreearra_3162",
             "npc.kril_tsutsaroth",
             "npc.commander_zilyana",
             "npc.general_graardor"

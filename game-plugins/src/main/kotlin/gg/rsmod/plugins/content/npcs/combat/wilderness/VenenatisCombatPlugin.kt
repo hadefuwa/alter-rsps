@@ -33,6 +33,284 @@ import org.alter.game.model.timer.TimeConstants
  * 
  * Combat Level: 464, Hitpoints: 850
  * Location: Silk Chasm (Multi-combat wilderness)
+ * 
+ * ============================================================================
+ * 🎮 GUIDE FOR EDITING VENENATIS COMBAT 🎮
+ * ============================================================================
+ * 
+ * This guide will help you customize Venenatis's combat behavior!
+ * 
+ * 📋 TABLE OF CONTENTS:
+ * 1. Changing Attack Speed
+ * 2. Adding/Modifying Attacks
+ * 3. Checking Protection Prayers
+ * 4. Setting Max Hit Damage
+ * 5. Changing Attack Patterns
+ * 6. Adding Special Effects
+ * 
+ * 
+ * ⚡ 1. CHANGING ATTACK SPEED ⚡
+ * ==============================
+ * 
+ * Attack speed is controlled in the NPC's config file (not this file).
+ * Look for a file like "VenenatisConfigsPlugin.kt" and find:
+ * 
+ *     attackSpeed = 4  // This is in game cycles (ticks)
+ * 
+ * Lower number = faster attacks:
+ * - attackSpeed = 2  → Very fast (attacks every 2 cycles = 1.2 seconds)
+ * - attackSpeed = 3  → Fast (attacks every 3 cycles = 1.8 seconds)
+ * - attackSpeed = 4  → Normal (attacks every 4 cycles = 2.4 seconds) ← DEFAULT
+ * - attackSpeed = 5  → Slow (attacks every 5 cycles = 3.0 seconds)
+ * - attackSpeed = 7  → Very slow (attacks every 7 cycles = 4.2 seconds)
+ * 
+ * Note: 1 game cycle = 0.6 seconds
+ * 
+ * 
+ * 🎯 2. ADDING/MODIFYING ATTACKS 🎯
+ * ==================================
+ * 
+ * To add a new attack, create a new function like this:
+ * 
+ *     private fun Npc.myNewAttack(target: Pawn) {
+ *         // Set the attack type (MELEE, RANGED, or MAGIC)
+ *         prepareAttack(CombatClass.MELEE, CombatStyle.STAB, AttackStyle.ACCURATE)
+ *         
+ *         // Make Venenatis say something
+ *         forceChat("*Does something cool!*")
+ *         
+ *         // Play an animation (find animation IDs in the game)
+ *         animate(5319) // Replace with your animation ID
+ *         
+ *         // Optional: Show a graphic effect
+ *         graphic(172) // Replace with your graphic ID
+ *         
+ *         // Deal damage to the target
+ *         val hit = dealHit(
+ *             target = target,
+ *             formula = MeleeCombatFormula,  // Use MeleeCombatFormula, RangedCombatFormula, or MagicCombatFormula
+ *             delay = 1  // Delay before hit lands (1 = immediate)
+ *         ) { hit ->
+ *             // This code runs when the hit lands
+ *             if (hit.landed() && target is Player) {
+ *                 target.message("You got hit!")
+ *             }
+ *         }
+ *     }
+ * 
+ * Then add it to the attack selection in the combat() function:
+ * 
+ *     when (this.world.random(3)) {
+ *         0 -> normalStabAttack(target)
+ *         1 -> normalRangedAttack(target)
+ *         2 -> myNewAttack(target)  // ← Add your new attack here!
+ *     }
+ * 
+ * 
+ * 🛡️ 3. CHECKING PROTECTION PRAYERS 🛡️
+ * =====================================
+ * 
+ * You can check if a player has a protection prayer active:
+ * 
+ *     if (target is Player) {
+ *         // Check for Protect from Melee
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+ *             target.message("Your Protect from Melee blocks some damage!")
+ *             // Reduce damage by 40% (protection prayers reduce damage by 60%, so 40% gets through)
+ *         }
+ *         
+ *         // Check for Protect from Magic
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+ *             target.message("Your Protect from Magic blocks the attack!")
+ *             // Magic protection completely blocks magic damage
+ *         }
+ *         
+ *         // Check for Protect from Missiles (Ranged)
+ *         if (target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)) {
+ *             target.message("Your Protect from Missiles blocks some damage!")
+ *             // Ranged protection reduces damage by 40%
+ *         }
+ *     }
+ * 
+ * Example: Make an attack that ignores protection prayers:
+ * 
+ *     private fun Npc.ignoresPrayerAttack(target: Pawn) {
+ *         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
+ *         forceChat("*This attack ignores prayers!*")
+ *         animate(5319)
+ *         
+ *         // Calculate max hit manually (ignoring prayer reduction)
+ *         val maxHit = MeleeCombatFormula.getMaxHit(this, target)
+ *         
+ *         // Deal damage directly without using dealHit (which respects prayers)
+ *         val damage = this.world.random(maxHit + 1)
+ *         target.hit(damage, type = HitType.HIT, delay = 1)
+ *         target.message("This attack cannot be blocked by prayers!")
+ *     }
+ * 
+ * 
+ * 💥 4. SETTING MAX HIT DAMAGE 💥
+ * ================================
+ * 
+ * There are two ways to set max hit:
+ * 
+ * METHOD 1: Use the formula (recommended - respects prayers and bonuses)
+ * 
+ *     val hit = dealHit(
+ *         target = target,
+ *         formula = MeleeCombatFormula,  // Automatically calculates max hit
+ *         delay = 1
+ *     )
+ * 
+ * METHOD 2: Set a custom max hit manually
+ * 
+ *     // Get the base max hit from the formula
+ *     val baseMaxHit = MeleeCombatFormula.getMaxHit(this, target)
+ *     
+ *     // Add bonus damage (e.g., +10 extra damage)
+ *     val customMaxHit = baseMaxHit + 10
+ *     
+ *     // Or set a fixed max hit
+ *     val fixedMaxHit = 50  // Always maxes at 50 damage
+ *     
+ *     // Deal the hit with custom max
+ *     val hit = dealHit(
+ *         target = target,
+ *         formula = MeleeCombatFormula,
+ *         delay = 1,
+ *         maxHit = customMaxHit  // Use your custom max hit
+ *     )
+ * 
+ * METHOD 3: Deal damage directly (bypasses formulas)
+ * 
+ *     // Deal a fixed amount of damage
+ *     val damage = this.world.random(20..40)  // Random damage between 20-40
+ *     target.hit(damage, type = HitType.HIT, delay = 1)
+ *     
+ *     // Or deal a specific amount
+ *     target.hit(30, type = HitType.HIT, delay = 1)  // Always deals 30 damage
+ * 
+ * 
+ * 🎲 5. CHANGING ATTACK PATTERNS 🎲
+ * ==================================
+ * 
+ * The attack pattern is controlled in the combat() function:
+ * 
+ *     when {
+ *         // When HP is below 25%, use enraged attacks
+ *         getCurrentHp() <= getMaxHp() * 0.25 -> {
+ *             // Change 0.25 to 0.5 for enraged at 50% HP instead
+ *             // Change 0.25 to 0.1 for enraged at 10% HP instead
+ *         }
+ *         
+ *         // Special attacks happen every 4 attacks, with 1/3 chance
+ *         attackCount >= 4 && this.world.chance(1, 3) -> {
+ *             // Change 4 to 3 for specials every 3 attacks
+ *             // Change (1, 3) to (1, 2) for 50% chance instead of 33%
+ *         }
+ *     }
+ * 
+ * To change how often special attacks happen:
+ * 
+ *     attackCount >= 3 && this.world.chance(1, 2) -> {
+ *         // This means: every 3 attacks, 50% chance for special
+ *     }
+ * 
+ * To change which attacks are used:
+ * 
+ *     when (this.world.random(5)) {
+ *         0 -> webProjectileAttack(target)    // 20% chance
+ *         1 -> spawnSpiderlingsAttack(target) // 20% chance
+ *         2 -> venomSpitAttack(target)        // 20% chance
+ *         3 -> webTrapAttack(target)          // 20% chance
+ *         4 -> webStickAttack(target)         // 20% chance
+ *     }
+ * 
+ * To make one attack more common:
+ * 
+ *     when {
+ *         this.world.chance(1, 2) -> webProjectileAttack(target)  // 50% chance
+ *         this.world.chance(1, 2) -> venomSpitAttack(target)      // 25% chance (50% of remaining)
+ *         else -> normalStabAttack(target)                         // 25% chance
+ *     }
+ * 
+ * 
+ * ✨ 6. ADDING SPECIAL EFFECTS ✨
+ * ================================
+ * 
+ * POISON EFFECT:
+ * 
+ *     if (target is Player) {
+ *         target.poison(initialDamage = 4) {  // Starts at 4 damage
+ *             target.message("You are poisoned!")
+ *         }
+ *     }
+ * 
+ * FREEZE/STUN EFFECT:
+ * 
+ *     if (target is Player) {
+ *         target.freeze(cycles = 5) {  // Freeze for 5 cycles (3 seconds)
+ *             target.message("You break free!")
+ *         }
+ *         
+ *         // Or use stun
+ *         target.stun(3)  // Stun for 3 cycles
+ *     }
+ * 
+ * KNOCKBACK EFFECT:
+ * 
+ *     val knockbackTile = Tile(
+ *         target.tile.x + 2,  // Move 2 tiles east
+ *         target.tile.z,      // Same Z coordinate
+ *         target.tile.height
+ *     )
+ *     target.moveTo(knockbackTile)
+ * 
+ * DISABLE PRAYERS:
+ * 
+ *     if (target is Player) {
+ *         Prayers.deactivateAll(target)  // Turn off all prayers
+ *         Prayers.disableOverheads(target, cycles = 10)  // Disable overheads for 10 cycles
+ *     }
+ * 
+ * DAMAGE OVER TIME:
+ * 
+ *     target.queue {
+ *         repeat(5) {  // Repeat 5 times
+ *             wait(2)  // Wait 2 cycles between each
+ *             if (target.isAlive()) {
+ *                 val damage = this.world.random(1..5)
+ *                 target.hit(damage, type = HitType.POISON, delay = 0)
+ *             }
+ *         }
+ *     }
+ * 
+ * 
+ * 📝 QUICK REFERENCE 📝
+ * =====================
+ * 
+ * Combat Classes: CombatClass.MELEE, CombatClass.RANGED, CombatClass.MAGIC
+ * Combat Styles: CombatStyle.STAB, CombatStyle.SLASH, CombatStyle.CRUSH, CombatStyle.RANGED, CombatStyle.MAGIC
+ * Attack Styles: AttackStyle.ACCURATE, AttackStyle.AGGRESSIVE, AttackStyle.DEFENSIVE, AttackStyle.CONTROLLED
+ * 
+ * Formulas: MeleeCombatFormula, RangedCombatFormula, MagicCombatFormula
+ * 
+ * Hit Types: HitType.HIT, HitType.POISON, HitType.DISEASE
+ * 
+ * Prayer Icons: PrayerIcon.PROTECT_FROM_MELEE, PrayerIcon.PROTECT_FROM_MAGIC, PrayerIcon.PROTECT_FROM_MISSILES
+ * 
+ * 
+ * 💡 TIPS 💡
+ * ===========
+ * 
+ * - Always test your changes in-game!
+ * - Start with small changes and test each one
+ * - Use target.message() to send messages to players for debugging
+ * - Check if target is Player before using player-specific functions
+ * - Use this.world.random() for random numbers
+ * - Use this.world.chance(numerator, denominator) for percentages
+ * 
+ * ============================================================================
  */
 
 class VenenatisCombatPlugin(
@@ -49,74 +327,162 @@ class VenenatisCombatPlugin(
         }
     }
 
+    /**
+     * Main combat loop for Venenatis
+     * 
+     * HOW TO EDIT THIS FUNCTION:
+     * 
+     * 1. Change attack distance:
+     *    - distance = 8  → Can attack from 8 tiles away (current)
+     *    - distance = 1  → Must be next to target (melee only)
+     *    - distance = 10 → Can attack from 10 tiles away
+     * 
+     * 2. Change when enraged phase starts:
+     *    - getCurrentHp() <= getMaxHp() * 0.25  → Enraged at 25% HP (current)
+     *    - getCurrentHp() <= getMaxHp() * 0.5   → Enraged at 50% HP
+     *    - getCurrentHp() <= getMaxHp() * 0.1   → Enraged at 10% HP
+     * 
+     * 3. Change special attack frequency:
+     *    - attackCount >= 4 && this.world.chance(1, 3)  → Every 4 attacks, 33% chance (current)
+     *    - attackCount >= 3 && this.world.chance(1, 2)  → Every 3 attacks, 50% chance
+     *    - attackCount >= 5 && this.world.chance(1, 4)  → Every 5 attacks, 25% chance
+     * 
+     * 4. Change normal attack selection:
+     *    - Change the numbers in when (this.world.random(3)) to add/remove attacks
+     *    - Add more -> when (this.world.random(4)) { 0, 1, 2, 3 -> ... }
+     */
     private suspend fun Npc.combat(it: QueueTask) {
-        var target = getCombatTarget() ?: return
-        var attackCount = 0
+        var target = getCombatTarget() ?: return  // Get the target Venenatis is fighting
+        var attackCount = 0  // Counts how many attacks have been made (resets on specials)
 
+        // Main combat loop - runs while Venenatis can fight the target
         while (canEngageCombat(target)) {
-            facePawn(target)
+            facePawn(target)  // Face the target
+            
+            // Move to attack range and check if ready to attack
+            // distance = 8 means Venenatis can attack from 8 tiles away
+            // projectile = true means this attack can use projectiles (ranged/magic)
             if (moveToAttackRange(it, target, distance = 8, projectile = true) && isAttackDelayReady()) {
-                attackCount++
+                attackCount++  // Increment attack counter
                 
-                // Determine attack based on combat cycle and HP
+                // ============================================================
+                // ATTACK SELECTION LOGIC
+                // ============================================================
+                // This decides which attack to use based on HP and attack count
+                
                 when {
+                    // ENRAGED PHASE: When HP is below 25%
+                    // Change 0.25 to 0.5 for enraged at 50% HP, or 0.1 for 10% HP
                     getCurrentHp() <= getMaxHp() * 0.25 -> {
                         // Enraged phase - spawn more spiderlings and web traps
+                        // Randomly picks one of 4 special attacks (25% chance each)
                         when (this.world.random(4)) {
-                            0 -> spawnSpiderlingsAttack(target)
-                            1 -> webTrapAttack(target)
-                            2 -> venomSpitAttack(target)
-                            3 -> webStickAttack(target)
-                            else -> webProjectileAttack(target)
+                            0 -> spawnSpiderlingsAttack(target)  // Summon minions
+                            1 -> webTrapAttack(target)           // Create traps
+                            2 -> venomSpitAttack(target)         // Poison attack
+                            3 -> webStickAttack(target)          // Disable prayers
+                            else -> webProjectileAttack(target)  // Fallback
                         }
-                        attackCount = 0
+                        attackCount = 0  // Reset counter after special
                     }
+                    
+                    // SPECIAL ATTACKS: Every 4 attacks, 33% chance (1 in 3)
+                    // Change 4 to 3 for every 3 attacks, or (1, 3) to (1, 2) for 50% chance
                     attackCount >= 4 && this.world.chance(1, 3) -> {
-                        // Special attacks
+                        // Special attacks - randomly picks one of 5 attacks (20% chance each)
                         when (this.world.random(5)) {
-                            0 -> webProjectileAttack(target)
-                            1 -> spawnSpiderlingsAttack(target)
-                            2 -> venomSpitAttack(target)
-                            3 -> webTrapAttack(target)
-                            4 -> webStickAttack(target)
-                            else -> webProjectileAttack(target)
+                            0 -> webProjectileAttack(target)     // Web projectile
+                            1 -> spawnSpiderlingsAttack(target)  // Summon minions
+                            2 -> venomSpitAttack(target)         // Poison attack
+                            3 -> webTrapAttack(target)           // Create traps
+                            4 -> webStickAttack(target)          // Disable prayers
+                            else -> webProjectileAttack(target)  // Fallback
                         }
-                        attackCount = 0
+                        attackCount = 0  // Reset counter after special
                     }
+                    
+                    // NORMAL ATTACKS: Default behavior
                     else -> {
                         // Normal spider attack (alternates between styles)
+                        // Randomly picks one of 3 basic attacks (33% chance each)
                         when (this.world.random(3)) {
-                            0 -> normalStabAttack(target)
-                            1 -> normalRangedAttack(target)
-                            2 -> normalMagicAttack(target)
-                            else -> normalStabAttack(target)
+                            0 -> normalStabAttack(target)      // Melee stab attack
+                            1 -> normalRangedAttack(target)   // Ranged web attack
+                            2 -> normalMagicAttack(target)     // Magic venom attack
+                            else -> normalStabAttack(target)  // Fallback
                         }
                     }
                 }
                 
-                postAttackLogic(target)
+                postAttackLogic(target)  // Handle post-attack effects
             }
-            it.wait(1)
-            target = getCombatTarget() ?: break
+            
+            it.wait(1)  // Wait 1 cycle before checking again
+            target = getCombatTarget() ?: break  // Update target (might have changed)
         }
 
-        resetFacePawn()
-        removeCombatTarget()
+        // Clean up when combat ends
+        resetFacePawn()      // Stop facing the target
+        removeCombatTarget() // Clear the combat target
     }
 
+    /**
+     * Normal melee stab attack
+     * 
+     * HOW TO EDIT:
+     * 
+     * 1. Change attack type:
+     *    - CombatClass.MELEE → Use melee formula
+     *    - CombatClass.RANGED → Use ranged formula
+     *    - CombatClass.MAGIC → Use magic formula
+     * 
+     * 2. Change combat style:
+     *    - CombatStyle.STAB → Stab attack (current)
+     *    - CombatStyle.SLASH → Slash attack
+     *    - CombatStyle.CRUSH → Crush attack
+     * 
+     * 3. Change attack style:
+     *    - AttackStyle.ACCURATE → More accurate
+     *    - AttackStyle.AGGRESSIVE → More damage
+     *    - AttackStyle.DEFENSIVE → More defense
+     * 
+     * 4. Change animation:
+     *    - animate(5319) → Change 5319 to a different animation ID
+     * 
+     * 5. Change poison chance:
+     *    - this.world.chance(3, 10) → 30% chance (3 out of 10)
+     *    - this.world.chance(1, 2) → 50% chance
+     *    - this.world.chance(1, 5) → 20% chance
+     * 
+     * 6. Change poison damage:
+     *    - initialDamage = 4 → Starts at 4 damage per tick
+     *    - initialDamage = 6 → Starts at 6 damage per tick
+     */
     private fun Npc.normalStabAttack(target: Pawn) {
+        // Prepare the attack - tells the game what type of attack this is
         prepareAttack(CombatClass.MELEE, CombatStyle.STAB, AttackStyle.ACCURATE)
-        forceChat("*Strikes with venomous fangs*")
-        animate(5319) // Spider stab animation
         
+        // Make Venenatis say something (optional)
+        forceChat("*Strikes with venomous fangs*")
+        
+        // Play the attack animation (5319 = spider stab animation)
+        // To find other animation IDs, look in the game's animation files
+        animate(5319)
+        
+        // Deal damage to the target
         val hit = dealHit(
-            target = target,
-            formula = MeleeCombatFormula,
-            delay = 1
+            target = target,                    // Who to hit
+            formula = MeleeCombatFormula,       // Use melee damage formula
+            delay = 1                           // Delay before hit lands (1 = immediate)
         ) { hit ->
+            // This code runs when the hit lands
+            // hit.landed() returns true if the attack hit (not 0 damage)
+            // this.world.chance(3, 10) means 30% chance (3 out of 10)
             if (hit.landed() && this.world.chance(3, 10)) {
                 if (target is Player) {
                     target.message("You have been poisoned!")
+                    // Apply poison effect
+                    // initialDamage = 4 means poison starts at 4 damage per tick
                     target.poison(initialDamage = 4) {
                         target.message("The venom courses through your veins.")
                     }

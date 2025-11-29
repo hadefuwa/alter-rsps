@@ -140,6 +140,125 @@ class GodWarsCombatPlugin(
             npc.combatClass = CombatClass.MELEE
             npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
         }
+        
+        // ======================
+        // GENERAL GRAARDOR - Bandos Boss
+        // Uses both melee and ranged attacks
+        // ======================
+        onNpcSpawn(npc = "npc.general_graardor") {
+            // Graardor uses both melee and ranged, default to melee
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // GENERAL GRAARDOR'S SERGEANTS - Bandos Minions
+        // ======================
+        onNpcSpawn(npc = "npc.sergeant_strongstack") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.sergeant_steelwill") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.sergeant_grimspike") {
+            npc.combatClass = CombatClass.RANGED
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // COMMANDER ZILYANA - Saradomin Boss
+        // Fast melee boss with dash attack
+        // ======================
+        onNpcSpawn(npc = "npc.commander_zilyana") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // COMMANDER ZILYANA'S MINIONS - Saradomin Minions
+        // ======================
+        onNpcSpawn(npc = "npc.starlight") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.growler") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.bree") {
+            npc.combatClass = CombatClass.RANGED
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // K'RIL TSUTSAROTH - Zamorak Boss
+        // Hard-hitting melee boss with typeless special and prayer drain
+        // ======================
+        onNpcSpawn(npc = "npc.kril_tsutsaroth") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // K'RIL TSUTSAROTH'S MINIONS - Zamorak Minions
+        // ======================
+        onNpcSpawn(npc = "npc.balfrug_kreeyath") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.tstanon_karlak") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.zakln_gritch") {
+            npc.combatClass = CombatClass.RANGED
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // NEX - Ancient Prison Boss
+        // 5-phase boss with unique mechanics per phase
+        // ======================
+        onNpcSpawn(npc = "npc.nex") {
+            npc.combatClass = CombatClass.MAGIC // Default to magic, changes per phase
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        // ======================
+        // NEX MINIONS - Phase Minions
+        // ======================
+        onNpcSpawn(npc = "npc.fumus") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.umbra") {
+            npc.combatClass = CombatClass.RANGED
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.cruor") {
+            npc.combatClass = CombatClass.MELEE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
+        
+        onNpcSpawn(npc = "npc.glacies") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+            npc.attr[Combat.DAMAGE_DEAL_MULTIPLIER] = GODWARS_DAMAGE_MULTIPLIER
+        }
     }
 }
 

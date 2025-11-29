@@ -48,9 +48,12 @@ suspend fun Pawn.canAttackMelee(
     it: QueueTask,
     target: Pawn,
     moveIfNeeded: Boolean,
-): Boolean =
-    Combat.areBordering(tile.x, tile.z, getSize(), getSize(), target.tile.x, target.tile.z, target.getSize(), target.getSize()) ||
-        moveIfNeeded && moveToAttackRange(it, target, distance = 0, projectile = false)
+): Boolean {
+    // Check if entities are bordering (adjacent) or overlapping (same tile)
+    val bordering = Combat.areBordering(tile.x, tile.z, getSize(), getSize(), target.tile.x, target.tile.z, target.getSize(), target.getSize())
+    val overlapping = Combat.areOverlapping(tile.x, tile.z, getSize(), getSize(), target.tile.x, target.tile.z, target.getSize(), target.getSize())
+    return (bordering || overlapping) || (moveIfNeeded && moveToAttackRange(it, target, distance = 1, projectile = false))
+}
 
 fun Pawn.dealHit(
     target: Pawn,

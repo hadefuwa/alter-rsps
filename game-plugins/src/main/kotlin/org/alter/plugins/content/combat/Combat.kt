@@ -226,7 +226,9 @@ object Combat {
             if (distance > 1) {
                 areOverlapping(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
             } else {
-                areBordering(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
+                // For melee (distance = 1), allow both bordering and overlapping (same tile)
+                areBordering(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize) ||
+                areOverlapping(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
             }
         val withinRange = touching && world.lineValidator.rayCast(start, end, projectile = projectile)
         
@@ -258,7 +260,9 @@ object Combat {
                     if (distance > 1) {
                         areOverlapping(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
                     } else {
-                        areBordering(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
+                        // For melee (distance = 1), allow both bordering and overlapping (same tile)
+                        areBordering(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize) ||
+                        areOverlapping(newStart.x, newStart.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
                     }
                 return newTouching && world.lineValidator.rayCast(newStart, end, projectile = projectile)
             }
@@ -388,7 +392,7 @@ object Combat {
             CombatClass.MAGIC -> MagicCombatStrategy
         }
 
-    private fun areOverlapping(
+    fun areOverlapping(
         x1: Int,
         z1: Int,
         width1: Int,

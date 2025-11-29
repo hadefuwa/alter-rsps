@@ -50,7 +50,7 @@ class NexusPortalPlugin(
             "Commander Zilyana" to Tile(x = 2899, z = 5268, height = 2),
             "General Graardor" to Tile(x = 2864, z = 5354, height = 2),
             "K'ril Tsutsaroth" to Tile(x = 2925, z = 5330, height = 2),
-            "Kree'arra" to Tile(x = 2833, z = 5303, height = 2),
+            "Kree'arra" to Tile(x = 2832, z = 5302, height = 2),
             "Nex" to Tile(x = 2925, z = 5203, height = 0),
             // Cities & Towns
             "God Wars Dungeon" to Tile(x = 2881, z = 5309, height = 2),

@@ -13,6 +13,7 @@ import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.combat.dealHit
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
+import org.alter.plugins.content.mechanics.doompoints.addXpWithPassiveCheck
 import java.lang.IllegalStateException
 
 /**
@@ -82,29 +83,29 @@ object MeleeCombatStrategy : CombatStrategy {
 
         when (mode) {
             XpMode.ATTACK -> {
-                player.addXp(Skills.ATTACK, modDamage * 4.0 * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.ATTACK, modDamage * 4.0 * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
             XpMode.STRENGTH -> {
-                player.addXp(Skills.STRENGTH, modDamage * 4.0 * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.STRENGTH, modDamage * 4.0 * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
             XpMode.DEFENCE -> {
-                player.addXp(Skills.DEFENCE, modDamage * 4.0 * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * 4.0 * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
             XpMode.SHARED -> {
-                player.addXp(Skills.ATTACK, modDamage * 1.33 * multiplier)
-                player.addXp(Skills.STRENGTH, modDamage * 1.33 * multiplier)
-                player.addXp(Skills.DEFENCE, modDamage * 1.33 * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.ATTACK, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.STRENGTH, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
             XpMode.MAGIC, XpMode.RANGED -> {
                 // This should not happen - player should be using MagicCombatStrategy or RangedCombatStrategy
                 // But handle it gracefully to prevent crashes
                 // Log a warning and give default melee XP
-                player.addXp(Skills.ATTACK, modDamage * 4.0 * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.ATTACK, modDamage * 4.0 * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
             else -> throw IllegalStateException("Unknown $mode in MeleeCombatStrategy.")
         }

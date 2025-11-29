@@ -145,7 +145,7 @@ class CerberusConfigsPlugin(
                     add("item.dragon_platelegs", min = 1, weight = 10)     // 1/10 chance
                     add("item.loop_half_of_key", min = 1, weight = 5)    // 1/5 chance
                     add("item.tooth_half_of_key", min = 1, weight = 5)   // 1/5 chance
-                    add("item.shield_left_half", min = 1, weight = 2)      // 1/2 chance
+                    add("item.shield_left_half", min = 1, weight = 50)      // 1/50 chance (made rarer)
                     add("item.draconic_visage", min = 1, weight = 1000)    // Very rare: 1/1000 chance
                 }
             }

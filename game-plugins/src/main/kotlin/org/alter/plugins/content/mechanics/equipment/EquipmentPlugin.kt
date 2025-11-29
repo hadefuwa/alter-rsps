@@ -1,5 +1,6 @@
 package org.alter.plugins.content.mechanics.equipment
 
+import dev.openrune.cache.CacheManager.getItem
 import org.alter.api.*
 import org.alter.api.EquipmentType.Companion.EQUIPMENT_INTERFACE_ID
 import org.alter.api.cfg.*
@@ -18,6 +19,7 @@ import org.alter.game.model.queue.*
 import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
+import org.alter.plugins.content.combat.Combat
 
 class EquipmentPlugin(
     r: PluginRepository,
@@ -30,6 +32,22 @@ class EquipmentPlugin(
             onEquipToSlot(equipment.id) {
                 if (equipment == EquipmentType.WEAPON) {
                     player.sendWeaponComponentInformation()
+                    
+                    // Clear autocast when switching to a non-magic weapon or when weapon slot is empty
+                    // Only keep autocast if the new weapon is a magic staff, trident, or regular staff
+                    val weaponType = player.getWeaponType()
+                    val isMagicWeapon = weaponType == WeaponType.MAGIC_STAFF.id ||
+                                       weaponType == WeaponType.STAFF.id ||
+                                       weaponType == WeaponType.TRIDENT.id
+                    
+                    if (!isMagicWeapon) {
+                        // Clear autocast varbit
+                        player.setVarbit(Combat.SELECTED_AUTOCAST_VARBIT, 0)
+                        // Clear casting spell attribute
+                        player.attr.remove(Combat.CASTING_SPELL)
+                        // Clear defensive autocast selection
+                        player.attr.remove(Combat.DEFENSIVE_AUTOCAST_SELECTION)
+                    }
                 }
             }
         }
@@ -78,6 +96,30 @@ class EquipmentPlugin(
                     val result = EquipAction.unequip(player, equipment.id)
                     if (equipment == EquipmentType.WEAPON && result == EquipAction.Result.SUCCESS) {
                         player.sendWeaponComponentInformation()
+                        // Clear autocast when weapon is unequipped (weapon type becomes NONE)
+                        // Only clear if it's not one of the wilderness sceptres (they have their own handlers)
+                        val unequippedItemId = player.getInteractingItem()?.id
+                        if (unequippedItemId != null) {
+                            try {
+                                val itemName = getItem(unequippedItemId).name.lowercase()
+                                // Don't clear if it's a wilderness sceptre (they have their own handlers above)
+                                if (!itemName.contains("accursed") && !itemName.contains("thammaron")) {
+                                    player.setVarbit(Combat.SELECTED_AUTOCAST_VARBIT, 0)
+                                    player.attr.remove(Combat.CASTING_SPELL)
+                                    player.attr.remove(Combat.DEFENSIVE_AUTOCAST_SELECTION)
+                                }
+                            } catch (e: Exception) {
+                                // If we can't get item info, clear autocast anyway
+                                player.setVarbit(Combat.SELECTED_AUTOCAST_VARBIT, 0)
+                                player.attr.remove(Combat.CASTING_SPELL)
+                                player.attr.remove(Combat.DEFENSIVE_AUTOCAST_SELECTION)
+                            }
+                        } else {
+                            // No item info available, clear autocast anyway
+                            player.setVarbit(Combat.SELECTED_AUTOCAST_VARBIT, 0)
+                            player.attr.remove(Combat.CASTING_SPELL)
+                            player.attr.remove(Combat.DEFENSIVE_AUTOCAST_SELECTION)
+                        }
                     }
                 }
                 10 -> {

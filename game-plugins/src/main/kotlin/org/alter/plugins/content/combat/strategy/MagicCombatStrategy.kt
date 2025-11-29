@@ -19,6 +19,7 @@ import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.magic.MagicSpells
 import org.alter.plugins.content.mechanics.poison.Poison
 import org.alter.plugins.content.mechanics.poison.poison
+import org.alter.plugins.content.mechanics.doompoints.addXpWithPassiveCheck
 import org.alter.rscm.RSCM.getRSCM
 
 /**
@@ -382,20 +383,20 @@ object MagicCombatStrategy : CombatStrategy {
                     Combat.SELECTED_AUTOCAST_VARBIT,
                 ) != 0 && player.getVarbit(Combat.DEFENSIVE_MAGIC_CAST_VARBIT) != 0
             if (!defensive) {
-                player.addXp(Skills.MAGIC, (modDamage * 2.0 * multiplier) + baseXp)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.MAGIC, (modDamage * 2.0 * multiplier) + baseXp)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             } else {
-                player.addXp(Skills.MAGIC, (modDamage * 1.33 * multiplier) + baseXp)
-                player.addXp(Skills.DEFENCE, modDamage * multiplier)
-                player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+                player.addXpWithPassiveCheck(Skills.MAGIC, (modDamage * 1.33 * multiplier) + baseXp)
+                player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * multiplier)
+                player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
             }
         } else if (mode == XpMode.SHARED) {
-            player.addXp(Skills.MAGIC, (modDamage * 1.33 * multiplier) + baseXp)
-            player.addXp(Skills.DEFENCE, modDamage * multiplier)
-            player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+            player.addXpWithPassiveCheck(Skills.MAGIC, (modDamage * 1.33 * multiplier) + baseXp)
+            player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
         } else {
-            player.addXp(Skills.MAGIC, (modDamage * 2.0 * multiplier) + baseXp)
-            player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+            player.addXpWithPassiveCheck(Skills.MAGIC, (modDamage * 2.0 * multiplier) + baseXp)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
         }
     }
     

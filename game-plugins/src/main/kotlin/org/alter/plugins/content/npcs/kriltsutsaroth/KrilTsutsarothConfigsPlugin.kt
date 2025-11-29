@@ -252,7 +252,8 @@ class KrilTsutsarothConfigsPlugin(
                 // DROP TABLE 2: PRE-ROLL TABLE
                 // Rolls before main table. If it hits, main doesn't roll.
                 // Low weight items so main still rolls most of the time
-                preroll {
+                // Total item weights = 3875, so set weight to 5000 for proper validation (with buffer)
+                preroll(weight = 5000) {
                     // Zamorak signature uniques (spread across tables)
                     add("item.zamorakian_spear", min = 1, weight = 128)  // ~0.78% chance (1/128)
                     add("item.zamorak_hilt", min = 1, weight = 256)      // ~0.39% chance (1/256) - rarest
@@ -288,7 +289,8 @@ class KrilTsutsarothConfigsPlugin(
                 // DROP TABLE 3: TERTIARY TABLE
                 // Can roll multiple items independently (each item rolls separately)
                 // This table always rolls, each item has its own chance
-                tertiary(weight = 0) {
+                // Total item weights = 3875, so set weight to 4000 for proper validation (with buffer)
+                tertiary(weight = 4000) {
                     // Zamorak signature uniques (spread across tables)
                     add("item.zamorakian_spear", min = 1, weight = 200)  // ~0.5% chance per kill (1/200)
                     add("item.zamorak_hilt", min = 1, weight = 400)      // ~0.25% chance per kill (1/400) - rarest

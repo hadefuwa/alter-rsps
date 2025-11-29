@@ -48,20 +48,20 @@ class TeleportsPlugin(
                 // Right-click option 10 ("Animation" in menu) - Teleport Menu
                 // TO DISABLE: Comment out this entire if block
                 if (option == 10) {
-                    if (!player.lock.canTeleport()) {
-                        return@onButton
-                    }
-                    
-                    // Check wilderness level restriction for home teleport
-                    val wildernessLevel = player.tile.getWildernessLevel()
-                    if (wildernessLevel > 30) {
-                        player.message("A mysterious force blocks your teleport spell!")
-                        player.message("You can't use this teleport after level 30 wilderness.")
-                        return@onButton
-                    }
+                if (!player.lock.canTeleport()) {
+                    return@onButton
+                }
+                
+                // Check wilderness level restriction for home teleport
+                val wildernessLevel = player.tile.getWildernessLevel()
+                if (wildernessLevel > 30) {
+                    player.message("A mysterious force blocks your teleport spell!")
+                    player.message("You can't use this teleport after level 30 wilderness.")
+                    return@onButton
+                }
 
-                    // Define all teleport locations
-                    val allTeleportLocations = listOf(
+                // Define all teleport locations
+                val allTeleportLocations = listOf(
                     // Page 1: Main Cities
                     "Home" to world.gameContext.home,
                     "Varrock" to Tile(x = 3211, z = 3424, height = 0),
@@ -120,14 +120,14 @@ class TeleportsPlugin(
                     "Jatizso" to Tile(x = 2400, z = 3808, height = 0),
                 )
 
-                    // Pagination settings - 3 locations per page (5 total options: Prev + 3 locations + Next)
-                    val locationsPerPage = 3
-                    val totalPages = (allTeleportLocations.size + locationsPerPage - 1) / locationsPerPage
+                // Pagination settings - 3 locations per page (5 total options: Prev + 3 locations + Next)
+                val locationsPerPage = 3
+                val totalPages = (allTeleportLocations.size + locationsPerPage - 1) / locationsPerPage
 
-                    player.queue(TaskPriority.STRONG) {
-                        var currentPage = 0
+                player.queue(TaskPriority.STRONG) {
+                    var currentPage = 0
 
-                        while (true) {
+                    while (true) {
                         val startIndex = currentPage * locationsPerPage
                         val endIndex = minOf(startIndex + locationsPerPage, allTeleportLocations.size)
                         val pageLocations = allTeleportLocations.subList(startIndex, endIndex)
@@ -200,7 +200,7 @@ class TeleportsPlugin(
                             break // Exit the loop - player is teleporting
                         }
                     }
-                    return@onButton
+                }
                 }
 
                 // Left-click option (option 1) - Instant home teleport
@@ -209,8 +209,8 @@ class TeleportsPlugin(
                 }
                 
                 // Check wilderness level restriction for home teleport
-                val wildernessLevel = player.tile.getWildernessLevel()
-                if (wildernessLevel > 30) {
+                val wildernessLevelLeftClick = player.tile.getWildernessLevel()
+                if (wildernessLevelLeftClick > 30) {
                     player.message("A mysterious force blocks your teleport spell!")
                     player.message("You can't use this teleport after level 30 wilderness.")
                     return@onButton
@@ -383,7 +383,6 @@ class TeleportsPlugin(
                             }
                         }
                     }
-                    return@onButton
                 }
 
                 // Left-click option (option 1) - Instant home teleport
@@ -392,16 +391,16 @@ class TeleportsPlugin(
                 }
                 
                 // Check wilderness level restriction for home teleport
-                val wildernessLevel = player.tile.getWildernessLevel()
-                if (wildernessLevel > 30) {
-                    player.message("A mysterious force blocks your teleport spell!")
-                    player.message("You can't use this teleport after level 30 wilderness.")
-                    return@onButton
-                }
+                val wildernessLevelLeftClick2 = player.tile.getWildernessLevel()
+                if (wildernessLevelLeftClick2 > 30) {
+                player.message("A mysterious force blocks your teleport spell!")
+                player.message("You can't use this teleport after level 30 wilderness.")
+                return@onButton
+            }
 
-                val home = world.gameContext.home
-                // Use the teleport function with MODERN type for proper animations and behavior
-                player.teleport(home, TeleportType.MODERN)
+            val home = world.gameContext.home
+            // Use the teleport function with MODERN type for proper animations and behavior
+            player.teleport(home, TeleportType.MODERN)
             }
         }
 

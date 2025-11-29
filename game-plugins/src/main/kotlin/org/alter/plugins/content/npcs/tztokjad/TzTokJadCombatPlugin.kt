@@ -9,6 +9,7 @@ import org.alter.game.model.combat.AttackStyle
 import org.alter.game.model.combat.CombatClass
 import org.alter.game.model.combat.CombatStyle
 import org.alter.game.model.entity.*
+import org.alter.game.model.move.walkTo
 import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
@@ -113,13 +114,20 @@ class TzTokJadCombatPlugin(
                 val awayX = if (dx > 0) -1 else if (dx < 0) 1 else 0
                 val awayZ = if (dz > 0) -1 else if (dz < 0) 1 else 0
                 
-                // Try to move away
+                // Calculate the away tile
                 val awayTile = tile.transform(awayX, awayZ)
-                if (awayTile != null && canMoveTo(awayTile)) {
-                    pathTo(awayTile)
-                    it.wait(1)
-                    target = getCombatTarget() ?: break
-                    continue
+                
+                // Calculate direction to move away using Direction.between
+                if (awayTile != null) {
+                    val awayDirection = Direction.between(tile, awayTile)
+                    
+                    // Try to move away if we can traverse in that direction
+                    if (awayDirection != Direction.NONE && this.world.canTraverse(this.tile, awayDirection, this)) {
+                        walkTo(awayTile)
+                        it.wait(1)
+                        target = getCombatTarget() ?: break
+                        continue
+                    }
                 }
             }
             

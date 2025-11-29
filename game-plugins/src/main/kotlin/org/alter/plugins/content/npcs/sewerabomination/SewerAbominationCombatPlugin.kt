@@ -886,6 +886,30 @@ class SewerAbominationCombatPlugin(
         // Shout "Raaa" above his head
         forceChat("Raaa")
         
+        // Play roar/growl sound effect when Cerberus does the "Raaa" attack
+        if (target is Player) {
+            world.spawn(
+                org.alter.game.model.entity.AreaSound(
+                    this.tile,
+                    org.alter.api.cfg.Sound.SKELETAL_HELLHOUND_ATTACK,
+                    radius = 10,
+                    volume = 50
+                )
+            )
+        }
+        
+        // Show blast wave graphic effect on Cerberus
+        graphic(id = 157, height = 0) // Ground shockwave/blast wave graphic
+        
+        // Also show blast wave effect on the ground around Cerberus
+        val cerberusTile = this.tile
+        for (x in -1..1) {
+            for (z in -1..1) {
+                val tile = cerberusTile.transform(x, z)
+                world.spawn(org.alter.game.model.TileGraphic(tile, id = 157, height = 0, delay = 0))
+            }
+        }
+        
         // Wait 1 second (2 ticks = ~1.2 seconds)
         it.wait(2)
         

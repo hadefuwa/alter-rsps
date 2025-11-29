@@ -42,6 +42,7 @@ class VarrockHighValueBuyShopPlugin(
         // Original items
         ShopItem(26113, 0, null, 10000000), // Sigil of Versatility
         ShopItem(29664, 0, null, 10000000), // Sigil of Adroit
+        ShopItem(29665, 0, null, 10000000), // Sigil of Adroit (noted)
         ShopItem(26128, 0, null, 10000000), // Sigil of Pious Protection
         ShopItem(26083, 0, null, 10000000), // Sigil of the Dwarves
         ShopItem(26123, 0, null, 10000000), // Sigil of Preservation
@@ -72,6 +73,7 @@ class VarrockHighValueBuyShopPlugin(
         ShopItem(26044, 0, null, 10000000), // Sigil of the Potion Master
         ShopItem(26047, 0, null, 10000000), // Sigil of the Eternal Jeweller
         ShopItem(26050, 0, null, 10000000), // Sigil of the Treasure Hunter
+        ShopItem(26051, 0, null, 10000000), // Sigil of the Treasure Hunter (variant)
         ShopItem(26053, 0, null, 10000000), // Sigil of Mobility
         ShopItem(26062, 0, null, 10000000), // Sigil of the Porcupine
         ShopItem(26065, 0, null, 10000000), // Sigil of Binding
@@ -87,6 +89,7 @@ class VarrockHighValueBuyShopPlugin(
         ShopItem(26098, 0, null, 10000000), // Sigil of Devotion
         ShopItem(26101, 0, null, 10000000), // Sigil of the Forager
         ShopItem(26104, 0, null, 10000000), // Sigil of Garments
+        ShopItem(26105, 0, null, 10000000), // Sigil of Garments (variant)
         ShopItem(26107, 0, null, 10000000), // Sigil of Slaughter
         ShopItem(26110, 0, null, 10000000), // Sigil of the Fortune Farmer
         ShopItem(26116, 0, null, 10000000), // Sigil of the Serpent

@@ -163,7 +163,7 @@ class DragonConfigsPlugin(
                     add("item.dragon_sword", min = 1, weight = 6)
                     add("item.dragon_dagger", min = 1, weight = 4)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 5500) {
                     add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half", min = 1, weight = 256)
                     add("item.draconic_visage", min = 1, weight = 5000) // Very rare
@@ -256,7 +256,7 @@ class DragonConfigsPlugin(
                     add("item.iron_full_helm_noted", min = 5, max = 50, weight = 10)
                     add("item.iron_kiteshield_noted", min = 5, max = 50, weight = 8)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 10500) {
                     add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half_noted", min = 1, weight = 256)
                     add("item.draconic_visage", min = 1, weight = 10000) // Rare
@@ -303,7 +303,7 @@ class DragonConfigsPlugin(
                     add("item.steel_full_helm_noted", min = 1, weight = 10)
                     add("item.steel_kiteshield_noted", min = 1, weight = 6)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 5500) {
                     add("item.dragon_med_helm_noted", min = 1, weight = 128)
                     add("item.shield_left_half", min = 1, weight = 256)
                     add("item.draconic_visage", min = 1, weight = 5000) // Rare
@@ -346,7 +346,7 @@ class DragonConfigsPlugin(
                     add("item.adamant_full_helm_noted", min = 1, weight = 6)
                     add("item.adamant_kiteshield_noted", min = 1, weight = 4)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 10500) {
                     add("item.dragon_med_helm_noted", min = 5, max = 50, weight = 128)
                     add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
                     add("item.draconic_visage", min = 1, max = 1, weight = 10000) // Rare  add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
@@ -387,7 +387,7 @@ class DragonConfigsPlugin(
                     add("item.dragon_sword_noted", min = 5, max = 50, weight = 10)
                     add("item.dragon_dagger_noted", min = 5, max = 50, weight = 8)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 10500) {
                     add("item.dragon_med_helm_noted", min = 5, max = 50, weight = 64)
                     add("item.shield_left_half_noted", min = 1, max = 1, weight = 256)
                     add("item.draconic_visage", min = 1, max = 1, weight = 10000) // Rare
@@ -428,7 +428,7 @@ class DragonConfigsPlugin(
                     add("item.ant_dragon_shield", min = 1, max = 1, weight = 12)
                     add("item.antfire", min = 1, max = 3, weight = 10)
                 }
-                tertiary(weight = 256) {
+                tertiary(weight = 3500) {
                     add("item.dragon_med_helm", min = 5, max = 50, weight = 32) // Best drop rate
                     add("item.shield_left_half_noted", min = 1, max = 10, weight = 256)
                     add("item.draconic_visage", min = 1, max = 1, weight = 3000) // Good visage chance

@@ -121,7 +121,8 @@ class PotionsPlugin(
             applyPotionEffect(player, potion, dose)
             
             // Add empty vial or lower dose potion
-            if (replacement != null) {
+            // Auto-break vial when finishing a potion (1 dose) - don't add empty vial
+            if (replacement != null && dose != 1) {
                 player.inventory.add(item = replacement, beginSlot = inventorySlot)
             }
             
@@ -130,7 +131,11 @@ class PotionsPlugin(
             player.timers[ATTACK_DELAY] = 3
             
             val potionName = getItem(itemId).name
-            player.message("You drink some of your ${potionName.lowercase()}.")
+            if (dose == 1) {
+                player.message("You drink the last of your ${potionName.lowercase()}.")
+            } else {
+                player.message("You drink some of your ${potionName.lowercase()}.")
+            }
         }
     }
 

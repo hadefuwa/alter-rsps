@@ -21,6 +21,7 @@ import org.alter.plugins.content.combat.strategy.ranged.ammo.Knives
 import org.alter.plugins.content.combat.strategy.ranged.weapon.BowType
 import org.alter.plugins.content.combat.strategy.ranged.weapon.Bows
 import org.alter.plugins.content.combat.strategy.ranged.weapon.CrossbowType
+import org.alter.plugins.content.mechanics.doompoints.addXpWithPassiveCheck
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -227,12 +228,12 @@ object RangedCombatStrategy : CombatStrategy {
         val multiplier = if (target is Npc) Combat.getNpcXpMultiplier(target) else 1.0
 
         if (mode == XpMode.RANGED) {
-            player.addXp(Skills.RANGED, modDamage * 4.0 * multiplier)
-            player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+            player.addXpWithPassiveCheck(Skills.RANGED, modDamage * 4.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
         } else if (mode == XpMode.SHARED) {
-            player.addXp(Skills.RANGED, modDamage * 2.0 * multiplier)
-            player.addXp(Skills.DEFENCE, modDamage * 2.0 * multiplier)
-            player.addXp(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+            player.addXpWithPassiveCheck(Skills.RANGED, modDamage * 2.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * 2.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
         }
     }
 }

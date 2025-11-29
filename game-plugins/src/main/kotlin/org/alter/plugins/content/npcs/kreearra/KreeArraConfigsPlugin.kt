@@ -35,10 +35,10 @@ class KreeArraConfigsPlugin(
 
     init {
         // Spawn Kree'arra in Armadyl's Eyrie
-        // Coordinates: 2833, 5303, height 2 (God Wars Dungeon)
-        spawnNpc("npc.kree_arra", x = 2833, z = 5303, height = 2, walkRadius = 3)
+        // Coordinates: 2832, 5302, height 2 (God Wars Dungeon)
+        spawnNpc("npc.kreearra_3162", x = 2832, z = 5302, height = 2, walkRadius = 3)
 
-        setCombatDef("npc.kree_arra") {
+        setCombatDef("npc.kreearra_3162") {
             configs {
                 attackSpeed = 4  // Attack speed (ticks)
                 respawnDelay = 50  // Respawn delay (50 ticks = ~30 seconds)
@@ -137,7 +137,8 @@ class KreeArraConfigsPlugin(
                 // DROP TABLE 2: PRE-ROLL TABLE
                 // Rolls before main table. If it hits, main doesn't roll.
                 // Low weight items so main still rolls most of the time
-                preroll {
+                // Total item weights = 768, so set weight to 1000 for proper validation (with buffer)
+                preroll(weight = 1000) {
                     // Armadyl signature uniques (spread across tables)
                     add("item.armadyl_helmet", min = 1, weight = 128)  // ~0.78% chance (1/128)
                     add("item.armadyl_chestplate", min = 1, weight = 128)    // ~0.78% chance (1/128)
@@ -149,7 +150,8 @@ class KreeArraConfigsPlugin(
                 // DROP TABLE 3: TERTIARY TABLE
                 // Can roll multiple items independently (each item rolls separately)
                 // This table always rolls, each item has its own chance
-                tertiary(weight = 0) {
+                // Total item weights = 2285, so set weight to 2500 for proper validation (with buffer)
+                tertiary(weight = 2500) {
                     // Armadyl signature uniques (spread across tables)
                     add("item.armadyl_helmet", min = 1, weight = 200)  // ~0.5% chance per kill (1/200)
                     add("item.armadyl_chestplate", min = 1, weight = 200)    // ~0.5% chance per kill (1/200)

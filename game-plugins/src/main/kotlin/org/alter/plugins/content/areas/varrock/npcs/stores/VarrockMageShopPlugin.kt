@@ -36,19 +36,19 @@ class VarrockMageShopPlugin(
     
     // Mage shop items - starting with 2 items, user will populate the rest
     private val storeItems = listOf(
-        ShopItem(getRSCM("item.fire_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.water_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.air_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.earth_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.body_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.cosmic_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.chaos_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.law_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.death_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.blood_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.soul_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.mind_rune"), 500, 500, 25),
-        ShopItem(getRSCM("item.wrath_rune"), 500, 500, 25),
+        ShopItem(getRSCM("item.fire_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.water_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.air_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.earth_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.body_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.cosmic_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.chaos_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.law_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.death_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.blood_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.soul_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.mind_rune"), 50000, 500, 25),
+        ShopItem(getRSCM("item.wrath_rune"), 50000, 500, 25),
         ShopItem(getRSCM("item.ancient_staff"), 500000, 2000000, 25),
         ShopItem(getRSCM("item.mind_shield"), 50000, 1000000, 25)
     )
