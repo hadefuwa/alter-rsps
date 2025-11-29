@@ -135,7 +135,7 @@ import org.alter.game.model.timer.TimeConstants
  * Example: Make an attack that ignores protection prayers:
  * 
  *     private fun Npc.ignoresPrayerAttack(target: Pawn) {
- *         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
+ *         prepareAttack(CombatClass.MELEE, CombatStyle.STAB, AttackStyle.ACCURATE)
  *         forceChat("*This attack ignores prayers!*")
  *         animate(5319)
  *         

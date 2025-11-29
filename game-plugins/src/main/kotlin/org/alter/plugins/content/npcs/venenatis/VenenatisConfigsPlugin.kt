@@ -1,4 +1,4 @@
-package gg.rsmod.plugins.content.npcs.combat.wilderness
+package org.alter.plugins.content.npcs.venenatis
 
 import org.alter.api.*
 import org.alter.api.cfg.*

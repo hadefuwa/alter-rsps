@@ -1,4 +1,4 @@
-package gg.rsmod.plugins.content.npcs.combat.wilderness
+package org.alter.plugins.content.npcs.callisto
 
 import org.alter.api.*
 import org.alter.api.ext.*
