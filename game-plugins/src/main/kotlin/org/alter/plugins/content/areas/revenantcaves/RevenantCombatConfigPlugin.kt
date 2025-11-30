@@ -65,6 +65,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -191,6 +195,10 @@ class RevenantCombatConfigPlugin(
                 radius = 10
                 searchDelay = 1
                 alwaysAggro()
+            }
+            
+            species {
+                +NpcSpecies.UNDEAD
             }
             
             drops {
@@ -321,6 +329,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -447,6 +459,10 @@ class RevenantCombatConfigPlugin(
                 radius = 10
                 searchDelay = 1
                 alwaysAggro()
+            }
+            
+            species {
+                +NpcSpecies.UNDEAD
             }
             
             drops {
@@ -577,6 +593,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -703,6 +723,10 @@ class RevenantCombatConfigPlugin(
                 radius = 10
                 searchDelay = 1
                 alwaysAggro()
+            }
+            
+            species {
+                +NpcSpecies.UNDEAD
             }
             
             drops {
@@ -833,6 +857,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -959,6 +987,10 @@ class RevenantCombatConfigPlugin(
                 radius = 10
                 searchDelay = 1
                 alwaysAggro()
+            }
+            
+            species {
+                +NpcSpecies.UNDEAD
             }
             
             drops {
@@ -1089,6 +1121,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -1217,6 +1253,10 @@ class RevenantCombatConfigPlugin(
                 alwaysAggro()
             }
             
+            species {
+                +NpcSpecies.UNDEAD
+            }
+            
             drops {
                 // Always drop revenant ether (10-1000), food, and prayer potions
                 always {
@@ -1343,6 +1383,10 @@ class RevenantCombatConfigPlugin(
                 radius = 10
                 searchDelay = 1
                 alwaysAggro()
+            }
+            
+            species {
+                +NpcSpecies.UNDEAD
             }
             
             drops {

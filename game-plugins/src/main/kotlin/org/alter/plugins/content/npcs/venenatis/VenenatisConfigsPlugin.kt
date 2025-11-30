@@ -73,23 +73,6 @@ class VenenatisConfigsPlugin(
                 death = 836    // Standard death animation
             }
             
-            sound {
-                attackSound = 3607  // Spider attack sound
-                attackArea = true
-                attackRadius = 10
-                attackVolume = 50
-                
-                blockSound = 3607  // Spider hit sound
-                blockArea = true
-                blockRadius = 10
-                blockVolume = 50
-                
-                deathSound = 3608  // Spider death sound
-                deathArea = true
-                deathRadius = 10
-                deathVolume = 50
-            }
-            
             bonuses {
                 attackStab = 80
                 attackSlash = 0
@@ -112,6 +95,7 @@ class VenenatisConfigsPlugin(
             drops {
                 always {
                     add("item.bones", 1)
+                    add("item.larrans_key", min = 1, max = 3)  // 1-3 Larren's keys per kill
                 }
                 
                 main(weight = 1000) {

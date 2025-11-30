@@ -62,14 +62,14 @@ class NexCombatPlugin(
         /**
          * Special attack intervals
          */
-        private const val SPECIAL_ATTACK_INTERVAL = 15 // Every 15 ticks
+        private const val SPECIAL_ATTACK_INTERVAL = 8 // Every 8 ticks - much more frequent specials
         
         /**
-         * Damage ranges
+         * Damage ranges - significantly increased
          */
-        private const val MELEE_MAX_HIT = 50
-        private const val MAGIC_MAX_HIT = 40
-        private const val RANGED_MAX_HIT = 40
+        private const val MELEE_MAX_HIT = 85
+        private const val MAGIC_MAX_HIT = 75
+        private const val RANGED_MAX_HIT = 75
     }
     
     init {
@@ -208,111 +208,170 @@ class NexCombatPlugin(
     }
     
     /**
-     * Apply global passive effects for current phase
+     * Apply global passive effects for current phase (enhanced)
      */
     private fun applyPhasePassive(phase: NexPhase, target: Pawn) {
         if (target !is Player) return
         
         when (phase) {
             NexPhase.SMOKE -> {
-                // Smoke passive: Slow prayer drain over time
+                // Smoke passive: Aggressive prayer drain over time
                 val currentPrayer = target.getSkills().getCurrentLevel(Skills.PRAYER)
-                if (currentPrayer > 0 && this.world.chance(1, 10)) {
-                    target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -1, capValue = 0)
+                if (currentPrayer > 0 && this.world.chance(1, 5)) {  // More frequent
+                    val drain = this.world.random(2) + 1  // 1-2 prayer per tick
+                    target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drain, capValue = 0)
                 }
             }
             NexPhase.SHADOW -> {
-                // Shadow passive: Reduced visibility (no mechanical effect, just visual)
-                // Could add stat reduction if needed
+                // Shadow passive: Stat reduction and prayer drain
+                if (this.world.chance(1, 8)) {
+                    val statDrain = this.world.random(2) + 1
+                    target.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.STRENGTH, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = -statDrain, capValue = 0)
+                }
+                val currentPrayer = target.getSkills().getCurrentLevel(Skills.PRAYER)
+                if (currentPrayer > 0 && this.world.chance(1, 6)) {
+                    target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -1, capValue = 0)
+                }
             }
             NexPhase.BLOOD -> {
-                // Blood passive: Nex heals from damage dealt
-                // Handled in damage dealing
+                // Blood passive: Nex heals from damage dealt (handled in damage dealing)
+                // Also drain player HP over time
+                if (this.world.chance(1, 10)) {
+                    val hpDrain = this.world.random(3) + 2
+                    val currentHp = target.getCurrentHp()
+                    if (currentHp > hpDrain) {
+                        target.hit(hpDrain, type = HitType.HIT, delay = 0)
+                    }
+                }
             }
             NexPhase.ICE -> {
-                // Ice passive: Movement speed reduction (handled in movement)
+                // Ice passive: Movement speed reduction and occasional freeze
+                if (this.world.chance(1, 15)) {
+                    target.stun(2) // Brief stun
+                    target.graphic(id = 245, height = 124, delay = 0)
+                    target.message("The ice slows you down!")
+                }
             }
             NexPhase.ZAROS -> {
-                // Zaros passive: Stat boost for Nex (handled in combat formulas)
+                // Zaros passive: Aggressive stat drain and prayer drain
+                if (this.world.chance(1, 6)) {
+                    val statDrain = this.world.random(3) + 2
+                    target.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.STRENGTH, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.MAGIC, value = -statDrain, capValue = 0)
+                    target.getSkills().alterCurrentLevel(skill = Skills.RANGED, value = -statDrain, capValue = 0)
+                }
+                val currentPrayer = target.getSkills().getCurrentLevel(Skills.PRAYER)
+                if (currentPrayer > 0 && this.world.chance(1, 4)) {
+                    val drain = this.world.random(2) + 1
+                    target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drain, capValue = 0)
+                }
             }
         }
     }
     
     /**
-     * Smoke Phase Special: Choke - Drains prayer and stats
+     * Smoke Phase Special: Choke - Drains prayer and stats (enhanced)
      */
     private fun Npc.smokeSpecialAttack(target: Pawn) {
         forceChat("Choke!")
         animate(1979) // Magic special animation
         
+        // Deal damage to target first
+        val damage = this.world.random(30) + 25
+        target.hit(damage, type = HitType.HIT, delay = 0)
+        
         if (target is Player) {
-            // Drain prayer
-            val prayerDrain = this.world.random(5) + 5
+            // Drain prayer - more aggressive
+            val prayerDrain = this.world.random(10) + 10
             val currentPrayer = target.getSkills().getCurrentLevel(Skills.PRAYER)
             val drainAmount = minOf(prayerDrain, currentPrayer)
             if (drainAmount > 0) {
                 target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drainAmount, capValue = 0)
             }
             
-            // Drain stats
-            val attackDrain = this.world.random(3) + 2
+            // Drain stats - more aggressive
+            val attackDrain = this.world.random(5) + 5
             target.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = -attackDrain, capValue = 0)
             target.getSkills().alterCurrentLevel(skill = Skills.STRENGTH, value = -attackDrain, capValue = 0)
             target.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = -attackDrain, capValue = 0)
+            target.getSkills().alterCurrentLevel(skill = Skills.MAGIC, value = -attackDrain, capValue = 0)
+            target.getSkills().alterCurrentLevel(skill = Skills.RANGED, value = -attackDrain, capValue = 0)
             
             target.message("Nex chokes you, draining your prayer and stats!")
         }
     }
     
     /**
-     * Shadow Phase Special: Embrace Darkness - Area damage
+     * Shadow Phase Special: Embrace Darkness - Area damage (enhanced)
      */
     private fun Npc.shadowSpecialAttack(target: Pawn) {
         forceChat("Embrace Darkness!")
         animate(1979) // Magic special animation
         
-        // Damage all players in range
+        // Damage all players in range - increased range and damage
         val bossTile = this.tile
         this.world.players.forEach { player ->
             if (player.initiated && !player.isDead() && player.tile.height == bossTile.height) {
                 val distance = bossTile.getDistance(player.tile)
-                if (distance <= 10) {
-                    val damage = this.world.random(15) + 10
-                    player.hit(damage, type = HitType.HIT, delay = 0)
+                if (distance <= 15) {
+                    // More damage based on distance
+                    val baseDamage = when {
+                        distance <= 3 -> this.world.random(35) + 30  // 30-65 damage up close
+                        distance <= 8 -> this.world.random(25) + 20   // 20-45 damage mid range
+                        else -> this.world.random(15) + 15            // 15-30 damage far range
+                    }
+                    player.hit(baseDamage, type = HitType.HIT, delay = 0)
                     player.message("Darkness embraces you!")
+                    
+                    // Also drain prayer
+                    if (this.world.chance(1, 2)) {
+                        val prayerDrain = this.world.random(5) + 3
+                        val currentPrayer = player.getSkills().getCurrentLevel(Skills.PRAYER)
+                        val drainAmount = minOf(prayerDrain, currentPrayer)
+                        if (drainAmount > 0) {
+                            player.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drainAmount, capValue = 0)
+                        }
+                    }
                 }
             }
         }
     }
     
     /**
-     * Blood Phase Special: Blood Sacrifice - High damage if player doesn't move
+     * Blood Phase Special: Blood Sacrifice - High damage if player doesn't move (enhanced)
      */
     private fun Npc.bloodSpecialAttack(target: Pawn) {
         forceChat("Blood Sacrifice!")
         animate(1979) // Magic special animation
         
         if (target is Player) {
-            target.message("Nex marks you for blood sacrifice! Move away!")
+            target.message("<col=ff0000>Nex marks you for blood sacrifice! Move away quickly!</col>")
             
             // Mark target tile for sacrifice
             val sacrificeTile = target.tile
             target.attr[BLOOD_SACRIFICE_ATTR] = sacrificeTile
             
-            // Deal damage after delay if player hasn't moved
+            // Show warning graphic
+            this.world.spawn(TileGraphic(id = 361, tile = sacrificeTile, height = 0, delay = 0))
+            
+            // Deal damage after delay if player hasn't moved - shorter time to react
             this.world.queue {
-                wait(5)
+                wait(3) // Reduced from 5 to 3 ticks - harder to dodge
                 val markedTile = target.attr[BLOOD_SACRIFICE_ATTR]
                 // Check if player is still on the same tile (hasn't moved)
                 if (markedTile != null && target.tile.sameAs(markedTile)) {
-                    val damage = this@bloodSpecialAttack.world.random(30) + 20
+                    val damage = this@bloodSpecialAttack.world.random(50) + 40  // 40-90 damage
                     target.hit(damage, type = HitType.HIT, delay = 0)
-                    target.message("Nex sacrifices you for blood!")
+                    target.message("<col=ff0000>Nex sacrifices you for blood!</col>")
                     
-                    // Heal Nex
+                    // Heal Nex - more healing
                     val currentHp = this@bloodSpecialAttack.getCurrentHp()
                     val maxHp = this@bloodSpecialAttack.getMaxHp()
-                    val healAmount = minOf(damage / 2, maxHp - currentHp)
+                    val healAmount = minOf(damage, maxHp - currentHp)  // Full damage as heal
                     this@bloodSpecialAttack.setCurrentHp(minOf(currentHp + healAmount, maxHp))
                 } else if (markedTile != null) {
                     target.message("You moved away from the blood sacrifice!")
@@ -323,16 +382,16 @@ class NexCombatPlugin(
     }
     
     /**
-     * Ice Phase Special: Contain This - Ice prison around Nex
+     * Ice Phase Special: Contain This - Ice prison around Nex (enhanced)
      */
     private fun Npc.iceSpecialAttack(target: Pawn) {
         forceChat("Contain This!")
         animate(1979) // Magic special animation
         
-        // Create ice prison effect around Nex
+        // Create larger ice prison effect around Nex (5x5 area)
         val bossTile = this.tile
-        for (x in -1..1) {
-            for (z in -1..1) {
+        for (x in -2..2) {
+            for (z in -2..2) {
                 if (x != 0 || z != 0) {
                     val iceTile = bossTile.transform(x, z)
                     // Show ice graphic
@@ -341,35 +400,57 @@ class NexCombatPlugin(
             }
         }
         
-        // Damage players in 3x3 area
+        // Damage players in larger area with freeze effect
         this.world.players.forEach { player ->
             if (player.initiated && !player.isDead() && player.tile.height == bossTile.height) {
                 val distance = bossTile.getDistance(player.tile)
-                if (distance <= 1) {
-                    val damage = this.world.random(20) + 15
+                if (distance <= 2) {
+                    val damage = when {
+                        distance <= 1 -> this.world.random(35) + 30  // 30-65 damage up close
+                        else -> this.world.random(25) + 20            // 20-45 damage slightly away
+                    }
                     player.hit(damage, type = HitType.HIT, delay = 0)
-                    player.message("You are contained by ice!")
+                    player.message("<col=00ffff>You are contained by ice!</col>")
+                    
+                    // Freeze/stun effect
+                    if (distance <= 1 && this.world.chance(2, 3)) {
+                        player.stun(5) // 5 tick stun
+                        player.graphic(id = 245, height = 124, delay = 0)
+                    }
                 }
             }
         }
     }
     
     /**
-     * Zaros Phase Special: Wrath - High damage to nearby players
+     * Zaros Phase Special: Wrath - High damage to nearby players (enhanced)
      */
     private fun Npc.zarosSpecialAttack(target: Pawn) {
         forceChat("Wrath!")
         animate(1979) // Magic special animation
         
-        // High damage to all nearby players
+        // Very high damage to all nearby players - larger range
         val bossTile = this.tile
         this.world.players.forEach { player ->
             if (player.initiated && !player.isDead() && player.tile.height == bossTile.height) {
                 val distance = bossTile.getDistance(player.tile)
-                if (distance <= 8) {
-                    val damage = this.world.random(40) + 30
+                if (distance <= 12) {
+                    // Damage scales with distance - closer = more damage
+                    val damage = when {
+                        distance <= 3 -> this.world.random(60) + 50   // 50-110 damage up close
+                        distance <= 6 -> this.world.random(45) + 35   // 35-80 damage mid range
+                        else -> this.world.random(35) + 25            // 25-60 damage far range
+                    }
                     player.hit(damage, type = HitType.HIT, delay = 0)
-                    player.message("Nex's wrath strikes you!")
+                    player.message("<col=ff0000>Nex's wrath strikes you!</col>")
+                    
+                    // Also drain stats in Zaros phase
+                    if (this.world.chance(1, 2)) {
+                        val statDrain = this.world.random(3) + 2
+                        player.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = -statDrain, capValue = 0)
+                        player.getSkills().alterCurrentLevel(skill = Skills.STRENGTH, value = -statDrain, capValue = 0)
+                        player.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = -statDrain, capValue = 0)
+                    }
                 }
             }
         }
@@ -423,14 +504,16 @@ class NexCombatPlugin(
                 val damage = minOf(this@magicAttack.world.random(maxHit + 1), MAGIC_MAX_HIT)
                 target.hit(damage, type = HitType.HIT)
                 
-                if (canPoison && target is Player && this@magicAttack.world.chance(1, 4)) {
-                    target.poison(initialDamage = 4) {
+                if (canPoison && target is Player && this@magicAttack.world.chance(1, 3)) {  // More frequent poison
+                    target.poison(initialDamage = 6) {  // Higher poison damage
                         target.message("You have been poisoned by Nex's smoke!")
                     }
                 }
                 
-                if (canFreeze && target is Player && this@magicAttack.world.chance(1, 5)) {
-                    // Freeze effect (could add movement restriction)
+                if (canFreeze && target is Player && this@magicAttack.world.chance(1, 3)) {  // More frequent freeze
+                    // Freeze effect with stun
+                    target.stun(4) // 4 tick stun
+                    target.graphic(id = 245, height = 124, delay = 0)
                     target.message("You are frozen by Nex's ice!")
                 }
             } else {

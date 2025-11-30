@@ -400,11 +400,11 @@ class CallistoCombatPlugin(
                         if (this.world.chance(1, 2)) {
                             knockbackAttack(target)   // Knockback attack
                         } else {
-                            // 80% melee, 20% magic
-                            if (this.world.chance(4, 5)) {
-                                normalBearAttack(target)  // Simple melee (80%)
+                            // 50% melee, 50% magic
+                            if (this.world.chance(1, 2)) {
+                                normalBearAttack(target)  // Simple melee (50%)
                             } else {
-                                whiteBlastAttack(target)  // Simple magic (20%)
+                                whiteBlastAttack(target)  // Simple magic (50%)
                             }
                         }
                     }
@@ -413,11 +413,11 @@ class CallistoCombatPlugin(
                         knockbackAttack(target)   // Knockback attack
                     }
                     else -> {
-                        // Normal attacks - 80% simple melee, 20% simple magic
-                        if (this.world.chance(4, 5)) {
-                            normalBearAttack(target)  // Simple melee attack (80%)
+                        // Normal attacks - 50% simple melee, 50% simple magic
+                        if (this.world.chance(1, 2)) {
+                            normalBearAttack(target)  // Simple melee attack (50%)
                         } else {
-                            whiteBlastAttack(target)  // Simple magic attack (20%)
+                            whiteBlastAttack(target)  // Simple magic attack (50%)
                         }
                     }
                 }
@@ -775,7 +775,7 @@ class CallistoCombatPlugin(
             
             // Calculate knockback distance (3-5 tiles away)
             val knockbackDistance = this.world.random(3..5)
-            val endTile = when (direction) {
+            var endTile = when (direction) {
                 Direction.NORTH -> Tile(playerTile.x, playerTile.z + knockbackDistance, playerTile.height)
                 Direction.SOUTH -> Tile(playerTile.x, playerTile.z - knockbackDistance, playerTile.height)
                 Direction.EAST -> Tile(playerTile.x + knockbackDistance, playerTile.z, playerTile.height)
@@ -785,6 +785,38 @@ class CallistoCombatPlugin(
                 Direction.SOUTH_EAST -> Tile(playerTile.x + knockbackDistance, playerTile.z - knockbackDistance, playerTile.height)
                 Direction.SOUTH_WEST -> Tile(playerTile.x - knockbackDistance, playerTile.z - knockbackDistance, playerTile.height)
                 else -> Tile(playerTile.x, playerTile.z + knockbackDistance, playerTile.height) // Default to north
+            }
+            
+            // Safety check: Try to find a safe tile nearby if the target tile might be dangerous
+            // Check if tile is within the same region and find a safe alternative if needed
+            var safeTile: Tile? = null
+            val originalRegion = playerTile.regionId
+            val targetRegion = endTile.regionId
+            
+            // If the target tile is in a different region or might be dangerous, find a safer alternative
+            if (targetRegion != originalRegion || endTile.getDistance(playerTile) > 5) {
+                // Try to find a safe tile closer to the player (1-2 tiles away instead)
+                val safeDistance = this.world.random(1..2)
+                safeTile = when (direction) {
+                    Direction.NORTH -> Tile(playerTile.x, playerTile.z + safeDistance, playerTile.height)
+                    Direction.SOUTH -> Tile(playerTile.x, playerTile.z - safeDistance, playerTile.height)
+                    Direction.EAST -> Tile(playerTile.x + safeDistance, playerTile.z, playerTile.height)
+                    Direction.WEST -> Tile(playerTile.x - safeDistance, playerTile.z, playerTile.height)
+                    Direction.NORTH_EAST -> Tile(playerTile.x + safeDistance, playerTile.z + safeDistance, playerTile.height)
+                    Direction.NORTH_WEST -> Tile(playerTile.x - safeDistance, playerTile.z + safeDistance, playerTile.height)
+                    Direction.SOUTH_EAST -> Tile(playerTile.x + safeDistance, playerTile.z - safeDistance, playerTile.height)
+                    Direction.SOUTH_WEST -> Tile(playerTile.x - safeDistance, playerTile.z - safeDistance, playerTile.height)
+                    else -> Tile(playerTile.x, playerTile.z + safeDistance, playerTile.height)
+                }
+                
+                // Only use safe tile if it's in the same region
+                if (safeTile.regionId == originalRegion) {
+                    endTile = safeTile
+                } else {
+                    // If even the safe tile is in a different region, don't knockback at all
+                    target.message("Callisto's blow staggers you, but you manage to stay on solid ground!")
+                    return
+                }
             }
             
             // Execute the knockback - use moveTo instead of forceMove to prevent player lock

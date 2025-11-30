@@ -28,15 +28,35 @@ class MiningPlugin(
 
         onWorldInit {
             val service = world.getService(MiningService::class.java) ?: return@onWorldInit
+            
+            // Collect all unique object/option combinations to avoid duplicate registrations
+            val registeredCombinations = mutableSetOf<Pair<Int, String>>()
+            
             service.entries.forEach { entry ->
                 entry.objectIds.forEach { objId ->
                     val mineOptions = getObject(objId).actions.filterNotNull().filter {
                         it.equals("mine", ignoreCase = true) || it.equals("prospect", ignoreCase = true)
                     }
                     mineOptions.forEach { option ->
-                        onObjOption(obj = objId, option = option) {
-                            val obj = player.getInteractingGameObj()
-                            player.queue { mineRock(this, player, obj, entry) }
+                        val combination = Pair(objId, option.lowercase())
+                        if (!registeredCombinations.contains(combination)) {
+                            registeredCombinations.add(combination)
+                            try {
+                                onObjOption(obj = objId, option = option) {
+                                    val obj = player.getInteractingGameObj()
+                                    player.queue { 
+                                        // Look up the entry for this object
+                                        val entry = service.lookup(obj.id)
+                                        if (entry != null) {
+                                            mineRock(this, player, obj, entry)
+                                        } else {
+                                            player.message("You can't mine this rock.")
+                                        }
+                                    }
+                                }
+                            } catch (e: IllegalStateException) {
+                                // Handler already registered, skip
+                            }
                         }
                     }
                 }

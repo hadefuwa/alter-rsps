@@ -44,7 +44,7 @@ class NexConfigsPlugin(
 
         setCombatDef("npc.nex") {
             configs {
-                attackSpeed = 4  // Attack speed (ticks)
+                attackSpeed = 3  // Faster attack speed (ticks) - more aggressive
                 respawnDelay = 50  // Respawn delay (50 ticks = ~30 seconds)
             }
 
@@ -54,31 +54,31 @@ class NexConfigsPlugin(
             }
 
             stats {
-                hitpoints = 1000  // High HP for 5-phase boss
-                attack = 300
-                strength = 300
-                defence = 300
-                magic = 300
-                ranged = 300
+                hitpoints = 2500  // Significantly increased HP for much harder boss
+                attack = 450
+                strength = 450
+                defence = 450
+                magic = 450
+                ranged = 450
             }
 
             bonuses {
-                attackStab = 200
-                attackSlash = 200
-                attackCrush = 200
-                attackMagic = 250
-                attackRanged = 250
+                attackStab = 350
+                attackSlash = 350
+                attackCrush = 350
+                attackMagic = 400
+                attackRanged = 400
 
-                defenceStab = 200
-                defenceSlash = 200
-                defenceCrush = 200
-                defenceMagic = 180
-                defenceRanged = 180
+                defenceStab = 350
+                defenceSlash = 350
+                defenceCrush = 350
+                defenceMagic = 320
+                defenceRanged = 320
 
-                attackBonus = 200
-                strengthBonus = 250
-                rangedStrengthBonus = 250
-                magicDamageBonus = 300
+                attackBonus = 350
+                strengthBonus = 400
+                rangedStrengthBonus = 400
+                magicDamageBonus = 450
             }
 
             anims {

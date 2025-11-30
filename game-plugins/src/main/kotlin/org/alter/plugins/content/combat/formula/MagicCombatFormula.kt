@@ -229,9 +229,9 @@ object MagicCombatFormula : CombatFormula {
                     }
                 }
                 
-                // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
+                // Wilderness weapon bonus: 100% damage increase (2.0x) in wilderness against wilderness NPCs/revenants
                 if (isWildernessWeaponBonus(pawn, target)) {
-                    hit *= 4.0
+                    hit *= 2.0
                     hit = Math.floor(hit)
                 }
             }
@@ -423,9 +423,9 @@ object MagicCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
+        // Wilderness weapon bonus: 100% accuracy increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 4.0
+            hit *= 2.0
             hit = Math.floor(hit)
         }
 

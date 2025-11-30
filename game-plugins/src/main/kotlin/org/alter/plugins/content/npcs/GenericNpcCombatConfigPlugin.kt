@@ -371,9 +371,9 @@ class GenericNpcCombatConfigPlugin(
                     add("item.gilded_med_helm", min = 1, weight = 5)
                     add("item.malediction_shard_2", min = 1, weight = 10)
                     add("item.casket_easy", min = 1, max = 3, weight = 10)
-                    add("item.white_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.white_partyhat", min = 1, max = 1, weight = 2)
                     add("item.harralander_potion_unf_noted", min = 25, max = 50, weight = 10)
-                    add("item.green_partyhat", min = 1, max = 1, weight = 10)
+                    add("item.green_partyhat", min = 1, max = 1, weight = 2)
                 }
             }
         }

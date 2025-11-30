@@ -297,9 +297,9 @@ object RangedCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
+        // Wilderness weapon bonus: 100% damage increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 4.0
+            hit *= 2.0
             hit = Math.floor(hit)
         }
 
@@ -382,9 +382,9 @@ object RangedCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
+        // Wilderness weapon bonus: 100% accuracy increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 4.0
+            hit *= 2.0
             hit = Math.floor(hit)
         }
 
@@ -532,7 +532,7 @@ object RangedCombatFormula : CombatFormula {
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") -> 7.0 / 6.0
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2
             player.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") -> 1.15
-            player.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") -> 1.2
+            player.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") && isUndead(target) -> 1.2
             player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice") && isRevenantCaves(player.tile) -> 1.2
             // TODO: this should only apply when target is slayer task?
             player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) -> 7.0 / 6.0
@@ -679,6 +679,14 @@ object RangedCombatFormula : CombatFormula {
     private fun isFiery(pawn: Pawn): Boolean {
         return if (pawn is Npc) {
             pawn.isSpecies(NpcSpecies.FIERY)
+        } else {
+            false
+        }
+    }
+
+    private fun isUndead(pawn: Pawn?): Boolean {
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.UNDEAD)
         } else {
             false
         }

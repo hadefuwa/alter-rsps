@@ -26,6 +26,11 @@ class GeneralStoreCurrency : ItemCurrency(getRSCM("item.coins_995"), singularCur
         val unnoted = Item(item).toUnnoted().id
         val itemDef = getItem(unnoted)
         
+        // Special handling: All gilded items sell for 1,000,000 coins
+        if (itemDef.name.lowercase().contains("gilded")) {
+            return 1_000_000
+        }
+        
         // Base cost from cache
         var baseCost = itemDef.cost
         

@@ -27,15 +27,35 @@ class WoodcuttingPlugin(
 
         onWorldInit {
             val service = world.getService(WoodcuttingService::class.java) ?: return@onWorldInit
+            
+            // Collect all unique object/option combinations to avoid duplicate registrations
+            val registeredCombinations = mutableSetOf<Pair<Int, String>>()
+            
             service.entries.forEach { entry ->
                 entry.objectIds.forEach { objId ->
                     val chopOptions = getObject(objId).actions.filterNotNull().filter {
                         it.equals("chop down", ignoreCase = true) || it.equals("chop", ignoreCase = true) || it.equals("cut", ignoreCase = true)
                     }
                     chopOptions.forEach { option ->
-                        onObjOption(obj = objId, option = option) {
-                            val obj = player.getInteractingGameObj()
-                            player.queue { chopTree(this, player, obj, entry) }
+                        val combination = Pair(objId, option.lowercase())
+                        if (!registeredCombinations.contains(combination)) {
+                            registeredCombinations.add(combination)
+                            try {
+                                onObjOption(obj = objId, option = option) {
+                                    val obj = player.getInteractingGameObj()
+                                    player.queue { 
+                                        // Look up the entry for this object
+                                        val entry = service.lookup(obj.id)
+                                        if (entry != null) {
+                                            chopTree(this, player, obj, entry)
+                                        } else {
+                                            player.message("You can't chop down this tree.")
+                                        }
+                                    }
+                                }
+                            } catch (e: IllegalStateException) {
+                                // Handler already registered, skip
+                            }
                         }
                     }
                 }

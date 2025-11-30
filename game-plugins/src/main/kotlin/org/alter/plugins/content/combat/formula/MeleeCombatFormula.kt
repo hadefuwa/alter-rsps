@@ -203,9 +203,9 @@ object MeleeCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 200% damage increase (4.0x) in wilderness against wilderness NPCs/revenants
+        // Wilderness weapon bonus: 100% damage increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 4.0
+            hit *= 2.0
             hit = Math.floor(hit)
         }
 
@@ -257,9 +257,9 @@ object MeleeCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 200% accuracy increase (4.0x) in wilderness against wilderness NPCs/revenants
+        // Wilderness weapon bonus: 100% accuracy increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 4.0
+            hit *= 2.0
             hit = Math.floor(hit)
         }
 
@@ -409,6 +409,7 @@ object MeleeCombatFormula : CombatFormula {
     private fun getEquipmentMultiplier(player: Player, target: Pawn? = null): Double = when {
         player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") -> 7.0 / 6.0
         player.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") -> 1.2
+        player.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") && isUndead(target) -> 1.2
         player.hasEquipped(EquipmentType.AMULET, "item.amulet_of_avarice") && isRevenantCaves(player.tile) -> 1.2
         player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS) || player.hasEquipped(EquipmentType.HEAD, *BLACK_MASKS_I) -> 7.0 / 6.0
         player.hasEquipped(EquipmentType.HEAD, *SLAYER_HELMETS) && target is Npc && isOnSlayerTaskFor(player, target) -> 1.5 // 50% damage bonus
@@ -607,6 +608,14 @@ object MeleeCombatFormula : CombatFormula {
     private fun isScarab(pawn: Pawn): Boolean {
         return if (pawn is Npc) {
             pawn.isSpecies(NpcSpecies.SCARAB)
+        } else {
+            false
+        }
+    }
+
+    private fun isUndead(pawn: Pawn?): Boolean {
+        return if (pawn is Npc) {
+            pawn.isSpecies(NpcSpecies.UNDEAD)
         } else {
             false
         }

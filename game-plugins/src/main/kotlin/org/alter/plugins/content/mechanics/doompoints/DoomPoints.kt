@@ -250,56 +250,56 @@ object DoomPoints {
         13231 to 50,  // Primordial crystal
         13227 to 50,  // Eternal crystal
         13229 to 50,  // Pegasian crystal
-        22323 to 300,  // Sanguinesti staff (fixed ID)
+        22323 to 200,  // Sanguinesti staff (fixed ID)
         
         // Scythe of Vitur Variants
         22325 to 350,  // Scythe of vitur
-        22486 to 250,  // Scythe of vitur (uncharged)
+        22486 to 200,  // Scythe of vitur (uncharged)
         22664 to 350,  // Scythe of vitur (variant)
         
-        21021 to 400,  // Ancestral robe top (fixed ID)
-        21024 to 400,  // Ancestral robe bottom (fixed ID)
-        22324 to 300,  // Ghrazi Rapier
-        24511 to 250,  // Harmonised Orb
-        24514 to 250,  // Volatile Orb
-        24517 to 250,  // Eldritch Orb
-        27251 to 300,  // Elidinis' Ward (F)
+        21021 to 200,  // Ancestral robe top (fixed ID)
+        21024 to 200,  // Ancestral robe bottom (fixed ID)
+        22324 to 200,  // Ghrazi Rapier
+        24511 to 200,  // Harmonised Orb
+        24514 to 200,  // Volatile Orb
+        24517 to 200,  // Eldritch Orb
+        27251 to 200,  // Elidinis' Ward (F)
         
         // Torva Armour Set (400 points each)
-        26382 to 400,  // Torva Full Helm
-        26384 to 400,  // Torva Platebody
-        26386 to 400,  // Torva Platelegs
+        26382 to 200,  // Torva Full Helm
+        26384 to 200,  // Torva Platebody
+        26386 to 200,  // Torva Platelegs
         
         // Torva Armour Set (Damaged) (300 points each)
-        26376 to 300,  // Torva Full Helm (Damaged)
-        26378 to 300,  // Torva Platebody (Damaged)
-        26380 to 300,  // Torva Platelegs (Damaged)
+        26376 to 200,  // Torva Full Helm (Damaged)
+        26378 to 200,  // Torva Platebody (Damaged)
+        26380 to 200,  // Torva Platelegs (Damaged)
         
         // Sanguine Torva Armour Set (500 points each)
-        28254 to 500,  // Sanguine Torva Full Helm
-        28256 to 500,  // Sanguine Torva Platebody
-        28258 to 500,  // Sanguine Torva Platelegs
+        28254 to 200,  // Sanguine Torva Full Helm
+        28256 to 200,  // Sanguine Torva Platebody
+        28258 to 200,  // Sanguine Torva Platelegs
         
         // Torva Armour Set (Variant) (400 points each)
-        30302 to 400,  // Torva Full Helm (Variant)
-        30303 to 400,  // Torva Platebody (Variant)
-        30304 to 400,  // Torva Platelegs (Variant)
+        30302 to 200,  // Torva Full Helm (Variant)
+        30303 to 200,  // Torva Platebody (Variant)
+        30304 to 200,  // Torva Platelegs (Variant)
         
-        24423 to 400,  // Harmonised Nightmare Staff
+        24423 to 200,  // Harmonised Nightmare Staff
         
         // Tier 6: Legendary items (500+ points)
-        20784 to 500,  // Dragon claws (ornament kit)
-        21295 to 600,  // Infernal cape
-        12817 to 700,  // Elysian spirit shield (fixed ID)
-        22613 to 800,  // Avernic defender
+        20784 to 200,  // Dragon claws (ornament kit)
+        21295 to 200,  // Infernal cape
+        12817 to 200,  // Elysian spirit shield (fixed ID)
+        22613 to 200,  // Avernic defender
         
         // Scythe of Vitur - Special Variants
-        25736 to 1000, // Holy scythe of vitur
-        25738 to 700,  // Holy scythe of vitur (uncharged)
-        25739 to 1000, // Sanguine scythe of vitur
-        25741 to 700,  // Sanguine scythe of vitur (uncharged)
-        28543 to 500,  // Corrupted scythe of vitur
-        28545 to 350,  // Corrupted scythe of vitur (uncharged)
+        25736 to 200, // Holy scythe of vitur
+        25738 to 200,  // Holy scythe of vitur (uncharged)
+        25739 to 200, // Sanguine scythe of vitur
+        25741 to 200,  // Sanguine scythe of vitur (uncharged)
+        28543 to 200,  // Corrupted scythe of vitur
+        28545 to 200,  // Corrupted scythe of vitur (uncharged)
         
         27277 to 1200, // Tumeken's Shadow
     )

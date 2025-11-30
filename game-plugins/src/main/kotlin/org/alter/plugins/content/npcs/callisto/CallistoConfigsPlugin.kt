@@ -87,6 +87,7 @@ class CallistoConfigsPlugin(
             drops {
                 always {
                     add("item.big_bones", 1)
+                    add("item.larrans_key", min = 1, max = 3)
                 }
                 
                 main(weight = 128) {
@@ -120,8 +121,8 @@ class CallistoConfigsPlugin(
                     add("item.chaos_rune", min = 100, max = 200, weight = 10)
                     
                     // Food and potions
-                    add("item.shark", min = 5, max = 15, weight = 15)
-                    add("item.monkfish", min = 1, max = 3, weight = 12)
+                    add("item.shark", min = 1, max = 3, weight = 5)
+                    add("item.monkfish", min = 1, max = 3, weight = 4)
                     add("item.prayer_potion4", min = 2, max = 5, weight = 8)
                     add("item.super_combat_potion4", min = 1, max = 3, weight = 5)
                     add("item.saradomin_brew4", min = 2, max = 4, weight = 6)

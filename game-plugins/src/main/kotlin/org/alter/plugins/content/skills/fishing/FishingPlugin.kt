@@ -25,6 +25,10 @@ class FishingPlugin(
 
         onWorldInit {
             val service = world.getService(FishingService::class.java) ?: return@onWorldInit
+            
+            // Collect all unique object/option combinations to avoid duplicate registrations
+            val registeredCombinations = mutableSetOf<Pair<Int, String>>()
+            
             service.entries.forEach { entry ->
                 entry.objectIds.forEach { objId ->
                     val fishOptions = getObject(objId).actions.filterNotNull().filter {
@@ -35,14 +39,63 @@ class FishingPlugin(
                         it.equals("cage", ignoreCase = true)
                     }
                     fishOptions.forEach { option ->
-                        onObjOption(obj = objId, option = option) {
-                            val obj = player.getInteractingGameObj()
-                            player.queue { fish(this, player, obj, entry) }
+                        val combination = Pair(objId, option.lowercase())
+                        if (!registeredCombinations.contains(combination)) {
+                            registeredCombinations.add(combination)
+                            try {
+                                onObjOption(obj = objId, option = option) {
+                                    val obj = player.getInteractingGameObj()
+                                    player.queue { 
+                                        // Find the best matching entry for this player
+                                        val bestEntry = findBestFishingEntry(service, obj.id, option, player)
+                                        if (bestEntry != null) {
+                                            fish(this, player, obj, bestEntry)
+                                        } else {
+                                            player.message("You can't fish here with that method.")
+                                        }
+                                    }
+                                }
+                            } catch (e: IllegalStateException) {
+                                // Handler already registered, skip
+                            }
                         }
                     }
                 }
             }
         }
+    }
+    
+    private fun findBestFishingEntry(service: FishingService, objId: Int, option: String, player: Player): FishingEntry? {
+        val level = player.getSkills().getCurrentLevel(Skills.FISHING)
+        val entries = service.lookup(objId) ?: return null
+        
+        // Filter entries that match the option and player can use
+        val validEntries = entries.filter { entry ->
+            val optionLower = option.lowercase()
+            
+            // Check if this entry's tool matches the option clicked
+            val toolMatches = when {
+                optionLower == "net" -> entry.toolId == getRSCM("item.small_fishing_net")
+                optionLower == "bait" || optionLower == "lure" -> entry.toolId == getRSCM("item.fishing_rod")
+                optionLower == "harpoon" -> entry.toolId == getRSCM("item.harpoon")
+                optionLower == "cage" -> entry.toolId == getRSCM("item.lobster_pot")
+                else -> true // Allow if option matches any fishing action
+            }
+            
+            // Check if player has required level
+            val hasLevel = level >= entry.level
+            
+            // Check if player has required tool
+            val hasTool = player.inventory.contains(entry.toolId) || player.equipment.contains(entry.toolId)
+            
+            // Check if player has required bait (if needed)
+            val hasBait = entry.baitId == null || player.inventory.contains(entry.baitId!!)
+            
+            toolMatches && hasLevel && hasTool && hasBait
+        }
+        
+        // Return the entry with the highest level requirement that the player can use
+        return validEntries.maxByOrNull { it.level }
     }
 
     private suspend fun fish(task: QueueTask, player: Player, obj: GameObject, entry: FishingEntry) {
