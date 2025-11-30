@@ -32,7 +32,9 @@ abstract class QueueTaskSet {
             terminateTasks()
         }
 
-        queue.addFirst(task)
+        synchronized(queue) {
+            queue.addFirst(task)
+        }
     }
 
     /**
@@ -43,7 +45,7 @@ abstract class QueueTaskSet {
      * The return value that the plugin has asked for.
      */
     fun submitReturnValue(value: Any) {
-        val task = queue.peek() ?: return // Shouldn't call this method without a queued task.
+        val task = synchronized(queue) { queue.peek() } ?: return // Shouldn't call this method without a queued task.
         task.requestReturnValue = value
     }
 
@@ -52,7 +54,9 @@ abstract class QueueTaskSet {
      * before-hand.
      */
     fun terminateTasks() {
-        queue.forEach { it.terminate() }
-        queue.clear()
+        synchronized(queue) {
+            queue.forEach { it.terminate() }
+            queue.clear()
+        }
     }
 }

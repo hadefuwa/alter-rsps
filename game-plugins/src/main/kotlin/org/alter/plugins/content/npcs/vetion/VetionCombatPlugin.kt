@@ -394,38 +394,29 @@ class VetionCombatPlugin(
                 // ============================================================
                 // Special attacks have priority and happen at specific attack counts
                 
-                // SPECIAL ATTACK 1: Summon Hellhounds
+                // SPECIAL ATTACK 1: Summon Hellhounds (COMMENTED OUT - Not working)
                 // Every 4 attacks, 33% chance (1 in 3)
                 // Change 4 to 3 for every 3 attacks, or (1, 3) to (1, 2) for 50% chance
-                if (attackCount >= 4 && this.world.chance(1, 3)) {
-                    summonHellhoundsAttack(target)  // Summon skeletal hounds
-                    attackCount = 0  // Reset counter after special
-                } 
-                // SPECIAL ATTACK 2: Bone Barrage
+                // if (attackCount >= 4 && this.world.chance(1, 3)) {
+                //     summonHellhoundsAttack(target)  // Summon skeletal hounds
+                //     attackCount = 0  // Reset counter after special
+                // } 
+                // SPECIAL ATTACK 2: Bone Barrage (COMMENTED OUT - Not working)
                 // Every 6 attacks, 25% chance (1 in 4)
                 // Change 6 to 5 for every 5 attacks, or (1, 4) to (1, 3) for 33% chance
-                else if (attackCount >= 6 && this.world.chance(1, 4)) {
-                    boneBarrageAttack(target)  // Launch multiple bone projectiles
-                    attackCount = 0  // Reset counter after special
-                } 
-                // SPECIAL ATTACK 3: Earth Shake
-                // Every 8 attacks, 20% chance (1 in 5)
-                // Change 8 to 7 for every 7 attacks, or (1, 5) to (1, 4) for 25% chance
-                else if (attackCount >= 8 && this.world.chance(1, 5)) {
+                // else if (attackCount >= 6 && this.world.chance(1, 4)) {
+                //     boneBarrageAttack(target)  // Launch multiple bone projectiles
+                //     attackCount = 0  // Reset counter after special
+                // } 
+                // SPECIAL ATTACK: Earth Shake (AOE)
+                // Every 5 attacks, 30% chance (1 in 3)
+                if (attackCount >= 5 && this.world.chance(1, 3)) {
                     earthShakeAttack(target)  // Ground-based area damage
                     attackCount = 0  // Reset counter after special
                 } 
-                // NORMAL ATTACKS: Default behavior
+                // NORMAL ATTACK: Standard melee attack
                 else {
-                    // Regular skeletal attacks - melee focused with magic variants
-                    // Randomly picks one of 4 basic attacks (25% chance each)
-                    when (this.world.random(4)) {
-                        0 -> skeletalClawAttack(target)        // Melee slash attack
-                        1 -> boneThrowAttack(target)           // Ranged bone projectile
-                        2 -> necromanticStrikeAttack(target)   // Magic death strike
-                        3 -> skeletalBiteAttack(target)        // Melee crush attack
-                        else -> skeletalClawAttack(target)    // Fallback
-                    }
+                    skeletalClawAttack(target)  // Standard melee slash attack
                 }
                 
                 // Random skeletal taunts and mocking speech during combat
@@ -565,9 +556,11 @@ class VetionCombatPlugin(
         // Prepare the attack - tells the game what type of attack this is
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
         
-        // Play the attack animation (5485 = Vetion attack animation)
-        // To find other animation IDs, look in the game's animation files
-        animate(5485)
+        // Play attack sound
+        world.spawn(AreaSound(tile, id = 2564, radius = 10, volume = 5))
+        
+        // Play the attack animation from combat definition (works for both Phase 1 and Phase 2)
+        animate(combatDef.attackAnimation)
         
         // Deal damage to the target
         dealHit(
@@ -613,7 +606,11 @@ class VetionCombatPlugin(
 
     private fun Npc.boneThrowAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
-        animate(5485) // Vet'ion attack animation
+        
+        // Play bone throw sound
+        world.spawn(AreaSound(tile, id = 2708, radius = 10, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
         
         val projectile = createProjectile(
             target, 
@@ -665,7 +662,11 @@ class VetionCombatPlugin(
 
     private fun Npc.necromanticStrikeAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
-        animate(5485) // Vet'ion attack animation
+        
+        // Play dark magic sound
+        world.spawn(AreaSound(tile, id = 177, radius = 10, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
         
         val projectile = createProjectile(
             target, 
@@ -717,7 +718,11 @@ class VetionCombatPlugin(
 
     private fun Npc.skeletalBiteAttack(target: Pawn) {
         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.AGGRESSIVE)
-        animate(5485) // Vet'ion attack animation
+        
+        // Play bite sound
+        world.spawn(AreaSound(tile, id = 2564, radius = 10, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
         
         dealHit(
             target = target,
@@ -756,7 +761,11 @@ class VetionCombatPlugin(
     private suspend fun Npc.summonHellhoundsAttack(target: Pawn) {
         // Summon skeletal hellhounds attack (simplified for this implementation)
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
-        animate(5485) // Vet'ion summoning animation
+        
+        // Play summoning sound
+        world.spawn(AreaSound(tile, id = 224, radius = 12, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
         
         if (target is Player) {
             target.message("Vet'ion: Rise, my skeletal hounds!")
@@ -786,7 +795,12 @@ class VetionCombatPlugin(
             wait(3)
             
             // Damage players near Vet'ion representing hellhound attacks
+            // Collect players first to avoid concurrent modification
+            val playersToDamage = mutableListOf<Player>()
             world.players.forEach { player ->
+                playersToDamage.add(player)
+            }
+            playersToDamage.forEach { player ->
                 if (player.tile.getDistance(vetionTile) <= 4 && player.getCurrentHp() > 0) {
                     player.hit(this@summonHellhoundsAttack.world.random(18) + 12, type = HitType.HIT, delay = 0)
                     player.message("Skeletal hellhounds emerge and attack you!")
@@ -798,7 +812,11 @@ class VetionCombatPlugin(
     private suspend fun Npc.boneBarrageAttack(target: Pawn) {
         // Bone barrage attack - multiple bone projectiles
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
-        animate(5485) // Vet'ion attack animation
+        
+        // Play barrage sound (repeated with projectiles)
+        world.spawn(AreaSound(tile, id = 2708, radius = 12, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
         
         if (target is Player) {
             target.message("Vet'ion unleashes a barrage of ancient bones!")
@@ -846,26 +864,66 @@ class VetionCombatPlugin(
     private suspend fun Npc.earthShakeAttack(target: Pawn) {
         // Earth shake attack - ground-based area damage
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
-        animate(5485) // Vet'ion casting animation
         
-        if (target is Player) {
-            target.message("Vet'ion: The very earth trembles before me!")
-            // Mocking when using earth shake
-            if (this.world.chance(1, 2)) {
-                when (this.world.random(3)) {
-                    0 -> forceChat("*The Ground Rejects You*")
-                    1 -> forceChat("*Earthquake!*")
-                    2 -> forceChat("*You're Useless*")
+        // Play earthquake sound
+        world.spawn(AreaSound(tile, id = 159, radius = 15, volume = 5))
+        
+        animate(combatDef.attackAnimation) // Use combat definition animation
+        
+        val shakeCenter = this.tile
+        
+        // Increased AOE size - now affects a 5-tile radius (was 3)
+        val aoeRadius = 5
+        
+        // Warn all nearby players with speech and messages
+        val playersToWarn = mutableListOf<Player>()
+        world.players.forEach { player ->
+            if (player.tile.getDistance(shakeCenter) <= 12) {
+                playersToWarn.add(player)
+            }
+        }
+        
+        // Also add the main target if it's a player and not already in the list
+        if (target is Player && target !in playersToWarn && target.tile.getDistance(shakeCenter) <= 12) {
+            playersToWarn.add(target)
+        }
+        
+        // Vetion speaks to announce the attack
+        val warningMessages = listOf(
+            "The very earth trembles before me!",
+            "Feel the power of the ground beneath you!",
+            "The earth itself rejects your presence!",
+            "Tremble as the ground shakes!",
+            "The ground will swallow you whole!"
+        )
+        val warningMessage = warningMessages[this.world.random(warningMessages.size) % warningMessages.size]
+        forceChat(warningMessage)
+        
+        // Send warning message to all nearby players
+        playersToWarn.forEach { player ->
+            player.message("Vet'ion: $warningMessage")
+            player.message("The ground begins to shake! Get away from Vet'ion!")
+        }
+        
+        // Create earthquake graphics in expanding circles with warning
+        // First show warning graphics (increased radius area)
+        world.queue {
+            wait(1)
+            // Show warning graphics in the entire area that will be affected (5-tile radius)
+            for (x in -aoeRadius..aoeRadius) {
+                for (z in -aoeRadius..aoeRadius) {
+                    if (kotlin.math.abs(x) + kotlin.math.abs(z) <= aoeRadius) {
+                        val tile = shakeCenter.transform(x, z)
+                        world.spawn(TileGraphic(id = 99, tile = tile, height = 0, delay = 0))
+                    }
                 }
             }
         }
         
-        val shakeCenter = this.tile
-        
-        // Create earthquake graphics in expanding circles
-        for (radius in 1..3) {
+        // Create expanding earthquake graphics (expanding to 5-tile radius)
+        for (radius in 1..aoeRadius) {
             world.queue {
-                wait(radius)
+                wait(radius + 1) // Start after initial warning
                 
                 for (x in -radius..radius) {
                     for (z in -radius..radius) {
@@ -879,13 +937,23 @@ class VetionCombatPlugin(
         }
         
         // Deal damage to all players in area after earthquake buildup
+        // Give players time to move away (5 ticks total from start)
         world.queue {
-            wait(4)
+            wait(5) // Increased delay to give players time to react
             
+            // Collect players first to avoid concurrent modification
+            val playersToDamage = mutableListOf<Player>()
             world.players.forEach { player ->
-                if (player.tile.getDistance(shakeCenter) <= 3 && player.getCurrentHp() > 0) {
+                playersToDamage.add(player)
+            }
+            playersToDamage.forEach { player ->
+                // Only damage players still within 5 tiles of the center (increased from 3)
+                if (player.tile.getDistance(shakeCenter) <= aoeRadius && player.getCurrentHp() > 0) {
                     player.hit(this@earthShakeAttack.world.random(22) + 15, type = HitType.HIT, delay = 0)
                     player.message("The ground shakes violently beneath your feet!")
+                } else if (player.tile.getDistance(shakeCenter) <= 12 && player.getCurrentHp() > 0) {
+                    // Players who moved away get a message
+                    player.message("You managed to escape the earthquake!")
                 }
             }
         }

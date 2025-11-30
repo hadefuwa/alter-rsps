@@ -93,12 +93,16 @@ class EquipmentPlugin(
             val opt = player.getInteractingOption()
             when (opt) {
                 1 -> {
+                    // Get the item ID from equipment slot before unequipping
+                    // (after unequipping, the item is already moved to inventory)
+                    val unequippedItem = player.equipment[equipment.id]
+                    val unequippedItemId = unequippedItem?.id ?: player.getInteractingItem()?.id
+                    
                     val result = EquipAction.unequip(player, equipment.id)
                     if (equipment == EquipmentType.WEAPON && result == EquipAction.Result.SUCCESS) {
                         player.sendWeaponComponentInformation()
                         // Clear autocast when weapon is unequipped (weapon type becomes NONE)
                         // Only clear if it's not one of the wilderness sceptres (they have their own handlers)
-                        val unequippedItemId = player.getInteractingItem()?.id
                         if (unequippedItemId != null) {
                             try {
                                 val itemName = getItem(unequippedItemId).name.lowercase()

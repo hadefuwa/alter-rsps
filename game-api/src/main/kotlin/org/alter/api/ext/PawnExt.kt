@@ -19,7 +19,7 @@ fun Pawn.getCommandArgs(): Array<String> = attr[COMMAND_ARGS_ATTR]!!
 
 fun Pawn.getInteractingSlot(): Int = attr[INTERACTING_SLOT_ATTR]!!
 
-fun Pawn.getInteractingItem(): Item = attr[INTERACTING_ITEM]!!.get()!!
+fun Pawn.getInteractingItem(): Item? = attr[INTERACTING_ITEM]?.get()
 
 fun Pawn.getInteractingItemId(): Int = attr[INTERACTING_ITEM_ID]!!
 

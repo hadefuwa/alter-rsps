@@ -265,7 +265,7 @@ class GenericNpcCombatConfigPlugin(
                     add("item.logs_noted", min = 25, max = 50, weight = 25)
                     add("item.odium_shard_3", min = 1, max = 1, weight = 1)
                     add("item.onyx_amulet", min = 1, max = 1, weight = 1)
-                    add("item.gilded_medhelm", min = 1, max = 1, weight = 5)
+                    add("item.gilded_med_helm", min = 1, max = 1, weight = 5)
                     add("item.gilded_full_helm", min = 1, max = 1, weight = 5)
                 }
             }
@@ -368,7 +368,7 @@ class GenericNpcCombatConfigPlugin(
                 
                 main(weight = 100) {
                     add("item.gilded_vambraces", min = 1, max = 1, weight = 5)
-                    add("item.gilded_medhelm", min = 1, weight = 5)
+                    add("item.gilded_med_helm", min = 1, weight = 5)
                     add("item.malediction_shard_2", min = 1, weight = 10)
                     add("item.casket_easy", min = 1, max = 3, weight = 10)
                     add("item.white_partyhat", min = 1, max = 1, weight = 10)

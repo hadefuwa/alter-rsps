@@ -54,7 +54,7 @@ class VenenatisConfigsPlugin(
         // Set combat definition
         setCombatDef("npc.venenatis") {
             configs {
-                attackSpeed = 4
+                attackSpeed = 6  // Slower attack speed (6 ticks = 3.6 seconds between attacks)
                 respawnDelay = 50
             }
             
@@ -69,8 +69,25 @@ class VenenatisConfigsPlugin(
             
             anims {
                 attack = 5319  // Spider attack animation (matches custom combat attacks)
-                block = 424    // Spider block animation  
+                block = -1    // No block animation (prevents flip-over animation)
                 death = 836    // Standard death animation
+            }
+            
+            sound {
+                attackSound = 3607  // Spider attack sound
+                attackArea = true
+                attackRadius = 10
+                attackVolume = 50
+                
+                blockSound = 3607  // Spider hit sound
+                blockArea = true
+                blockRadius = 10
+                blockVolume = 50
+                
+                deathSound = 3608  // Spider death sound
+                deathArea = true
+                deathRadius = 10
+                deathVolume = 50
             }
             
             bonuses {
@@ -80,7 +97,7 @@ class VenenatisConfigsPlugin(
                 attackMagic = 150
                 attackRanged = 120
                 
-                defenceStab = 100
+                defenceStab = -50    // Weak to stab attacks (negative = weakness)
                 defenceSlash = 120
                 defenceCrush = 120
                 defenceMagic = 180
@@ -99,41 +116,43 @@ class VenenatisConfigsPlugin(
                 
                 main(weight = 1000) {
                     // Common drops
-                    add("item.coins_995", min = 5000, max = 15000, weight = 150)
-                    add("item.death_rune", min = 50, max = 100, weight = 100)
-                    add("item.blood_rune", min = 25, max = 75, weight = 100)
-                    add("item.chaos_rune", min = 100, max = 200, weight = 100)
-                    add("item.raw_shark", min = 10, max = 25, weight = 80)
-                    add("item.super_restore4", min = 2, max = 5, weight = 80)
-                    add("item.prayer_potion4", min = 2, max = 4, weight = 60)
-                    add("item.magic_logs", min = 25, max = 50, weight = 70)
-                    add("item.yew_logs", min = 50, max = 100, weight = 50)
+                    add("item.coins_995", min = 5000, max = 15000, weight = 300)
+                    add("item.death_rune", min = 50, max = 100, weight = 250)
+                    add("item.blood_rune", min = 25, max = 75, weight = 225)
+                    add("item.chaos_rune", min = 100, max = 200, weight = 275)
+                    add("item.raw_shark", min = 10, max = 25, weight = 200)
+                    add("item.super_restore4", min = 2, max = 5, weight = 175)
+                    add("item.prayer_potion4", min = 2, max = 4, weight = 185)
+                    add("item.magic_logs_noted", min = 25, max = 50, weight = 150)
+                    add("item.yew_logs_noted", min = 50, max = 100, weight = 170)
                     
                     // Uncommon drops
-                    add("item.rune_platelegs", min = 1, weight = 25)
-                    add("item.rune_platebody", min = 1, weight = 25)
-                    add("item.rune_battleaxe", min = 1, weight = 20)
-                    add("item.dragon_dagger", min = 1, weight = 15)
-                    add("item.uncut_diamond", min = 5, max = 15, weight = 20)
-                    add("item.uncut_dragonstone", min = 1, max = 3, weight = 10)
-                    add("item.magic_seed", min = 1, max = 2, weight = 8)
-                    add("item.palm_tree_seed", min = 1, weight = 7)
-                    add("item.yew_seed", min = 1, max = 2, weight = 10)
+                    add("item.rune_platelegs", min = 1, weight = 150)
+                    add("item.rune_platebody", min = 1, weight = 150)
+                    add("item.rune_battleaxe", min = 1, weight = 150)
+                    add("item.dragon_dagger", min = 1, weight = 125)
+                    add("item.uncut_diamond", min = 5, max = 15, weight = 150)
+                    add("item.uncut_dragonstone", min = 1, max = 3, weight = 75)
+                    add("item.magic_seed", min = 1, max = 2, weight = 50)
+                    add("item.palm_tree_seed", min = 1, weight = 60)
+                    add("item.yew_seed", min = 1, max = 2, weight = 55)
                     
                     // Rare drops
-                    add("item.dragon_med_helm", min = 1, weight = 8)
-                    add("item.dragon_longsword", min = 1, weight = 7)
-                    add("item.rune_pickaxe", min = 1, weight = 6)
-                    add("item.shield_left_half", min = 1, weight = 5)
-                    add("item.dragon_spear", min = 1, weight = 4)
-                    add("item.clue_scroll_elite", min = 1, weight = 15)
+                    add("item.dragon_med_helm", min = 1, weight = 75)
+                    add("item.dragon_longsword", min = 1, weight = 75)
+                    add("item.rune_pickaxe", min = 1, weight = 75)
+                    add("item.shield_left_half", min = 1, weight = 75)
+                    add("item.dragon_spear", min = 1, weight = 75)
+                    add("item.casket_elite", min = 1, weight = 75)
                 }
                 
-                // Very rare drops (0.5% chance) - Signature items
-                tertiary(weight = 5) {
-                    add("item.treasonous_ring", min = 1, weight = 2) // Venenatis ring
-                    add("item.dragon_pickaxe", min = 1, weight = 2) // Shared with other wilderness bosses
-                    add("item.dragon_axe", min = 1, weight = 1) // Very rare
+                // Very rare drops - Signature items
+                // Tertiary table: each item rolls independently (weight = 1/X chance)
+                // Total item weights: 640, so set table weight to 700 for validation
+                tertiary(weight = 700) {
+                    add("item.treasonous_ring", min = 1, weight = 128) // ~0.78% chance (1/128) - Venenatis signature ring
+                    add("item.dragon_pickaxe", min = 1, weight = 256) // ~0.39% chance (1/256) - Shared with other wilderness bosses
+                    add("item.dragon_axe", min = 1, weight = 256) // ~0.39% chance (1/256) - Very rare
                 }
             }
         }

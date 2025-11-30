@@ -13,6 +13,7 @@ import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
+import org.alter.plugins.content.combat.formula.MagicCombatFormula
 import org.alter.plugins.content.combat.strategy.MeleeCombatStrategy
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
@@ -383,11 +384,11 @@ class CallistoCombatPlugin(
                     // Change 0.3 to 0.5 for enraged at 50% HP, or 0.1 for 10% HP
                     getCurrentHp() <= getMaxHp() * 0.3 -> "enraged"
                     
-                    // SPECIAL ATTACKS: 25% chance (1 in 4)
+                    // SPECIAL ATTACKS: 25% chance (1 in 4) - Only knockback
                     // Change (1, 4) to (1, 2) for 50% chance, or (1, 3) for 33% chance
                     this.world.chance(1, 4) -> "special"
                     
-                    // NORMAL ATTACKS: Default behavior
+                    // NORMAL ATTACKS: Default behavior - 80% melee, 20% magic
                     else -> "normal"
                 }
                 
@@ -395,28 +396,29 @@ class CallistoCombatPlugin(
                 when (attackType) {
                     "enraged" -> {
                         // Enraged phase - more frequent special attacks
-                        // Randomly picks one of 4 special attacks (25% chance each)
-                        when (this.world.random(4)) {
-                            0 -> shockwaveAttack(target)   // Area damage
-                            1 -> groundSlamAttack(target)  // Trap attack
-                            2 -> bearRoarAttack(target)    // Fear attack
-                            3 -> knockbackAttack(target)   // Knockback attack
+                        // 50% chance knockback, 50% chance normal attacks
+                        if (this.world.chance(1, 2)) {
+                            knockbackAttack(target)   // Knockback attack
+                        } else {
+                            // 80% melee, 20% magic
+                            if (this.world.chance(4, 5)) {
+                                normalBearAttack(target)  // Simple melee (80%)
+                            } else {
+                                whiteBlastAttack(target)  // Simple magic (20%)
+                            }
                         }
                     }
                     "special" -> {
-                        // Random special attack
-                        // Randomly picks one of 5 special attacks (20% chance each)
-                        when (this.world.random(5)) {
-                            0 -> shockwaveAttack(target)   // Area damage
-                            1 -> groundSlamAttack(target)  // Trap attack
-                            2 -> bearRoarAttack(target)    // Fear attack
-                            3 -> bearSwipeAttack(target)   // High damage swipe
-                            4 -> knockbackAttack(target)   // Knockback attack
-                        }
+                        // Special attack - only knockback
+                        knockbackAttack(target)   // Knockback attack
                     }
                     else -> {
-                        // Normal melee attack
-                        normalBearAttack(target)
+                        // Normal attacks - 80% simple melee, 20% simple magic
+                        if (this.world.chance(4, 5)) {
+                            normalBearAttack(target)  // Simple melee attack (80%)
+                        } else {
+                            whiteBlastAttack(target)  // Simple magic attack (20%)
+                        }
                     }
                 }
                 
@@ -471,10 +473,15 @@ class CallistoCombatPlugin(
         // To find other animation IDs, look in the game's animation files
         animate(4925)
         
-        // Check if player has Protect from Melee - if not, deal 20-80 damage
+        // Play sound effect (bear growl/attack sound)
+        if (target is Player) {
+            target.playSound(239) // Bear growl/attack sound
+        }
+        
+        // Check if player has Protect from Melee - if not, deal 10-40 damage
         if (target is Player && !target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
-            // Player doesn't have Protect from Melee - deal 20-80 damage
-            val damage = this.world.random(20..80)
+            // Player doesn't have Protect from Melee - deal 10-40 damage
+            val damage = this.world.random(10..40)
             target.hit(damage, type = HitType.HIT, delay = 1)
             if (damage > 25) {
                 target.forceChat("Oof!")  // Make player say something
@@ -502,6 +509,13 @@ class CallistoCombatPlugin(
         animate(4927) // Shockwave animation
         graphic(157) // Ground shockwave graphic
         
+        // Play sound effect (powerful roar/ground shake)
+        world.players.forEach { player ->
+            if (player.tile.getDistance(this.tile) <= 5) {
+                player.playSound(240) // Powerful roar/ground shake sound
+            }
+        }
+        
         world.queue {
             wait(3)
             
@@ -526,6 +540,7 @@ class CallistoCombatPlugin(
                 
                 player.hit(damage, type = HitType.HIT, delay = 1)
                 player.message("The ground shakes violently beneath you!")
+                player.playSound(241) // Ground shake impact sound
                 
                 // Chance to knock player back
                 if (this@shockwaveAttack.world.chance(30, 100)) {
@@ -545,6 +560,13 @@ class CallistoCombatPlugin(
         prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.ACCURATE)
         forceChat("*SLAMS THE GROUND*")
         animate(4926) // Ground slam animation
+        
+        // Play sound effect (ground slam)
+        world.players.forEach { player ->
+            if (player.tile.getDistance(this.tile) <= 5) {
+                player.playSound(242) // Ground slam sound
+            }
+        }
         
         world.queue {
             wait(2)
@@ -576,6 +598,7 @@ class CallistoCombatPlugin(
                         val damage = this@groundSlamAttack.world.random(15..25) // 15-25 damage
                         player.hit(damage, type = HitType.HIT, delay = 0)
                         player.message("You are caught in Callisto's trap!")
+                        player.playSound(243) // Trap activation sound
                         
                         // Stun player briefly
                         player.stun(3) // 1.8 second stun
@@ -595,13 +618,18 @@ class CallistoCombatPlugin(
         animate(4925) // Swipe animation
         graphic(245) // Claw slash graphic
         
-        // Check if player has Protect from Melee - if not, deal 20-80 damage
+        // Play sound effect (claw swipe)
+        if (target is Player) {
+            target.playSound(244) // Claw swipe sound
+        }
+        
+        // Check if player has Protect from Melee - if not, deal 10-40 damage
         if (target is Player && !target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
-            // Player doesn't have Protect from Melee - deal 20-80 damage
-            val damage = this.world.random(20..80)
+            // Player doesn't have Protect from Melee - deal 10-40 damage
+            val damage = this.world.random(10..40)
             target.hit(damage, type = HitType.HIT, delay = 1)
             
-            if (damage > 30) {
+            if (damage > 20) {
                 target.forceChat("Argh!")
                 target.message("Callisto's claws leave deep wounds!")
                 
@@ -649,6 +677,13 @@ class CallistoCombatPlugin(
         forceChat("*LETS OUT A TERRIFYING ROAR*")
         animate(4928) // Roar animation
         graphic(158) // Fear aura graphic
+        
+        // Play sound effect (terrifying roar)
+        world.players.forEach { player ->
+            if (player.tile.getDistance(this.tile) <= 5) {
+                player.playSound(245) // Terrifying roar sound
+            }
+        }
         
         world.queue {
             wait(2)
@@ -702,11 +737,16 @@ class CallistoCombatPlugin(
         animate(4925) // Bear charge/swipe animation
         graphic(245) // Powerful impact graphic
         
+        // Play sound effect (charge/impact)
         if (target is Player) {
-            // Check if player has Protect from Melee - if not, deal 20-80 damage
+            target.playSound(246) // Charge/impact sound
+        }
+        
+        if (target is Player) {
+            // Check if player has Protect from Melee - if not, deal 10-40 damage
             if (!target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
-                // Player doesn't have Protect from Melee - deal 20-80 damage
-                val damage = this.world.random(20..80)
+                // Player doesn't have Protect from Melee - deal 10-40 damage
+                val damage = this.world.random(10..40)
                 target.hit(damage, type = HitType.HIT, delay = 1)
             } else {
                 // Player has Protect from Melee - use normal formula
@@ -747,22 +787,16 @@ class CallistoCombatPlugin(
                 else -> Tile(playerTile.x, playerTile.z + knockbackDistance, playerTile.height) // Default to north
             }
             
-            // Create flying knockback movement with smooth animation
-            val movement = ForcedMovement.of(
-                src = playerTile,
-                dst = endTile,
-                clientDuration1 = 20,  // Fast initial movement
-                clientDuration2 = 40,  // Slower landing
-                directionAngle = directionAngle
-            )
+            // Execute the knockback - use moveTo instead of forceMove to prevent player lock
+            target.graphic(157) // Flying/knockback graphic
+            target.moveTo(endTile) // Move player instantly without locking
+            target.message("Callisto's massive blow sends you flying!")
+            target.playSound(247) // Crash/landing sound
             
-            // Execute the flying knockback
+            // Additional damage on landing (fall damage) - delayed slightly
             target.queue {
-                target.graphic(157) // Flying/knockback graphic
-                target.forceMove(this, movement, cycleDuration = 2)
+                wait(1) // Small delay for landing effect
                 target.message("You crash to the ground!")
-                
-                // Additional damage on landing (fall damage)
                 val fallDamage = this@knockbackAttack.world.random(5..15)
                 target.hit(fallDamage, type = HitType.HIT, delay = 0)
                 target.message("The impact hurts!")
@@ -774,6 +808,162 @@ class CallistoCombatPlugin(
                 formula = MeleeCombatFormula,
                 delay = 1
             )
+        }
+    }
+
+    private suspend fun Npc.magicBlastAttack(target: Pawn) {
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        forceChat("*CHANNELS POWERFUL MAGIC ENERGY*")
+        animate(4928) // Magic casting animation
+        graphic(157) // Magic energy graphic
+        
+        // Play sound effect (magic charging)
+        world.players.forEach { player ->
+            if (player.tile.getDistance(this.tile) <= 5) {
+                player.playSound(248) // Magic charging sound
+            }
+        }
+        
+        world.queue {
+            wait(2)
+            
+            // Show magic projectile traveling to target
+            if (target is Player) {
+                // Spawn magic graphic at Callisto
+                world.spawn(TileGraphic(this@magicBlastAttack.tile, id = 157, height = 100, delay = 0))
+                
+                wait(1)
+                
+                // Spawn magic impact graphic at player
+                world.spawn(TileGraphic(target.tile, id = 157, height = 100, delay = 0))
+                
+                // Check if player has Protect from Magic - if not, deal 5-25 damage
+                if (!target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+                    // Player doesn't have Protect from Magic - deal 5-25 damage
+                    val damage = this@magicBlastAttack.world.random(5..25)
+                    target.hit(damage, type = HitType.HIT, delay = 0)
+                    target.message("Callisto's magical blast strikes you!")
+                    target.graphic(157) // Impact graphic on player
+                    
+                    if (damage > 30) {
+                        target.forceChat("Argh!")  // React to high damage
+                    }
+                } else {
+                    // Player has Protect from Magic - blocked or reduced
+                    target.message("Your Protect from Magic partially blocks the magical blast!")
+                    // Still deal some damage through protection (reduced)
+                    val damage = this@magicBlastAttack.world.random(2..12)
+                    target.hit(damage, type = HitType.HIT, delay = 0)
+                }
+            } else {
+                // For non-player targets, use magic formula
+                dealHit(
+                    target = target,
+                    formula = MagicCombatFormula,
+                    delay = 1
+                )
+            }
+        }
+    }
+
+    private suspend fun Npc.magicAreaAttack(target: Pawn) {
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        forceChat("*CHANNELS DESTRUCTIVE MAGIC IN ALL DIRECTIONS*")
+        animate(4928) // Magic casting animation
+        graphic(157) // Magic energy graphic
+        
+        // Play sound effect (magic charging)
+        world.players.forEach { player ->
+            if (player.tile.getDistance(this.tile) <= 5) {
+                player.playSound(248) // Magic charging sound
+            }
+        }
+        
+        world.queue {
+            wait(2)
+            
+            // Find all players within 4 tiles (area of effect)
+            val nearbyPlayers = mutableListOf<Player>()
+            world.players.forEach { player ->
+                if (player.tile.getDistance(this@magicAreaAttack.tile) <= 4 && player.isAlive()) {
+                    nearbyPlayers.add(player)
+                }
+            }
+            
+            nearbyPlayers.forEach { player: Player ->
+                val distance = this@magicAreaAttack.tile.getDistance(player.tile)
+                
+                // Spawn magic graphic at player location
+                world.spawn(TileGraphic(player.tile, id = 157, height = 100, delay = 0))
+                
+                // Damage based on distance (closer = more damage)
+                val damage = if (!player.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+                    when {
+                        distance <= 1 -> this@magicAreaAttack.world.random(15..30) // Point blank: 15-30 damage
+                        distance == 2 -> this@magicAreaAttack.world.random(10..20) // Close: 10-20 damage
+                        distance == 3 -> this@magicAreaAttack.world.random(5..15) // Medium: 5-15 damage
+                        else -> this@magicAreaAttack.world.random(3..10) // Far: 3-10 damage
+                    }
+                } else {
+                    // Player has Protect from Magic - reduced damage
+                    when {
+                        distance <= 1 -> this@magicAreaAttack.world.random(5..15) // Point blank: 5-15 damage
+                        distance == 2 -> this@magicAreaAttack.world.random(3..10) // Close: 3-10 damage
+                        distance == 3 -> this@magicAreaAttack.world.random(2..8) // Medium: 2-8 damage
+                        else -> this@magicAreaAttack.world.random(1..5) // Far: 1-5 damage
+                    }
+                }
+                
+                player.hit(damage, type = HitType.HIT, delay = 1)
+                player.message("Callisto's area magic spell strikes you!")
+                player.graphic(157) // Impact graphic on player
+                
+                if (damage > 20) {
+                    player.forceChat("Argh!")  // React to high damage
+                }
+            }
+        }
+    }
+
+    private suspend fun Npc.whiteBlastAttack(target: Pawn) {
+        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
+        forceChat("*BLASTS WITH WHITE MAGIC*")
+        animate(4928) // Magic casting animation
+        graphic(157) // White magic graphic
+        
+        world.queue {
+            wait(1)
+            
+            if (target is Player) {
+                // Spawn white magic graphic at Callisto
+                world.spawn(TileGraphic(this@whiteBlastAttack.tile, id = 157, height = 100, delay = 0))
+                
+                wait(1)
+                
+                // Spawn white magic impact graphic at player
+                world.spawn(TileGraphic(target.tile, id = 157, height = 100, delay = 0))
+                
+                // Check if player has Protect from Magic - if not, deal 8-25 damage
+                if (!target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+                    // Player doesn't have Protect from Magic - deal 8-25 damage
+                    val damage = this@whiteBlastAttack.world.random(8..25)
+                    target.hit(damage, type = HitType.HIT, delay = 0)
+                    target.message("Callisto's white magic blast hits you!")
+                    target.graphic(157) // White impact graphic on player
+                } else {
+                    // Player has Protect from Magic - reduced damage
+                    target.message("Your Protect from Magic partially blocks the white magic blast!")
+                    val damage = this@whiteBlastAttack.world.random(3..12)
+                    target.hit(damage, type = HitType.HIT, delay = 0)
+                }
+            } else {
+                // For non-player targets, use magic formula
+                dealHit(
+                    target = target,
+                    formula = MagicCombatFormula,
+                    delay = 1
+                )
+            }
         }
     }
 }

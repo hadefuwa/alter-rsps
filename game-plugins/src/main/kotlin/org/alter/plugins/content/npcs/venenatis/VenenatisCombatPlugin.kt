@@ -353,7 +353,6 @@ class VenenatisCombatPlugin(
      */
     private suspend fun Npc.combat(it: QueueTask) {
         var target = getCombatTarget() ?: return  // Get the target Venenatis is fighting
-        var attackCount = 0  // Counts how many attacks have been made (resets on specials)
 
         // Main combat loop - runs while Venenatis can fight the target
         while (canEngageCombat(target)) {
@@ -362,59 +361,18 @@ class VenenatisCombatPlugin(
             // Move to attack range and check if ready to attack
             // distance = 8 means Venenatis can attack from 8 tiles away
             // projectile = true means this attack can use projectiles (ranged/magic)
-            if (moveToAttackRange(it, target, distance = 8, projectile = true) && isAttackDelayReady()) {
-                attackCount++  // Increment attack counter
-                
-                // ============================================================
-                // ATTACK SELECTION LOGIC
-                // ============================================================
-                // This decides which attack to use based on HP and attack count
-                
-                when {
-                    // ENRAGED PHASE: When HP is below 25%
-                    // Change 0.25 to 0.5 for enraged at 50% HP, or 0.1 for 10% HP
-                    getCurrentHp() <= getMaxHp() * 0.25 -> {
-                        // Enraged phase - spawn more spiderlings and web traps
-                        // Randomly picks one of 4 special attacks (25% chance each)
-                        when (this.world.random(4)) {
-                            0 -> spawnSpiderlingsAttack(target)  // Summon minions
-                            1 -> webTrapAttack(target)           // Create traps
-                            2 -> venomSpitAttack(target)         // Poison attack
-                            3 -> webStickAttack(target)          // Disable prayers
-                            else -> webProjectileAttack(target)  // Fallback
-                        }
-                        attackCount = 0  // Reset counter after special
-                    }
-                    
-                    // SPECIAL ATTACKS: Every 4 attacks, 33% chance (1 in 3)
-                    // Change 4 to 3 for every 3 attacks, or (1, 3) to (1, 2) for 50% chance
-                    attackCount >= 4 && this.world.chance(1, 3) -> {
-                        // Special attacks - randomly picks one of 5 attacks (20% chance each)
-                        when (this.world.random(5)) {
-                            0 -> webProjectileAttack(target)     // Web projectile
-                            1 -> spawnSpiderlingsAttack(target)  // Summon minions
-                            2 -> venomSpitAttack(target)         // Poison attack
-                            3 -> webTrapAttack(target)           // Create traps
-                            4 -> webStickAttack(target)          // Disable prayers
-                            else -> webProjectileAttack(target)  // Fallback
-                        }
-                        attackCount = 0  // Reset counter after special
-                    }
-                    
-                    // NORMAL ATTACKS: Default behavior
-                    else -> {
-                        // Normal spider attack (alternates between styles)
-                        // Randomly picks one of 3 basic attacks (33% chance each)
-                        when (this.world.random(3)) {
-                            0 -> normalStabAttack(target)      // Melee stab attack
-                            1 -> normalRangedAttack(target)   // Ranged web attack
-                            2 -> normalMagicAttack(target)     // Magic venom attack
-                            else -> normalStabAttack(target)  // Fallback
-                        }
-                    }
+            // Check if target is in melee range (distance 2)
+            val isInMeleeRange = this.tile.getDistance(target.tile) <= 2
+            
+            if (moveToAttackRange(it, target, distance = if (isInMeleeRange) 2 else 8, projectile = !isInMeleeRange) && isAttackDelayReady()) {
+                // Use melee if in melee range, otherwise use magic
+                if (isInMeleeRange) {
+                    normalStabAttack(target)      // Melee stab attack
+                } else {
+                    normalMagicAttack(target)     // Magic venom attack
                 }
                 
-                postAttackLogic(target)  // Handle post-attack effects
+                postAttackLogic(target)  // Handle post-attack effects (sets attack delay timer)
             }
             
             it.wait(1)  // Wait 1 cycle before checking again
@@ -466,28 +424,39 @@ class VenenatisCombatPlugin(
         forceChat("*Strikes with venomous fangs*")
         
         // Play the attack animation (5319 = spider stab animation)
-        // To find other animation IDs, look in the game's animation files
         animate(5319)
         
+        // Play melee attack sound
+        if (target is Player) {
+            this.world.spawn(
+                AreaSound(this.tile, 3607, radius = 10, volume = 50) // Spider attack sound
+            )
+        }
+        
+        // Calculate max hit based on protection prayer
+        val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+            0  // 0 max hit if praying melee
+        } else {
+            this.world.random(20..60)  // 20-60 max hit if not praying melee
+        }
+        
         // Deal damage to the target
-        val hit = dealHit(
-            target = target,                    // Who to hit
-            formula = MeleeCombatFormula,       // Use melee damage formula
-            delay = 1                           // Delay before hit lands (1 = immediate)
-        ) { hit ->
-            // This code runs when the hit lands
-            // hit.landed() returns true if the attack hit (not 0 damage)
-            // this.world.chance(3, 10) means 30% chance (3 out of 10)
-            if (hit.landed() && this.world.chance(3, 10)) {
+        if (maxHit > 0) {
+            val damage = this.world.random(maxHit + 1)
+            target.hit(damage, type = HitType.HIT, delay = 1)
+            
+            // 30% chance to poison
+            if (damage > 0 && this.world.chance(3, 10)) {
                 if (target is Player) {
                     target.message("You have been poisoned!")
-                    // Apply poison effect
-                    // initialDamage = 4 means poison starts at 4 damage per tick
                     target.poison(initialDamage = 4) {
                         target.message("The venom courses through your veins.")
                     }
                 }
             }
+        } else {
+            // Still apply a 0 damage hit to show the attack animation
+            target.hit(0, type = HitType.HIT, delay = 1)
         }
     }
 
@@ -529,6 +498,13 @@ class VenenatisCombatPlugin(
         animate(5321) // Spider magic animation
         graphic(172) // Venom aura
         
+        // Play magic attack sound
+        if (target is Player) {
+            this.world.spawn(
+                AreaSound(this.tile, 384, radius = 10, volume = 50) // Magic attack sound
+            )
+        }
+        
         val projectile = createProjectile(
             target, 
             gfx = 1750, 
@@ -543,18 +519,32 @@ class VenenatisCombatPlugin(
         
         val delay = RangedCombatStrategy.getHitDelay(getFrontFacingTile(target), target.getCentreTile()) - 1
         
-        val hit = dealHit(
-            target = target,
-            formula = MagicCombatFormula,
-            delay = delay
-        ) { hit ->
-            if (hit.landed()) {
-                target.graphic(id = 173, height = 0, delay = hit.getClientHitDelay()) // Venom splash graphic
+        // Calculate max hit based on protection prayer
+        val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+            0  // 0 max hit if praying magic
+        } else {
+            this.world.random(20..50)  // 20-50 max hit if not praying magic
+        }
+        
+        // Deal damage after projectile delay
+        this.world.queue {
+            wait(delay)
+            
+            if (target.isAlive()) {
+                if (maxHit > 0) {
+                    val damage = this@normalMagicAttack.world.random(maxHit + 1)
+                    target.hit(damage, type = HitType.HIT, delay = 0)
+                    target.graphic(id = 173, height = 0, delay = 0) // Venom splash graphic
+                } else {
+                    // Still apply a 0 damage hit to show the attack animation
+                    target.hit(0, type = HitType.HIT, delay = 0)
+                    target.graphic(id = 173, height = 0, delay = 0) // Venom splash graphic
+                }
             }
         }
     }
 
-    private suspend fun Npc.webProjectileAttack(target: Pawn) {
+    private fun Npc.webProjectileAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         forceChat("*WEAVES A POWERFUL WEB*")
         animate(5320) // Web animation
@@ -564,8 +554,15 @@ class VenenatisCombatPlugin(
             target.message("Venenatis weaves a powerful web attack!")
         }
         
+        // Deal damage to main target first
+        val hit = dealHit(
+            target = target,
+            formula = MagicCombatFormula,
+            delay = 1
+        )
+        
         // Launch multiple web projectiles in a spread pattern
-        val targets = world.players.forEach { player ->
+        world.players.forEach { player ->
             if (!player.tile.isWithinRadius(target.tile, 2) || !player.isAlive()) return@forEach
             if (player.tile.isWithinRadius(this.tile, 12)) {
                 val projectile = createProjectile(
@@ -607,11 +604,18 @@ class VenenatisCombatPlugin(
         }
     }
 
-    private suspend fun Npc.spawnSpiderlingsAttack(target: Pawn) {
+    private fun Npc.spawnSpiderlingsAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         forceChat("*CALLS FORTH HER CHILDREN*")
         animate(5322) // Summoning animation
         graphic(174) // Spawning graphic
+        
+        // Deal damage to main target
+        val hit = dealHit(
+            target = target,
+            formula = MagicCombatFormula,
+            delay = 1
+        )
         
         if (target is Player) {
             target.message("Spiderlings emerge from the shadows to attack you!")
@@ -645,58 +649,128 @@ class VenenatisCombatPlugin(
         }
     }
 
-    private suspend fun Npc.venomSpitAttack(target: Pawn) {
+    private fun Npc.venomSpitAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         forceChat("*blaaaargh*")
         animate(5321) // Venom animation
         graphic(175) // Venom charge graphic
         
+        // Deal damage to main target
+        val hit = dealHit(
+            target = target,
+            formula = MagicCombatFormula,
+            delay = 1
+        )
+        
         if (target is Player) {
-            target.message("Venenatis spits deadly venom in your direction!")
+            target.message("Venenatis spits deadly venom in random directions!")
         }
         
-        // Create venom pools in a line towards the target
-        val direction = this.tile.getDirection(target.tile)
-        val distance = minOf(this.tile.getDistance(target.tile), 8)
+        // Create random 1-tile venom pools scattered randomly around the area
+        val poolCount = this.world.random(15..25) // 15-25 random pools
+        val venomTiles = mutableSetOf<Tile>()
+        val poisonedPlayers = mutableSetOf<Player>() // Track players who are already poisoned to avoid re-poisoning
         
+        // Queue the venom pool creation and monitoring in background (non-blocking)
         this.world.queue {
             wait(2)
             
-            for (i in 1..distance) {
-                val venomTile = when (direction) {
-                    0 -> Tile(this@venomSpitAttack.tile.x, this@venomSpitAttack.tile.z + i, this@venomSpitAttack.tile.height) // North
-                    1 -> Tile(this@venomSpitAttack.tile.x + i, this@venomSpitAttack.tile.z + i, this@venomSpitAttack.tile.height) // Northeast
-                    2 -> Tile(this@venomSpitAttack.tile.x + i, this@venomSpitAttack.tile.z, this@venomSpitAttack.tile.height) // East
-                    3 -> Tile(this@venomSpitAttack.tile.x + i, this@venomSpitAttack.tile.z - i, this@venomSpitAttack.tile.height) // Southeast
-                    4 -> Tile(this@venomSpitAttack.tile.x, this@venomSpitAttack.tile.z - i, this@venomSpitAttack.tile.height) // South
-                    5 -> Tile(this@venomSpitAttack.tile.x - i, this@venomSpitAttack.tile.z - i, this@venomSpitAttack.tile.height) // Southwest
-                    6 -> Tile(this@venomSpitAttack.tile.x - i, this@venomSpitAttack.tile.z, this@venomSpitAttack.tile.height) // West
-                    7 -> Tile(this@venomSpitAttack.tile.x - i, this@venomSpitAttack.tile.z + i, this@venomSpitAttack.tile.height) // Northwest
-                    else -> Tile(this@venomSpitAttack.tile.x + i, this@venomSpitAttack.tile.z, this@venomSpitAttack.tile.height)
+            // Create all venom pools - each pool is exactly 1 tile, placed on completely random tiles
+            repeat(poolCount) {
+                // Random position in a large area around Venenatis (20x20 radius = 10 tiles in each direction)
+                val centerX = this@venomSpitAttack.tile.x
+                val centerZ = this@venomSpitAttack.tile.z
+                val offsetX = this@venomSpitAttack.world.random(-10..10)
+                val offsetZ = this@venomSpitAttack.world.random(-10..10)
+                
+                val venomTile = Tile(
+                    centerX + offsetX,
+                    centerZ + offsetZ,
+                    this@venomSpitAttack.tile.height
+                )
+                
+                // Each pool is exactly 1 tile - add it to the set
+                venomTiles.add(venomTile)
+                
+                // Spawn visible venom pool graphic on this single tile (poison circle)
+                world.spawn(TileGraphic(venomTile, id = 289, height = 0, delay = 0))
+            }
+            
+            // Track players currently on pools and players who are poisoned (continue after stepping off)
+            val playersOnPools = mutableSetOf<Player>()
+            val poisonedPlayers = mutableSetOf<Player>() // Players who are poisoned (continues after stepping off)
+            
+            // Continuously check for players stepping on pools
+            var poolLifetime = 40 // Pools last for 40 ticks
+            while (poolLifetime > 0) {
+                wait(1) // Check every cycle (1 tick)
+                
+                // Refresh graphics to keep pools visible
+                if (poolLifetime % 10 == 0) {
+                    venomTiles.forEach { tile ->
+                        world.spawn(TileGraphic(tile, id = 289, height = 0, delay = 0))
+                    }
                 }
                 
-                // Spawn venom pool
-                world.spawn(TileGraphic(venomTile, id = 176, height = 0, delay = 0)) // Long-lasting venom pool
-                
-                // Check for players on venom
+                // Check all players for stepping on venom pools
                 world.players.forEach { player ->
-                    if (player.tile == venomTile && player.isAlive()) {
-                        val damage = this@venomSpitAttack.world.random(8..15) // 8-15 venom damage
-                        player.hit(damage, type = HitType.POISON, delay = 0)
-                        player.message("You step in a pool of deadly venom!")
-                        player.poison(initialDamage = 6) {
-                            player.message("The venom burns through your body!")
+                    if (player.isAlive()) {
+                        val isOnPool = player.tile in venomTiles
+                        
+                        if (isOnPool) {
+                            // Player is on a venom pool
+                            if (player !in playersOnPools) {
+                                // Just stepped on - add to tracking
+                                playersOnPools.add(player)
+                                player.message("You step in a pool of deadly venom!")
+                            }
+                            
+                            // Deal 2 poison damage every 1 tick while on the pool
+                            player.hit(2, type = HitType.POISON, delay = 0)
+                        } else {
+                            // Player stepped off the pool
+                            if (player in playersOnPools) {
+                                playersOnPools.remove(player)
+                                
+                                // Start poison effect that continues after stepping off
+                                if (player !in poisonedPlayers) {
+                                    poisonedPlayers.add(player)
+                                    
+                                    // Poison effect: 8 damage every 5 ticks for 80 ticks (16 damage instances)
+                                    player.queue {
+                                        var ticksRemaining = 80 // Poison lasts for 80 ticks (16 instances of 8 damage)
+                                        while (ticksRemaining > 0 && player.isAlive()) {
+                                            wait(5) // Every 5 ticks
+                                            if (player.isAlive()) {
+                                                player.hit(8, type = HitType.POISON, delay = 0)
+                                            }
+                                            ticksRemaining -= 5
+                                        }
+                                        // Remove from poisoned set after poison expires
+                                        poisonedPlayers.remove(player)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                
+                poolLifetime--
             }
         }
     }
 
-    private suspend fun Npc.webTrapAttack(target: Pawn) {
+    private fun Npc.webTrapAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         forceChat("*Ssssssss*")
         animate(5323) // Web trap animation
+        
+        // Deal damage to main target
+        val hit = dealHit(
+            target = target,
+            formula = MagicCombatFormula,
+            delay = 1
+        )
         
         if (target is Player) {
             target.message("Venenatis lays deadly web traps around the area!")
@@ -708,53 +782,141 @@ class VenenatisCombatPlugin(
         
         // Create 8-12 web traps randomly placed
         val trapCount = this.world.random(8..12)
+        val trapTiles = mutableSetOf<Tile>()
         
         this.world.queue {
             wait(2)
             
+            // Create all trap tiles
             repeat(trapCount) {
                 val trapTile = Tile(
                     centerX + this@webTrapAttack.world.random(-3..3),
                     centerZ + this@webTrapAttack.world.random(-3..3),
                     target.tile.height
                 )
+                trapTiles.add(trapTile)
                 
-                // Warning phase
+                // Warning phase - show warning graphic (web graphic)
                 world.spawn(TileGraphic(trapTile, id = 177, height = 0, delay = 0)) // Warning web graphic
+            }
+            
+            // After warning delay, activate traps and keep them visible
+            wait(3)
+            
+            // Activate all traps and keep them visible
+            trapTiles.forEach { trapTile ->
+                // Spawn the actual trap graphic (web graphic)
+                world.spawn(TileGraphic(trapTile, id = 178, height = 0, delay = 0)) // Web trap graphic
+            }
+            
+            // Track players who are frozen or in grace period
+            val frozenPlayers = mutableSetOf<Player>()
+            val gracePeriodPlayers = mutableSetOf<Player>()
+            
+            // Keep traps visible and check for players stepping on them
+            var trapLifetime = 100 // Traps last for 100 cycles (~1 minute)
+            while (trapLifetime > 0) {
+                wait(1) // Check every cycle
                 
-                // Check for trapped players after delay
-                queue {
-                    wait(3)
-                    
-                    // Actual trap
-                    world.spawn(TileGraphic(trapTile, id = 178, height = 0, delay = 0)) // Long-lasting web trap
-                    
-                    world.players.forEach { player ->
-                        if (player.tile == trapTile && player.isAlive()) {
+                // Refresh graphics more frequently to keep traps visible (every 5 cycles instead of 10)
+                if (trapLifetime % 5 == 0) {
+                    trapTiles.forEach { tile ->
+                        world.spawn(TileGraphic(tile, id = 178, height = 0, delay = 0)) // Web trap graphic
+                    }
+                }
+                
+                // Check all players for stepping on traps
+                world.players.forEach { player ->
+                    if (player.isAlive() && player.tile in trapTiles) {
+                        // Only trigger if player is not frozen and not in grace period
+                        if (player !in frozenPlayers && player !in gracePeriodPlayers) {
                             player.message("You are caught in a sticky web trap!")
-                            player.freeze(cycles = 4) {
+                            
+                            // Freeze for 20 seconds (~33 cycles)
+                            val freezeCycles = TimeConstants.secondsToCycles(20) ?: 33
+                            frozenPlayers.add(player)
+                            player.freeze(cycles = freezeCycles) {
                                 player.message("You break free from the web trap!")
+                                frozenPlayers.remove(player)
+                                
+                                // Give player 5 seconds grace period to step out
+                                val graceCycles = TimeConstants.secondsToCycles(5) ?: 8
+                                gracePeriodPlayers.add(player)
+                                
+                                // Remove from grace period after 5 seconds
+                                player.world.queue {
+                                    wait(graceCycles)
+                                    gracePeriodPlayers.remove(player)
+                                    
+                                    // If still on trap after grace period, trigger trap again immediately
+                                    if (player.isAlive() && player.tile in trapTiles) {
+                                        player.message("You're still standing on a web trap!")
+                                        // Trigger freeze again immediately
+                                        val freezeCycles2 = TimeConstants.secondsToCycles(20) ?: 33
+                                        frozenPlayers.add(player)
+                                        player.freeze(cycles = freezeCycles2) {
+                                            player.message("You break free from the web trap!")
+                                            frozenPlayers.remove(player)
+                                            
+                                            // Give another 5 seconds grace period
+                                            val graceCycles2 = TimeConstants.secondsToCycles(5) ?: 8
+                                            gracePeriodPlayers.add(player)
+                                            
+                                            // Remove from grace period after 5 seconds (recursive check)
+                                            player.world.queue {
+                                                wait(graceCycles2)
+                                                gracePeriodPlayers.remove(player)
+                                                
+                                                // If still on trap, trigger again
+                                                if (player.isAlive() && player.tile in trapTiles) {
+                                                    player.message("You're still standing on a web trap!")
+                                                    // This will be handled by the main loop checking
+                                                }
+                                            }
+                                        }
+                                        player.graphic(id = 171, height = 0, delay = 0) // Web graphic on player
+                                        
+                                        // Damage over time while frozen
+                                        player.queue {
+                                            repeat(freezeCycles2) {
+                                                wait(1)
+                                                if (player.isAlive() && player in frozenPlayers) {
+                                                    val trapDamage = this@webTrapAttack.world.random(1..3) // 1-3 damage per tick
+                                                    player.hit(trapDamage, type = HitType.POISON, delay = 0)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             player.graphic(id = 171, height = 0, delay = 0) // Web graphic on player
                             
-                            // Small damage over time while trapped
+                            // Small damage over time while frozen
                             player.queue {
-                                repeat(4) {
+                                repeat(freezeCycles) {
                                     wait(1)
-                                    if (player.isAlive()) {
+                                    if (player.isAlive() && player in frozenPlayers) {
                                         val trapDamage = this@webTrapAttack.world.random(1..3) // 1-3 damage per tick
                                         player.hit(trapDamage, type = HitType.POISON, delay = 0)
                                     }
                                 }
                             }
                         }
+                    } else {
+                        // Player moved off trap - remove from grace period if they were in it
+                        if (player in gracePeriodPlayers && player.tile !in trapTiles) {
+                            gracePeriodPlayers.remove(player)
+                            player.message("You safely moved away from the web trap!")
+                        }
                     }
                 }
+                
+                trapLifetime--
             }
         }
     }
 
-    private suspend fun Npc.webStickAttack(target: Pawn) {
+    private fun Npc.webStickAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         forceChat("*SHOOTS STICKY WEB STRANDS*")
         animate(5320) // Web animation
@@ -811,7 +973,7 @@ class VenenatisCombatPlugin(
     }
 
     // Helper function to get direction from one tile to another
-    private fun Tile.getDirection(target: Tile): Int {
+    fun Tile.getDirection(target: Tile): Int {
         val deltaX = target.x - this.x
         val deltaZ = target.z - this.z
         

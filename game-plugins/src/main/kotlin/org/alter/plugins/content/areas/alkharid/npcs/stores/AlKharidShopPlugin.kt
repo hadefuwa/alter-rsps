@@ -36,6 +36,12 @@ class AlKharidShopPlugin(
         ShopItem(getRSCM("item.chisel"), 2, 1, 0),
         ShopItem(getRSCM("item.hammer"), 5, 1, 0),
         ShopItem(getRSCM("item.rope"), 5, 18, 11),
+        ShopItem(getRSCM("item.red_partyhat"), 0, null, 2_000_000),
+        ShopItem(getRSCM("item.yellow_partyhat"), 0, null, 2_000_000),
+        ShopItem(getRSCM("item.blue_partyhat"), 0, null, 2_000_000),
+        ShopItem(getRSCM("item.green_partyhat"), 0, null, 2_000_000),
+        ShopItem(getRSCM("item.purple_partyhat"), 0, null, 2_000_000),
+        ShopItem(getRSCM("item.white_partyhat"), 0, null, 2_000_000),
     )
 
     init {

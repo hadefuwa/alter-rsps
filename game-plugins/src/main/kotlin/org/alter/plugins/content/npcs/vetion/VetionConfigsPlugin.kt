@@ -21,6 +21,8 @@ import org.alter.game.info.NpcInfo
 import org.alter.game.model.queue.TaskPriority
 import org.alter.plugins.content.combat.Combat
 import org.alter.game.model.move.stopMovement
+import org.alter.api.cfg.Sound
+import org.alter.game.model.weightedTableBuilder.roll
 
 class VetionConfigsPlugin(
     r: PluginRepository,
@@ -38,7 +40,7 @@ class VetionConfigsPlugin(
         // Configure Phase 1 (Purple) - 6611
         setCombatDef("npc.vetion") {
             configs {
-                attackSpeed = 4
+                attackSpeed = 5 // Standard attack speed (4 ticks = 2.4 seconds between attacks)
                 respawnDelay = 120 // 2 minute respawn delay
             }
 
@@ -48,7 +50,7 @@ class VetionConfigsPlugin(
             }
 
             stats {
-                hitpoints = 1 // Testing: 1 HP for phase 1
+                hitpoints = 100
                 attack = 270
                 strength = 250
                 defence = 270
@@ -69,8 +71,26 @@ class VetionConfigsPlugin(
 
             anims {
                 attack = 5485 // Vet'ion attack animation
-                block = 5489
+                block = -1 // No block animation (prevents weird damage animation)
                 death = 5487
+            }
+
+            // Sounds for Phase 1
+            sound {
+                attackSound = Sound.SKELETAL_HELLHOUND_ATTACK // Powerful skeletal attack sound
+                attackArea = true // Area sound so all nearby players can hear
+                attackVolume = 50
+                attackRadius = 10
+                
+                blockSound = Sound.SKELETAL_HELLHOUND_HIT // Skeletal hit sound
+                blockArea = true
+                blockVolume = 40
+                blockRadius = 8
+                
+                deathSound = Sound.SKELETAL_HELLHOUND_DEATH // Skeletal death sound
+                deathArea = true // Area sound for death
+                deathVolume = 60
+                deathRadius = 12
             }
 
             // Phase 1 does NOT drop loot - only phase 2 drops loot
@@ -82,8 +102,8 @@ class VetionConfigsPlugin(
         // Configure Phase 2 (Orange/Reborn) - 6612
         setCombatDef("npc.vetion_6612") {
             configs {
-                attackSpeed = 4
-                respawnDelay = 120 // 2 minute respawn delay
+                attackSpeed = 4 // Standard attack speed (4 ticks = 2.4 seconds between attacks)
+                respawnDelay = 120 // Not used - Phase 2 never respawns
             }
 
             aggro {
@@ -92,7 +112,7 @@ class VetionConfigsPlugin(
             }
 
             stats {
-                hitpoints = 1 // Testing: 1 HP for phase 2
+                hitpoints = 100
                 attack = 270
                 strength = 250
                 defence = 270
@@ -113,8 +133,26 @@ class VetionConfigsPlugin(
 
             anims {
                 attack = 5485 // Vet'ion attack animation
-                block = 5489
+                block = -1 // No block animation (prevents weird damage animation)
                 death = 5487
+            }
+
+            // Sounds for Phase 2
+            sound {
+                attackSound = Sound.SKELETAL_HELLHOUND_ATTACK // Powerful skeletal attack sound
+                attackArea = true // Area sound so all nearby players can hear
+                attackVolume = 50
+                attackRadius = 10
+                
+                blockSound = Sound.SKELETAL_HELLHOUND_HIT // Skeletal hit sound
+                blockArea = true
+                blockVolume = 40
+                blockRadius = 8
+                
+                deathSound = Sound.SKELETAL_HELLHOUND_DEATH // Skeletal death sound
+                deathArea = true // Area sound for death
+                deathVolume = 60
+                deathRadius = 12
             }
 
             // Phase 2 drops all the loot
@@ -190,8 +228,13 @@ class VetionConfigsPlugin(
             val phase1WalkRadius = phase1.walkRadius
             
             // Capture damage map data before NPC is removed
+            // Collect players first to avoid concurrent modification
             val damageData = mutableMapOf<Player, Int>()
+            val playersToCheck = mutableListOf<Player>()
             world.players.forEach { player ->
+                playersToCheck.add(player)
+            }
+            playersToCheck.forEach { player ->
                 val damage = phase1.damageMap.getDamageFrom(player)
                 if (damage > 0) {
                     damageData[player] = damage
@@ -204,16 +247,21 @@ class VetionConfigsPlugin(
             phase1.lock()
             phase1.resetInteractions()
             
+            // IMPORTANT: Disable respawning for Phase 1 so it doesn't respawn after removal
+            // Phase 1 should never respawn - only Phase 2 should exist after Phase 1 dies
+            phase1.respawns = false
+            
             // Reset combat for all pawns targeting this NPC
             Combat.resetCombatForTarget(phase1)
             
             // Handle death animation and then spawn phase 2
             phase1.queue(TaskPriority.STRONG) {
-                // Make NPC invisible first
+                // Make NPC invisible IMMEDIATELY - this is critical for it to disappear
                 NpcInfo(phase1).setAllOpsInvisible()
+                NpcInfo(phase1).setInaccessible(true)
                 phase1.resetFacePawn()
                 
-                // Play death animation
+                // Play death animation (reduced wait for faster transition)
                 val deathAnimation = phase1.combatDef.deathAnimation
                 deathAnimation.forEach { anim ->
                     val def = getAnim(anim)
@@ -221,30 +269,242 @@ class VetionConfigsPlugin(
                     wait(def.cycleLength)
                 }
                 
-                // Wait a bit for death animation to complete
-                wait(2)
+                // Minimal wait for death animation to complete
+                wait(1)
                 
-                // Remove phase 1 from world
+                // Make Phase 1 invisible and inaccessible BEFORE removing it
+                // This ensures it disappears immediately for all players
+                NpcInfo(phase1).setAllOpsInvisible()
+                NpcInfo(phase1).setInaccessible(true)
+                
+                // Remove phase 1 from world - it should not respawn since respawns = false
                 world.remove(phase1)
                 
-                // Spawn Phase 2 at the same location
-                val phase2 = Npc(getRSCM("npc.vetion_6612"), phase1Tile, world)
-                phase2.respawns = false // Phase 2 doesn't respawn - it's the final phase
-                phase2.walkRadius = phase1WalkRadius
-                phase2.setActive(true)
-                
-                // Transfer damage map from phase 1 to phase 2 so loot is distributed correctly
-                damageData.forEach { (player, damage) ->
-                    phase2.damageMap.add(player, damage)
+                // Double-check it's removed - if still spawned, force remove again
+                if (phase1.isSpawned()) {
+                    NpcInfo(phase1).setAllOpsInvisible()
+                    NpcInfo(phase1).setInaccessible(true)
+                    world.remove(phase1)
                 }
                 
-                // Spawn phase 2
-                world.spawn(phase2)
+                // Use world.queue instead of phase1.queue to avoid index conflicts
+                // Reduced wait time for faster Phase 2 spawn while still ensuring avatar deallocation
+                world.queue spawnPhase2@ {
+                    // Wait 2 ticks to ensure the NPC index/avatar is fully deallocated
+                    // Reduced from 5 to 2 for faster spawning while maintaining safety
+                    wait(2)
+                    
+                    // Verify phase1 is no longer in the world before spawning phase2
+                    if (phase1.isSpawned()) {
+                        // Phase1 is still spawned somehow, force remove it completely
+                        phase1.respawns = false // Ensure it won't respawn
+                        NpcInfo(phase1).setAllOpsInvisible()
+                        NpcInfo(phase1).setInaccessible(true)
+                        world.remove(phase1)
+                        wait(1) // Reduced wait for faster spawning
+                        
+                        // Double-check it's removed
+                        if (phase1.isSpawned()) {
+                            // Still spawned - this shouldn't happen, but force remove again
+                            world.remove(phase1)
+                            // No additional wait - proceed immediately
+                        }
+                    }
+                    
+                    // Spawn Phase 2 at the same location with retry logic
+                    var phase2: Npc? = null
+                    var spawnAttempts = 0
+                    val maxAttempts = 3
+                    
+                    while (phase2 == null && spawnAttempts < maxAttempts) {
+                        try {
+                            // Create Phase 2 NPC
+                            val newPhase2 = Npc(getRSCM("npc.vetion_6612"), phase1Tile, world)
+                            newPhase2.respawns = false // Phase 2 doesn't respawn - it's the final phase
+                            newPhase2.walkRadius = phase1WalkRadius
+                            newPhase2.setActive(true)
+                            
+                            // Transfer damage map from phase 1 to phase 2 so loot is distributed correctly
+                            damageData.forEach { (player, damage) ->
+                                newPhase2.damageMap.add(player, damage)
+                            }
+                            
+                            // Spawn phase 2 - this is where the avatar allocation happens
+                            // If this fails with IllegalArgumentException, the avatar index is still allocated
+                            world.spawn(newPhase2)
+                            phase2 = newPhase2 // Success, assign and exit loop
+                            break
+                        } catch (e: IllegalArgumentException) {
+                            // Avatar allocation failed (index still allocated), wait and retry
+                            spawnAttempts++
+                            if (spawnAttempts < maxAttempts) {
+                                wait(1) // Reduced wait for faster retry
+                            } else {
+                                // Max attempts reached - could not spawn Phase 2
+                                // This is a non-fatal error - Phase 1 is dead, Phase 2 just won't spawn
+                                // The error will be logged by the exception handler
+                                return@spawnPhase2
+                            }
+                        }
+                    }
+                    
+                    // Message players in the area if Phase 2 was successfully spawned
+                    phase2?.let {
+                        // Final cleanup: Remove any remaining Phase 1 NPCs that might still exist
+                        // This ensures Phase 1 is completely gone when Phase 2 spawns
+                        // Collect NPCs first to avoid ConcurrentModificationException
+                        val phase1Id = getRSCM("npc.vetion")
+                        val phase1NpcsToRemove = mutableListOf<Npc>()
+                        world.npcs.forEach { npc ->
+                            if (npc.id == phase1Id && npc.tile.getDistance(phase1Tile) <= 2) {
+                                // Found a Phase 1 NPC near the spawn location - mark for removal
+                                phase1NpcsToRemove.add(npc)
+                            }
+                        }
+                        
+                        // Remove collected Phase 1 NPCs after iteration
+                        phase1NpcsToRemove.forEach { npc ->
+                            npc.respawns = false
+                            NpcInfo(npc).setAllOpsInvisible()
+                            NpcInfo(npc).setInaccessible(true)
+                            world.remove(npc)
+                        }
+                        
+                        // Collect players first to avoid concurrent modification
+                        val playersToMessage = mutableListOf<Player>()
+                        world.players.forEach { player ->
+                            playersToMessage.add(player)
+                        }
+                        playersToMessage.forEach { player ->
+                            if (player.tile.getDistance(phase1Tile) <= 10) {
+                                player.message("Vet'ion has been reborn in his orange form!")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Phase 2 Death Handler - Use fullNpcDeath to completely override default behavior
+        // This prevents the "bugging" issue where the NPC doesn't properly despawn
+        fullNpcDeath("npc.vetion_6612") {
+            val phase2 = ctx as Npc
+            val phase2Tile = phase2.tile
+            
+            // Interrupt queues and stop movement
+            phase2.interruptQueues()
+            phase2.stopMovement()
+            phase2.lock()
+            phase2.resetInteractions()
+            
+            // Disable respawning for Phase 2
+            phase2.respawns = false
+            
+            // Reset combat for all pawns targeting this NPC
+            Combat.resetCombatForTarget(phase2)
+            
+            // Handle death animation, drop loot, and remove Phase 2
+            phase2.queue(TaskPriority.STRONG) {
+                // Make NPC invisible IMMEDIATELY
+                NpcInfo(phase2).setAllOpsInvisible()
+                NpcInfo(phase2).setInaccessible(true)
+                phase2.resetFacePawn()
                 
-                // Message players in the area
-                world.players.forEach { player ->
-                    if (player.tile.getDistance(phase1Tile) <= 10) {
-                        player.message("Vet'ion has been reborn in his orange form!")
+                // Play death animation
+                val deathAnimation = phase2.combatDef.deathAnimation
+                deathAnimation.forEach { anim ->
+                    val def = getAnim(anim)
+                    phase2.animate(def.id, def.cycleLength)
+                    wait(def.cycleLength)
+                }
+                
+                wait(1)
+                
+                // Drop loot for all players who dealt damage (shared loot system)
+                // Get the loot tables from the NPC's combat definition
+                val lootTables = phase2.combatDef.LootTables
+                if (lootTables != null && lootTables.isNotEmpty()) {
+                    // Get all players who dealt damage
+                    val playersWhoDamaged = mutableListOf<Player>()
+                    world.players.forEach { player ->
+                        if (player.initiated && !player.isDead() && phase2.damageMap.getDamageFrom(player) > 0) {
+                            playersWhoDamaged.add(player)
+                        }
+                    }
+                    
+                    // Give each player their own loot roll
+                    playersWhoDamaged.forEach { player ->
+                        val droppedItems = roll(player, lootTables)
+                        
+                        // Spawn each dropped item on the ground
+                        droppedItems.forEach { groundItem ->
+                            val newGroundItem = GroundItem(
+                                item = groundItem.item,
+                                amount = groundItem.amount,
+                                tile = phase2Tile,
+                                owner = player
+                            )
+                            
+                            // Set timers: player sees for 1 minute, then everyone for 3 minutes
+                            newGroundItem.timeUntilPublic = TimeConstants.CYCLES_PER_MINUTE
+                            newGroundItem.timeUntilDespawn = TimeConstants.CYCLES_PER_MINUTE * 4
+                            newGroundItem.ownerShipType = 1
+                            
+                            world.spawn(newGroundItem)
+                        }
+                        
+                        if (droppedItems.isNotEmpty()) {
+                            player.message("You receive loot from ${phase2.def.name}!")
+                        }
+                    }
+                }
+                
+                // Make Phase 2 invisible and inaccessible BEFORE removing it
+                NpcInfo(phase2).setAllOpsInvisible()
+                NpcInfo(phase2).setInaccessible(true)
+                
+                // Remove phase 2 from world
+                world.remove(phase2)
+                
+                // Double-check removal
+                if (phase2.isSpawned()) {
+                    world.remove(phase2)
+                }
+                
+                // Spawn Phase 1 back at original location
+                world.queue spawnPhase1@ {
+                    wait(2)
+                    
+                    // Verify phase2 is no longer in the world
+                    if (phase2.isSpawned()) {
+                        world.remove(phase2)
+                        wait(1)
+                    }
+                    
+                    // Original spawn coordinates for Phase 1
+                    val originalSpawnTile = Tile(3229, 3788, 0)
+                    val phase1Id = getRSCM("npc.vetion")
+                    
+                    // Check if Phase 1 already exists
+                    var phase1Exists = false
+                    world.npcs.forEach { npc ->
+                        if (npc.id == phase1Id && npc.tile.sameAs(originalSpawnTile)) {
+                            phase1Exists = true
+                            return@forEach
+                        }
+                    }
+                    
+                    // Only spawn if Phase 1 doesn't already exist
+                    if (!phase1Exists) {
+                        try {
+                            val newPhase1 = Npc(phase1Id, originalSpawnTile, world)
+                            newPhase1.respawns = true
+                            newPhase1.walkRadius = 3
+                            newPhase1.setActive(true)
+                            world.spawn(newPhase1)
+                        } catch (e: Exception) {
+                            // Spawn failed
+                        }
                     }
                 }
             }

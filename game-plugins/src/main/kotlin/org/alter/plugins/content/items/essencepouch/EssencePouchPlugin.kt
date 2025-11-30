@@ -65,7 +65,7 @@ fun fillPouch(
         return
     }
 
-    val item = player.getInteractingItem()
+    val item = player.getInteractingItem() ?: return
     val containedItem = item.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: -1
     val amount = Math.max(item.getAttr(ItemAttribute.ATTACHED_ITEM_COUNT) ?: 0, 0)
 
@@ -125,7 +125,7 @@ fun fillPouch(
  * @param player    The player attempting to empty the pouch contents
  */
 fun emptyPouch(player: Player) {
-    val pouch = player.getInteractingItem()
+    val pouch = player.getInteractingItem() ?: return
 
     val item = pouch.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: -1
     val count = pouch.getAttr(ItemAttribute.ATTACHED_ITEM_COUNT) ?: 0
@@ -159,7 +159,7 @@ fun emptyPouch(player: Player) {
  * @param player    The player that is checking the pouch contents
  */
 fun checkPouch(player: Player) {
-    val pouch = player.getInteractingItem()
+    val pouch = player.getInteractingItem() ?: return
 
     val item = pouch.getAttr(ItemAttribute.ATTACHED_ITEM_ID) ?: -1
     val count = pouch.getAttr(ItemAttribute.ATTACHED_ITEM_COUNT) ?: 0

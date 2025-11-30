@@ -47,7 +47,7 @@ class CallistoConfigsPlugin(
         setCombatDef("npc.callisto") {
             configs {
                 attackSpeed = 4
-                respawnDelay = 100 // 1 minute respawn delay
+                respawnDelay = 30 // 30 seconds respawn delay (reduced from 100)
             }
 
             aggro {
@@ -57,8 +57,8 @@ class CallistoConfigsPlugin(
 
             stats {
                 hitpoints = 255
-                attack = 450  // Increased from 300 for better accuracy
-                strength = 450  // Increased from 300 for more damage
+                attack = 300  // Reduced for less accuracy
+                strength = 250  // Reduced for less damage
                 defence = 250
                 magic = 1
                 ranged = 1
@@ -67,15 +67,15 @@ class CallistoConfigsPlugin(
             bonuses {
                 defenceStab = 150
                 defenceSlash = 200
-                defenceCrush = 200
+                defenceCrush = -50  // Weak to crush attacks (negative = takes more damage)
                 defenceMagic = 100
                 defenceRanged = 150
                 attackStab = 0
-                attackSlash = 200  // Increased from 120 for better accuracy
-                attackCrush = 200  // Increased from 120 for better accuracy
+                attackSlash = 150  // Reduced for less accuracy
+                attackCrush = 150  // Reduced for less accuracy
                 attackMagic = 0
                 attackRanged = 0
-                strengthBonus = 150  // High strength bonus for more damage
+                strengthBonus = 75  // Reduced strength bonus for less damage
             }
 
             anims {
@@ -121,7 +121,7 @@ class CallistoConfigsPlugin(
                     
                     // Food and potions
                     add("item.shark", min = 5, max = 15, weight = 15)
-                    add("item.monkfish", min = 10, max = 20, weight = 12)
+                    add("item.monkfish", min = 1, max = 3, weight = 12)
                     add("item.prayer_potion4", min = 2, max = 5, weight = 8)
                     add("item.super_combat_potion4", min = 1, max = 3, weight = 5)
                     add("item.saradomin_brew4", min = 2, max = 4, weight = 6)

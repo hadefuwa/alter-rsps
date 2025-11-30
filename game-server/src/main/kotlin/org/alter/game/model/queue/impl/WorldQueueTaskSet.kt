@@ -12,11 +12,11 @@ import kotlin.coroutines.resume
  */
 class WorldQueueTaskSet : QueueTaskSet() {
     override fun cycle() {
+        // Create a snapshot of the queue to avoid ConcurrentModificationException
+        val snapshot = synchronized(queue) { queue.toList() }
         val tasksToRemove = mutableListOf<QueueTask>()
-        val iterator = queue.iterator()
-        while (iterator.hasNext()) {
-            val task = iterator.next()
-
+        
+        for (task in snapshot) {
             if (!task.invoked) {
                 task.invoked = true
                 task.coroutine.resume(Unit)
@@ -33,7 +33,10 @@ class WorldQueueTaskSet : QueueTaskSet() {
                 tasksToRemove.add(task)
             }
         }
-        // Remove completed tasks after iteration to avoid concurrent modification
-        tasksToRemove.forEach { task -> queue.remove(task) }
+        
+        // Remove completed tasks using synchronized block
+        synchronized(queue) {
+            tasksToRemove.forEach { task -> queue.remove(task) }
+        }
     }
 }
