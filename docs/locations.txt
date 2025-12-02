@@ -1,0 +1,3 @@
+"Thieving Test Area" to Tile(x = 2591, z = 4731, height = 0),
+"Stronghold of Player Safety" to Tile(x = 3081, z = 3420, height = 0),
+"Varrock" to Tile(x = 3211, z = 3424, height = 0),

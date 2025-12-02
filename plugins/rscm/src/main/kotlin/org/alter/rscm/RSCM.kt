@@ -1,0 +1,78 @@
+package org.alter.rscm
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import java.nio.file.Path
+
+/**
+ * @author Cl0udS3c
+ */
+object RSCM {
+    private var rscmList = mutableMapOf<String, Int>()
+    val logger = KotlinLogging.logger {}
+    fun getRSCM(entity: Array<String>): List<Int> = entity.map { getRSCM(it) }.toList()
+    fun Int.asRSCM(table: String): String {
+        return rscmList.entries.find { it.value == this && it.key.startsWith("$table.") }?.key
+            ?: throw IllegalStateException("No RSCM entry found for ID $this with prefix '$table'.")
+    }
+    fun getRSCM(entity: String) : Int {
+        if (rscmList.isEmpty()) {
+            throw IllegalStateException("RSCM List is empty.")
+        }
+        var result = rscmList[entity] ?: -1
+        if (result == -1) {
+            throw IllegalStateException("RSCM returned -1 for $entity.")
+        }
+        return result
+    }
+
+    fun init() {
+        initRSCM()
+        logger.info { "RSCM Loaded" }
+    }
+
+    fun initRSCM() {
+        Path.of("data/cfg/rscm/").toFile().listFiles()?.forEach {
+            val map = it.name.replace(".rscm", "")
+            it.bufferedReader(Charsets.UTF_8).use { buff ->
+                buff.lineSequence().forEach { line ->
+                    val divider = line.split(":")
+                    if (divider.size == 2) {
+                        val key = "$map." + divider[0].trim()
+                        val value = divider[1].trim().toInt()
+                        rscmList[key] = value
+                    } else {
+                        logger.warn { "RSCM line '$line' does not have enough arguments (expected format: key:value)" }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Test method for validating RSCM configuration values.
+     * 
+     * TODO: Implement validation logic to check if RSCM values match expected values.
+     * 
+     * This method should verify:
+     * - NPC definitions match expected values
+     * - Object definitions match expected values
+     * - Item definitions match expected values
+     * - Location definitions match expected values
+     * - All RSCM identifiers are valid and properly formatted
+     * 
+     * Implementation should:
+     * - Compare loaded RSCM data against known good values
+     * - Log any mismatches or unexpected values
+     * - Return validation results (pass/fail with details)
+     * - Potentially throw exceptions for critical mismatches
+     * 
+     * This is useful for:
+     * - Ensuring RSCM migration was successful
+     * - Catching configuration errors early
+     * - Validating data integrity
+     */
+    fun test() {
+        // @TODO Check if some values match what was expected.
+    }
+
+}

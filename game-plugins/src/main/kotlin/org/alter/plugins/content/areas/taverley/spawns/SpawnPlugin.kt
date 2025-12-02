@@ -1,0 +1,130 @@
+package org.alter.plugins.content.areas.taverley.spawns
+
+import org.alter.game.Server
+import org.alter.game.model.Direction
+import org.alter.game.model.World
+import org.alter.game.plugin.KotlinPlugin
+import org.alter.game.plugin.PluginRepository
+
+class SpawnPlugin(
+    r: PluginRepository,
+    world: World,
+    server: Server
+) : KotlinPlugin(r, world, server) {
+    
+    init {
+        spawnNpc(npc = "npc.skeleton", x = 2884, z = 9823, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.skeleton", x = 2886, z = 9825, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.skeleton", x = 2888, z = 9827, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.skeleton", x = 2890, z = 9829, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spider", x = 2893, z = 9829, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spider", x = 2902, z = 9832, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.spider", x = 2903, z = 9833, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2912, z = 9832, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2913, z = 9833, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2914, z = 9832, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2915, z = 9833, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2916, z = 9832, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2917, z = 9833, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2918, z = 9832, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.giant_bat", x = 2919, z = 9833, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ghost", x = 2916, z = 9847, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ghost", x = 2917, z = 9848, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ghost", x = 2918, z = 9849, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ghost", x = 2919, z = 9850, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ghost", x = 2920, z = 9851, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_druid", x = 2931, z = 9846, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_druid", x = 2932, z = 9847, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_druid", x = 2933, z = 9848, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_druid", x = 2935, z = 9849, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_druid", x = 2936, z = 9850, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2940, z = 9807, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2941, z = 9808, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_scorpion", x = 2944, z = 9774, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_dwarf", x = 2924, z = 9763, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_dwarf", x = 2925, z = 9764, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.chaos_dwarf", x = 2926, z = 9765, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon", x = 2934, z = 9793, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon", x = 2935, z = 9794, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon", x = 2936, z = 9795, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.lesser_demon", x = 2937, z = 9796, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hill_giant", x = 2907, z = 9733, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hill_giant", x = 2908, z = 9734, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hill_giant", x = 2909, z = 9735, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hill_giant", x = 2910, z = 9736, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hill_giant", x = 2911, z = 9737, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2907, z = 9706, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2908, z = 9707, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2909, z = 9708, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2910, z = 9709, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2911, z = 9710, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2912, z = 9711, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2913, z = 9712, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2914, z = 9713, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2915, z = 9714, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2909, z = 9684, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2910, z = 9685, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2911, z = 9686, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2912, z = 9687, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2913, z = 9688, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2914, z = 9688, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2915, z = 9689, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2916, z = 9690, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2917, z = 9691, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2919, z = 9706, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2920, z = 9692, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2921, z = 9693, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2922, z = 9694, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2923, z = 9695, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2924, z = 9696, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2925, z = 9697, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2926, z = 9698, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_knight", x = 2927, z = 9699, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2865, z = 9796, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2866, z = 9797, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2867, z = 9798, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2868, z = 9799, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2869, z = 9800, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2908, z = 9775, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2909, z = 9776, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2910, z = 9777, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2911, z = 9778, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2912, z = 9779, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+
+
+        spawnNpc(npc = "npc.blue_dragon", x = 2907, z = 9803, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2914, z = 9800, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2919, z = 9803, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.blue_dragon", x = 2920, z = 9795, height = 0, walkRadius = 1, direction = Direction.SOUTH)
+
+
+
+        spawnNpc(npc = "npc.black_demon", x = 2864, z = 9769, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 2809, z = 9770, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 2810, z = 9771, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 2811, z = 9772, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 2812, z = 9773, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_spider", x = 2828, z = 9808, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_spider", x = 2829, z = 9809, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_spider", x = 2861, z = 9813, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_spider", x = 2878, z = 9806, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.poison_spider", x = 2869, z = 9817, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 2857, z = 9834, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_105", x = 2858, z = 9835, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 2859, z = 9836, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_105", x = 2860, z = 9837, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 2861, z = 9838, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_dragon", x = 2776, z = 9819, height = 1, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_dragon", x = 2789, z = 9827, height = 1, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_dragon", x = 2802, z = 9808, height = 1, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_dragon", x = 2790, z = 9807, height = 1, walkRadius = 1, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_dragon", x = 2796, z = 9836, height = 1, walkRadius = 1, direction = Direction.SOUTH)
+
+
+
+
+
+        spawnItem(item = "item.super_combat_potion4", amount = 1, x = 2861, z = 9813, height = 2)
+        
+    }
+}

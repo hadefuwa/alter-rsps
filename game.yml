@@ -1,0 +1,74 @@
+# Game values
+# You want to edit these to fit your game.
+name: "Alter"
+game-port: 43594
+revision: 228
+
+# The coordinates for the home location.
+# Set to Varrock center
+home-x: 3211
+home-z: 3424
+
+# Auto-save configuration
+# How often to automatically save all online players, in game cycles.
+# At 600ms per cycle (default): 50 cycles = 30 seconds, 100 cycles = 1 minute
+# Set to 0 to disable auto-save (not recommended - only saves on logout)
+# Reduced to 50 cycles (30 seconds) to ensure positions are saved more frequently
+auto-save-interval: 50
+
+# Privileges
+# Any privilege you want to be represented in-game you define here.
+privileges:
+  - id: 0
+    icon: 0
+    name: "player"
+    powers: []
+  - id: 1
+    icon: 1
+    name: "moderator"
+    powers: ["mod"]
+  - id: 2
+    icon: 2
+    name: "administrator"
+    powers: ["mod", "admin"]
+  - id: 3
+    icon: 2
+    name: "owner"
+    powers: ["mod", "dev", "admin", "owner"]
+
+# Game services
+# You can pick and choose which services you want to run.
+services:
+
+  - class: org.alter.game.service.xtea.XteaKeyService
+    path: "data/"
+
+  - class: org.alter.game.service.game.ItemMetadataService
+
+  - class: org.alter.game.service.game.NpcMetadataService
+    path: "data/cfg/npcs.csv"
+
+  - class: org.alter.game.service.game.ObjectMetadataService
+    path: "data/cfg/locs.csv"
+
+  - class: org.alter.service.DumpEntityIdService
+    cache-path: "data/cache/"
+    output-path: "game-api/src/main/kotlin/org/alter/api/cfg/"
+    dump: false # Should keep in mind that this can fail. (Aka. On crash fuck up any of the dumping into files
+
+  - class: org.alter.game.service.rsa.RsaService
+    path: "data/rsa/key.pem"
+
+  - class: org.alter.game.service.GameService
+
+  - class: org.alter.game.service.login.LoginService
+
+  - class: org.alter.plugins.service.marketvalue.ItemMarketValueService
+
+  - class: org.alter.plugins.service.restapi.RestApiService
+    port: 8080
+    server-ip: "192.168.0.13"  # Server IP for local network connections
+    server-hostname: "oldschool.runescape.com"  # Hostname for client validation (must be in hosts file)
+
+#  - class: org.alter.plugins.service.worldlist.WorldListService
+#    port: 4842

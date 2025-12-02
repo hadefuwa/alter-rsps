@@ -1,0 +1,36 @@
+---
+id: 20782
+name: "Bandos godsword"
+equipment:
+  # Two-handed weapon - uses both weapon and shield slots
+  equipSlot: "2h"
+  
+  # Weapon type: 23 = Two-handed sword (godsword)
+  weaponType: 23
+  attackSpeed: 5
+  
+  # Attack bonuses
+  attackStab: 0
+  attackSlash: 132
+  attackCrush: 80
+  attackMagic: 0
+  attackRanged: 0
+  
+  # Defence bonuses
+  defenceStab: 0
+  defenceSlash: 0
+  defenceCrush: 0
+  defenceMagic: 0
+  defenceRanged: 0
+  
+  # Strength bonus
+  meleeStrength: 132
+  rangedStrength: 0
+  magicDamage: 0
+  prayer: 8
+  
+  # Skill requirements
+  skillReqs:
+    - skill: "attack"
+      level: 75
+

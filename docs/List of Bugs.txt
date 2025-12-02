@@ -1,0 +1,23 @@
+List of Bugs
+
+
+
+
+venenatis cave not working, id 47077
+id 16664 stairs not working
+calvarion cave not working 46996
+spindel cave not working 47078
+ladder 18987 doesnt work
+
+
+add makeover NPC to Varrock 3201,3424 <<<<<<<
+Fix key bindings for F keys <<<<<<<
+make blade of saeldor work id 24553 <<<<<<< not working
+obelisk 14831 isnt working <<<<<<<
+make item 12902 convert it to 12904 when clicked on <<<<
+
+Make item 23858 teleport the user to gauntlet 2176 3328
+can we make dark wizard drop random runes, in quantitys of 100s
+can you increase respawn timer on dark wizards please
+can you double current xp rates please
+can you make gate 1728 open please

@@ -1,0 +1,11 @@
+# Git Commands
+
+```bash
+git status
+git add .
+git commit -m "updates"
+git push
+```
+git add -A                    # Stage all changes
+git commit -m "updates"  # Commit changes
+git push                      # Push to remote
