@@ -1,6 +1,0 @@
-- name: Alter
-  jav_config_url: http://192.168.0.13:8080/jav_config.ws
-  revision: 228.2
-  varp_count: 15000
-  modulus: e251316a29b97f9629f2bed871b25816cc1e1f0109efa0dfe6998218517785d3658fc8186cbe02b1cac4141dc4a91998dfd70e0dc2f92fd7b37f886f1ebc0d600a0bf38dc068b57b013f70db01d880dac1b03ade0089a2e014613b7a1bdcac1d006c86229001b8f51bff7a9fffcd4c050f4199b3da5d8855395ed7bec8b2f237
-  game_server_port: 43594
