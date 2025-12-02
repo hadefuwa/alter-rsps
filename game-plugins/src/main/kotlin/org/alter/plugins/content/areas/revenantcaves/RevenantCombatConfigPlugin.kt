@@ -121,6 +121,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -152,8 +155,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -161,7 +164,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -253,6 +307,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -284,8 +341,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -293,7 +350,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -385,6 +493,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -416,8 +527,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -425,7 +536,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -517,6 +679,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -548,8 +713,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -557,7 +722,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -649,6 +865,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -680,8 +899,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -689,7 +908,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -781,6 +1051,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -812,8 +1085,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -821,7 +1094,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -913,6 +1237,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -944,8 +1271,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -953,7 +1280,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -1045,6 +1423,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -1076,8 +1457,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -1085,7 +1466,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -1177,6 +1609,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -1208,8 +1643,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -1217,7 +1652,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -1309,6 +1795,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -1340,8 +1829,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -1349,7 +1838,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }
@@ -1441,6 +1981,9 @@ class RevenantCombatConfigPlugin(
                     
                     // High-value alch items - increased weights for better drop rates
                     add("item.dragon_platelegs", min = 1, weight = 3) // Increased from 1 to 3
+                    add("item.dragon_med_helm", min = 1, weight = 4)
+                    add("item.dragon_longsword", min = 1, weight = 4)
+                    add("item.dragon_scimitar", min = 1, weight = 4)
                     
                     // Barrows armour (rare high-value drops) - increased weights
                     add("item.ahrims_hood", min = 1, weight = 2)
@@ -1472,8 +2015,8 @@ class RevenantCombatConfigPlugin(
                     add("item.diamond", min = 5, max = 20, weight = 6)
                 }
                 
-                // Tertiary drop table for rare wilderness weapons
-                // These are very rare drops (1/512 chance each)
+                // Tertiary drop table for rare wilderness weapons, party hats, sigils, and corrupted weapons
+                // Drop rates: Amulet of Avarice (rarest: 1/1024), Wilderness weapons (1/512), Corrupted weapons (1/384), Party hats (1/256), Sigils (1/256)
                 tertiary(weight = 512) {
                     add("item.craws_bow", min = 1, weight = 512)
                     add("item.thammarons_sceptre", min = 1, weight = 512)
@@ -1481,7 +2024,58 @@ class RevenantCombatConfigPlugin(
                     add("item.webweaver_bow", min = 1, weight = 512)
                     add("item.ursine_chainmace", min = 1, weight = 512)
                     add("item.accursed_sceptre", min = 1, weight = 512)
-                    add("item.amulet_of_avarice", min = 1, weight = 1024)
+                    add("item.amulet_of_avarice", min = 1, weight = 1024) // Rarest drop
+                    // Corrupted weapons (rare high-tier weapons)
+                    add("item.corrupted_twisted_bow", min = 1, weight = 384)
+                    add("item.corrupted_scythe_of_vitur", min = 1, weight = 384)
+                    add("item.blade_of_saeldor_c", min = 1, weight = 384)
+                    add("item.corrupted_bow_attuned", min = 1, weight = 384)
+                    add("item.corrupted_staff_attuned", min = 1, weight = 384)
+                    add("item.corrupted_halberd_attuned", min = 1, weight = 384)
+                    add("item.corrupted_bow_perfected", min = 1, weight = 384)
+                    add("item.corrupted_staff_perfected", min = 1, weight = 384)
+                    add("item.corrupted_halberd_perfected", min = 1, weight = 384)
+                    // Party hats (more common cosmetic items)
+                    add("item.red_partyhat", min = 1, weight = 256)
+                    add("item.yellow_partyhat", min = 1, weight = 256)
+                    add("item.blue_partyhat", min = 1, weight = 256)
+                    add("item.green_partyhat", min = 1, weight = 256)
+                    add("item.purple_partyhat", min = 1, weight = 256)
+                    add("item.white_partyhat", min = 1, weight = 256)
+                    // Sigils (more common utility and combat items)
+                    add("item.sigil_of_versatility", min = 1, weight = 256)
+                    add("item.sigil_of_adroit", min = 1, weight = 256)
+                    add("item.sigil_of_pious_protection", min = 1, weight = 256)
+                    add("item.sigil_of_the_dwarves", min = 1, weight = 256)
+                    add("item.sigil_of_preservation", min = 1, weight = 256)
+                    add("item.sigil_of_specialised_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_exaggeration", min = 1, weight = 256)
+                    add("item.sigil_of_rampart", min = 1, weight = 256)
+                    add("item.sigil_of_titanium", min = 1, weight = 256)
+                    add("item.sigil_of_resilience", min = 1, weight = 256)
+                    add("item.sigil_of_consistency", min = 1, weight = 256)
+                    add("item.sigil_of_the_formidable_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_rigorous_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_meticulous_mage", min = 1, weight = 256)
+                    add("item.sigil_of_fortification", min = 1, weight = 256)
+                    add("item.sigil_of_barrows", min = 1, weight = 256)
+                    add("item.sigil_of_deft_strikes", min = 1, weight = 256)
+                    add("item.sigil_of_freedom", min = 1, weight = 256)
+                    add("item.sigil_of_the_ruthless_ranger", min = 1, weight = 256)
+                    add("item.sigil_of_the_feral_fighter", min = 1, weight = 256)
+                    add("item.sigil_of_the_menacing_mage", min = 1, weight = 256)
+                    add("item.sigil_of_prosperity", min = 1, weight = 256)
+                    add("item.sigil_of_the_elves", min = 1, weight = 256)
+                    add("item.sigil_of_the_barbarians", min = 1, weight = 256)
+                    add("item.sigil_of_the_gnomes", min = 1, weight = 256)
+                    add("item.sigil_of_nature", min = 1, weight = 256)
+                    add("item.sigil_of_devotion", min = 1, weight = 256)
+                    add("item.sigil_of_slaughter", min = 1, weight = 256)
+                    add("item.sigil_of_the_serpent", min = 1, weight = 256)
+                    add("item.sigil_of_supreme_stamina", min = 1, weight = 256)
+                    add("item.sigil_of_finality", min = 1, weight = 256)
+                    add("item.sigil_of_aggression", min = 1, weight = 256)
+                    add("item.sigil_of_rampage", min = 1, weight = 256)
                 }
             }
         }

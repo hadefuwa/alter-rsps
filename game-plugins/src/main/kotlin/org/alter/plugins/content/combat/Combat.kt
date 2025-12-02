@@ -324,10 +324,20 @@ object Combat {
             if (!pawn.isSpawned()) {
                 return false
             }
+            // Prevent dead or locked NPCs from engaging in combat
+            // This prevents invisible/respawning NPCs from attacking
+            if (pawn.isDead() || pawn.isLocked()) {
+                return false
+            }
         }
 
         if (target is Npc) {
             if (!target.isSpawned()) {
+                return false
+            }
+            // Prevent dead or locked NPCs from being engaged in combat
+            // This prevents invisible/respawning NPCs from being attacked or attacking
+            if (target.isDead() || target.isLocked()) {
                 return false
             }
             // Check if NPC has a custom combat definition registered (meaning it's configured for combat)

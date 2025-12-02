@@ -223,6 +223,15 @@ class ChainmacePlugin(
                 }
             }
             
+            // Register check option for equipped chainmace (when right-clicking equipped item)
+            onEquipmentOption("item.$variant", "check") {
+                val equipped = player.getEquipment(EquipmentType.WEAPON)
+                if (equipped?.id == getRSCM("item.$variant")) {
+                    val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
+                    player.message("Your chainmace has $charges revenant ether charges remaining.")
+                }
+            }
+            
             onItemOption("item.$variant", "uncharge") {
                 handleChainmaceUncharge(player, variant)
             }

@@ -146,6 +146,18 @@ object RangedCombatFormula : CombatFormula {
             hit *= getDamageTakeMultiplier(target)
             hit = Math.floor(hit)
 
+            // Apply Salve amulet damage reduction (20% reduction from undead)
+            if (isUndead(pawn)) {
+                val hasSalveAmulet = target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") ||
+                                     target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") ||
+                                     target.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") ||
+                                     target.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei")
+                if (hasSalveAmulet) {
+                    hit *= 0.8  // 20% damage reduction
+                    hit = Math.floor(hit)
+                }
+            }
+
             // Cap damage at 30 if target is wearing Bracelet of Ethereum and attacker is Revenant
             if (isRevenant && target.hasEquipped(EquipmentType.GLOVES, "item.bracelet_of_ethereum")) {
                  if (hit > 30.0) {

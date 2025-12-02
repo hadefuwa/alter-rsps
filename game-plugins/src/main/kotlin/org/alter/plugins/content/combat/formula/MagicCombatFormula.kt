@@ -17,6 +17,7 @@ import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
 import org.alter.plugins.content.mechanics.doompoints.DoomPoints
+import org.alter.api.NpcSpecies
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -278,6 +279,18 @@ object MagicCombatFormula : CombatFormula {
         // Apply damage take multiplier (for items like Bracelet of Ethereum)
         hit *= getDamageTakeMultiplier(target)
         hit = Math.floor(hit)
+
+        // Apply Salve amulet damage reduction (20% reduction from undead)
+        if (target is Player && pawn is Npc && pawn.isSpecies(NpcSpecies.UNDEAD)) {
+            val hasSalveAmulet = target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") ||
+                                 target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") ||
+                                 target.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") ||
+                                 target.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei")
+            if (hasSalveAmulet) {
+                hit *= 0.8  // 20% damage reduction
+                hit = Math.floor(hit)
+            }
+        }
 
         // Cap damage at 30 if target is wearing Bracelet of Ethereum and attacker is Revenant
         if (pawn is Npc) {

@@ -218,6 +218,15 @@ class SceptrePlugin(
                 }
             }
             
+            // Register check option for equipped sceptre (when right-clicking equipped item)
+            onEquipmentOption("item.$variant", "check") {
+                val equipped = player.getEquipment(EquipmentType.WEAPON)
+                if (equipped?.id == getRSCM("item.$variant")) {
+                    val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
+                    player.message("Your sceptre has $charges revenant ether charges remaining.")
+                }
+            }
+            
             onItemOption("item.$variant", "uncharge") {
                 handleSceptreUncharge(player, variant)
             }

@@ -35,7 +35,9 @@ class NpcAggroPlugin(
         }
 
         onTimer(AGGRO_CHECK_TIMER) {
-            if ((!npc.isAttacking() || npc.tile.isMulti(world)) && npc.lock.canAttack() && npc.isActive()) {
+            // Prevent dead, locked, or unspawned NPCs from aggroing players
+            // This prevents invisible NPCs from attacking after death
+            if ((!npc.isAttacking() || npc.tile.isMulti(world)) && npc.lock.canAttack() && npc.isActive() && !npc.isDead() && npc.isSpawned()) {
                 checkRadius(npc)
             }
             npc.timers[AGGRO_CHECK_TIMER] = npc.combatDef.aggroTargetDelay
@@ -91,6 +93,11 @@ fun canAttack(
     npc: Npc,
     target: Player,
 ): Boolean {
+    // Prevent dead, locked, or unspawned NPCs from aggroing
+    // This prevents invisible NPCs from attacking after death
+    if (npc.isDead() || npc.isLocked() || !npc.isSpawned()) {
+        return false
+    }
     if (!target.isOnline || target.invisible) {
         return false
     }

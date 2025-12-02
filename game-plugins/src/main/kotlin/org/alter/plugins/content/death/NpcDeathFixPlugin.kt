@@ -22,26 +22,50 @@ class NpcDeathFixPlugin(
             val npc = ctx as Npc
             
             // Force stop combat immediately to prevent the NPC from attacking while dying
+            // This must happen BEFORE the death animation to prevent race conditions
             Combat.reset(npc)
             Combat.resetCombatForTarget(npc)
             
-            // Prevent the NPC from attacking again during the death animation
-            // We set a long attack delay to ensure it doesn't re-engage
-            npc.timers[org.alter.game.model.timer.ATTACK_DELAY] = 100
+            // Clear all combat-related attributes and timers
+            npc.attr.remove(org.alter.game.model.attr.COMBAT_TARGET_FOCUS_ATTR)
+            npc.timers.remove(org.alter.game.model.timer.ATTACK_DELAY)
+            npc.timers.remove(org.alter.game.model.timer.ACTIVE_COMBAT_TIMER)
             npc.resetFacePawn()
             
-            // Queue a task to force remove the NPC after a short delay.
+            // Interrupt all queues to stop any pending combat actions
+            npc.interruptQueues()
+            
+            // For NPCs that respawn, we need to ensure they can't attack during the respawn delay
+            // The NPC will be set to inaccessible in NpcDeathAction, but we add extra protection here
+            if (npc.respawns) {
+                // Set a very long attack delay to prevent re-engagement during respawn
+                npc.timers[org.alter.game.model.timer.ATTACK_DELAY] = 1000
+            }
+            
+            // Queue a task to double-check cleanup after death animation completes
             // This acts as a fallback if the engine's default death cleanup fails.
-            // We wait 5 ticks (3 seconds) to allow the death animation to play.
             world.queue {
-                wait(5)
+                // Wait for death animation to complete (typically 3-5 ticks)
+                wait(6)
+                
                 // Check if the NPC is still spawned
                 if (npc.isSpawned()) {
                     // If the NPC is not supposed to respawn, force remove it.
                     // If it IS supposed to respawn, NpcDeathAction handles it by resetting/hiding it.
-                    // Removing it here would break the respawn cycle.
                     if (!npc.respawns) {
+                        // Double-check combat is reset before removal
+                        Combat.reset(npc)
+                        Combat.resetCombatForTarget(npc)
+                        npc.interruptQueues()
                         world.remove(npc)
+                    } else {
+                        // For respawning NPCs, ensure they're still locked/inaccessible
+                        // and can't attack during respawn delay
+                        if (!npc.isLocked()) {
+                            npc.lock()
+                        }
+                        Combat.reset(npc)
+                        npc.timers[org.alter.game.model.timer.ATTACK_DELAY] = 1000
                     }
                 }
             }
