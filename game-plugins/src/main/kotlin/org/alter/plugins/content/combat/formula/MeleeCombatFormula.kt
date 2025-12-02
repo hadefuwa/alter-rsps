@@ -208,6 +208,12 @@ object MeleeCombatFormula : CombatFormula {
             hit *= 2.0
             hit = Math.floor(hit)
         }
+        
+        // Check if NPC target has Protect from Melee prayer active - reduces melee damage by 40%
+        if (target is Npc && target.prayerIcon == PrayerIcon.PROTECT_FROM_MELEE.id) {
+            hit *= 0.6
+            hit = Math.floor(hit)
+        }
 
         hit *= getDamageDealMultiplier(player)
         hit = Math.floor(hit)

@@ -11,6 +11,7 @@ import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.api.PrayerIcon
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
@@ -300,6 +301,12 @@ object RangedCombatFormula : CombatFormula {
         // Wilderness weapon bonus: 100% damage increase (2.0x) in wilderness against wilderness NPCs/revenants
         if (target is Npc && isWildernessWeaponBonus(player, target)) {
             hit *= 2.0
+            hit = Math.floor(hit)
+        }
+        
+        // Check if NPC target has Protect from Missiles prayer active - reduces ranged damage by 40%
+        if (target is Npc && target.prayerIcon == PrayerIcon.PROTECT_FROM_MISSILES.id) {
+            hit *= 0.6
             hit = Math.floor(hit)
         }
 

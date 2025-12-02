@@ -24,7 +24,7 @@ import org.alter.game.plugin.*
  * 
  * Location: 3237, 2774
  * Combat Level: 700+
- * Hitpoints: 2000+
+ * Hitpoints: 2500+
  */
 class WardenConfigsPlugin(
     r: PluginRepository,
@@ -35,6 +35,21 @@ class WardenConfigsPlugin(
     init {
         // Spawn the Warden at the boss location
         spawnNpc("npc.tumekens_warden_11756", x = 3237, z = 2774, height = 0, walkRadius = 5)
+
+        // Ensure the warden always respawns after death
+        onNpcSpawn("npc.tumekens_warden_11756") {
+            val npc = ctx as Npc
+            npc.respawns = true
+        }
+
+        // Ensure the warden always respawns - prevent removal during combat
+        onAnyNpcDeath {
+            val npc = ctx as Npc
+            if (npc.id == getRSCM("npc.tumekens_warden_11756")) {
+                // Force respawns to true to prevent incorrect removal
+                npc.respawns = true
+            }
+        }
 
         setCombatDef("npc.tumekens_warden_11756") {
             configs {
@@ -48,7 +63,7 @@ class WardenConfigsPlugin(
             }
 
             stats {
-                hitpoints = 2000  // High HP for a challenging boss encounter
+                hitpoints = 2500  // High HP for a challenging boss encounter
                 attack = 400
                 strength = 400
                 defence = 400

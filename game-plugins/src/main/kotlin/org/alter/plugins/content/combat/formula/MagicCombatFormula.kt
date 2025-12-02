@@ -12,6 +12,7 @@ import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.api.PrayerIcon
 import org.alter.plugins.content.skills.slayer.Slayer
 import dev.openrune.cache.CacheManager.getNpc
 import org.alter.rscm.RSCM.getRSCM
@@ -233,6 +234,11 @@ object MagicCombatFormula : CombatFormula {
                 if (isWildernessWeaponBonus(pawn, target)) {
                     hit *= 2.0
                     hit = Math.floor(hit)
+                }
+                
+                // Check if NPC target has Protect from Magic prayer active - completely blocks magic damage
+                if (target is Npc && target.prayerIcon == PrayerIcon.PROTECT_FROM_MAGIC.id) {
+                    hit = 0.0
                 }
             }
         } else if (pawn is Npc) {
