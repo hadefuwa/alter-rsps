@@ -11,7 +11,7 @@ A modern Old School RuneScape Private Server (RSPS) built with Kotlin, featuring
 
 - **Full OSRS Revision 228 Support** - Complete game content and mechanics
 - **Plugin-Based Architecture** - Easy to extend with custom content
-- **REST API** - HTTP endpoints for client configuration (`jav_config.ws`, `world_list.ws`, `bootstrap.json`)
+- **REST API** - HTTP endpoints for client configuration (`jav_config.ws`, `world_list.ws`, `config/bootstrap.json`)
 - **LAN Support** - Server binds to all interfaces (0.0.0.0) for network access
 - **RSProx Compatible** - Works seamlessly with RSProx client
 - **Player Saving** - Persistent player data and positions
@@ -176,7 +176,7 @@ alter-rsps/
 - **`game.yml`** - Main server configuration (ports, services, privileges)
 - **`data/cfg/world.json`** - World list configuration
 - **`dev-settings.yml`** - Development settings (optional)
-- **`proxy-targets.yaml`** - RSProx configuration template
+- **`config/proxy-targets.yaml`** - RSProx configuration template
 
 ## REST API Endpoints
 

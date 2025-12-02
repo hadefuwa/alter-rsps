@@ -1,0 +1,50 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# VS Code
+.vscode/
+
+# Kotlin
+.kotlin/
+.run/
+
+# Logs
+logs/
+*.log
+
+# Generated files
+modulus
+custom-runelite-client.jar
+runelite.jar
+
+# Cache (handled by data/cache/.gitignore)
+# Saves (player data - shouldn't be committed)
+data/saves/
+
+# Temporary assets
+assets/
+
+# Claude AI
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files
+*.env
+*.env.local
+
