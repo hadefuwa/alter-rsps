@@ -22,6 +22,7 @@ class BankerPlugin(
     )
 
     init {
+        // Handle regular bankers with all options
         bankers.forEach { banker ->
             onNpcOption(npc = banker, option = "talk-to", lineOfSightDistance = 2) {
                 player.queue {
@@ -34,6 +35,28 @@ class BankerPlugin(
             onNpcOption(npc = banker, option = "collect", lineOfSightDistance = 2) {
                 openCollect(player)
             }
+        }
+        
+        // Handle bank camel separately - only bind options that exist
+        // Bank camel may only have "bank" option, not "talk-to" or "collect"
+        try {
+            if (npcHasOption("npc.bank_camel", "bank")) {
+                onNpcOption(npc = "npc.bank_camel", option = "bank", lineOfSightDistance = 2) {
+                    player.openBank()
+                }
+            }
+        } catch (e: Exception) {
+            // Bank camel might not have bank option either, skip it
+        }
+        
+        try {
+            if (npcHasOption("npc.bank_camel", "collect")) {
+                onNpcOption(npc = "npc.bank_camel", option = "collect", lineOfSightDistance = 2) {
+                    openCollect(player)
+                }
+            }
+        } catch (e: Exception) {
+            // Bank camel might not have collect option, skip it
         }
     }
 

@@ -1,4 +1,4 @@
-package org.alter.plugins.content.objects.caves
+package org.alter.plugins.content.minigames.wintertodt
 
 import org.alter.api.ext.*
 import org.alter.game.Server
@@ -11,15 +11,15 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.magic.prepareForTeleport
 
 /**
- * Stairs 37417 Plugin
+ * Wintertodt Door Plugin
  * 
- * This plugin handles stairs object 37417, which teleports players 
- * to coordinates (2466, 10403) when interacted with.
+ * This plugin handles the Doors of Dinh (object 29322) which teleports players 
+ * into the Wintertodt minigame area.
  * 
- * Stairs Object: steps_37417 (object 37417)
- * Teleport Destination: (2466, 10403, height = 0)
+ * Door Object: doors_of_dinh (object 29322)
+ * Wintertodt Location: 1631, 3981
  */
-class Stairs37417Plugin(
+class WintertodtDoorPlugin(
     r: PluginRepository,
     world: World,
     server: Server
@@ -27,20 +27,15 @@ class Stairs37417Plugin(
 
     companion object {
         /**
-         * Teleport destination coordinates
-         * This is where players teleport to when climbing the stairs
+         * Wintertodt minigame area coordinates
+         * This is where players teleport to when entering through the door
          */
-        private val TELEPORT_DESTINATION = Tile(x = 2466, z = 10403, height = 0)
-        
-        /**
-         * Stairs object ID
-         */
-        private const val STAIRS_ID = 37417
+        private val WINTERTODT_LOCATION = Tile(x = 1631, z = 3981, height = 0)
     }
 
     init {
-        // Function to teleport player
-        val climbStairs: Plugin.() -> Unit = {
+        // Function to teleport player to Wintertodt minigame area
+        val enterWintertodt: Plugin.() -> Unit = {
             player.queue {
                 // Check if player can teleport
                 if (!player.lock.canTeleport()) {
@@ -48,28 +43,28 @@ class Stairs37417Plugin(
                     return@queue
                 }
                 
-                player.message("You climb the stairs...")
+                player.message("You enter the Wintertodt arena...")
                 
                 // Wait a moment
                 wait(1)
                 
-                // Teleport to destination
+                // Teleport to Wintertodt minigame area
                 player.prepareForTeleport()
-                player.moveTo(TELEPORT_DESTINATION)
-                player.message("You find yourself in a new location.")
+                player.moveTo(WINTERTODT_LOCATION)
+                player.message("You find yourself in the Wintertodt arena.")
             }
         }
 
-        // Handle stairs 37417 - check what options it has
-        // Common stairs options: "climb", "climb-up", "climb-down", "use", "operate"
-        val stairOptions = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        // Handle door 29322 - check what options it has
+        // Common door options: "open", "enter", "use", "operate", "pass-through"
+        val doorOptions = listOf("open", "enter", "use", "operate", "pass-through", "go-through")
         
         // Try using RSCM name first for all options
         var rscmWorked = false
-        stairOptions.forEach { option ->
+        doorOptions.forEach { option ->
             try {
-                if (objHasOption("object.steps_37417", option)) {
-                    onObjOption(obj = "object.steps_37417", option = option, logic = climbStairs)
+                if (objHasOption("object.doors_of_dinh", option)) {
+                    onObjOption(obj = "object.doors_of_dinh", option = option, logic = enterWintertodt)
                     rscmWorked = true
                 }
             } catch (e: Exception) {
@@ -79,9 +74,9 @@ class Stairs37417Plugin(
         
         // If RSCM name didn't work at all, try direct ID as fallback
         if (!rscmWorked) {
-            stairOptions.forEach { option ->
+            doorOptions.forEach { option ->
                 try {
-                    onObjOption(obj = STAIRS_ID, option = option, logic = climbStairs)
+                    onObjOption(obj = 29322, option = option, logic = enterWintertodt)
                 } catch (e: Exception) {
                     // Option doesn't exist for this object, skip it
                 }
@@ -89,10 +84,5 @@ class Stairs37417Plugin(
         }
     }
 }
-
-
-
-
-
 
 

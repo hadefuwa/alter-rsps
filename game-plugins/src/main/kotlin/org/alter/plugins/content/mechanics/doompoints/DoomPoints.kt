@@ -186,11 +186,11 @@ object DoomPoints {
         13892 to 10,   // Morrigan's leather body
         13898 to 10,   // Morrigan's leather chaps
         22634 to 10,   // Morrigan's throwing axe
-        22636 to 10,   // Morrigan's javelin
+        22636 to 1,   // Morrigan's javelin
         22638 to 10,   // Morrigan's coif (variant)
         22641 to 10,   // Morrigan's leather body (variant)
         22644 to 10,   // Morrigan's leather chaps (variant)
-        23619 to 10,   // Morrigan's javelin (variant 2)
+        23619 to 1,   // Morrigan's javelin (variant 2)
         
         // Tier 3: High-value items (50-100 points)
         13576 to 50,   // Dragon warhammer

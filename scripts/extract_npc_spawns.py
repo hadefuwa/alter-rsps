@@ -26,16 +26,16 @@ if sys.platform == 'win32':
 # ============================================================================
 
 # Target area name (for output file naming)
-AREA_NAME = "jormungands_prison"
+AREA_NAME = "wilderness_slayer_cave"
 
 # Coordinate range for filtering NPCs
-# Jormungand's Prison coordinates:
-# - Center: 2460, 10415
-# - Adding buffer around the center point
-MIN_X = 2440
-MAX_X = 2480
-MIN_Y = 10395
-MAX_Y = 10435
+# Wilderness Slayer Cave coordinates:
+# - Center: 3362, 10119 (black demons location)
+# - Adding buffer around the center point to capture all NPCs in the cave
+MIN_X = 3300
+MAX_X = 3420
+MIN_Y = 10050
+MAX_Y = 10180
 
 # Input and output file paths
 INPUT_JSON = "docs/NPCList_OSRS.json"

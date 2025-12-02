@@ -5,6 +5,7 @@ A modern Old School RuneScape Private Server (RSPS) built with Kotlin, featuring
 [![Revision](https://img.shields.io/badge/Revision-228-blueviolet)](https://oldschool.runescape.wiki/w/Update:Leagues_V:_Raging_Echos_Rewards_Are_Here)
 [![License](https://img.shields.io/badge/license-ISC-informational)](LICENSE)
 [![JDK](https://img.shields.io/badge/JDK-17-blue)](https://adoptium.net/)
+[![Latest Release](https://img.shields.io/badge/Release-v1.1.6-green)](https://github.com/hadefuwa/alter-rsps/releases)
 
 ## Features
 
@@ -15,6 +16,9 @@ A modern Old School RuneScape Private Server (RSPS) built with Kotlin, featuring
 - **RSProx Compatible** - Works seamlessly with RSProx client
 - **Player Saving** - Persistent player data and positions
 - **Comprehensive Content** - Wilderness monsters, NPCs, objects, items, and more
+- **Boss Content** - Multiple bosses including Dagannoth Kings, Vardorvis, Warden, God Wars Dungeon, and more
+- **Minigames** - Last Man Standing, Wintertodt, and more
+- **Skills** - Agility, Cooking, Firemaking, Fishing, Herblore, Mining, Slayer, Smithing, Thieving, Woodcutting
 
 ## Requirements
 
@@ -29,7 +33,7 @@ A modern Old School RuneScape Private Server (RSPS) built with Kotlin, featuring
 
 ```bash
 git clone https://github.com/hadefuwa/alter-rsps.git
-cd alter-rsps/Alter
+cd alter-rsps
 ```
 
 ### 2. Configure the Server
@@ -145,9 +149,15 @@ The server is configured to accept connections from all network interfaces (0.0.
 ## Project Structure
 
 ```
-Alter/
+alter-rsps/
 ├── game-server/          # Core game engine
 ├── game-plugins/         # Game content plugins
+│   ├── areas/            # Area-specific content (Varrock, Lumbridge, Wilderness, etc.)
+│   ├── bosses/           # Boss implementations
+│   ├── minigames/        # Minigame implementations
+│   ├── npcs/             # NPC handlers and combat configs
+│   ├── skills/           # Skill implementations
+│   └── items/            # Item interactions
 ├── game-api/             # API definitions
 ├── plugins/              # Utility plugins (filestore, rscm, tools)
 ├── util/                 # Utility libraries
@@ -512,9 +522,21 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Recent Updates (v1.1.6)
+
+- Added new boss content: Dagannoth Kings, Vardorvis, and Warden
+- Added minigame support: Last Man Standing and Wintertodt
+- Updated combat configurations for various NPCs
+- Enhanced plugin system with improved NPC and object handling
+- Various bug fixes and improvements
+
 ## Support
 
 For issues, questions, or contributions, please open an issue on GitHub.
+
+## Releases
+
+Check out the [Releases](https://github.com/hadefuwa/alter-rsps/releases) page for the latest version and changelog.
 
 ---
 

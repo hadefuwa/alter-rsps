@@ -228,6 +228,8 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.green_dragon", x = 3214, z = 3860, walkRadius = 5, direction = Direction.NORTH)
         spawnNpc(npc = "npc.green_dragon", x = 3094, z = 3812, walkRadius = 5, direction = Direction.SOUTH)
         spawnNpc(npc = "npc.green_dragon", x = 2979, z = 3616, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.green_dragon", x = 3096, z = 3814, walkRadius = 5, direction = Direction.EAST)
+        spawnNpc(npc = "npc.green_dragon", x = 3092, z = 3810, walkRadius = 5, direction = Direction.WEST)
         
         /**
          * Hellhounds - Level 20+ Wilderness
@@ -405,6 +407,26 @@ class SpawnPlugin(
         spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 2955, z = 3819, walkRadius = 5, direction = Direction.SOUTH)
         
         /**
+         * Elder Chaos Druids (7995) - Group Spawn
+         * 
+         * A group of 10 elder chaos druids that attack with magic.
+         * 
+         * Spawn Location: Coordinates 3237, 3621
+         * Total Spawns: 10 Elder Chaos Druids
+         * Walk Radius: 5 tiles (moderate patrol area)
+         */
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3237, z = 3621, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3235, z = 3621, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3239, z = 3621, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3237, z = 3619, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3237, z = 3623, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3236, z = 3620, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3238, z = 3620, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3236, z = 3622, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3238, z = 3622, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.elder_chaos_druid_7995", x = 3235, z = 3623, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
          * Ghost - Wilderness
          * 
          * A ghost spawn in the wilderness area.
@@ -569,6 +591,145 @@ class SpawnPlugin(
         spawnItem(item = "item.antifire_potion4", amount = 1, x = 2978, z = 3615, height = 0)
         //dragon axe by Ents
         spawnItem(item = "item.dragon_axe", amount = 1, x = 3232, z = 3689, height = 0)
+        
+        /**
+         * Wilderness Slayer Cave
+         * 
+         * A dangerous slayer dungeon in the wilderness containing various high-level
+         * slayer monsters. This cave is located underground (z coordinates > 10000).
+         * 
+         * Reference point: Black demons at 3362, 10119
+         * All NPCs are spawned at height 0 (ground level of the dungeon)
+         */
+        
+        /**
+         * Black Demons - Wilderness Slayer Cave
+         * 
+         * Powerful demons that are a common slayer task.
+         * Reference location: 3362, 10119
+         */
+        spawnNpc(npc = "npc.black_demon", x = 3362, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3360, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3364, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3362, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3362, z = 10121, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3365, z = 10120, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3359, z = 10120, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3361, z = 10122, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3363, z = 10122, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.black_demon", x = 3360, z = 10116, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Greater Demons - Wilderness Slayer Cave
+         * 
+         * High-level demons found in the slayer cave.
+         */
+        spawnNpc(npc = "npc.greater_demon", x = 3340, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3342, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3344, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3340, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3342, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3344, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3341, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3343, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3342, z = 10121, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.greater_demon", x = 3340, z = 10121, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Hellhounds - Wilderness Slayer Cave
+         * 
+         * Aggressive demonic hounds that are a popular slayer task.
+         */
+        spawnNpc(npc = "npc.hellhound_104", x = 3380, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3382, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3384, z = 10115, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3380, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3382, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3384, z = 10117, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3381, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3383, z = 10119, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3382, z = 10121, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.hellhound_104", x = 3380, z = 10121, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Fire Giants - Wilderness Slayer Cave
+         * 
+         * Large giants that use melee attacks and are a common slayer task.
+         */
+        spawnNpc(npc = "npc.fire_giant", x = 3320, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3322, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3324, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3320, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3322, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3324, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3321, z = 10129, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3323, z = 10129, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3322, z = 10131, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.fire_giant", x = 3320, z = 10131, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Ankou - Wilderness Slayer Cave
+         * 
+         * Undead creatures that are a slayer task.
+         */
+        spawnNpc(npc = "npc.ankou", x = 3400, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3402, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3404, z = 10125, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3400, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3402, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3404, z = 10127, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3401, z = 10129, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3403, z = 10129, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3402, z = 10131, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ankou", x = 3400, z = 10131, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Ice Warriors - Wilderness Slayer Cave
+         * 
+         * Warriors encased in ice that are a slayer task.
+         */
+        spawnNpc(npc = "npc.ice_warrior", x = 3300, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3302, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3304, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3300, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3302, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3304, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3301, z = 10139, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3303, z = 10139, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3302, z = 10141, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_warrior", x = 3300, z = 10141, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Ice Giants - Wilderness Slayer Cave
+         * 
+         * Large ice giants that are a slayer task.
+         */
+        spawnNpc(npc = "npc.ice_giant", x = 3420, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3418, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3416, z = 10135, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3420, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3418, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3416, z = 10137, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3419, z = 10139, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3417, z = 10139, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3418, z = 10141, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.ice_giant", x = 3420, z = 10141, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        
+        /**
+         * Dark Warriors - Wilderness Slayer Cave
+         * 
+         * Aggressive warriors found in the wilderness slayer cave.
+         */
+        spawnNpc(npc = "npc.dark_warrior", x = 3350, z = 10145, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3352, z = 10145, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3354, z = 10145, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3350, z = 10147, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3352, z = 10147, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3354, z = 10147, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3351, z = 10149, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3353, z = 10149, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3352, z = 10151, height = 0, walkRadius = 5, direction = Direction.SOUTH)
+        spawnNpc(npc = "npc.dark_warrior", x = 3350, z = 10151, height = 0, walkRadius = 5, direction = Direction.SOUTH)
         
         // Debug: Verify plugin loaded successfully
         println("Wilderness SpawnPlugin: Loaded successfully - all spawns registered")

@@ -11,15 +11,15 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.magic.prepareForTeleport
 
 /**
- * Stairs 37411 Plugin
+ * Warden Entrance Plugin
  * 
- * This plugin handles stairs object 37411, which teleports players 
- * back to Jormungands Prison at coordinates (2465, 4010) when interacted with.
+ * This plugin handles the entrance (object 46089) which teleports players 
+ * to the Warden boss area.
  * 
- * Stairs Object: steps_37411 (object 37411)
- * Teleport Destination: (2465, 4010, height = 0) - Jormungands Prison
+ * Entrance Object: entry_46089 (object 46089)
+ * Warden Boss Location: 3237, 2774
  */
-class Stairs37411Plugin(
+class WardenEntrancePlugin(
     r: PluginRepository,
     world: World,
     server: Server
@@ -27,20 +27,15 @@ class Stairs37411Plugin(
 
     companion object {
         /**
-         * Teleport destination coordinates
-         * This is where players teleport to when climbing the stairs
+         * Warden boss area coordinates
+         * This is where players teleport to when entering the entrance
          */
-        private val TELEPORT_DESTINATION = Tile(x = 2465, z = 4010, height = 0)
-        
-        /**
-         * Stairs object ID
-         */
-        private const val STAIRS_ID = 37411
+        private val WARDEN_BOSS_LOCATION = Tile(x = 3237, z = 2774, height = 0)
     }
 
     init {
-        // Function to teleport player
-        val climbStairs: Plugin.() -> Unit = {
+        // Function to teleport player to Warden boss area
+        val enterWardenArea: Plugin.() -> Unit = {
             player.queue {
                 // Check if player can teleport
                 if (!player.lock.canTeleport()) {
@@ -48,28 +43,28 @@ class Stairs37411Plugin(
                     return@queue
                 }
                 
-                player.message("You climb the stairs...")
+                player.message("You enter the passage...")
                 
                 // Wait a moment
                 wait(1)
                 
-                // Teleport to destination
+                // Teleport to Warden boss area
                 player.prepareForTeleport()
-                player.moveTo(TELEPORT_DESTINATION)
-                player.message("You find yourself back at Jormungands Prison.")
+                player.moveTo(WARDEN_BOSS_LOCATION)
+                player.message("You find yourself in the Warden's chamber.")
             }
         }
 
-        // Handle stairs 37411 - check what options it has
-        // Common stairs options: "climb", "climb-up", "climb-down", "use", "operate"
-        val stairOptions = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        // Handle entrance 46089 - check what options it has
+        // Common entrance options: "enter", "go-through", "use", "operate", "climb-down", "go-down"
+        val teleportOptions = listOf("enter", "go-through", "use", "operate", "climb-down", "go-down", "pass-through")
         
         // Try using RSCM name first for all options
         var rscmWorked = false
-        stairOptions.forEach { option ->
+        teleportOptions.forEach { option ->
             try {
-                if (objHasOption("object.steps_37411", option)) {
-                    onObjOption(obj = "object.steps_37411", option = option, logic = climbStairs)
+                if (objHasOption("object.entry_46089", option)) {
+                    onObjOption(obj = "object.entry_46089", option = option, logic = enterWardenArea)
                     rscmWorked = true
                 }
             } catch (e: Exception) {
@@ -79,9 +74,9 @@ class Stairs37411Plugin(
         
         // If RSCM name didn't work at all, try direct ID as fallback
         if (!rscmWorked) {
-            stairOptions.forEach { option ->
+            teleportOptions.forEach { option ->
                 try {
-                    onObjOption(obj = STAIRS_ID, option = option, logic = climbStairs)
+                    onObjOption(obj = 46089, option = option, logic = enterWardenArea)
                 } catch (e: Exception) {
                     // Option doesn't exist for this object, skip it
                 }
@@ -89,10 +84,5 @@ class Stairs37411Plugin(
         }
     }
 }
-
-
-
-
-
 
 

@@ -702,6 +702,82 @@ class LadderPlugin(
         } catch (e: Exception) {
             // RSCM name might not work, that's okay
         }
+        
+        // Stairs 40390 - Teleport to (3406, 10145, height 0)
+        // Try common stair options
+        val stairs40390Options = listOf("climb", "climb-up", "climb-down", "use", "operate")
+        stairs40390Options.forEach { option ->
+            try {
+                onObjOption(40390, option = option) {
+                    player.queue {
+                        player.message("You climb the stairs.")
+                        player.animate(828) // Climb animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3406, 10145, 0)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.stairs_40390", option = "climb")) {
+                onObjOption("object.stairs_40390", option = "climb") {
+                    player.queue {
+                        player.message("You climb the stairs.")
+                        player.animate(828)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3406, 10145, 0)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
+        
+        // Opening 40391 - Teleport to (3293, 3750, height 0)
+        // Try common options for openings/passages
+        val opening40391Options = listOf("climb", "climb-up", "climb-down", "use", "operate", "enter", "go-through", "pass")
+        opening40391Options.forEach { option ->
+            try {
+                onObjOption(40391, option = option) {
+                    player.queue {
+                        player.message("You pass through the opening.")
+                        player.animate(828) // Climb animation
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3293, 3750, 0)
+                        player.unlock()
+                    }
+                }
+            } catch (e: Exception) {
+                // Option might not exist for this object, continue to next
+            }
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption(obj = "object.opening_40391", option = "climb")) {
+                onObjOption("object.opening_40391", option = "climb") {
+                    player.queue {
+                        player.message("You pass through the opening.")
+                        player.animate(828)
+                        player.lock()
+                        wait(2)
+                        player.moveTo(3293, 3750, 0)
+                        player.unlock()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
     }
 
     /**Function for ladders.*/

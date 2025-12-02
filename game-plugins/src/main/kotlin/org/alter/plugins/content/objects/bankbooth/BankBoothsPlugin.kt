@@ -116,6 +116,48 @@ class BankBoothsPlugin(
         } catch (e: Exception) {
             // "Collect" option might not exist
         }
+        
+        // Handle bank 46223 separately - uses numeric ID since RSCM name is null_46223
+        try {
+            // Try common bank options with numeric ID
+            onObjOption(obj = 46223, option = "bank") {
+                player.openBank()
+            }
+        } catch (e: Exception) {
+            // "bank" option might not exist, try "Use" option
+            try {
+                onObjOption(obj = 46223, option = "Use") {
+                    player.openBank()
+                }
+            } catch (e2: Exception) {
+                // Could not register
+            }
+        }
+        
+        // Try "Collect" option for bank 46223
+        try {
+            onObjOption(obj = 46223, option = "Collect") {
+                open_collect(player)
+            }
+        } catch (e: Exception) {
+            // "Collect" option might not exist
+        }
+        
+        // Also try using RSCM name as backup
+        try {
+            if (objHasOption("object.null_46223", "bank")) {
+                onObjOption(obj = "object.null_46223", option = "bank") {
+                    player.openBank()
+                }
+            }
+            if (objHasOption("object.null_46223", "Collect")) {
+                onObjOption(obj = "object.null_46223", option = "Collect") {
+                    open_collect(player)
+                }
+            }
+        } catch (e: Exception) {
+            // RSCM name might not work, that's okay
+        }
     }
 
 fun open_collect(p: Player) {

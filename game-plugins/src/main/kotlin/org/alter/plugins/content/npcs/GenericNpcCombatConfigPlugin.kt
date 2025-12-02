@@ -82,7 +82,7 @@ class GenericNpcCombatConfigPlugin(
                 }
                 
                 main(weight = 100) {
-                    add("item.slayer_helm_i", min = 1, weight = 1)
+                    add("item.slayer_helmet_i", min = 1, weight = 1)
                     add("item.lava_scale_noted", min = 10, max = 100, weight = 3)
                     add("item.odium_shard_1", min = 1, max = 1, weight = 1)
                     add("item.rainbow_partyhat", min = 1, weight = 10)

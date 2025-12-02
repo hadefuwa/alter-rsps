@@ -1448,7 +1448,7 @@ class GodWarsCombatConfigPlugin(
                     add("item.diamond_bolt_tips", min = 10, max = 150, weight = 10)
                     add("item.dragon_arrow", min = 1, max = 150, weight = 150)
                     add("item.rune_arrow", min = 50, max = 1000, weight =250)
-                    add("item.hydra_slayer_helm", min = 1, max = 1, weight = 1)
+                    add("item.hydra_slayer_helmet", min = 1, max = 1, weight = 1)
                     add("item.iron_bar_noted", min = 1, max = 3, weight = 300)
                     add("item.steel_bar_noted", min = 10, max = 100, weight = 290)
                     add("item.mithril_bar_noted", min = 5, max = 15, weight = 225)

@@ -754,6 +754,81 @@ class CombatConfigPlugin(
                 }
             }
         }
+        
+        /**
+         * Elder Chaos Druid Combat Configuration
+         * 
+         * Powerful magic-using druids that attack with spells.
+         * - Attack Speed: 4 cycles (standard magic attack speed)
+         * - Respawn Delay: 25 cycles (moderate respawn delay)
+         * - Hitpoints: 60 (moderate HP for mid-level wilderness monster)
+         * - Aggressive Radius: 7 tiles (moderate detection range)
+         * - Search Delay: 3 cycles (checks for targets frequently)
+         * - Always Aggressive: Yes (will attack any player within range)
+         * - Combat Style: Magic (uses spells to attack)
+         */
+        setCombatDef("npc.elder_chaos_druid_7995") {
+            configs {
+                attackSpeed = 4
+                respawnDelay = 25
+            }
+            
+            stats {
+                hitpoints = 60
+                magic = 80
+            }
+            
+            bonuses {
+                attackMagic = 50
+                defenceMagic = 40
+                defenceStab = 20
+                defenceSlash = 20
+                defenceCrush = 20
+                defenceRanged = 20
+            }
+            
+            anims {
+                attack = 422 // Magic attack animation (similar to chaos druid)
+                block = 424
+                death = 836
+            }
+            
+            aggro {
+                radius = 7
+                searchDelay = 3
+                alwaysAggro()
+            }
+            
+            drops {
+                always {
+                    add("item.bones", 1)
+                }
+                
+                main(weight = 100) {
+                    add("item.coins_995", min = 50, max = 200, weight = 30)
+                    add("item.chaos_rune", min = 5, max = 15, weight = 20)
+                    add("item.death_rune", min = 2, max = 8, weight = 15)
+                    add("item.nature_rune", min = 3, max = 10, weight = 12)
+                    add("item.law_rune", min = 2, max = 6, weight = 10)
+                    add("item.blood_rune", min = 1, max = 5, weight = 8)
+                    add("item.grimy_guam_leaf", min = 1, max = 3, weight = 15)
+                    add("item.grimy_marrentill", min = 1, max = 3, weight = 12)
+                    add("item.grimy_tarromin", min = 1, max = 2, weight = 10)
+                    add("item.grimy_harralander", min = 1, max = 2, weight = 8)
+                }
+            }
+        }
+        
+        /**
+         * Set Elder Chaos Druids to use Magic combat
+         * 
+         * When elder chaos druids spawn, configure them to attack with magic spells
+         * instead of melee attacks.
+         */
+        onNpcSpawn(npc = "npc.elder_chaos_druid_7995") {
+            npc.combatClass = CombatClass.MAGIC
+            npc.attr[Combat.CASTING_SPELL] = CombatSpell.WIND_STRIKE
+        }
     }
 }
 
