@@ -226,15 +226,29 @@ class VardorvisCombatPlugin(
         animate(422)
         
         // Head pop out effect - show head graphic above Vardorvis
-        graphic(100) // Head pop out graphic
+        // First show graphic on NPC
+        graphic(100, height = 0, delay = 0) // Head pop out graphic on NPC
         world.queue {
             wait(1)
-            // Show head pop out effect on tile above
+            // Show head pop out effect on tile above Vardorvis
             world.spawn(TileGraphic(
                 id = 100, // Head graphic
                 tile = this@rangedBarrageAttack.tile,
                 height = 200, // Higher up to show head popping out
                 delay = 0
+            ))
+            // Also show on adjacent tiles for more dramatic effect
+            world.spawn(TileGraphic(
+                id = 100,
+                tile = this@rangedBarrageAttack.tile.transform(1, 0),
+                height = 150,
+                delay = 1
+            ))
+            world.spawn(TileGraphic(
+                id = 100,
+                tile = this@rangedBarrageAttack.tile.transform(-1, 0),
+                height = 150,
+                delay = 1
             ))
         }
         
