@@ -25,15 +25,15 @@ import org.alter.game.model.entity.AreaSound
  * Warden Combat Plugin
  * 
  * The Warden switches protection prayers every 50 damage taken.
- * It uses TWO prayers at a time, cycling through:
- * - Phase 0: Protect from Melee + Protect from Missiles (only Magic attacks allowed)
- * - Phase 1: Protect from Magic + Protect from Melee (only Ranged attacks allowed)
- * - Phase 2: Protect from Missiles + Protect from Magic (only Melee attacks allowed)
+ * It uses TWO prayers at a time. When the Warden is praying a protection prayer,
+ * it CANNOT attack with that attack type.
  * 
- * Attack restrictions:
- * - Phase 0: Can only attack with Magic
- * - Phase 1: Can only attack with Ranged
- * - Phase 2: Can only attack with Melee
+ * Example: If Warden has "Protect from Magic" active, it cannot use Magic attacks.
+ * If it has "Protect from Melee" active, it cannot use Melee attacks.
+ * If it has "Protect from Missiles" active, it cannot use Ranged attacks.
+ * 
+ * Since the Warden has 2 prayers active, it is blocked from 2 attack types,
+ * leaving only 1 attack type available.
  */
 class WardenCombatPlugin(
     r: PluginRepository,
@@ -120,27 +120,23 @@ class WardenCombatPlugin(
                 npc.attr[LAST_HP_ATTR] = currentHp
             }
             
-            // Determine current prayer phase and allowed attack type
-            // Phase 0: (Melee + Missiles) -> Only Magic attacks
-            // Phase 1: (Magic + Melee) -> Only Ranged attacks
-            // Phase 2: (Missiles + Magic) -> Only Melee attacks
+            // Determine which attack type is allowed based on active prayers
+            // If Warden is praying a protection prayer, it CANNOT use that attack type
             val prayer1 = npc.attr[PRAYER_INDEX_ATTR] ?: 2
             val prayer2 = npc.attr[PRAYER_INDEX_2_ATTR] ?: 1
             
-            // Determine which phase we're in based on prayer combination
-            val prayerPhase = when {
-                (prayer1 == 2 && prayer2 == 1) || (prayer1 == 1 && prayer2 == 2) -> 0 // Melee + Missiles -> Phase 0 (Magic attacks)
-                (prayer1 == 0 && prayer2 == 2) || (prayer1 == 2 && prayer2 == 0) -> 1 // Magic + Melee -> Phase 1 (Ranged attacks)
-                (prayer1 == 1 && prayer2 == 0) || (prayer1 == 0 && prayer2 == 1) -> 2 // Missiles + Magic -> Phase 2 (Melee attacks)
-                else -> 0 // Default to phase 0
-            }
+            // Check which attack types are blocked by prayers
+            // 0 = Magic, 1 = Missiles (Ranged), 2 = Melee
+            val hasMagicPrayer = prayer1 == 0 || prayer2 == 0
+            val hasMissilesPrayer = prayer1 == 1 || prayer2 == 1
+            val hasMeleePrayer = prayer1 == 2 || prayer2 == 2
             
-            // Determine attack type based on phase
-            val attackType = when (prayerPhase) {
-                0 -> 0 // Phase 0: Only Magic attacks
-                1 -> 1 // Phase 1: Only Ranged attacks
-                2 -> 2 // Phase 2: Only Melee attacks
-                else -> 0
+            // Determine which attack type is allowed (the one that's NOT blocked)
+            val attackType = when {
+                !hasMagicPrayer -> 0 // Magic not blocked -> use Magic
+                !hasMissilesPrayer -> 1 // Ranged not blocked -> use Ranged
+                !hasMeleePrayer -> 2 // Melee not blocked -> use Melee
+                else -> 0 // Default to Magic if all are blocked (shouldn't happen)
             }
             
             // Use different distances based on attack type
