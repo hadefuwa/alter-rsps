@@ -9,6 +9,7 @@ import org.alter.game.model.combat.*
 import org.alter.game.model.entity.*
 import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
+import org.alter.api.ProjectileType
 import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
@@ -17,6 +18,7 @@ import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.prayer.PrayerIcon
+import org.alter.game.model.entity.Projectile
 
 /**
  * Warden Combat Plugin
@@ -247,59 +249,65 @@ class WardenCombatPlugin(
     /**
      * Custom melee attack with max hit of 60
      * If target has Protect from Melee prayer active, max hit is reduced to 3
+     * Shows sword graphic and waits 2 seconds before damage
      */
     private fun Npc.wardenMeleeAttack(target: Pawn) {
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
         animate(422) // Melee attack animation
         
-        if (MeleeCombatFormula.getAccuracy(this, target) >= this.world.randomDouble()) {
-            // Check if target has Protect from Melee prayer active
+        // Show sword graphic indicator - stays visible until damage
+        target.graphic(id = 248, height = 0, delay = 0) // DRAGON_LONGSWORD_SPECIAL - sword graphic
+        
+        // Wait 2 seconds (120 ticks) before dealing damage
+        this.world.queue {
+            wait(120) // 2 seconds delay
+            
+            // Re-check prayer after delay (player might have switched)
             val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
                 3  // Max hit reduced to 3 through protection prayer
             } else {
                 MELEE_MAX_HIT
             }
-            val damage = this.world.random(maxHit + 1)
-            target.hit(damage, type = HitType.HIT, delay = 1)
-        } else {
-            target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
+            
+            if (MeleeCombatFormula.getAccuracy(this@wardenMeleeAttack, target) >= this@wardenMeleeAttack.world.randomDouble()) {
+                val damage = this@wardenMeleeAttack.world.random(maxHit + 1)
+                target.hit(damage, type = HitType.HIT, delay = 1)
+            } else {
+                target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
+            }
         }
     }
     
     /**
      * Custom magic attack with max hit of 55
      * If target has Protect from Magic prayer active, max hit is reduced to 3
+     * Shows big orb projectile and waits 2 seconds before damage
      */
     private fun Npc.wardenMagicAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         attr[Combat.CASTING_SPELL] = CombatSpell.FIRE_BLAST
         animate(422) // Magic attack animation
         
-        val projectile = createProjectile(
-            target,
-            gfx = 157,
-            startHeight = 43,
-            endHeight = 31,
-            delay = 51,
-            angle = 10,
-            steepness = 11
-        )
+        // Create big orb projectile with long lifespan to stay visible for 2 seconds
+        val projectile = Projectile.Builder()
+            .setTiles(start = this.tile, target = target)
+            .setGfx(1465) // FIRE_SURGE_PROJECTILE - big orb
+            .setHeights(startHeight = 43, endHeight = 31)
+            .setSlope(angle = 16, steepness = 64)
+            .setTimes(delay = 51, lifespan = 51 + 120) // Long lifespan to stay visible for 2 seconds
+            .build()
         this.world.spawn(projectile)
         
-        val hitDelay = MagicCombatStrategy.getHitDelay(
-            getFrontFacingTile(target),
-            target.getCentreTile()
-        )
-        
-        // Check if target has Protect from Magic prayer active
-        val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
-            3  // Max hit reduced to 3 through protection prayer
-        } else {
-            MAGIC_MAX_HIT
-        }
-        
+        // Wait 2 seconds (120 ticks) before dealing damage
         this.world.queue {
-            wait(hitDelay - 1)
+            wait(120) // 2 seconds delay
+            
+            // Re-check prayer after delay (player might have switched)
+            val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
+                3  // Max hit reduced to 3 through protection prayer
+            } else {
+                MAGIC_MAX_HIT
+            }
             
             if (MagicCombatFormula.getAccuracy(this@wardenMagicAttack, target) >= this@wardenMagicAttack.world.randomDouble()) {
                 val damage = this@wardenMagicAttack.world.random(maxHit + 1)
@@ -315,36 +323,32 @@ class WardenCombatPlugin(
     /**
      * Custom ranged attack with max hit of 57
      * If target has Protect from Missiles prayer active, max hit is reduced to 3
+     * Shows arrow projectile and waits 2 seconds before damage
      */
     private fun Npc.wardenRangedAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
         animate(426) // Ranged attack animation
         
-        val projectile = createProjectile(
-            target,
-            gfx = 249,
-            startHeight = 43,
-            endHeight = 31,
-            delay = 51,
-            angle = 10,
-            steepness = 11
-        )
+        // Create arrow projectile with long lifespan to stay visible for 2 seconds
+        val projectile = Projectile.Builder()
+            .setTiles(start = this.tile, target = target)
+            .setGfx(15) // RUNE_ARROW_PROJECTILE - arrow
+            .setHeights(startHeight = 40, endHeight = 36)
+            .setSlope(angle = 15, steepness = 11)
+            .setTimes(delay = 41, lifespan = 41 + 120) // Long lifespan to stay visible for 2 seconds
+            .build()
         this.world.spawn(projectile)
         
-        val hitDelay = RangedCombatStrategy.getHitDelay(
-            getFrontFacingTile(target),
-            target.getCentreTile()
-        )
-        
-        // Check if target has Protect from Missiles prayer active
-        val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)) {
-            3  // Max hit reduced to 3 through protection prayer
-        } else {
-            RANGED_MAX_HIT
-        }
-        
+        // Wait 2 seconds (120 ticks) before dealing damage
         this.world.queue {
-            wait(hitDelay - 1)
+            wait(120) // 2 seconds delay
+            
+            // Re-check prayer after delay (player might have switched)
+            val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)) {
+                3  // Max hit reduced to 3 through protection prayer
+            } else {
+                RANGED_MAX_HIT
+            }
             
             if (RangedCombatFormula.getAccuracy(this@wardenRangedAttack, target) >= this@wardenRangedAttack.world.randomDouble()) {
                 val damage = this@wardenRangedAttack.world.random(maxHit + 1)
