@@ -3,6 +3,7 @@ package org.alter.plugins.content.npcs.vardorvis
 import org.alter.api.*
 import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
+import org.alter.plugins.content.mechanics.prayer.PrayerIcon
 import org.alter.game.*
 import org.alter.game.model.*
 import org.alter.game.model.combat.AttackStyle
@@ -224,6 +225,19 @@ class VardorvisCombatPlugin(
         forceChat("*Vardorvis unleashes a barrage of projectiles!*")
         animate(422)
         
+        // Head pop out effect - show head graphic above Vardorvis
+        graphic(100) // Head pop out graphic
+        world.queue {
+            wait(1)
+            // Show head pop out effect on tile above
+            world.spawn(TileGraphic(
+                id = 100, // Head graphic
+                tile = this@rangedBarrageAttack.tile,
+                height = 200, // Higher up to show head popping out
+                delay = 0
+            ))
+        }
+        
         // Play ranged sound
         world.spawn(AreaSound(this.tile, Sound.DEMON_ATTACK, radius = 12, volume = 55))
         
@@ -243,16 +257,33 @@ class VardorvisCombatPlugin(
                 )
                 world.spawn(projectile)
                 
-                val maxHit = RangedCombatFormula.getMaxHit(this@rangedBarrageAttack, target)
-                dealHit(
-                    target = target,
-                    maxHit = maxHit,
-                    landHit = RangedCombatFormula.getAccuracy(this@rangedBarrageAttack, target) >= world.randomDouble(),
-                    delay = 3 + i
-                ) { hit ->
-                    if (hit.landed() && target is Player) {
-                        target.graphic(9) // Hit graphic
+                // Check if player has Protect from Missiles prayer active
+                val hasProtectMissiles = target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)
+                
+                if (RangedCombatFormula.getAccuracy(this@rangedBarrageAttack, target) >= world.randomDouble()) {
+                    val baseMaxHit = RangedCombatFormula.getMaxHit(this@rangedBarrageAttack, target)
+                    
+                    // Apply protection prayer reduction
+                    val maxHit = if (hasProtectMissiles) {
+                        // Reduce damage by 60% (40% gets through) when praying
+                        (baseMaxHit * 0.4).toInt()
+                    } else {
+                        baseMaxHit
                     }
+                    
+                    val damage = world.random(maxHit + 1)
+                    target.hit(damage, type = HitType.HIT, delay = 3 + i)
+                    
+                    if (target is Player) {
+                        target.graphic(9) // Hit graphic
+                        if (hasProtectMissiles && damage > 0) {
+                            target.message("Your Protect from Missiles reduces Vardorvis's damage!")
+                        } else if (hasProtectMissiles && damage == 0) {
+                            target.message("Your Protect from Missiles completely blocks Vardorvis's attack!")
+                        }
+                    }
+                } else {
+                    target.hit(damage = 0, type = HitType.BLOCK, delay = 3 + i)
                 }
             }
         }
