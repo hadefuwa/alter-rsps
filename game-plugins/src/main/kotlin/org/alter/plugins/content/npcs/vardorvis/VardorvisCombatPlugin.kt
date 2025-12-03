@@ -81,11 +81,12 @@ class VardorvisCombatPlugin(
                 
                 if (useSpecial) {
                     // Choose a random special attack
-                    when (this.world.random(4)) {
+                    when (this.world.random(5)) {
                         0 -> groundSlamAttack(target)
                         1 -> rangedBarrageAttack(target)
                         2 -> chargeAttack(target)
                         3 -> darkMagicBoltAttack(target)
+                        4 -> spikeAttack(target)
                     }
                     attr[LAST_SPECIAL_ATTR] = currentTick
                 } else {
@@ -329,6 +330,63 @@ class VardorvisCombatPlugin(
             if (hit.landed() && target is Player) {
                 target.graphic(100) // Impact graphic
                 target.message("Vardorvis's charge sends you reeling!")
+            }
+        }
+    }
+
+    /**
+     * Spike attack - Vardorvis heals for damage dealt
+     */
+    private fun Npc.spikeAttack(target: Pawn) {
+        prepareAttack(CombatClass.MELEE, CombatStyle.STAB, AttackStyle.AGGRESSIVE)
+        
+        forceChat("*Vardorvis lunges forward with deadly spikes!*")
+        animate(422) // Attack animation
+        
+        // Play spike attack sound
+        world.spawn(AreaSound(this.tile, Sound.DEMON_CHAMPION_ATTACK, radius = 12, volume = 60))
+        
+        // Show spike graphic effect
+        graphic(100) // Spike effect on Vardorvis
+        world.spawn(TileGraphic(
+            id = 86, // Spike graphic on ground
+            tile = target.tile,
+            height = 0,
+            delay = 1
+        ))
+        
+        // Deal damage
+        val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 20 // Extra damage for spike attack
+        dealHit(
+            target = target,
+            maxHit = maxHit,
+            landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
+            delay = 2
+        ) { hit ->
+            if (hit.landed()) {
+                // Get the actual damage dealt
+                val damage = hit.hit.hitmarks.sumOf { it.damage }
+                
+                if (damage > 0) {
+                    // Heal Vardorvis for the damage dealt
+                    val currentHp = this@spikeAttack.getCurrentHp()
+                    val maxHp = this@spikeAttack.getMaxHp()
+                    val healAmount = minOf(damage, maxHp - currentHp) // Don't heal beyond max HP
+                    
+                    if (healAmount > 0) {
+                        this@spikeAttack.setCurrentHp(minOf(currentHp + healAmount, maxHp))
+                        
+                        // Show healing graphic
+                        this@spikeAttack.graphic(436) // Healing graphic
+                        
+                        if (target is Player) {
+                            target.graphic(100) // Impact graphic on player
+                            target.message("Vardorvis's spike attack drains your life force! He heals for $damage damage!")
+                        }
+                    }
+                } else if (target is Player) {
+                    target.message("Vardorvis's spike attack misses!")
+                }
             }
         }
     }
