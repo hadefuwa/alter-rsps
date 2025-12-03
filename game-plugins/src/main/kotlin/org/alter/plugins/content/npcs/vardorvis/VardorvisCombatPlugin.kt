@@ -24,8 +24,9 @@ import org.alter.plugins.content.combat.formula.RangedCombatFormula
  * - Ancient Slash: Melee slash attack
  * - Dark Magic Bolt: Magic projectile attack
  * - Ground Slam: Area-of-effect ground attack
- * - Ranged Barrage: Multiple ranged projectiles
+ * - Ranged Barrage: Multiple ranged projectiles (with head pop-out effect)
  * - Charge Attack: Powerful melee charge
+ * - Spike Attack: Melee stab attack that heals Vardorvis for damage dealt
  * 
  * Combat Level: 700+, Hitpoints: 1500
  * Location: Vardorvis's Lair
@@ -357,18 +358,20 @@ class VardorvisCombatPlugin(
         
         // Deal damage
         val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 20 // Extra damage for spike attack
-        dealHit(
-            target = target,
-            maxHit = maxHit,
-            landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
-            delay = 2
-        ) { hit ->
-            if (hit.landed()) {
-                // Get the actual damage dealt
-                val damage = hit.hit.hitmarks.sumOf { it.damage }
+        val landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble()
+        
+        if (landHit) {
+            // Calculate damage
+            val damage = world.random(maxHit + 1) // 0 to maxHit
+            
+            if (damage > 0) {
+                // Deal the hit
+                target.hit(damage, type = HitType.HIT, delay = 2)
                 
-                if (damage > 0) {
-                    // Heal Vardorvis for the damage dealt
+                // Heal Vardorvis after hit lands
+                world.queue {
+                    wait(2) // Wait for hit to land
+                    
                     val currentHp = this@spikeAttack.getCurrentHp()
                     val maxHp = this@spikeAttack.getMaxHp()
                     val healAmount = minOf(damage, maxHp - currentHp) // Don't heal beyond max HP
@@ -384,9 +387,19 @@ class VardorvisCombatPlugin(
                             target.message("Vardorvis's spike attack drains your life force! He heals for $damage damage!")
                         }
                     }
-                } else if (target is Player) {
-                    target.message("Vardorvis's spike attack misses!")
                 }
+            } else {
+                // Hit but 0 damage
+                target.hit(0, type = HitType.BLOCK, delay = 2)
+                if (target is Player) {
+                    target.message("Vardorvis's spike attack glances off!")
+                }
+            }
+        } else {
+            // Miss
+            target.hit(0, type = HitType.BLOCK, delay = 2)
+            if (target is Player) {
+                target.message("Vardorvis's spike attack misses!")
             }
         }
     }
