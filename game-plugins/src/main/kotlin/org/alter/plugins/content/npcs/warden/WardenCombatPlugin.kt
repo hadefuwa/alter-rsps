@@ -18,7 +18,6 @@ import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.prayer.PrayerIcon
-import org.alter.game.model.entity.Projectile
 import org.alter.api.cfg.Sound
 import org.alter.game.model.entity.AreaSound
 
@@ -26,13 +25,15 @@ import org.alter.game.model.entity.AreaSound
  * Warden Combat Plugin
  * 
  * The Warden switches protection prayers every 50 damage taken.
- * It cycles through: Protect from Magic -> Protect from Missiles -> Protect from Melee
+ * It uses TWO prayers at a time, cycling through:
+ * - Phase 0: Protect from Melee + Protect from Missiles (only Magic attacks allowed)
+ * - Phase 1: Protect from Magic + Protect from Melee (only Ranged attacks allowed)
+ * - Phase 2: Protect from Missiles + Protect from Magic (only Melee attacks allowed)
  * 
- * Attack pattern (repeats continuously):
- * - 2 magic attacks (10 tile range)
- * - 2 ranged attacks (10 tile range)
- * - 2 melee attacks (2 tile range, only if adjacent to player)
- * - Then repeats from magic
+ * Attack restrictions:
+ * - Phase 0: Can only attack with Magic
+ * - Phase 1: Can only attack with Ranged
+ * - Phase 2: Can only attack with Melee
  */
 class WardenCombatPlugin(
     r: PluginRepository,
@@ -43,16 +44,10 @@ class WardenCombatPlugin(
     companion object {
         private val DAMAGE_TRACKER_ATTR = AttributeKey<Int>()
         private val LAST_HP_ATTR = AttributeKey<Int>()
-        private val PRAYER_INDEX_ATTR = AttributeKey<Int>()
-        private val ATTACK_COUNT_ATTR = AttributeKey<Int>()
-        private val ATTACK_PHASE_ATTR = AttributeKey<Int>()
+        private val PRAYER_INDEX_ATTR = AttributeKey<Int>()  // First prayer (0=Magic, 1=Missiles, 2=Melee)
+        private val PRAYER_INDEX_2_ATTR = AttributeKey<Int>()  // Second prayer (0=Magic, 1=Missiles, 2=Melee)
+        private val COMBAT_ACTIVE_ATTR = AttributeKey<Boolean>()  // Prevent multiple combat loops
         private const val DAMAGE_THRESHOLD = 50
-        private const val MELEE_MAX_HIT = 60
-        private const val MAGIC_MAX_HIT = 55
-        private const val RANGED_MAX_HIT = 57
-        private const val MAGIC_ATTACKS = 2
-        private const val RANGED_ATTACKS = 2
-        private const val MELEE_ATTACKS = 2
     }
 
     init {
@@ -61,18 +56,27 @@ class WardenCombatPlugin(
             val npc = ctx as Npc
             npc.attr[DAMAGE_TRACKER_ATTR] = 0
             npc.attr[LAST_HP_ATTR] = npc.getMaxHp()
-            npc.attr[PRAYER_INDEX_ATTR] = 0 // Start with Protect from Magic
-            npc.attr[ATTACK_COUNT_ATTR] = 0
-            npc.attr[ATTACK_PHASE_ATTR] = 0 // 0 = Magic, 1 = Ranged, 2 = Melee
-            npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
+            npc.attr[PRAYER_INDEX_ATTR] = 2 // Start with Protect from Melee (first prayer) - Phase 0
+            npc.attr[PRAYER_INDEX_2_ATTR] = 1 // Start with Protect from Missiles (second prayer) - Phase 0
+            npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id // Display first prayer
         }
 
         onNpcCombat("npc.tumekens_warden_11756") {
             val npc = ctx as Npc
             val target = npc.getCombatTarget() ?: return@onNpcCombat
             
+            // Prevent multiple combat loops from running simultaneously
+            if (npc.attr[COMBAT_ACTIVE_ATTR] == true) {
+                return@onNpcCombat
+            }
+            
+            npc.attr[COMBAT_ACTIVE_ATTR] = true
             npc.queue {
-                wardenCombat(target)
+                try {
+                    wardenCombat(target)
+                } finally {
+                    npc.attr[COMBAT_ACTIVE_ATTR] = false
+                }
             }
         }
     }
@@ -85,10 +89,9 @@ class WardenCombatPlugin(
         if (!npc.attr.has(DAMAGE_TRACKER_ATTR)) {
             npc.attr[DAMAGE_TRACKER_ATTR] = 0
             npc.attr[LAST_HP_ATTR] = npc.getMaxHp()
-            npc.attr[PRAYER_INDEX_ATTR] = 0
-            npc.attr[ATTACK_COUNT_ATTR] = 0
-            npc.attr[ATTACK_PHASE_ATTR] = 0
-            npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
+            npc.attr[PRAYER_INDEX_ATTR] = 2 // First prayer: Melee - Phase 0
+            npc.attr[PRAYER_INDEX_2_ATTR] = 1 // Second prayer: Missiles - Phase 0
+            npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id // Display first prayer
         }
         
         while (npc.canEngageCombat(target)) {
@@ -117,70 +120,26 @@ class WardenCombatPlugin(
                 npc.attr[LAST_HP_ATTR] = currentHp
             }
             
-            // Perform combat with attack pattern: 2 magic -> 2 ranged -> 2 melee (if adjacent)
-            var attackPhase = npc.attr[ATTACK_PHASE_ATTR] ?: 0
-            var attackCount = npc.attr[ATTACK_COUNT_ATTR] ?: 0
+            // Determine current prayer phase and allowed attack type
+            // Phase 0: (Melee + Missiles) -> Only Magic attacks
+            // Phase 1: (Magic + Melee) -> Only Ranged attacks
+            // Phase 2: (Missiles + Magic) -> Only Melee attacks
+            val prayer1 = npc.attr[PRAYER_INDEX_ATTR] ?: 2
+            val prayer2 = npc.attr[PRAYER_INDEX_2_ATTR] ?: 1
             
-            // Determine which attack type to use based on phase
-            val attackType = when (attackPhase) {
-                0 -> { // Magic phase
-                    if (attackCount >= MAGIC_ATTACKS) {
-                        // Move to ranged phase
-                        attackPhase = 1
-                        attackCount = 0
-                        npc.attr[ATTACK_PHASE_ATTR] = attackPhase
-                        npc.attr[ATTACK_COUNT_ATTR] = attackCount
-                        1 // Ranged
-                    } else {
-                        0 // Magic
-                    }
-                }
-                1 -> { // Ranged phase
-                    if (attackCount >= RANGED_ATTACKS) {
-                        // Check if we can do melee (if adjacent)
-                        val distanceToTarget = npc.tile.getDistance(target.tile)
-                        if (distanceToTarget <= 2) {
-                            // Move to melee phase
-                            attackPhase = 2
-                            attackCount = 0
-                            npc.attr[ATTACK_PHASE_ATTR] = attackPhase
-                            npc.attr[ATTACK_COUNT_ATTR] = attackCount
-                            2 // Melee
-                        } else {
-                            // Not adjacent, restart with magic
-                            attackPhase = 0
-                            attackCount = 0
-                            npc.attr[ATTACK_PHASE_ATTR] = attackPhase
-                            npc.attr[ATTACK_COUNT_ATTR] = attackCount
-                            0 // Magic
-                        }
-                    } else {
-                        1 // Ranged
-                    }
-                }
-                2 -> { // Melee phase
-                    if (attackCount >= MELEE_ATTACKS) {
-                        // Restart cycle with magic (repeats)
-                        attackPhase = 0
-                        attackCount = 0
-                        npc.attr[ATTACK_PHASE_ATTR] = attackPhase
-                        npc.attr[ATTACK_COUNT_ATTR] = attackCount
-                        0 // Magic - cycle repeats
-                    } else {
-                        // Check if still in melee range
-                        val distanceToTarget = npc.tile.getDistance(target.tile)
-                        if (distanceToTarget > 2) {
-                            // Too far, restart with magic
-                            attackPhase = 0
-                            attackCount = 0
-                            npc.attr[ATTACK_PHASE_ATTR] = attackPhase
-                            npc.attr[ATTACK_COUNT_ATTR] = attackCount
-                            0 // Magic
-                        } else {
-                            2 // Melee
-                        }
-                    }
-                }
+            // Determine which phase we're in based on prayer combination
+            val prayerPhase = when {
+                (prayer1 == 2 && prayer2 == 1) || (prayer1 == 1 && prayer2 == 2) -> 0 // Melee + Missiles -> Phase 0 (Magic attacks)
+                (prayer1 == 0 && prayer2 == 2) || (prayer1 == 2 && prayer2 == 0) -> 1 // Magic + Melee -> Phase 1 (Ranged attacks)
+                (prayer1 == 1 && prayer2 == 0) || (prayer1 == 0 && prayer2 == 1) -> 2 // Missiles + Magic -> Phase 2 (Melee attacks)
+                else -> 0 // Default to phase 0
+            }
+            
+            // Determine attack type based on phase
+            val attackType = when (prayerPhase) {
+                0 -> 0 // Phase 0: Only Magic attacks
+                1 -> 1 // Phase 1: Only Ranged attacks
+                2 -> 2 // Phase 2: Only Melee attacks
                 else -> 0
             }
             
@@ -196,18 +155,12 @@ class WardenCombatPlugin(
                 when (attackType) {
                     0 -> {
                         npc.wardenMagicAttack(target)
-                        attackCount++
-                        npc.attr[ATTACK_COUNT_ATTR] = attackCount
                     }
                     1 -> {
                         npc.wardenRangedAttack(target)
-                        attackCount++
-                        npc.attr[ATTACK_COUNT_ATTR] = attackCount
                     }
                     2 -> {
                         npc.wardenMeleeAttack(target)
-                        attackCount++
-                        npc.attr[ATTACK_COUNT_ATTR] = attackCount
                     }
                 }
             }
@@ -224,182 +177,117 @@ class WardenCombatPlugin(
     }
     
     /**
-     * Switches to the next protection prayer in the cycle
+     * Switches to the next protection prayer pair in the cycle
+     * Cycles through: (Melee+Missiles) -> (Magic+Melee) -> (Missiles+Magic) -> (Melee+Missiles)...
      */
     private fun switchPrayer(npc: Npc) {
-        val currentIndex = npc.attr[PRAYER_INDEX_ATTR] ?: 0
-        val nextIndex = (currentIndex + 1) % 3
+        val currentIndex = npc.attr[PRAYER_INDEX_ATTR] ?: 2
+        val currentIndex2 = npc.attr[PRAYER_INDEX_2_ATTR] ?: 1
+        
+        // Calculate next prayer pair
+        // Phase 0: (2,1) Melee + Missiles
+        // Phase 1: (0,2) Magic + Melee
+        // Phase 2: (1,0) Missiles + Magic
+        // Cycle: (2,1) -> (0,2) -> (1,0) -> (2,1)...
+        val (nextIndex, nextIndex2) = when {
+            currentIndex == 2 && currentIndex2 == 1 -> Pair(0, 2) // Phase 0 -> Phase 1: (2,1) -> (0,2)
+            currentIndex == 0 && currentIndex2 == 2 -> Pair(1, 0) // Phase 1 -> Phase 2: (0,2) -> (1,0)
+            currentIndex == 1 && currentIndex2 == 0 -> Pair(2, 1) // Phase 2 -> Phase 0: (1,0) -> (2,1)
+            // Handle reversed order
+            currentIndex == 1 && currentIndex2 == 2 -> Pair(0, 2) // (1,2) -> (0,2)
+            currentIndex == 2 && currentIndex2 == 0 -> Pair(1, 0) // (2,0) -> (1,0)
+            currentIndex == 0 && currentIndex2 == 1 -> Pair(2, 1) // (0,1) -> (2,1)
+            else -> Pair(2, 1) // Default to Phase 0
+        }
         
         npc.attr[PRAYER_INDEX_ATTR] = nextIndex
+        npc.attr[PRAYER_INDEX_2_ATTR] = nextIndex2
         
         // Play prayer switch sound
         npc.world.spawn(AreaSound(npc.tile, id = Sound.ALTAR_PRAY, radius = 10, volume = 5))
         
-        when (nextIndex) {
-            0 -> {
-                npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
-                npc.forceChat("The Warden switches to Protect from Magic!")
-            }
-            1 -> {
-                npc.prayerIcon = PrayerIcon.PROTECT_FROM_MISSILES.id
-                npc.forceChat("The Warden switches to Protect from Missiles!")
-            }
-            2 -> {
-                npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id
-                npc.forceChat("The Warden switches to Protect from Melee!")
-            }
+        // Display the first prayer icon and announce both prayers
+        val prayer1Name = when (nextIndex) {
+            0 -> "Protect from Magic"
+            1 -> "Protect from Missiles"
+            2 -> "Protect from Melee"
+            else -> "Unknown"
         }
+        val prayer2Name = when (nextIndex2) {
+            0 -> "Protect from Magic"
+            1 -> "Protect from Missiles"
+            2 -> "Protect from Melee"
+            else -> "Unknown"
+        }
+        
+        // Set the displayed prayer icon to the first prayer
+        npc.prayerIcon = when (nextIndex) {
+            0 -> PrayerIcon.PROTECT_FROM_MAGIC.id
+            1 -> PrayerIcon.PROTECT_FROM_MISSILES.id
+            2 -> PrayerIcon.PROTECT_FROM_MELEE.id
+            else -> -1
+        }
+        
+        npc.forceChat("The Warden switches to $prayer1Name and $prayer2Name!")
     }
     
     /**
-     * Custom melee attack with max hit of 60
-     * If target has Protect from Melee prayer active, max hit is reduced to 3
-     * Shows sword graphic and waits 2 seconds before damage
+     * Standard melee attack
      */
     private fun Npc.wardenMeleeAttack(target: Pawn) {
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
         animate(422) // Melee attack animation
         
-        // Play sword attack sound
-        if (target is Player) {
-            target.playSound(Sound.SWORD_HIT2, volume = 5)
-        }
+        // Use standard combat formula
+        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
+        val maxHit = MeleeCombatFormula.getMaxHit(this, target)
         
-        // Show sword graphic indicator - stays visible until damage
-        target.graphic(id = 248, height = 0, delay = 0) // DRAGON_LONGSWORD_SPECIAL - sword graphic
-        
-        // Wait 2 seconds (120 ticks) before dealing damage
-        this.world.queue {
-            wait(120) // 2 seconds delay
-            
-            // Re-check prayer after delay (player might have switched)
-            val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
-                3  // Max hit reduced to 3 through protection prayer
-            } else {
-                MELEE_MAX_HIT
-            }
-            
-            if (MeleeCombatFormula.getAccuracy(this@wardenMeleeAttack, target) >= this@wardenMeleeAttack.world.randomDouble()) {
-                val damage = this@wardenMeleeAttack.world.random(maxHit + 1)
-                target.hit(damage, type = HitType.HIT, delay = 1)
-                // Play hit sound
-                if (target is Player) {
-                    target.playSound(Sound.SWORD_HIT2_MAIL, volume = 5)
-                }
-            } else {
-                target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
-                // Play block sound
-                if (target is Player) {
-                    target.playSound(Sound.SWORDCLASH4, volume = 5)
-                }
-            }
+        if (accuracy >= this.world.randomDouble()) {
+            val damage = this.world.random(maxHit + 1)
+            target.hit(damage, type = HitType.HIT)
+        } else {
+            target.hit(damage = 0, type = HitType.BLOCK)
         }
     }
     
     /**
-     * Custom magic attack with max hit of 55
-     * If target has Protect from Magic prayer active, max hit is reduced to 3
-     * Shows big orb projectile and waits 2 seconds before damage
+     * Standard magic attack
      */
     private fun Npc.wardenMagicAttack(target: Pawn) {
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         attr[Combat.CASTING_SPELL] = CombatSpell.FIRE_BLAST
         animate(422) // Magic attack animation
         
-        // Play magic casting sound
-        if (target is Player) {
-            target.playSound(Sound.FIREWAVE_CAST_AND_FIRE, volume = 5)
-        }
+        // Use standard combat formula
+        val accuracy = MagicCombatFormula.getAccuracy(this, target)
+        val maxHit = MagicCombatFormula.getMaxHit(this, target)
         
-        // Create big orb projectile with long lifespan to stay visible for 2 seconds
-        val projectile = Projectile.Builder()
-            .setTiles(start = this.tile, target = target)
-            .setGfx(1465) // FIRE_SURGE_PROJECTILE - big orb
-            .setHeights(startHeight = 43, endHeight = 31)
-            .setSlope(angle = 16, steepness = 64)
-            .setTimes(delay = 51, lifespan = 51 + 120) // Long lifespan to stay visible for 2 seconds
-            .build()
-        this.world.spawn(projectile)
-        
-        // Wait 2 seconds (120 ticks) before dealing damage
-        this.world.queue {
-            wait(120) // 2 seconds delay
-            
-            // Re-check prayer after delay (player might have switched)
-            val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MAGIC)) {
-                3  // Max hit reduced to 3 through protection prayer
-            } else {
-                MAGIC_MAX_HIT
-            }
-            
-            if (MagicCombatFormula.getAccuracy(this@wardenMagicAttack, target) >= this@wardenMagicAttack.world.randomDouble()) {
-                val damage = this@wardenMagicAttack.world.random(maxHit + 1)
-                target.hit(damage, type = HitType.HIT)
-                // Play magic hit sound
-                if (target is Player) {
-                    target.playSound(Sound.FIREWAVE_HIT, volume = 5)
-                }
-            } else {
-                target.hit(damage = 0, type = HitType.BLOCK)
-                // Play block sound
-                if (target is Player) {
-                    target.playSound(Sound.SPLASH, volume = 5)
-                }
-            }
+        if (accuracy >= this.world.randomDouble()) {
+            val damage = this.world.random(maxHit + 1)
+            target.hit(damage, type = HitType.HIT)
+        } else {
+            target.hit(damage = 0, type = HitType.BLOCK)
         }
         
         attr.remove(Combat.CASTING_SPELL)
     }
     
     /**
-     * Custom ranged attack with max hit of 57
-     * If target has Protect from Missiles prayer active, max hit is reduced to 3
-     * Shows arrow projectile and waits 2 seconds before damage
+     * Standard ranged attack
      */
     private fun Npc.wardenRangedAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
         animate(426) // Ranged attack animation
         
-        // Play bow/arrow attack sound
-        if (target is Player) {
-            target.playSound(Sound.ARROW_LAUNCH, volume = 5)
-        }
+        // Use standard combat formula
+        val accuracy = RangedCombatFormula.getAccuracy(this, target)
+        val maxHit = RangedCombatFormula.getMaxHit(this, target)
         
-        // Create arrow projectile with long lifespan to stay visible for 2 seconds
-        val projectile = Projectile.Builder()
-            .setTiles(start = this.tile, target = target)
-            .setGfx(15) // RUNE_ARROW_PROJECTILE - arrow
-            .setHeights(startHeight = 40, endHeight = 36)
-            .setSlope(angle = 15, steepness = 11)
-            .setTimes(delay = 41, lifespan = 41 + 120) // Long lifespan to stay visible for 2 seconds
-            .build()
-        this.world.spawn(projectile)
-        
-        // Wait 2 seconds (120 ticks) before dealing damage
-        this.world.queue {
-            wait(120) // 2 seconds delay
-            
-            // Re-check prayer after delay (player might have switched)
-            val maxHit = if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MISSILES)) {
-                3  // Max hit reduced to 3 through protection prayer
-            } else {
-                RANGED_MAX_HIT
-            }
-            
-            if (RangedCombatFormula.getAccuracy(this@wardenRangedAttack, target) >= this@wardenRangedAttack.world.randomDouble()) {
-                val damage = this@wardenRangedAttack.world.random(maxHit + 1)
-                target.hit(damage, type = HitType.HIT)
-                // Play arrow hit sound
-                if (target is Player) {
-                    target.playSound(Sound.EQUIP_RANGED, volume = 5)
-                }
-            } else {
-                target.hit(damage = 0, type = HitType.BLOCK)
-                // Play block sound
-                if (target is Player) {
-                    target.playSound(Sound.SWORDCLASH4, volume = 5)
-                }
-            }
+        if (accuracy >= this.world.randomDouble()) {
+            val damage = this.world.random(maxHit + 1)
+            target.hit(damage, type = HitType.HIT)
+        } else {
+            target.hit(damage = 0, type = HitType.BLOCK)
         }
     }
 }
