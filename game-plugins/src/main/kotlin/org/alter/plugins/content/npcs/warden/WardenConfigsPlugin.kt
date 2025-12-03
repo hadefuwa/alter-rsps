@@ -96,6 +96,15 @@ class WardenConfigsPlugin(
                 death = 836
             }
 
+            sounds {
+                attackSound = Sound.DEMON_ATTACK  // Powerful demon attack sound
+                blockSound = Sound.DEMON_HIT  // Demon hit/block sound
+                deathSound = Sound.DEMON_DEATH  // Demon death sound
+                defaultAttackSoundArea = true  // Play as area sound
+                defaultAttackSoundRadius = 10  // Sound radius
+                defaultAttackSoundVolume = 5  // Sound volume
+            }
+
             drops {
                 always {
                     add("item.bones", 1)

@@ -19,6 +19,8 @@ import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
 import org.alter.plugins.content.mechanics.prayer.PrayerIcon
 import org.alter.game.model.entity.Projectile
+import org.alter.api.cfg.Sound
+import org.alter.game.model.entity.AreaSound
 
 /**
  * Warden Combat Plugin
@@ -230,6 +232,9 @@ class WardenCombatPlugin(
         
         npc.attr[PRAYER_INDEX_ATTR] = nextIndex
         
+        // Play prayer switch sound
+        npc.world.spawn(AreaSound(npc.tile, id = Sound.ALTAR_PRAY, radius = 10, volume = 5))
+        
         when (nextIndex) {
             0 -> {
                 npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
@@ -255,6 +260,11 @@ class WardenCombatPlugin(
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
         animate(422) // Melee attack animation
         
+        // Play sword attack sound
+        if (target is Player) {
+            target.playSound(Sound.SWORD_HIT2, volume = 5)
+        }
+        
         // Show sword graphic indicator - stays visible until damage
         target.graphic(id = 248, height = 0, delay = 0) // DRAGON_LONGSWORD_SPECIAL - sword graphic
         
@@ -272,8 +282,16 @@ class WardenCombatPlugin(
             if (MeleeCombatFormula.getAccuracy(this@wardenMeleeAttack, target) >= this@wardenMeleeAttack.world.randomDouble()) {
                 val damage = this@wardenMeleeAttack.world.random(maxHit + 1)
                 target.hit(damage, type = HitType.HIT, delay = 1)
+                // Play hit sound
+                if (target is Player) {
+                    target.playSound(Sound.SWORD_HIT2_MAIL, volume = 5)
+                }
             } else {
                 target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
+                // Play block sound
+                if (target is Player) {
+                    target.playSound(Sound.SWORDCLASH4, volume = 5)
+                }
             }
         }
     }
@@ -287,6 +305,11 @@ class WardenCombatPlugin(
         prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.ACCURATE)
         attr[Combat.CASTING_SPELL] = CombatSpell.FIRE_BLAST
         animate(422) // Magic attack animation
+        
+        // Play magic casting sound
+        if (target is Player) {
+            target.playSound(Sound.FIREWAVE_CAST_AND_FIRE, volume = 5)
+        }
         
         // Create big orb projectile with long lifespan to stay visible for 2 seconds
         val projectile = Projectile.Builder()
@@ -312,8 +335,16 @@ class WardenCombatPlugin(
             if (MagicCombatFormula.getAccuracy(this@wardenMagicAttack, target) >= this@wardenMagicAttack.world.randomDouble()) {
                 val damage = this@wardenMagicAttack.world.random(maxHit + 1)
                 target.hit(damage, type = HitType.HIT)
+                // Play magic hit sound
+                if (target is Player) {
+                    target.playSound(Sound.FIREWAVE_HIT, volume = 5)
+                }
             } else {
                 target.hit(damage = 0, type = HitType.BLOCK)
+                // Play block sound
+                if (target is Player) {
+                    target.playSound(Sound.SPLASH, volume = 5)
+                }
             }
         }
         
@@ -328,6 +359,11 @@ class WardenCombatPlugin(
     private fun Npc.wardenRangedAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
         animate(426) // Ranged attack animation
+        
+        // Play bow/arrow attack sound
+        if (target is Player) {
+            target.playSound(Sound.ARROW_LAUNCH, volume = 5)
+        }
         
         // Create arrow projectile with long lifespan to stay visible for 2 seconds
         val projectile = Projectile.Builder()
@@ -353,8 +389,16 @@ class WardenCombatPlugin(
             if (RangedCombatFormula.getAccuracy(this@wardenRangedAttack, target) >= this@wardenRangedAttack.world.randomDouble()) {
                 val damage = this@wardenRangedAttack.world.random(maxHit + 1)
                 target.hit(damage, type = HitType.HIT)
+                // Play arrow hit sound
+                if (target is Player) {
+                    target.playSound(Sound.EQUIP_RANGED, volume = 5)
+                }
             } else {
                 target.hit(damage = 0, type = HitType.BLOCK)
+                // Play block sound
+                if (target is Player) {
+                    target.playSound(Sound.SWORDCLASH4, volume = 5)
+                }
             }
         }
     }
