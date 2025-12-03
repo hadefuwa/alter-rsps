@@ -4,6 +4,8 @@ import org.alter.api.*
 import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
 import org.alter.plugins.content.mechanics.prayer.PrayerIcon
+import org.alter.plugins.content.mechanics.prayer.Prayers
+import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.game.*
 import org.alter.game.model.*
 import org.alter.game.model.combat.AttackStyle
@@ -123,17 +125,38 @@ class VardorvisCombatPlugin(
         // Play attack sound
         world.spawn(AreaSound(this.tile, Sound.DEMON_CHAMPION_ATTACK, radius = 10, volume = 50))
         
-        val maxHit = MeleeCombatFormula.getMaxHit(this, target)
-        dealHit(
-            target = target,
-            maxHit = maxHit,
-            landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
-            delay = 1
-        ) { hit ->
-            if (hit.landed() && target is Player) {
-                // Visual feedback
-                target.graphic(100) // Hit graphic
+        // Check if player has Protect from Melee
+        val hasProtectMelee = target is Player && Prayers.isActive(target, Prayer.PROTECT_FROM_MELEE)
+        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
+        val landHit = accuracy >= world.randomDouble()
+        
+        if (landHit) {
+            if (hasProtectMelee) {
+                // Player is praying melee - deal normal formula damage (reduced by prayer)
+                val maxHit = MeleeCombatFormula.getMaxHit(this, target)
+                dealHit(
+                    target = target,
+                    maxHit = maxHit,
+                    landHit = true,
+                    delay = 1
+                ) { hit ->
+                    if (target is Player) {
+                        target.graphic(100) // Hit graphic
+                        target.message("Your Protect from Melee reduces Vardorvis's damage!")
+                    }
+                }
+            } else {
+                // Player is NOT praying melee - guaranteed 30-45 damage
+                val damage = world.random(30..45)
+                target.hit(damage, type = HitType.HIT, delay = 1)
+                if (target is Player) {
+                    target.graphic(100) // Hit graphic
+                    target.message("Vardorvis strikes you for $damage damage!")
+                }
             }
+        } else {
+            // Miss
+            target.hit(0, type = HitType.BLOCK, delay = 1)
         }
     }
 
@@ -209,13 +232,37 @@ class VardorvisCombatPlugin(
         }
         
         // Also hit the main target
-        val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 10 // Bonus damage
-        dealHit(
-            target = target,
-            maxHit = maxHit,
-            landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
-            delay = 2
-        )
+        // Check if player has Protect from Melee
+        val hasProtectMelee = target is Player && Prayers.isActive(target, Prayer.PROTECT_FROM_MELEE)
+        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
+        val landHit = accuracy >= world.randomDouble()
+        
+        if (landHit) {
+            if (hasProtectMelee) {
+                // Player is praying melee - deal normal formula damage (reduced by prayer)
+                val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 10 // Bonus damage
+                dealHit(
+                    target = target,
+                    maxHit = maxHit,
+                    landHit = true,
+                    delay = 2
+                ) { hit ->
+                    if (target is Player) {
+                        target.message("Your Protect from Melee reduces Vardorvis's ground slam damage!")
+                    }
+                }
+            } else {
+                // Player is NOT praying melee - guaranteed 30-45 damage
+                val damage = world.random(30..45)
+                target.hit(damage, type = HitType.HIT, delay = 2)
+                if (target is Player) {
+                    target.message("Vardorvis's ground slam crushes you for $damage damage!")
+                }
+            }
+        } else {
+            // Miss
+            target.hit(0, type = HitType.BLOCK, delay = 2)
+        }
     }
 
     /**
@@ -320,18 +367,38 @@ class VardorvisCombatPlugin(
         // Show charge graphic
         graphic(100) // Charge effect
         
-        // Powerful hit
-        val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 15 // Extra damage for charge
-        dealHit(
-            target = target,
-            maxHit = maxHit,
-            landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
-            delay = 2
-        ) { hit ->
-            if (hit.landed() && target is Player) {
-                target.graphic(100) // Impact graphic
-                target.message("Vardorvis's charge sends you reeling!")
+        // Check if player has Protect from Melee
+        val hasProtectMelee = target is Player && Prayers.isActive(target, Prayer.PROTECT_FROM_MELEE)
+        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
+        val landHit = accuracy >= world.randomDouble()
+        
+        if (landHit) {
+            if (hasProtectMelee) {
+                // Player is praying melee - deal normal formula damage (reduced by prayer)
+                val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 15 // Extra damage for charge
+                dealHit(
+                    target = target,
+                    maxHit = maxHit,
+                    landHit = true,
+                    delay = 2
+                ) { hit ->
+                    if (target is Player) {
+                        target.graphic(100) // Impact graphic
+                        target.message("Your Protect from Melee reduces Vardorvis's charge damage!")
+                    }
+                }
+            } else {
+                // Player is NOT praying melee - guaranteed 30-45 damage
+                val damage = world.random(30..45)
+                target.hit(damage, type = HitType.HIT, delay = 2)
+                if (target is Player) {
+                    target.graphic(100) // Impact graphic
+                    target.message("Vardorvis's charge sends you reeling for $damage damage!")
+                }
             }
+        } else {
+            // Miss
+            target.hit(0, type = HitType.BLOCK, delay = 2)
         }
     }
 
@@ -356,16 +423,47 @@ class VardorvisCombatPlugin(
             delay = 1
         ))
         
-        // Deal damage
-        val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 20 // Extra damage for spike attack
-        val landHit = MeleeCombatFormula.getAccuracy(this, target) >= world.randomDouble()
+        // Check if player has Protect from Melee
+        val hasProtectMelee = target is Player && Prayers.isActive(target, Prayer.PROTECT_FROM_MELEE)
+        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
+        val landHit = accuracy >= world.randomDouble()
         
         if (landHit) {
-            // Calculate damage
-            val damage = world.random(maxHit + 1) // 0 to maxHit
-            
-            if (damage > 0) {
-                // Deal the hit
+            if (hasProtectMelee) {
+                // Player is praying melee - deal normal formula damage (reduced by prayer)
+                val maxHit = MeleeCombatFormula.getMaxHit(this, target) + 20 // Extra damage for spike attack
+                val damage = world.random(maxHit + 1) // 0 to maxHit
+                
+                if (damage > 0) {
+                    target.hit(damage, type = HitType.HIT, delay = 2)
+                    
+                    // Heal Vardorvis after hit lands
+                    world.queue {
+                        wait(2) // Wait for hit to land
+                        
+                        val currentHp = this@spikeAttack.getCurrentHp()
+                        val maxHp = this@spikeAttack.getMaxHp()
+                        val healAmount = minOf(damage, maxHp - currentHp) // Don't heal beyond max HP
+                        
+                        if (healAmount > 0) {
+                            this@spikeAttack.setCurrentHp(minOf(currentHp + healAmount, maxHp))
+                            this@spikeAttack.graphic(436) // Healing graphic
+                        }
+                    }
+                    
+                    if (target is Player) {
+                        target.graphic(100) // Impact graphic on player
+                        target.message("Your Protect from Melee reduces Vardorvis's spike attack! He heals for $damage damage!")
+                    }
+                } else {
+                    target.hit(0, type = HitType.BLOCK, delay = 2)
+                    if (target is Player) {
+                        target.message("Vardorvis's spike attack glances off!")
+                    }
+                }
+            } else {
+                // Player is NOT praying melee - guaranteed 30-45 damage
+                val damage = world.random(30..45)
                 target.hit(damage, type = HitType.HIT, delay = 2)
                 
                 // Heal Vardorvis after hit lands
@@ -381,18 +479,12 @@ class VardorvisCombatPlugin(
                         
                         // Show healing graphic
                         this@spikeAttack.graphic(436) // Healing graphic
-                        
-                        if (target is Player) {
-                            target.graphic(100) // Impact graphic on player
-                            target.message("Vardorvis's spike attack drains your life force! He heals for $damage damage!")
-                        }
                     }
                 }
-            } else {
-                // Hit but 0 damage
-                target.hit(0, type = HitType.BLOCK, delay = 2)
+                
                 if (target is Player) {
-                    target.message("Vardorvis's spike attack glances off!")
+                    target.graphic(100) // Impact graphic on player
+                    target.message("Vardorvis's spike attack drains your life force for $damage damage! He heals for $damage damage!")
                 }
             }
         } else {
