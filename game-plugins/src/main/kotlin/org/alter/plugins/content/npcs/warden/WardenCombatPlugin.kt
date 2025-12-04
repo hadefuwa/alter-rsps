@@ -10,6 +10,7 @@ import org.alter.game.model.entity.*
 import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
 import org.alter.api.ProjectileType
+import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.Combat
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
@@ -17,7 +18,6 @@ import org.alter.plugins.content.combat.formula.RangedCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.plugins.content.combat.strategy.magic.CombatSpell
-import org.alter.plugins.content.mechanics.prayer.PrayerIcon
 import org.alter.api.cfg.Sound
 import org.alter.game.model.entity.AreaSound
 
@@ -159,12 +159,19 @@ class WardenCombatPlugin(
                         npc.wardenMeleeAttack(target)
                     }
                 }
+                // Set attack delay after attacking
+                Combat.postAttack(npc, target)
             }
             
             wait(1)
             val newTarget = npc.getCombatTarget() ?: break
             target = newTarget
         }
+        
+        // When combat ends (player teleports away or leaves), restore full health
+        npc.setCurrentHp(npc.getMaxHp())
+        npc.attr[DAMAGE_TRACKER_ATTR] = 0
+        npc.attr[LAST_HP_ATTR] = npc.getMaxHp()
         
         // Clear prayer icon when combat ends
         npc.prayerIcon = -1
@@ -234,15 +241,23 @@ class WardenCombatPlugin(
         prepareAttack(CombatClass.MELEE, CombatStyle.SLASH, AttackStyle.AGGRESSIVE)
         animate(422) // Melee attack animation
         
+        // Play attack sound
+        val combatDef = this.combatDef
+        if (combatDef.defaultAttackSoundArea) {
+            world.spawn(AreaSound(this.tile, combatDef.defaultAttackSound, combatDef.defaultAttackSoundRadius, combatDef.defaultAttackSoundVolume))
+        } else if (target is Player) {
+            target.playSound(combatDef.defaultAttackSound, combatDef.defaultAttackSoundVolume)
+        }
+        
         // Use standard combat formula
         val accuracy = MeleeCombatFormula.getAccuracy(this, target)
         val maxHit = MeleeCombatFormula.getMaxHit(this, target)
         
         if (accuracy >= this.world.randomDouble()) {
             val damage = this.world.random(maxHit + 1)
-            target.hit(damage, type = HitType.HIT)
+            target.hit(damage, type = HitType.HIT, delay = 1)
         } else {
-            target.hit(damage = 0, type = HitType.BLOCK)
+            target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
         }
     }
     
@@ -254,15 +269,30 @@ class WardenCombatPlugin(
         attr[Combat.CASTING_SPELL] = CombatSpell.FIRE_BLAST
         animate(422) // Magic attack animation
         
+        // Play attack sound
+        val combatDef = this.combatDef
+        if (combatDef.defaultAttackSoundArea) {
+            world.spawn(AreaSound(this.tile, combatDef.defaultAttackSound, combatDef.defaultAttackSoundRadius, combatDef.defaultAttackSoundVolume))
+        } else if (target is Player) {
+            target.playSound(combatDef.defaultAttackSound, combatDef.defaultAttackSoundVolume)
+        }
+        
+        // Create projectile for magic attack
+        val projectile = createProjectile(target, gfx = 1465, startHeight = 43, endHeight = 31, delay = 51, angle = 16, steepness = 64)
+        world.spawn(projectile)
+        
+        // Calculate hit delay based on distance
+        val hitDelay = RangedCombatStrategy.getHitDelay(this.getFrontFacingTile(target), target.getCentreTile())
+        
         // Use standard combat formula
         val accuracy = MagicCombatFormula.getAccuracy(this, target)
         val maxHit = MagicCombatFormula.getMaxHit(this, target)
         
         if (accuracy >= this.world.randomDouble()) {
             val damage = this.world.random(maxHit + 1)
-            target.hit(damage, type = HitType.HIT)
+            target.hit(damage, type = HitType.HIT, delay = hitDelay)
         } else {
-            target.hit(damage = 0, type = HitType.BLOCK)
+            target.hit(damage = 0, type = HitType.BLOCK, delay = hitDelay)
         }
         
         attr.remove(Combat.CASTING_SPELL)
@@ -275,15 +305,30 @@ class WardenCombatPlugin(
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
         animate(426) // Ranged attack animation
         
+        // Play attack sound
+        val combatDef = this.combatDef
+        if (combatDef.defaultAttackSoundArea) {
+            world.spawn(AreaSound(this.tile, combatDef.defaultAttackSound, combatDef.defaultAttackSoundRadius, combatDef.defaultAttackSoundVolume))
+        } else if (target is Player) {
+            target.playSound(combatDef.defaultAttackSound, combatDef.defaultAttackSoundVolume)
+        }
+        
+        // Create projectile for ranged attack
+        val projectile = createProjectile(target, gfx = 15, startHeight = 40, endHeight = 36, delay = 41, angle = 15, steepness = 11)
+        world.spawn(projectile)
+        
+        // Calculate hit delay based on distance
+        val hitDelay = RangedCombatStrategy.getHitDelay(this.getFrontFacingTile(target), target.getCentreTile())
+        
         // Use standard combat formula
         val accuracy = RangedCombatFormula.getAccuracy(this, target)
         val maxHit = RangedCombatFormula.getMaxHit(this, target)
         
         if (accuracy >= this.world.randomDouble()) {
             val damage = this.world.random(maxHit + 1)
-            target.hit(damage, type = HitType.HIT)
+            target.hit(damage, type = HitType.HIT, delay = hitDelay)
         } else {
-            target.hit(damage = 0, type = HitType.BLOCK)
+            target.hit(damage = 0, type = HitType.BLOCK, delay = hitDelay)
         }
     }
 }

@@ -16,6 +16,7 @@ import org.alter.plugins.content.combat.dealHit
 import org.alter.plugins.content.combat.getCombatTarget
 import org.alter.plugins.content.combat.specialattack.SpecialAttacks
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.combat.CombatConfigs
 
 /**
  * Chainmace Plugin
@@ -223,15 +224,6 @@ class ChainmacePlugin(
                 }
             }
             
-            // Register check option for equipped chainmace (when right-clicking equipped item)
-            onEquipmentOption("item.$variant", "check") {
-                val equipped = player.getEquipment(EquipmentType.WEAPON)
-                if (equipped?.id == getRSCM("item.$variant")) {
-                    val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
-                    player.message("Your chainmace has $charges revenant ether charges remaining.")
-                }
-            }
-            
             onItemOption("item.$variant", "uncharge") {
                 handleChainmaceUncharge(player, variant)
             }
@@ -318,17 +310,9 @@ class ChainmacePlugin(
             // Normal combat continues
         }
         
-        // Normal melee combat
-        val maxHit = MeleeCombatFormula.getMaxHit(player, target)
-        val accuracy = MeleeCombatFormula.getAccuracy(player, target)
-        val landHit = accuracy >= world.randomDouble()
-        
-        player.dealHit(
-            target = target,
-            maxHit = maxHit,
-            landHit = landHit,
-            delay = 1
-        )
+        // Execute standard combat logic
+        val strategy = CombatConfigs.getCombatStrategy(player)
+        strategy.attack(player, target)
     }
     
     private fun registerSpecialAttack() {

@@ -59,22 +59,22 @@ class KrilTsutsarothCombatPlugin(
         /**
          * Damage ranges
          */
-        private const val MELEE_MAX_HIT = 60 // Very high damage
-        private const val SPECIAL_DAMAGE_MIN = 20
-        private const val SPECIAL_DAMAGE_MAX = 40
-        private const val MAGIC_SPLASH_DAMAGE_MIN = 10
-        private const val MAGIC_SPLASH_DAMAGE_MAX = 25
+        private const val MELEE_MAX_HIT = 85 // Extremely high damage
+        private const val SPECIAL_DAMAGE_MIN = 35
+        private const val SPECIAL_DAMAGE_MAX = 65
+        private const val MAGIC_SPLASH_DAMAGE_MIN = 20
+        private const val MAGIC_SPLASH_DAMAGE_MAX = 45
         
         /**
          * Prayer drain amount
          */
-        private const val PRAYER_DRAIN_AMOUNT = 12
+        private const val PRAYER_DRAIN_AMOUNT = 25 // Heavy prayer drain
         
         /**
          * Attack chances
          */
-        private const val SPECIAL_ATTACK_CHANCE = 25 // 25% chance for special attack
-        private const val MAGIC_SPLASH_CHANCE = 10 // 10% chance for magic splash (rare)
+        private const val SPECIAL_ATTACK_CHANCE = 40 // 40% chance for special attack - much more frequent
+        private const val MAGIC_SPLASH_CHANCE = 15 // 15% chance for magic splash
     }
     
     init {
@@ -233,7 +233,7 @@ class KrilTsutsarothCombatPlugin(
         target.hit(damage, type = HitType.HIT, delay = 1)
         target.graphic(id = SPECIAL_ATTACK_GFX, height = 0, delay = 1)
         
-        // Drain prayer points (around 12)
+        // Drain prayer points (heavy drain)
         if (target is Player) {
             val currentPrayer = target.getSkills().getCurrentLevel(Skills.PRAYER)
             val drainAmount = minOf(PRAYER_DRAIN_AMOUNT, currentPrayer)
@@ -241,6 +241,13 @@ class KrilTsutsarothCombatPlugin(
                 target.getSkills().alterCurrentLevel(skill = Skills.PRAYER, value = -drainAmount, capValue = 0)
                 target.message("K'ril Tsutsaroth drains your Prayer points!")
             }
+            
+            // Also drain Defence and Attack stats
+            val defenceDrain = this.world.random(5..10)
+            val attackDrain = this.world.random(3..8)
+            target.getSkills().alterCurrentLevel(skill = Skills.DEFENCE, value = -defenceDrain, capValue = 0)
+            target.getSkills().alterCurrentLevel(skill = Skills.ATTACK, value = -attackDrain, capValue = 0)
+            target.message("K'ril Tsutsaroth weakens your combat stats!")
             
             if (damage > 0) {
                 target.message("K'ril Tsutsaroth's special attack cannot be blocked!")

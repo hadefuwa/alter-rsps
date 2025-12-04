@@ -9,6 +9,7 @@ import org.alter.game.model.attr.AttributeKey
 import org.alter.game.model.entity.Player
 import org.alter.game.model.entity.Pawn
 import org.alter.game.model.entity.Npc
+import org.alter.game.model.item.ItemAttribute
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
@@ -35,7 +36,8 @@ class ScytheOfViturPlugin(
 
     companion object {
         // Charging constants
-        const val BLOOD_RUNES_PER_CHARGE = 300
+        const val BLOOD_RUNES_PER_VIAL = 300
+        const val CHARGES_PER_VIAL = 100
         const val MAX_CHARGES = 20000
         
         // Multi-hit damage percentages
@@ -164,8 +166,8 @@ class ScytheOfViturPlugin(
         val scytheChargedId = getChargedVariant(scytheUnchargedId)
         
         // Check if player has blood runes
-        if (player.inventory.getItemCount(bloodRuneId) < BLOOD_RUNES_PER_CHARGE) {
-            player.message("You need $BLOOD_RUNES_PER_CHARGE blood runes to charge the scythe.")
+        if (player.inventory.getItemCount(bloodRuneId) < BLOOD_RUNES_PER_VIAL) {
+            player.message("You need $BLOOD_RUNES_PER_VIAL blood runes to charge the scythe.")
             return
         }
         
@@ -177,16 +179,28 @@ class ScytheOfViturPlugin(
         
         // Remove items
         player.inventory.remove(vialOfBloodId, 1)
-        player.inventory.remove(bloodRuneId, BLOOD_RUNES_PER_CHARGE)
+        player.inventory.remove(bloodRuneId, BLOOD_RUNES_PER_VIAL)
         player.inventory.remove(scytheUnchargedId, 1)
         
-        // Add charged scythe with 1 charge
-        val addResult = player.inventory.add(scytheChargedId, 1)
+        // Add charged scythe with 100 charges
+        // Use forceNoStack to ensure we can set attributes on this specific item
+        val addResult = player.inventory.add(scytheChargedId, 1, forceNoStack = true)
         if (addResult.hasSucceeded()) {
+            // Find the item we just added and set charges
+            val scytheIndex = player.inventory.getItemIndex(scytheChargedId, false)
+            if (scytheIndex != -1) {
+                val newItem = player.inventory[scytheIndex]
+                newItem?.putAttr(ItemAttribute.CHARGES, CHARGES_PER_VIAL)
+            }
+            
             player.animate(832) // Charging animation
             player.graphic(363) // Use a generic charging graphic
-            player.message("You charge the scythe with blood. It now has 1 charge.")
+            player.message("You charge the scythe with blood. It now has $CHARGES_PER_VIAL charges.")
         } else {
+            // Refund items if failed
+            player.inventory.add(vialOfBloodId, 1)
+            player.inventory.add(bloodRuneId, BLOOD_RUNES_PER_VIAL)
+            player.inventory.add(scytheUnchargedId, 1)
             player.message("Could not add charged scythe to inventory.")
         }
     }
@@ -197,27 +211,69 @@ class ScytheOfViturPlugin(
         val scytheChargedId = getRSCM("item.$chargedVariant")
         
         // Check if player has a charged scythe
-        if (player.inventory.getItemCount(scytheChargedId) < 1) {
+        val scytheIndex = player.inventory.getItemIndex(scytheChargedId, false)
+        if (scytheIndex == -1) {
             player.message("You need a charged scythe of vitur.")
             return
         }
         
-        // For simplicity, we'll just add 1 charge per vial
-        val chargesToAdd = 1 // Add 1 charge per interaction
-        val bloodRunesNeeded = chargesToAdd * BLOOD_RUNES_PER_CHARGE
+        val scythe = player.inventory[scytheIndex] ?: return
+        val currentCharges = scythe.getAttr(ItemAttribute.CHARGES) ?: 0
         
-        if (player.inventory.getItemCount(bloodRuneId) < bloodRunesNeeded) {
-            player.message("You need $bloodRunesNeeded blood runes to add $chargesToAdd charges.")
+        if (currentCharges >= MAX_CHARGES) {
+            player.message("Your scythe is already fully charged.")
             return
         }
         
+        // Calculate how many vials we can use
+        val vialsInInventory = player.inventory.getItemCount(vialOfBloodId)
+        val runesInInventory = player.inventory.getItemCount(bloodRuneId)
+        
+        // Calculate max vials we can afford with runes
+        val maxVialsByRunes = runesInInventory / BLOOD_RUNES_PER_VIAL
+        
+        // Calculate max vials we can add without exceeding max charges
+        val chargesSpace = MAX_CHARGES - currentCharges
+        val maxVialsBySpace = (chargesSpace + CHARGES_PER_VIAL - 1) / CHARGES_PER_VIAL // Ceiling division
+        
+        // Determine actual vials to use (1 per interaction for now, or max possible?)
+        // User asked for "charging 1 per blood vial instead of 100 charges", implying they want 100 charges per vial.
+        // Let's just use 1 vial per interaction to keep it simple, or maybe all?
+        // The previous code used 1 vial. Let's stick to 1 vial per interaction for safety, 
+        // or we can make it smart. Let's do 1 vial for now to match the "Use Item on Item" behavior typically.
+        
+        val vialsToUse = 1
+        val runesNeeded = vialsToUse * BLOOD_RUNES_PER_VIAL
+        
+        if (vialsInInventory < vialsToUse) {
+            player.message("You need a vial of blood.")
+            return
+        }
+        
+        if (runesInInventory < runesNeeded) {
+            player.message("You need $runesNeeded blood runes to add charges.")
+            return
+        }
+        
+        val chargesToAdd = vialsToUse * CHARGES_PER_VIAL
+        val newCharges = (currentCharges + chargesToAdd).coerceAtMost(MAX_CHARGES)
+        val actualChargesAdded = newCharges - currentCharges
+        
+        if (actualChargesAdded <= 0) {
+             player.message("Your scythe is already fully charged.")
+             return
+        }
+
         // Remove items
-        player.inventory.remove(vialOfBloodId, chargesToAdd)
-        player.inventory.remove(bloodRuneId, bloodRunesNeeded)
+        player.inventory.remove(vialOfBloodId, vialsToUse)
+        player.inventory.remove(bloodRuneId, runesNeeded)
+        
+        // Update charges
+        scythe.putAttr(ItemAttribute.CHARGES, newCharges)
         
         player.animate(832) // Charging animation
         player.graphic(363) // Use a generic charging graphic
-        player.message("You add $chargesToAdd charges to the scythe.")
+        player.message("You add $actualChargesAdded charges to the scythe. It now has $newCharges charges.")
     }
     
     private fun registerRightClickOptions() {
@@ -226,21 +282,40 @@ class ScytheOfViturPlugin(
             "holy_scythe_of_vitur",
             "sanguine_scythe_of_vitur",
             "corrupted_scythe_of_vitur"
-            // Note: scythe_of_vitur_22664 is excluded as it doesn't have "check" or "uncharge" options
-            // It only has "Wield", "Kill Area", and "Drop" options
         )
         
         chargedVariants.forEach { variant ->
-            onItemOption("item.$variant", "check") {
-                player.message("Your scythe has charges remaining. (Feature in development)")
-            }
+            // Inventory check - usually option 3 or 4
+            onItemOption("item.$variant", "Check") { checkCharges(player, variant) }
+            
+            // Equipment check - usually option 2
+            onEquipmentOption("item.$variant", "Check") { checkChargesEquipped(player, variant) }
             
             // Only non-corrupted variants can be uncharged
             if (variant != "corrupted_scythe_of_vitur") {
-                onItemOption("item.$variant", "uncharge") {
+                onItemOption("item.$variant", "Uncharge") {
                     handleScytheUncharge(player, variant)
                 }
             }
+        }
+    }
+
+    private fun checkCharges(player: Player, variant: String) {
+        val scytheIndex = player.inventory.getItemIndex(getRSCM("item.$variant"), false)
+        if (scytheIndex != -1) {
+            val scythe = player.inventory[scytheIndex]
+            val charges = scythe?.getAttr(ItemAttribute.CHARGES) ?: 0
+            player.message("Your scythe has $charges charges remaining.")
+        } else {
+            player.message("You need to have the scythe in your inventory.")
+        }
+    }
+
+    private fun checkChargesEquipped(player: Player, variant: String) {
+        val equipped = player.getEquipment(EquipmentType.WEAPON)
+        if (equipped?.id == getRSCM("item.$variant")) {
+            val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
+            player.message("Your scythe has $charges charges remaining.")
         }
     }
     
@@ -255,10 +330,15 @@ class ScytheOfViturPlugin(
             when (options(player, "Yes, uncharge it.", "No, keep it charged.")) {
                 1 -> {
                     // Remove charged scythe and add uncharged one
-                    if (player.inventory.getItemCount(scytheChargedId) > 0) {
+                    // Check inventory
+                    val inventoryIndex = player.inventory.getItemIndex(scytheChargedId, false)
+                    if (inventoryIndex != -1) {
                         player.inventory.remove(scytheChargedId, 1)
                         player.inventory.add(scytheUnchargedId, 1)
                         player.message("You uncharge the scythe. All charges have been lost.")
+                    } else {
+                        // Check equipment? Usually uncharge is only from inventory
+                        player.message("You must have the scythe in your inventory to uncharge it.")
                     }
                 }
                 2 -> {
@@ -278,9 +358,49 @@ class ScytheOfViturPlugin(
     
     private fun handleScytheCombat(player: Player) {
         val target = player.getCombatTarget() ?: return
+        val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return
+        
+        // Debug logging
+        val targetName = if (target is Npc) target.name else "Player"
+
+        
+        // Play attack animation
+        player.animate(8056)
+        
+        // Handle charges
+        // Corrupted scythe doesn't use charges
+        val isCorrupted = weapon.id == getRSCM("item.corrupted_scythe_of_vitur")
+        var hasCharges = false
+        
+        if (!isCorrupted) {
+            val charges = weapon.getAttr(ItemAttribute.CHARGES) ?: 0
+            if (charges > 0) {
+                weapon.putAttr(ItemAttribute.CHARGES, charges - 1)
+                hasCharges = true
+            } else {
+                // Out of charges
+                // If it's a charged variant, revert to uncharged
+                if (isScytheVariant(weapon.id) && !weapon.getDef().name.contains("uncharged")) {
+                     val unchargedId = getUnchargedVariant(weapon.id)
+                     player.equipment[EquipmentType.WEAPON.id] = null
+                     val addResult = player.inventory.add(unchargedId, 1)
+                     if (!addResult.hasSucceeded()) {
+                         world.spawn(org.alter.game.model.entity.GroundItem(unchargedId, 1, player.tile, player))
+                     }
+                     player.message("Your scythe has run out of charges.")
+                     return
+                }
+            }
+        } else {
+            hasCharges = true
+        }
+        
+        // Check for Sanguine variant (for healing)
+        val isSanguine = weapon.id == getRSCM("item.sanguine_scythe_of_vitur")
         
         // Check if target is large enough (2x2 or bigger)
         if (target.getSize() < MIN_MULTI_HIT_SIZE) {
+
             // Normal single hit for small targets
             val maxHit = MeleeCombatFormula.getMaxHit(player, target)
             val accuracy = MeleeCombatFormula.getAccuracy(player, target)
@@ -294,6 +414,8 @@ class ScytheOfViturPlugin(
             )
             return
         }
+        
+
         
         // Multi-hit for large targets (2x2+)
         val baseMaxHit = MeleeCombatFormula.getMaxHit(player, target)
@@ -327,6 +449,35 @@ class ScytheOfViturPlugin(
             landHit = thirdHit,
             delay = 3
         )
+        
+        // 4th Hit Logic (Blood Hit)
+        // Only triggers if charged AND all 3 normal hits landed successfully
+        if (hasCharges && firstHit && secondHit && thirdHit) {
+             // 4th hit: 20% of max hit (small percentage bonus)
+             val fourthMaxHit = (baseMaxHit * 0.2).toInt()
+             val fourthHit = accuracy >= world.randomDouble()
+             
+             // Delay 3 to match the 3rd hit or slightly after? 
+             // Using delay 3 to keep it part of the burst.
+             val hitResult = player.dealHit(
+                target = target,
+                maxHit = fourthMaxHit,
+                landHit = fourthHit,
+                delay = 3
+             )
+             
+             // Healing for Sanguine Scythe
+             if (isSanguine && fourthHit) {
+                 // Heal for 50% of the damage dealt by the 4th hit
+                 val damage = hitResult.hit.hitmarks.sumOf { it.damage }
+                 if (damage > 0) {
+                     val healAmount = damage / 2
+                     if (healAmount > 0) {
+                         player.heal(healAmount)
+                     }
+                 }
+             }
+        }
         
         // Visual effects for multi-hit
         player.graphic(1834, delay = 1) // Scythe multi-hit effect

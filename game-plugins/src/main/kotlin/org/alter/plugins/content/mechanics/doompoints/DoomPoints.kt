@@ -319,11 +319,11 @@ object DoomPoints {
         Perk(
             name = "Damage Multiplier",
             cost = 100,
-            description = "Increase all damage dealt by 5% per level (max 25%)",
+            description = "Increase all damage dealt by 25% per level (max 125%)",
             maxLevel = 5
         ) { player, level ->
-            player.attr[DAMAGE_MULTIPLIER_PERK] = level * 5
-            player.message("Damage multiplier increased to ${level * 5}%!")
+            player.attr[DAMAGE_MULTIPLIER_PERK] = level * 25
+            player.message("Damage multiplier increased to ${level * 25}%!")
         },
         
         Perk(
@@ -373,7 +373,7 @@ object DoomPoints {
      */
     fun getPerkLevel(player: Player, perkIndex: Int): Int {
         return when (perkIndex) {
-            0 -> (player.attr[DAMAGE_MULTIPLIER_PERK] ?: 0) / 5
+            0 -> (player.attr[DAMAGE_MULTIPLIER_PERK] ?: 0) / 25
             1 -> (player.attr[DROP_RATE_PERK] ?: 0) / 10
             2 -> player.attr[PASSIVE_XP_PERK] ?: 0
             3 -> (player.attr[COIN_MULTIPLIER_PERK] ?: 0) / 20

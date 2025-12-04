@@ -50,31 +50,31 @@ class KreeArraConfigsPlugin(
             }
 
             stats {
-                hitpoints = 300  // Increased from 255 - much tankier
+                hitpoints = 255  // OSRS hitpoints
                 attack = 1  // Very low attack (doesn't use melee)
                 strength = 1  // Very low strength (doesn't use melee)
-                defence = 280  // Increased from 240 - harder to hit
-                magic = 280  // Increased from 250 - stronger magic attacks
-                ranged = 320  // Increased from 280 - MUCH higher ranged (primary attack style)
+                defence = 240
+                magic = 250  // Has magic attacks
+                ranged = 280  // Very high ranged (primary attack style)
             }
 
             bonuses {
                 attackStab = 0
                 attackSlash = 0
                 attackCrush = 0
-                attackMagic = 250  // Increased from 200
-                attackRanged = 300  // Increased from 250 - much more accurate
+                attackMagic = 200
+                attackRanged = 250
 
-                defenceStab = 200  // Increased from 180
-                defenceSlash = 200  // Increased from 180
-                defenceCrush = 210  // Increased from 190
-                defenceMagic = 150  // Increased from 120
-                defenceRanged = 180  // Increased from 160
+                defenceStab = 180
+                defenceSlash = 180
+                defenceCrush = 190
+                defenceMagic = 120
+                defenceRanged = 160
 
                 attackBonus = 0
                 strengthBonus = 0
-                rangedStrengthBonus = 300  // Increased from 250 - MUCH higher damage
-                magicDamageBonus = 250  // Increased from 200
+                rangedStrengthBonus = 250
+                magicDamageBonus = 200
             }
 
             anims {

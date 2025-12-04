@@ -11,6 +11,8 @@ import org.alter.game.info.PlayerInfo
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.combat.CombatConfigs
+import org.alter.plugins.content.combat.getCombatTarget
 
 /**
  * Webweaver Plugin
@@ -175,33 +177,22 @@ class WebweaverPlugin(
     }
     
     private fun registerRightClickOptions() {
-        /**
-         * Check/Check charges
-         */
-        val checkCharges: Plugin.() -> Unit = {
-            val webweaverIndex = player.inventory.getItemIndex(getRSCM("item.webweaver_bow"), false)
-            val webweaver = if (webweaverIndex != -1) {
-                player.inventory[webweaverIndex]
-            } else {
-                player.getEquipment(EquipmentType.WEAPON)
-            }
-            
-            if (webweaver != null && webweaver.id == getRSCM("item.webweaver_bow")) {
-                val charges = webweaver.getAttr(ItemAttribute.CHARGES) ?: 0
-                player.message("Your webweaver bow has $charges revenant ether charges remaining.")
-            }
-        }
-        
-        // Register for inventory
+        // Register check option for inventory
         onItemOption("item.webweaver_bow", "check") {
-            checkCharges()
+            val webweaverIndex = player.inventory.getItemIndex(getRSCM("item.webweaver_bow"), false)
+            if (webweaverIndex != -1) {
+                val webweaver = player.inventory[webweaverIndex]
+                val charges = webweaver?.getAttr(ItemAttribute.CHARGES) ?: 0
+                player.message("Your webweaver bow has $charges revenant ether charges remaining.")
+            } else {
+                player.message("You need to have the webweaver bow in your inventory or equipped.")
+            }
         }
         
-        // Register for equipped item - option 2 for Check
-        r.bindEquipmentOption(getRSCM("item.webweaver_bow"), 2) {
+        // Register check option for equipped webweaver bow
+        onEquipmentOption("item.webweaver_bow", "check") {
             val equipped = player.getEquipment(EquipmentType.WEAPON)
-            
-            if (equipped != null && equipped.id == getRSCM("item.webweaver_bow")) {
+            if (equipped?.id == getRSCM("item.webweaver_bow")) {
                 val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
                 player.message("Your webweaver bow has $charges revenant ether charges remaining.")
             }
@@ -264,6 +255,7 @@ class WebweaverPlugin(
     }
     
     private fun handleWebweaverCombat(player: Player) {
+        val target = player.getCombatTarget() ?: return
         val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return
         
         // Check if webweaver bow is charged (has charges attribute)
@@ -291,6 +283,10 @@ class WebweaverPlugin(
             // Uncharged webweaver bow - can still attack but no bonuses
             // Normal combat continues
         }
+
+        // Execute standard combat logic
+        val strategy = CombatConfigs.getCombatStrategy(player)
+        strategy.attack(player, target)
     }
     
     private fun registerDeathHandler() {
@@ -322,4 +318,3 @@ class WebweaverPlugin(
         }
     }
 }
-

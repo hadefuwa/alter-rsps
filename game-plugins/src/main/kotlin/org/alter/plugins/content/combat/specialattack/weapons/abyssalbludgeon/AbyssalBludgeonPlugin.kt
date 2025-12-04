@@ -12,6 +12,8 @@ import org.alter.game.plugin.PluginRepository
 import org.alter.plugins.content.combat.dealHit
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.specialattack.SpecialAttacks
+import org.alter.plugins.content.combat.CombatConfigs
+import org.alter.plugins.content.combat.getCombatTarget
 
 class AbyssalBludgeonPlugin(
     r: PluginRepository,

@@ -24,7 +24,7 @@ import org.alter.game.plugin.*
  * 
  * Location: 3237, 2774
  * Combat Level: 700+
- * Hitpoints: 2500+
+ * Hitpoints: 2000+
  */
 class WardenConfigsPlugin(
     r: PluginRepository,
@@ -35,21 +35,6 @@ class WardenConfigsPlugin(
     init {
         // Spawn the Warden at the boss location
         spawnNpc("npc.tumekens_warden_11756", x = 3237, z = 2774, height = 0, walkRadius = 5)
-
-        // Ensure the warden always respawns after death
-        onNpcSpawn("npc.tumekens_warden_11756") {
-            val npc = ctx as Npc
-            npc.respawns = true
-        }
-
-        // Ensure the warden always respawns - prevent removal during combat
-        onAnyNpcDeath {
-            val npc = ctx as Npc
-            if (npc.id == getRSCM("npc.tumekens_warden_11756")) {
-                // Force respawns to true to prevent incorrect removal
-                npc.respawns = true
-            }
-        }
 
         setCombatDef("npc.tumekens_warden_11756") {
             configs {
@@ -63,7 +48,7 @@ class WardenConfigsPlugin(
             }
 
             stats {
-                hitpoints = 2500  // High HP for a challenging boss encounter
+                hitpoints = 2000  // High HP for a challenging boss encounter
                 attack = 400
                 strength = 400
                 defence = 400
@@ -96,15 +81,6 @@ class WardenConfigsPlugin(
                 death = 836
             }
 
-            sounds {
-                attackSound = Sound.DEMON_ATTACK  // Powerful demon attack sound
-                blockSound = Sound.DEMON_HIT  // Demon hit/block sound
-                deathSound = Sound.DEMON_DEATH  // Demon death sound
-                defaultAttackSoundArea = true  // Play as area sound
-                defaultAttackSoundRadius = 10  // Sound radius
-                defaultAttackSoundVolume = 5  // Sound volume
-            }
-
             drops {
                 always {
                     add("item.bones", 1)
@@ -112,77 +88,71 @@ class WardenConfigsPlugin(
                 
                 main(weight = 128) {
                     // High-value raid drops
-                    add("item.coins_995", min = 5000000, max = 10000000, weight = 30)
+                    add("item.coins_995", min = 50000, max = 100000, weight = 30)
                     
                     // Weapons and armour
-                    add("item.dragon_scimitar", min = 1, weight = 50)
-                    add("item.dragon_longsword", min = 1, weight = 50)
-                    add("item.dragon_battleaxe", min = 1, weight = 50)
-                    add("item.dragon_2h_sword", min = 1, weight = 50)
-                    add("item.dragon_chainbody", min = 1, weight = 50)
-                    add("item.dragon_platelegs", min = 1, weight = 50)
-                    add("item.dragon_plateskirt", min = 1, weight = 50)
-                    add("item.dragon_sq_shield", min = 1, weight = 50)
-                    add("item.dragon_kiteshield", min = 1, weight = 50)
-                    add("item.dragon_full_helm", min = 1, weight = 50)
-                    add("item.dragon_med_helm", min = 1, weight = 50)
+                    add("item.dragon_scimitar", min = 1, weight = 2)
+                    add("item.dragon_longsword", min = 1, weight = 2)
+                    add("item.dragon_battleaxe", min = 1, weight = 1)
+                    add("item.dragon_2h_sword", min = 1, weight = 1)
+                    add("item.dragon_chainbody", min = 1, weight = 1)
+                    add("item.dragon_platelegs", min = 1, weight = 1)
+                    add("item.dragon_plateskirt", min = 1, weight = 1)
+                    add("item.dragon_sq_shield", min = 1, weight = 1)
+                    add("item.dragon_kiteshield", min = 1, weight = 1)
+                    add("item.dragon_full_helm", min = 1, weight = 1)
+                    add("item.dragon_med_helm", min = 1, weight = 1)
                     
                     // Ranged items
-                    add("item.dragon_crossbow", min = 1, weight = 30)
-                    add("item.dragon_arrow", min = 100, max = 500, weight = 55)
-                    add("item.dragonstone_bolts_e", min = 50, max = 200, weight = 37)
+                    add("item.dragon_crossbow", min = 1, weight = 1)
+                    add("item.dragon_arrow", min = 100, max = 500, weight = 5)
+                    add("item.dragonstone_bolts_e", min = 50, max = 200, weight = 3)
                     
                     // Magic items
-                    add("item.ancient_staff", min = 1, weight = 50)
-                    add("item.mystic_robe_top", min = 1, weight = 90)
-                    add("item.mystic_robe_bottom", min = 1, weight = 90)
+                    add("item.ahrims_staff", min = 1, weight = 1)
+                    add("item.mystic_robe_top", min = 1, weight = 2)
+                    add("item.mystic_robe_bottom", min = 1, weight = 2)
                     
                     // Runes
-                    add("item.death_rune", min = 100, max = 500, weight = 100)
-                    add("item.blood_rune", min = 50, max = 250, weight = 80)
-                    add("item.soul_rune", min = 50, max = 250, weight = 80)
-                    add("item.nature_rune", min = 100, max = 500, weight = 100)
-                    add("item.law_rune", min = 50, max = 250, weight = 120)
-                    add("item.chaos_rune", min = 200, max = 1000, weight = 120)
+                    add("item.death_rune", min = 100, max = 500, weight = 10)
+                    add("item.blood_rune", min = 50, max = 250, weight = 8)
+                    add("item.soul_rune", min = 50, max = 250, weight = 8)
+                    add("item.nature_rune", min = 100, max = 500, weight = 10)
+                    add("item.law_rune", min = 50, max = 250, weight = 8)
+                    add("item.chaos_rune", min = 200, max = 1000, weight = 12)
                     
                     // Food and potions
-                    add("item.shark", min = 25, max = 50, weight = 120)
-                    add("item.manta_ray", min = 25, max = 50, weight = 115)
-                    add("item.saradomin_brew4", min = 10, max = 20, weight = 115)
-                    add("item.super_restore4", min = 10, max = 20, weight = 115)
-                    add("item.super_combat_potion4", min = 3, max = 10, weight = 100)
-                    add("item.prayer_potion4", min = 30, max = 50, weight = 125)
+                    add("item.shark", min = 5, max = 15, weight = 8)
+                    add("item.manta_ray", min = 3, max = 10, weight = 5)
+                    add("item.saradomin_brew4", min = 5, max = 15, weight = 10)
+                    add("item.super_restore4", min = 5, max = 15, weight = 10)
+                    add("item.super_combat_potion4", min = 3, max = 10, weight = 8)
+                    add("item.prayer_potion4", min = 5, max = 15, weight = 10)
                     
                     // Valuable resources
-                    add("item.uncut_diamond", min = 10, max = 30, weight = 120)
-                    add("item.uncut_ruby", min = 15, max = 40, weight = 130)
-                    add("item.uncut_emerald", min = 20, max = 50, weight = 150)
-                    add("item.uncut_sapphire", min = 25, max = 60, weight = 150)
-                    add("item.gold_ore", min = 200, max = 500, weight = 155)
-                    add("item.coal", min = 300, max = 600, weight = 150)
-                    add("item.runite_ore", min = 10, max = 50, weight = 100)
+                    add("item.uncut_diamond", min = 10, max = 30, weight = 5)
+                    add("item.uncut_ruby", min = 15, max = 40, weight = 6)
+                    add("item.uncut_emerald", min = 20, max = 50, weight = 7)
+                    add("item.uncut_sapphire", min = 25, max = 60, weight = 8)
+                    add("item.gold_ore", min = 200, max = 500, weight = 10)
+                    add("item.coal", min = 300, max = 600, weight = 12)
+                    add("item.runite_ore", min = 10, max = 50, weight = 3)
                     
                     // Clue scrolls
-                    add("item.casket_elite", min = 1, weight = 75)
-                    add("item.casket_master", min = 1, weight = 70)
+                    add("item.clue_scroll_elite", min = 1, weight = 5)
+                    add("item.clue_scroll_master", min = 1, weight = 2)
                     
                     // Seeds and herbs
-                    add("item.ranarr_seed", min = 5, max = 15, weight = 100)
-                    add("item.snapdragon_seed", min = 3, max = 10, weight = 95)
-                    add("item.torstol_seed", min = 2, max = 8, weight = 90)
-                    add("item.grimy_ranarr_weed", min = 10, max = 30, weight = 100)
-                    add("item.grimy_snapdragon", min = 5, max = 20, weight = 95)
-                    add("item.grimy_torstol", min = 3, max = 15, weight = 90)
+                    add("item.ranarr_seed", min = 5, max = 15, weight = 6)
+                    add("item.snapdragon_seed", min = 3, max = 10, weight = 4)
+                    add("item.torstol_seed", min = 2, max = 8, weight = 2)
+                    add("item.grimy_ranarr_weed", min = 10, max = 30, weight = 8)
+                    add("item.grimy_snapdragon", min = 5, max = 20, weight = 6)
+                    add("item.grimy_torstol", min = 3, max = 15, weight = 4)
                     
                     // Rare drops
-                    add("item.tumekens_shadow_uncharged", min = 1, weight = 1)
-                    add("item.osmentoms_fang", min = 1, weight = 3)
-                    add("item.masori_mask", min = 1, weight = 2)
-                    add("item.masori_body", min = 1, weight = 2)
-                    add("item.masori_chaps", min = 1, weight = 2)
-                    add("item.thread_of_elidinis", min = 1, weight = 20)
-                    add("item.elidinis_ward", min = 1, weight = 2)
-                    add("item.masori_asemberler", min = 1, weight = 4)
+                    add("item.onyx", min = 1, weight = 1)
+                    add("item.dragon_claws", min = 1, weight = 1)
                 }
             }
         }

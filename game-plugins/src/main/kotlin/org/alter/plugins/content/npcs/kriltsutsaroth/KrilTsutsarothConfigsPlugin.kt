@@ -41,7 +41,7 @@ class KrilTsutsarothConfigsPlugin(
 
         setCombatDef("npc.kril_tsutsaroth") {
             configs {
-                attackSpeed = 4  // Attack speed (ticks)
+                attackSpeed = 3  // Faster attack speed
                 respawnDelay = 50  // Respawn delay (50 ticks = ~30 seconds)
             }
 
@@ -51,31 +51,31 @@ class KrilTsutsarothConfigsPlugin(
             }
 
             stats {
-                hitpoints = 255  // OSRS hitpoints
-                attack = 260
-                strength = 280
-                defence = 240
-                magic = 250  // Has magic for splash attack
+                hitpoints = 450  // Much higher HP for longer fights
+                attack = 350
+                strength = 380
+                defence = 320
+                magic = 320  // Has magic for splash attack
                 ranged = 1  // Very low ranged (doesn't use ranged)
             }
 
             bonuses {
-                attackStab = 150
-                attackSlash = 150
-                attackCrush = 160
-                attackMagic = 200
+                attackStab = 220
+                attackSlash = 220
+                attackCrush = 240
+                attackMagic = 280
                 attackRanged = 0
 
-                defenceStab = 180
-                defenceSlash = 180
-                defenceCrush = 190
-                defenceMagic = 120
-                defenceRanged = 160
+                defenceStab = 260
+                defenceSlash = 260
+                defenceCrush = 280
+                defenceMagic = 180
+                defenceRanged = 240
 
-                attackBonus = 180
-                strengthBonus = 220
+                attackBonus = 260
+                strengthBonus = 320
                 rangedStrengthBonus = 0
-                magicDamageBonus = 200
+                magicDamageBonus = 280
             }
 
             anims {

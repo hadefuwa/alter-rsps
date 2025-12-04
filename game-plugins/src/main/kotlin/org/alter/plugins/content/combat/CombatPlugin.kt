@@ -63,26 +63,11 @@ class CombatPlugin(
             Combat.reset(pawn)
             return false
         }
-        // Additional check for NPCs: if they're locked or not spawned, stop combat immediately
-        // This prevents invisible/respawning NPCs from continuing to attack after death
-        if (pawn is Npc) {
-            if (pawn.isLocked() || !pawn.isSpawned()) {
-                Combat.reset(pawn)
-                return false
-            }
-        }
         val target = pawn.getCombatTarget() ?: return false
         // Stop combat if the target is dead
         if (target.isDead()) {
             Combat.reset(pawn)
             return false
-        }
-        // Additional check for NPC targets: if they're dead, locked, or not spawned, stop combat
-        if (target is Npc) {
-            if (target.isDead() || target.isLocked() || !target.isSpawned()) {
-                Combat.reset(pawn)
-                return false
-            }
         }
         // Check if NPC is too far from spawn point (only for NPCs)
         if (pawn.entityType.isNpc) {
@@ -199,6 +184,19 @@ class CombatPlugin(
                     }
                     pawn.message("You don't have enough power left.")
                 }
+
+                if (pawn is Player) {
+                    val weapon = pawn.getEquipment(EquipmentType.WEAPON)
+                    if (weapon != null) {
+                        // println("DEBUG: Checking combat logic for weapon: ${weapon.id}")
+                        if (world.plugins.executeItemCombatLogic(pawn, weapon.id)) {
+
+                            Combat.postAttack(pawn, target)
+                            return true
+                        }
+                    }
+                }
+
                 strategy.attack(pawn, target)
                 Combat.postAttack(pawn, target)
             } else {

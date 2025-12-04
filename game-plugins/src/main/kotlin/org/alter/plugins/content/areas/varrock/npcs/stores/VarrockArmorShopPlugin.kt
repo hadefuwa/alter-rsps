@@ -52,46 +52,8 @@ class VarrockArmorShopPlugin(
         addArmor("rune_gloves", 10000000)
 
         
-        // Dragon Armor - 40m-70m
-        addArmor("dragon_full_helm", 70000000)
-        addArmor("dragon_med_helm", 60000000)
-        addArmor("dragon_platebody", 70000000)
-        addArmor("dragon_chainbody", 65000000)
-        addArmor("dragon_platelegs", 65000000)
-        addArmor("dragon_plateskirt", 65000000)
+        // Dragon Boots - 55m
         addArmor("dragon_boots", 55000000)
-        addArmor("dragon_gloves", 40000000)
-        addArmor("dragon_sq_shield", 60000000)
-        addArmor("dragon_kiteshield", 65000000)
-        
-        // Barrows Armor - 80m-100m
-        addArmor("dharoks_helm", 85000000)
-        addArmor("dharoks_platebody", 100000000)
-        addArmor("dharoks_platelegs", 90000000)
-        addArmor("dharoks_greataxe", 100000000)
-        
-        addArmor("guthans_helm", 85000000)
-        addArmor("guthans_platebody", 100000000)
-        addArmor("guthans_platelegs", 90000000)
-        addArmor("guthans_warspear", 100000000)
-    
-        
-        addArmor("veracs_helm", 85000000)
-        addArmor("veracs_brassard", 100000000)
-        addArmor("veracs_plateskirt", 90000000)
-        addArmor("veracs_flail", 100000000)
-        
-        addArmor("ahrims_hood", 85000000)
-        addArmor("ahrims_robetop", 100000000)
-        addArmor("ahrims_robeskirt", 90000000)
-        addArmor("ahrims_staff", 100000000)
-        
-        // Karil's Equipment - 80m-100m
-        addArmor("karils_coif", 85000000)
-        addArmor("karils_leathertop", 100000000)
-        addArmor("karils_leatherskirt", 90000000)
-        addArmor("karils_crossbow", 100000000)
-        //addArmor("karils_armour_set", 95000000)
         
         // Magic Armor - 15m-30m
         addArmor("mystic_robe_top", 300000)
@@ -106,6 +68,17 @@ class VarrockArmorShopPlugin(
         addArmor("bandos_tassets", 200000000)
         addArmor("antidragon_shield", 10000000)
         addArmor("dragonfire_shield", 100000000)
+        
+        // Torva Armor - 1b each
+        addArmor("torva_full_helm", 1000000000)
+        addArmor("torva_platebody", 1000000000)
+        addArmor("torva_platelegs", 1000000000)
+        
+        // Inquisitor Armor - 1b each
+        addArmor("inquisitors_great_helm", 1000000000)
+        addArmor("inquisitors_hauberk", 1000000000)
+        addArmor("inquisitors_plateskirt", 1000000000)
+        addArmor("inquisitors_mace", 1000000000)
     }
 
     init {

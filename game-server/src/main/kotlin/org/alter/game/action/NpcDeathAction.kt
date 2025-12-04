@@ -1,7 +1,7 @@
 package org.alter.game.action
 
 import dev.openrune.cache.CacheManager.getAnim
-import org.alter.game.action.NpcDeathAction.reset
+
 import org.alter.game.info.NpcInfo
 import org.alter.game.model.LockState
 import org.alter.game.model.attr.KILLER_ATTR
@@ -78,19 +78,23 @@ object NpcDeathAction {
         world.plugins.anyNpcDeath.forEach {
             npc.executePlugin(it)
         }
-        if (npc.respawns) {
+        // Check respawnDelay from combat definition instead of npc.respawns flag
+        // This ensures NPCs respawn correctly even if the flag was incorrectly set
+        if (respawnDelay > 0) {
             NpcInfo(npc).setInaccessible(true)
             npc.reset()
             wait(respawnDelay)
             NpcInfo(npc).setAllOpsVisible()
             NpcInfo(npc).setInaccessible(false)
+            npc.unlock()
             world.plugins.executeNpcSpawn(npc)
         } else {
             world.remove(npc)
         }
     }
     private fun Npc.reset() {
-        lock = LockState.NONE
+        lock()
+        stopMovement()
         moveTo(spawnTile)
         attr.clear()
         timers.clear()

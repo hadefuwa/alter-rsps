@@ -11,6 +11,8 @@ import org.alter.game.info.PlayerInfo
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.combat.CombatConfigs
+import org.alter.plugins.content.combat.getCombatTarget
 
 /**
  * Sceptre Plugin
@@ -218,15 +220,6 @@ class SceptrePlugin(
                 }
             }
             
-            // Register check option for equipped sceptre (when right-clicking equipped item)
-            onEquipmentOption("item.$variant", "check") {
-                val equipped = player.getEquipment(EquipmentType.WEAPON)
-                if (equipped?.id == getRSCM("item.$variant")) {
-                    val charges = equipped.getAttr(ItemAttribute.CHARGES) ?: 0
-                    player.message("Your sceptre has $charges revenant ether charges remaining.")
-                }
-            }
-            
             onItemOption("item.$variant", "uncharge") {
                 handleSceptreUncharge(player, variant)
             }
@@ -284,6 +277,7 @@ class SceptrePlugin(
     }
     
     private fun handleSceptreCombat(player: Player) {
+        val target = player.getCombatTarget() ?: return
         val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return
         
         // Check if sceptre is charged (has charges attribute)
@@ -311,6 +305,10 @@ class SceptrePlugin(
             // Uncharged sceptre - can still attack but no bonuses
             // Normal combat continues
         }
+
+        // Execute standard combat logic
+        val strategy = CombatConfigs.getCombatStrategy(player)
+        strategy.attack(player, target)
     }
     
     private fun registerDeathHandler() {

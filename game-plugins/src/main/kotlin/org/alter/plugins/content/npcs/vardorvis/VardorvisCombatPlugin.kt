@@ -3,14 +3,15 @@ package org.alter.plugins.content.npcs.vardorvis
 import org.alter.api.*
 import org.alter.api.cfg.Sound
 import org.alter.api.ext.*
-import org.alter.plugins.content.mechanics.prayer.PrayerIcon
 import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.plugins.content.mechanics.prayer.Prayer
 import org.alter.game.*
 import org.alter.game.model.*
+import org.alter.game.model.attr.AttributeKey
 import org.alter.game.model.combat.AttackStyle
 import org.alter.game.model.combat.CombatClass
 import org.alter.game.model.combat.CombatStyle
+import org.alter.game.model.combat.PawnHit
 import org.alter.game.model.entity.*
 import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
@@ -139,7 +140,7 @@ class VardorvisCombatPlugin(
                     maxHit = maxHit,
                     landHit = true,
                     delay = 1
-                ) { hit ->
+                ) { hit: PawnHit ->
                     if (target is Player) {
                         target.graphic(100) // Hit graphic
                         target.message("Your Protect from Melee reduces Vardorvis's damage!")
@@ -189,7 +190,7 @@ class VardorvisCombatPlugin(
             maxHit = maxHit,
             landHit = MagicCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
             delay = 3
-        ) { hit ->
+        ) { hit: PawnHit ->
             if (hit.landed() && target is Player) {
                 target.graphic(101) // Magic hit graphic
             }
@@ -246,7 +247,7 @@ class VardorvisCombatPlugin(
                     maxHit = maxHit,
                     landHit = true,
                     delay = 2
-                ) { hit ->
+                ) { hit: PawnHit ->
                     if (target is Player) {
                         target.message("Your Protect from Melee reduces Vardorvis's ground slam damage!")
                     }
@@ -381,7 +382,7 @@ class VardorvisCombatPlugin(
                     maxHit = maxHit,
                     landHit = true,
                     delay = 2
-                ) { hit ->
+                ) { hit: PawnHit ->
                     if (target is Player) {
                         target.graphic(100) // Impact graphic
                         target.message("Your Protect from Melee reduces Vardorvis's charge damage!")

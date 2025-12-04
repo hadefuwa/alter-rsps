@@ -295,6 +295,10 @@ object Combat {
             return false
         }
 
+        if (!pawn.lock.canAttack()) {
+            return false
+        }
+
         val maxDistance =
             when {
                 pawn is Player && pawn.hasLargeViewport() -> Player.LARGE_VIEW_DISTANCE

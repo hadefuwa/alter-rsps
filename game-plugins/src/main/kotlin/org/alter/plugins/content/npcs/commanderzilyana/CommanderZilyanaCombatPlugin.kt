@@ -42,6 +42,10 @@ class CommanderZilyanaCombatPlugin(
         // Attribute key to track minions spawned by this boss
         private val MINIONS_ATTR = AttributeKey<MutableList<WeakReference<Npc>>>("commander_zilyana_minions")
         private val LAST_DASH_ATTACK_ATTR = AttributeKey<Int>("last_dash_attack_tick")
+        private val LAST_HEAL_ATTR = AttributeKey<Int>("last_heal_tick")
+        private val DIVINE_PROTECTION_ATTR = AttributeKey<Boolean>("divine_protection_active")
+        private val DIVINE_PROTECTION_END_ATTR = AttributeKey<Int>("divine_protection_end_tick")
+        private val HAS_USED_DIVINE_PROTECTION_ATTR = AttributeKey<Boolean>("has_used_divine_protection")
         
         /**
          * Animation IDs for Zilyana's attacks
@@ -56,14 +60,35 @@ class CommanderZilyanaCombatPlugin(
         /**
          * Damage ranges
          */
-        private const val MELEE_MAX_HIT = 27 // OSRS max hit
-        private const val DASH_DAMAGE_MIN = 5
-        private const val DASH_DAMAGE_MAX = 15 // Light damage
+        private const val MELEE_MAX_HIT = 31 // Increased damage
+        private const val DASH_DAMAGE_MIN = 8
+        private const val DASH_DAMAGE_MAX = 18
+        private const val AOE_DAMAGE_MIN = 10
+        private const val AOE_DAMAGE_MAX = 20
+        private const val SMITE_DAMAGE_MIN = 15
+        private const val SMITE_DAMAGE_MAX = 30
         
         /**
-         * Dash attack timing
+         * Healing mechanics
          */
-        private const val DASH_ATTACK_INTERVAL = 8 // Every 8 ticks (approximately every few attacks)
+        private const val HEAL_THRESHOLD_HP = 100 // Heal when HP drops below this
+        private const val HEAL_AMOUNT_MIN = 25
+        private const val HEAL_AMOUNT_MAX = 40
+        private const val HEAL_COOLDOWN = 20 // 20 ticks between heals
+        
+        /**
+         * Divine protection phase
+         */
+        private const val DIVINE_PROTECTION_THRESHOLD = 50 // Activate at 50 HP
+        private const val DIVINE_PROTECTION_DURATION = 10 // 10 ticks of protection
+        
+        /**
+         * Attack chances and timing
+         */
+        private const val DASH_ATTACK_CHANCE = 20 // 20% chance
+        private const val AOE_ATTACK_CHANCE = 15 // 15% chance for area smite
+        private const val SMITE_ATTACK_CHANCE = 25 // 25% chance for powerful smite
+        private const val HEAL_CHANCE = 30 // 30% chance when low HP
     }
     
     init {
@@ -83,8 +108,12 @@ class CommanderZilyanaCombatPlugin(
             if (npc.attr[MINIONS_ATTR] == null) {
                 npc.attr[MINIONS_ATTR] = mutableListOf()
             }
-            // Initialize dash attack timer
+            // Initialize combat attributes
             npc.attr[LAST_DASH_ATTACK_ATTR] = 0
+            npc.attr[LAST_HEAL_ATTR] = 0
+            npc.attr[DIVINE_PROTECTION_ATTR] = false
+            npc.attr[DIVINE_PROTECTION_END_ATTR] = 0
+            npc.attr[HAS_USED_DIVINE_PROTECTION_ATTR] = false
             // Spawn all three minions
             spawnMinions(npc)
         }
@@ -154,37 +183,71 @@ class CommanderZilyanaCombatPlugin(
             attr[MINIONS_ATTR] = mutableListOf()
         }
         
-        // Initialize dash attack timer if not set
+        // Initialize all attributes if not set
         if (attr[LAST_DASH_ATTACK_ATTR] == null) {
             attr[LAST_DASH_ATTACK_ATTR] = 0
+        }
+        if (attr[LAST_HEAL_ATTR] == null) {
+            attr[LAST_HEAL_ATTR] = 0
+        }
+        if (attr[DIVINE_PROTECTION_ATTR] == null) {
+            attr[DIVINE_PROTECTION_ATTR] = false
+        }
+        if (attr[DIVINE_PROTECTION_END_ATTR] == null) {
+            attr[DIVINE_PROTECTION_END_ATTR] = 0
+        }
+        if (attr[HAS_USED_DIVINE_PROTECTION_ATTR] == null) {
+            attr[HAS_USED_DIVINE_PROTECTION_ATTR] = false
         }
         
         // Update minions
         updateMinions()
         
-        var attackCount = 0
-        
         while (canEngageCombat(target)) {
             facePawn(target)
             
+            val currentTick = this.world.currentCycle
+            val currentHp = getCurrentHp()
+            
+            // Check divine protection status
+            updateDivineProtection(currentTick)
+            
+            // Check if we should activate divine protection (low HP, once per fight)
+            if (!attr[HAS_USED_DIVINE_PROTECTION_ATTR]!! && currentHp <= DIVINE_PROTECTION_THRESHOLD) {
+                activateDivineProtection(currentTick)
+            }
+            
+            // Check if we should heal (low HP, on cooldown)
+            val lastHealTick = attr[LAST_HEAL_ATTR] ?: 0
+            val ticksSinceLastHeal = currentTick - lastHealTick
+            if (currentHp < HEAL_THRESHOLD_HP && ticksSinceLastHeal >= HEAL_COOLDOWN && this.world.random(100) < HEAL_CHANCE) {
+                divineHeal()
+                attr[LAST_HEAL_ATTR] = currentTick
+            }
+            
             // Long movement range - chase player quickly
-            // Use larger distance tolerance for faster chasing
             if (moveToAttackRange(it, target, distance = 1, projectile = false)) {
-                // Check if it's time for dash attack
-                val currentTick = this.world.currentCycle
-                val lastDashTick = attr[LAST_DASH_ATTACK_ATTR] ?: 0
-                val ticksSinceLastDash = currentTick - lastDashTick
-                
                 if (isAttackDelayReady()) {
-                    attackCount++
+                    // Choose attack based on random chance
+                    val attackRoll = this.world.random(100)
                     
-                    // Dash attack every few ticks
-                    if (ticksSinceLastDash >= DASH_ATTACK_INTERVAL) {
-                        dashAttack(target)
-                        attr[LAST_DASH_ATTACK_ATTR] = currentTick
-                    } else {
-                        // Regular fast melee attack
-                        meleeAttack(target)
+                    when {
+                        attackRoll < AOE_ATTACK_CHANCE -> {
+                            // Area-of-effect smite attack
+                            areaSmiteAttack(target)
+                        }
+                        attackRoll < (AOE_ATTACK_CHANCE + SMITE_ATTACK_CHANCE) -> {
+                            // Powerful single-target smite
+                            smiteAttack(target)
+                        }
+                        attackRoll < (AOE_ATTACK_CHANCE + SMITE_ATTACK_CHANCE + DASH_ATTACK_CHANCE) -> {
+                            // Dash attack
+                            dashAttack(target)
+                        }
+                        else -> {
+                            // Regular fast melee attack
+                            meleeAttack(target)
+                        }
                     }
                     
                     postAttackLogic(target)
@@ -223,10 +286,10 @@ class CommanderZilyanaCombatPlugin(
      */
     private fun Npc.dashAttack(target: Pawn) {
         // Show dash animation and graphic
-        animate(MELEE_ATTACK_ANIM) // Use melee animation for dash
+        animate(MELEE_ATTACK_ANIM)
         graphic(id = DASH_ATTACK_GFX, height = 0)
         
-        // Deal unavoidable typeless damage (light damage)
+        // Deal unavoidable typeless damage
         val damage = this.world.random(DASH_DAMAGE_MIN..DASH_DAMAGE_MAX)
         
         // Always hits - unavoidable
@@ -234,7 +297,121 @@ class CommanderZilyanaCombatPlugin(
         target.graphic(id = DASH_ATTACK_GFX, height = 0, delay = 1)
         
         if (target is Player && damage > 0) {
-            target.message("Commander Zilyana dashes at you with unavoidable damage!")
+            target.message("Commander Zilyana dashes at you with divine speed!")
+        }
+    }
+    
+    /**
+     * Powerful smite attack - high damage single target
+     */
+    private fun Npc.smiteAttack(target: Pawn) {
+        animate(MELEE_ATTACK_ANIM)
+        graphic(id = DASH_ATTACK_GFX, height = 100)
+        
+        // High damage smite attack
+        if (MeleeCombatFormula.getAccuracy(this, target) >= this.world.randomDouble()) {
+            val damage = this.world.random(SMITE_DAMAGE_MIN..SMITE_DAMAGE_MAX)
+            target.hit(damage, type = HitType.HIT, delay = 1)
+            target.graphic(id = DASH_ATTACK_GFX, height = 0, delay = 1)
+            
+            if (target is Player) {
+                target.message("Commander Zilyana smites you with holy power!")
+            }
+        } else {
+            target.hit(damage = 0, type = HitType.BLOCK, delay = 1)
+        }
+    }
+    
+    /**
+     * Area-of-effect smite - damages all nearby players
+     */
+    private fun Npc.areaSmiteAttack(target: Pawn) {
+        animate(MELEE_ATTACK_ANIM)
+        graphic(id = DASH_ATTACK_GFX, height = 150)
+        
+        // Find all players within 3 tiles
+        val nearbyPlayers = mutableListOf<Player>()
+        if (target is Player) {
+            nearbyPlayers.add(target)
+        }
+        
+        // Get other players in range
+        this.world.players.forEach { player ->
+            if (player != target && player.tile.isWithinRadius(this.tile, 3)) {
+                nearbyPlayers.add(player)
+            }
+        }
+        
+        // Damage all nearby players
+        nearbyPlayers.forEach { player ->
+            val damage = this.world.random(AOE_DAMAGE_MIN..AOE_DAMAGE_MAX)
+            player.hit(damage, type = HitType.HIT, delay = 1)
+            player.graphic(id = DASH_ATTACK_GFX, height = 0, delay = 1)
+            player.message("Commander Zilyana's divine light strikes you!")
+        }
+        
+        if (nearbyPlayers.size > 1 && target is Player) {
+            target.message("Commander Zilyana's area smite hits everyone nearby!")
+        }
+    }
+    
+    /**
+     * Divine healing - Zilyana heals herself
+     */
+    private fun Npc.divineHeal() {
+        val healAmount = this.world.random(HEAL_AMOUNT_MIN..HEAL_AMOUNT_MAX)
+        val maxHp = combatDef.hitpoints
+        val currentHp = getCurrentHp()
+        val actualHeal = minOf(healAmount, maxHp - currentHp)
+        
+        if (actualHeal > 0) {
+            setCurrentHp(currentHp + actualHeal)
+            graphic(id = DASH_ATTACK_GFX, height = 100)
+            
+            // Notify nearby players
+            this.world.players.forEach { player ->
+                if (player.tile.isWithinRadius(this.tile, 15)) {
+                    player.message("Commander Zilyana channels divine energy to heal herself!")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Activate divine protection - reduces damage taken
+     */
+    private fun Npc.activateDivineProtection(currentTick: Int) {
+        attr[DIVINE_PROTECTION_ATTR] = true
+        attr[DIVINE_PROTECTION_END_ATTR] = currentTick + DIVINE_PROTECTION_DURATION
+        attr[HAS_USED_DIVINE_PROTECTION_ATTR] = true
+        
+        graphic(id = DASH_ATTACK_GFX, height = 100)
+        
+        // Notify nearby players
+        this.world.players.forEach { player ->
+            if (player.tile.isWithinRadius(this.tile, 15)) {
+                player.message("Commander Zilyana is protected by divine light!")
+            }
+        }
+    }
+    
+    /**
+     * Update divine protection status
+     */
+    private fun Npc.updateDivineProtection(currentTick: Int) {
+        val isProtected = attr[DIVINE_PROTECTION_ATTR] ?: false
+        if (isProtected) {
+            val endTick = attr[DIVINE_PROTECTION_END_ATTR] ?: 0
+            if (currentTick >= endTick) {
+                attr[DIVINE_PROTECTION_ATTR] = false
+                
+                // Notify nearby players
+                this.world.players.forEach { player ->
+                    if (player.tile.isWithinRadius(this.tile, 15)) {
+                        player.message("Commander Zilyana's divine protection fades.")
+                    }
+                }
+            }
         }
     }
     

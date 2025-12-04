@@ -29,6 +29,8 @@ logs/
 modulus
 custom-runelite-client.jar
 runelite.jar
+decompiled-client/
+merge_staging/
 
 # Cache (handled by data/cache/.gitignore)
 # Saves (player data - shouldn't be committed)

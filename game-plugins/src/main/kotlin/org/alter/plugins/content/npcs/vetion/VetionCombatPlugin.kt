@@ -12,13 +12,10 @@ import org.alter.game.model.queue.*
 import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
-import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.RangedCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
 import org.alter.game.model.move.moveTo
-import org.alter.plugins.content.mechanics.prayer.Prayers
-import org.alter.plugins.content.mechanics.prayer.Prayer
 
 /**
  * Vetion Combat Plugin - The Skeletal Wilderness Boss
@@ -417,12 +414,6 @@ class VetionCombatPlugin(
                     earthShakeAttack(target)  // Ground-based area damage
                     attackCount = 0  // Reset counter after special
                 } 
-                // SPECIAL ATTACK: Shadow Smash (Stun)
-                // Every 7 attacks, 40% chance
-                else if (attackCount >= 7 && this.world.chance(2, 5)) {
-                    shadowSmashAttack(target)
-                    attackCount = 0
-                }
                 // NORMAL ATTACK: Standard melee attack
                 else {
                     skeletalClawAttack(target)  // Standard melee slash attack
@@ -571,48 +562,23 @@ class VetionCombatPlugin(
         // Play the attack animation from combat definition (works for both Phase 1 and Phase 2)
         animate(combatDef.attackAnimation)
         
-        // Check for Protect from Melee BEFORE dealing damage
-        // If player has Protect from Melee, the attack should hit 0 damage
-        val hasProtectMelee = target is Player && Prayers.isActive(target, Prayer.PROTECT_FROM_MELEE)
-        val maxHit = if (hasProtectMelee) {
-            0  // 0 max hit if praying melee - attack will deal 0 damage
-        } else {
-            60  // Maximum damage this attack can deal (increased to 60)
-        }
-        
-        // Calculate accuracy using proper melee formula
-        val accuracy = MeleeCombatFormula.getAccuracy(this, target)
-        val landHit = accuracy >= world.randomDouble()
-        
         // Deal damage to the target
         dealHit(
             target = target,                    // Who to hit
-            maxHit = maxHit,                    // Maximum damage (0 if praying melee, 60 otherwise)
-            landHit = landHit,                  // Whether the attack hits based on accuracy
+            maxHit = 32,                        // Maximum damage this attack can deal
+            // Accuracy check: uses magic formula accuracy (even for melee attack)
+            // Change MagicCombatFormula to MeleeCombatFormula for proper melee accuracy
+            landHit = MagicCombatFormula.getAccuracy(this, target) >= world.randomDouble(),
             delay = 1                           // Delay before hit lands (1 = immediate)
         ) { hit ->
-            // Handle prayer block message
-            if (hasProtectMelee && hit.landed) {
-                if (target is Player) {
-                    target.message("Your prayer blocks Vet'ion's attack!")
-                }
-            } else if (hit.landed && !hasProtectMelee) {
-                // If not praying and hit landed, ensure damage is 10-60
-                if (target is Player && hit.hit.hitmarks.isNotEmpty() && hit.hit.hitmarks[0].damage < 10) {
-                    hit.hit.hitmarks[0].damage = 10 + world.random(51) // 10 to 60
-                }
-            }
-
             // This code runs when the hit lands or misses
-            if (hit.landed) {
+            if (hit.landed()) {
                 // Show slash graphic on successful hit
                 target.graphic(id = 80, height = 0, delay = 1)
                 if (target is Player) {
-                    if (hit.hit.hitmarks.isNotEmpty() && hit.hit.hitmarks[0].damage > 0) {
-                        target.message("Vet'ion's skeletal claws tear into you!")
-                    }
-                    // Random mocking when hitting the player (only if damage > 0)
-                    if (hit.hit.hitmarks.isNotEmpty() && hit.hit.hitmarks[0].damage > 0 && this.world.chance(1, 3)) {
+                    target.message("Vet'ion's skeletal claws tear into you!")
+                    // Random mocking when hitting the player
+                    if (this.world.chance(1, 3)) {
                         when (this.world.random(5)) {
                             0 -> forceChat("*Too Easy*")
                             1 -> forceChat("*You're So Weak*")
@@ -624,7 +590,7 @@ class VetionCombatPlugin(
                 }
             } else {
                 // Show miss graphic when attack misses
-                target.graphic(id = 85, height = 124, delay = hit.hit.clientDelay)
+                target.graphic(id = 85, height = 124, delay = hit.getClientHitDelay())
                 // Mock the player when they dodge
                 if (target is Player && this.world.chance(1, 4)) {
                     when (this.world.random(4)) {
@@ -637,7 +603,7 @@ class VetionCombatPlugin(
             }
         }
     }
-    
+
     private fun Npc.boneThrowAttack(target: Pawn) {
         prepareAttack(CombatClass.RANGED, CombatStyle.RANGED, AttackStyle.ACCURATE)
         
@@ -989,130 +955,6 @@ class VetionCombatPlugin(
                     // Players who moved away get a message
                     player.message("You managed to escape the earthquake!")
                 }
-            }
-        }
-    }
-
-    private suspend fun Npc.shadowSmashAttack(target: Pawn) {
-        // Shadow Smash attack - 5x3 area in front of Vet'ion
-        prepareAttack(CombatClass.MAGIC, CombatStyle.MAGIC, AttackStyle.AGGRESSIVE)
-        
-        forceChat("Darkness shall consume you!")
-        animate(combatDef.attackAnimation)
-        
-        // Calculate the 5x3 area in front of Vet'ion
-        // Vet'ion is 3x3 size. We want 5 width (centered) and 3 depth in front.
-        val direction = this.lastFacingDirection
-        val centerTile = this.getCentreTile()
-        
-        val affectedTiles = mutableListOf<Tile>()
-        
-        // Determine tiles based on direction
-        // 5 tiles wide (perpendicular to facing), 3 tiles deep (in facing direction)
-        when (direction) {
-            Direction.NORTH -> {
-                // In front is North (increasing Z)
-                // Width is East-West (X axis)
-                val startZ = this.tile.z + this.getSize() // Start immediately in front
-                for (z in 0 until 3) { // 3 deep
-                    for (x in -2..2) { // 5 wide (centered on NPC center X)
-                        affectedTiles.add(Tile(centerTile.x + x, startZ + z, this.tile.height))
-                    }
-                }
-            }
-            Direction.SOUTH -> {
-                // In front is South (decreasing Z)
-                // Width is East-West (X axis)
-                val startZ = this.tile.z - 1 // Start immediately in front
-                for (z in 0 until 3) { // 3 deep
-                    for (x in -2..2) { // 5 wide
-                        affectedTiles.add(Tile(centerTile.x + x, startZ - z, this.tile.height))
-                    }
-                }
-            }
-            Direction.EAST -> {
-                // In front is East (increasing X)
-                // Width is North-South (Z axis)
-                val startX = this.tile.x + this.getSize() // Start immediately in front
-                for (x in 0 until 3) { // 3 deep
-                    for (z in -2..2) { // 5 wide
-                        affectedTiles.add(Tile(startX + x, centerTile.z + z, this.tile.height))
-                    }
-                }
-            }
-            Direction.WEST -> {
-                // In front is West (decreasing X)
-                // Width is North-South (Z axis)
-                val startX = this.tile.x - 1 // Start immediately in front
-                for (x in 0 until 3) { // 3 deep
-                    for (z in -2..2) { // 5 wide
-                        affectedTiles.add(Tile(startX - x, centerTile.z + z, this.tile.height))
-                    }
-                }
-            }
-            else -> {
-                // Fallback for diagonal/none: just target the player's tile and surroundings
-                for (x in -1..1) {
-                    for (z in -1..1) {
-                        affectedTiles.add(target.tile.transform(x, z))
-                    }
-                }
-            }
-        }
-        
-        // Spawn shadow graphics on affected tiles to warn players
-        affectedTiles.forEach { tile ->
-            world.spawn(TileGraphic(id = 281, tile = tile, height = 0, delay = 0)) // Shadow graphic
-        }
-        
-        if (target is Player) {
-            target.message("<col=ff0000>Vet'ion casts a massive shadow! Move out of the way!</col>")
-        }
-        
-        // Wait for players to react
-        world.queue {
-            wait(4) // 4 ticks (2.4s) to move
-            
-            // Check for players in the area
-            val playersToHit = mutableListOf<Player>()
-            world.players.forEach { player ->
-                if (player.getCurrentHp() > 0) {
-                    // Check if player is on any of the affected tiles
-                    var inArea = false
-                    for (tile in affectedTiles) {
-                        if (player.tile.sameAs(tile)) {
-                            inArea = true
-                            break
-                        }
-                    }
-                    
-                    if (inArea) {
-                        playersToHit.add(player)
-                    }
-                }
-            }
-            
-            // Apply effects to caught players
-            playersToHit.forEach { player ->
-                // Deal heavy damage
-                val damage = this@shadowSmashAttack.world.random(15) + 30 // 30-45 damage
-                player.hit(damage, type = HitType.HIT, delay = 0)
-                
-                // Stun the player
-                player.stun(8) // 8 ticks (4.8s) stun
-                player.message("<col=ff0000>You have been stunned by the shadow smash!</col>")
-                
-                // Turn off overhead prayers
-                Prayers.deactivate(player, Prayer.PROTECT_FROM_MAGIC)
-                Prayers.deactivate(player, Prayer.PROTECT_FROM_MISSILES)
-                Prayers.deactivate(player, Prayer.PROTECT_FROM_MELEE)
-                Prayers.deactivate(player, Prayer.RETRIBUTION)
-                Prayers.deactivate(player, Prayer.REDEMPTION)
-                Prayers.deactivate(player, Prayer.SMITE)
-                player.message("<col=ff0000>Your overhead prayers have been disabled!</col>")
-                
-                // Play stun graphic
-                player.graphic(id = 245, height = 124, delay = 0)
             }
         }
     }

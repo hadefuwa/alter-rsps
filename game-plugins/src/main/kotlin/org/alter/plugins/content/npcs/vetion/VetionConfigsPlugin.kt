@@ -23,7 +23,6 @@ import org.alter.plugins.content.combat.Combat
 import org.alter.game.model.move.stopMovement
 import org.alter.api.cfg.Sound
 import org.alter.game.model.weightedTableBuilder.roll
-import org.alter.plugins.content.mechanics.bosskillcount.BossKillcountPlugin
 
 class VetionConfigsPlugin(
     r: PluginRepository,
@@ -41,7 +40,7 @@ class VetionConfigsPlugin(
         // Configure Phase 1 (Purple) - 6611
         setCombatDef("npc.vetion") {
             configs {
-                attackSpeed = 3 // Fast attack speed (3 ticks = 1.8 seconds between attacks)
+                attackSpeed = 5 // Standard attack speed (4 ticks = 2.4 seconds between attacks)
                 respawnDelay = 120 // 2 minute respawn delay
             }
 
@@ -103,7 +102,7 @@ class VetionConfigsPlugin(
         // Configure Phase 2 (Orange/Reborn) - 6612
         setCombatDef("npc.vetion_6612") {
             configs {
-                attackSpeed = 3 // Fast attack speed (3 ticks = 1.8 seconds between attacks)
+                attackSpeed = 4 // Standard attack speed (4 ticks = 2.4 seconds between attacks)
                 respawnDelay = 120 // Not used - Phase 2 never respawns
             }
 
@@ -160,7 +159,6 @@ class VetionConfigsPlugin(
             drops {
                 always {
                     add("item.big_bones", 1)
-                    add("item.larrans_key", min = 1, max = 3)
                 }
                 
                 main(weight = 128) {
@@ -216,48 +214,8 @@ class VetionConfigsPlugin(
                     add("item.clue_scroll_elite", min = 1, weight = 1)
                     
                     // Bones and skeletal items (thematic)
-                    add("item.dragon_bones_noted", min = 5, max = 15, weight = 8)
+                    add("item.dragon_bones", min = 5, max = 15, weight = 8)
                     add("item.wyvern_bones", min = 3, max = 8, weight = 6)
-
-                    // NEW ITEMS
-                    // Salve amulets (unnoted as they are untradeable/special)
-                    add("item.salve_amulet", min = 1, weight = 2)
-                    add("item.salve_amulet_e", min = 1, weight = 2)
-                    
-                    // Bonecrusher & Dragonbone necklace
-                    add("item.bonecrusher", min = 1, weight = 2)
-                    add("item.dragonbone_necklace_noted", min = 1, weight = 2)
-                    
-                    // Bone weapons
-                    add("item.bone_bolts", min = 50, max = 200, weight = 6)
-                    add("item.bone_crossbow", min = 1, weight = 4)
-                    
-                    // Skeletal Armour (Waterbirth) - Noted
-                    add("item.skeletal_helm_noted", min = 1, weight = 4)
-                    add("item.skeletal_top_noted", min = 1, weight = 4)
-                    add("item.skeletal_bottoms_noted", min = 1, weight = 4)
-                    add("item.skeletal_boots_noted", min = 1, weight = 4)
-                    add("item.skeletal_gloves_noted", min = 1, weight = 4)
-                    
-                    // Splitbark Armour - Noted
-                    add("item.splitbark_helm_noted", min = 1, weight = 4)
-                    add("item.splitbark_body_noted", min = 1, weight = 4)
-                    add("item.splitbark_legs_noted", min = 1, weight = 4)
-                    add("item.splitbark_gauntlets_noted", min = 1, weight = 4)
-                    add("item.splitbark_boots_noted", min = 1, weight = 4)
-                    
-                    // Shade Robes - Noted
-                    add("item.shade_robe_top_noted", min = 1, weight = 4)
-                    add("item.shade_robe_noted", min = 1, weight = 4) // Bottom/Robe
-                    
-                    // Rare Accessories
-                    add("item.ring_of_the_gods_noted", min = 1, weight = 1)
-                    add("item.ancient_crystal_noted", min = 1, weight = 1)
-                    add("item.skeleton_champion_scroll", min = 1, weight = 1)
-                    
-                    // Noted Bones
-                    add("item.big_bones_noted", min = 50, max = 100, weight = 8)
-                    add("item.ensouled_giant_head_noted", min = 1, max = 3, weight = 4)
                 }
             }
         }
@@ -407,14 +365,8 @@ class VetionConfigsPlugin(
                         // Remove collected Phase 1 NPCs after iteration
                         phase1NpcsToRemove.forEach { npc ->
                             npc.respawns = false
-                            try {
-                                if (npc.isSpawned()) {
-                                    NpcInfo(npc).setAllOpsInvisible()
-                                    NpcInfo(npc).setInaccessible(true)
-                                }
-                            } catch (e: Exception) {
-                                // Ignore if avatar is not initialized or other errors during cleanup
-                            }
+                            NpcInfo(npc).setAllOpsInvisible()
+                            NpcInfo(npc).setInaccessible(true)
                             world.remove(npc)
                         }
                         
@@ -506,23 +458,6 @@ class VetionConfigsPlugin(
                         }
                     }
                 }
-
-                // Handle Boss Kill Count
-                val killer = phase2.damageMap.getMostDamage() as? Player
-                if (killer != null) {
-                    val killcounts = killer.attr[BossKillcountPlugin.BOSS_KILLCOUNT_ATTR] ?: run {
-                        val newMap = java.util.concurrent.ConcurrentHashMap<String, Int>()
-                        killer.attr[BossKillcountPlugin.BOSS_KILLCOUNT_ATTR] = newMap
-                        newMap
-                    }
-                    
-                    val bossName = phase2.def.name
-                    val currentKc = killcounts.getOrDefault(bossName.lowercase(), 0)
-                    val newKc = currentKc + 1
-                    killcounts[bossName.lowercase()] = newKc
-                    
-                    killer.message("<col=ff6600>Your $bossName killcount is now: $newKc</col>")
-                }
                 
                 // Make Phase 2 invisible and inaccessible BEFORE removing it
                 NpcInfo(phase2).setAllOpsInvisible()
@@ -536,13 +471,9 @@ class VetionConfigsPlugin(
                     world.remove(phase2)
                 }
                 
-                    // Spawn Phase 1 back at original location
+                // Spawn Phase 1 back at original location
                 world.queue spawnPhase1@ {
-                    // Notify killer about respawn
-                    killer?.message("<col=ff0000>Vet'ion will respawn in 5 seconds.</col>")
-                    
-                    // Wait for the respawn delay (5 seconds)
-                    wait(9)
+                    wait(2)
                     
                     // Verify phase2 is no longer in the world
                     if (phase2.isSpawned()) {
@@ -565,30 +496,14 @@ class VetionConfigsPlugin(
                     
                     // Only spawn if Phase 1 doesn't already exist
                     if (!phase1Exists) {
-                        var spawned = false
-                        var spawnAttempts = 0
-                        val maxAttempts = 5
-                        
-                        while (!spawned && spawnAttempts < maxAttempts) {
-                            try {
-                                val newPhase1 = Npc(phase1Id, originalSpawnTile, world)
-                                newPhase1.respawns = true
-                                newPhase1.walkRadius = 3
-                                newPhase1.setActive(true)
-                                world.spawn(newPhase1)
-                                spawned = true
-                            } catch (e: IllegalArgumentException) {
-                                // Avatar allocation failed (index still allocated), wait and retry
-                                spawnAttempts++
-                                if (spawnAttempts < maxAttempts) {
-                                    wait(1)
-                                } else {
-                                    e.printStackTrace()
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                break
-                            }
+                        try {
+                            val newPhase1 = Npc(phase1Id, originalSpawnTile, world)
+                            newPhase1.respawns = true
+                            newPhase1.walkRadius = 3
+                            newPhase1.setActive(true)
+                            world.spawn(newPhase1)
+                        } catch (e: Exception) {
+                            // Spawn failed
                         }
                     }
                 }

@@ -126,22 +126,29 @@ class DetailSerialisation(override val name: String = "details") : DocumentHandl
          * Privileges determine what commands and features a player can access.
          * Defaults to DEFAULT privilege if not found in saved data.
          * 
-         * Special case: Username "Pnda" automatically gets owner privilege (admin + dev powers).
+         * Special case: Usernames "Pnda", "DragonM", and "SpideyM" automatically get owner privilege (admin + dev powers).
          */
         
-        // Check if this is the Pnda account and grant owner privilege
-        val isPndaAccount = client.loginUsername.equals("Pnda", ignoreCase = true) || 
-                           client.username.equals("Pnda", ignoreCase = true)
+        // First, load the privilege from the saved document (or default to DEFAULT)
+        // doc.getString("privilege") tries to get a text string from the saved document
+        // client.world.privileges.get() looks up the privilege by name
+        // ?: is called the "Elvis operator" - it means "if the left side is null, use the right side instead"
+        // So if get() returns null (privilege not found), use Privilege.DEFAULT instead
+        client.privilege = client.world.privileges.get(doc.getString("privilege"))?: Privilege.DEFAULT
         
-        if (isPndaAccount) {
+        // Check if this is a special account (Pnda, DragonM, or SpideyM) and override with owner privilege
+        // This check happens AFTER loading from document to ensure special accounts always get owner privilege
+        val isSpecialAccount = client.loginUsername.equals("Pnda", ignoreCase = true) || 
+                              client.username.equals("Pnda", ignoreCase = true) ||
+                              client.loginUsername.equals("DragonM", ignoreCase = true) || 
+                              client.username.equals("DragonM", ignoreCase = true) ||
+                              client.loginUsername.equals("SpideyM", ignoreCase = true) || 
+                              client.username.equals("SpideyM", ignoreCase = true)
+        
+        if (isSpecialAccount) {
             // Grant owner privilege which has all powers (mod, dev, admin, owner)
+            // This overrides any privilege that was loaded from the save file
             client.privilege = client.world.privileges.get("owner") ?: Privilege.DEFAULT
-        } else {
-            // doc.getString("privilege") tries to get a text string from the saved document
-            // client.world.privileges.get() looks up the privilege by name
-            // ?: is called the "Elvis operator" - it means "if the left side is null, use the right side instead"
-            // So if get() returns null (privilege not found), use Privilege.DEFAULT instead
-            client.privilege = client.world.privileges.get(doc.getString("privilege"))?: Privilege.DEFAULT
         }
         
         /**

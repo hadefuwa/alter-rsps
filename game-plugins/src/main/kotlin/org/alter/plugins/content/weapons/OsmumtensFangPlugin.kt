@@ -19,6 +19,8 @@ import org.alter.game.model.shop.*
 import org.alter.game.model.timer.*
 import org.alter.game.plugin.*
 import org.alter.rscm.RSCM.getRSCM
+import org.alter.plugins.content.combat.CombatConfigs
+import org.alter.plugins.content.combat.getCombatTarget
 
 /**
  * @author CloudS3c 12/29/2024
@@ -31,8 +33,9 @@ class OsmumtensFangPlugin(
         
     init {
         setItemCombatLogic("item.osmumtens_fang") {
-            val attackStyle = player.getAttackStyle()
-            //9471 1-2 attacks
+            val target = player.getCombatTarget() ?: return@setItemCombatLogic
+            val strategy = CombatConfigs.getCombatStrategy(player)
+            strategy.attack(player, target)
         }
     }
 }

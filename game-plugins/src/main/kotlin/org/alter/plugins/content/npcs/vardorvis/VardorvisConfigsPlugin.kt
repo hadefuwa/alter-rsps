@@ -2,7 +2,6 @@ package org.alter.plugins.content.npcs.vardorvis
 
 import org.alter.api.*
 import org.alter.api.cfg.*
-import org.alter.api.cfg.Sound
 import org.alter.api.dsl.*
 import org.alter.api.ext.*
 import org.alter.game.*
@@ -52,7 +51,7 @@ class VardorvisConfigsPlugin(
                 hitpoints = 1500  // High HP for a challenging boss encounter
                 attack = 380
                 strength = 380
-                defence = 200  // Reduced from 380 to make fight less tanky at start
+                defence = 380
                 magic = 380
                 ranged = 380
             }
@@ -64,11 +63,11 @@ class VardorvisConfigsPlugin(
                 attackMagic = 330
                 attackRanged = 330
 
-                defenceStab = 150  // Reduced from 280
-                defenceSlash = 150  // Reduced from 280
-                defenceCrush = 150  // Reduced from 280
-                defenceMagic = 180  // Reduced from 300
-                defenceRanged = 180  // Reduced from 300
+                defenceStab = 280
+                defenceSlash = 280
+                defenceCrush = 280
+                defenceMagic = 300
+                defenceRanged = 300
 
                 attackBonus = 280
                 strengthBonus = 330
@@ -80,23 +79,6 @@ class VardorvisConfigsPlugin(
                 attack = 422  // Magic attack animation
                 block = 424
                 death = 836
-            }
-
-            sound {
-                attackSound = Sound.DEMON_CHAMPION_ATTACK  // Powerful demon attack sound
-                attackArea = true  // Area sound so all nearby players can hear
-                attackVolume = 50
-                attackRadius = 10
-                
-                blockSound = Sound.DEMON_CHAMPION_HIT  // Demon hit sound
-                blockArea = true
-                blockVolume = 40
-                blockRadius = 8
-                
-                deathSound = Sound.DEMON_CHAMPION_DEATH  // Demon death sound
-                deathArea = true  // Area sound for death
-                deathVolume = 60
-                deathRadius = 12
             }
 
             drops {

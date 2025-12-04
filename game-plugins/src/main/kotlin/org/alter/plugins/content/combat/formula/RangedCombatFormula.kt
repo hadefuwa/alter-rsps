@@ -146,23 +146,31 @@ object RangedCombatFormula : CombatFormula {
             hit *= getDamageTakeMultiplier(target)
             hit = Math.floor(hit)
 
-            // Apply Salve amulet damage reduction (20% reduction from undead)
+            // Apply Salve amulet damage reduction (40% reduction from undead)
             if (isUndead(pawn)) {
                 val hasSalveAmulet = target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") ||
                                      target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") ||
                                      target.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") ||
                                      target.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei")
                 if (hasSalveAmulet) {
-                    hit *= 0.8  // 20% damage reduction
+                    hit *= 0.6  // 40% damage reduction
                     hit = Math.floor(hit)
                 }
             }
 
             // Cap damage at 30 if target is wearing Bracelet of Ethereum and attacker is Revenant
+            // If also wearing Salve amulet, reduce the cap by 40% (30 * 0.6 = 18)
             if (isRevenant && target.hasEquipped(EquipmentType.GLOVES, "item.bracelet_of_ethereum")) {
-                 if (hit > 30.0) {
-                     hit = 30.0
-                 }
+                val hasSalveAmulet = isUndead(pawn) && (
+                    target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet") ||
+                    target.hasEquipped(EquipmentType.AMULET, "item.salve_amulet_e") ||
+                    target.hasEquipped(EquipmentType.AMULET, "item.salve_amuleti") ||
+                    target.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei")
+                )
+                val damageCap = if (hasSalveAmulet) 18.0 else 30.0  // 40% reduction of cap when wearing Salve
+                if (hit > damageCap) {
+                    hit = damageCap
+                }
             }
 
             base = hit.toInt()
