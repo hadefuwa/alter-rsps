@@ -8,6 +8,7 @@ import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 class KrystilliaPlugin(
     r: PluginRepository,
@@ -71,7 +72,24 @@ class KrystilliaPlugin(
              chatNpc(player, taskMessage ?: "You already have a task. You need to finish it first.")
              return
         }
-        org.alter.plugins.content.skills.slayer.Slayer.assign(player, org.alter.plugins.content.skills.slayer.SlayerMaster.KRYSTILLIA)
+        
+        if (player.attr[DoomPoints.SELECT_SLAYER_TASK_UNLOCK] == true) {
+             when (options(player, "I'll take a random assignment.", "I want to choose my own task.")) {
+                 1 -> org.alter.plugins.content.skills.slayer.Slayer.assign(player, org.alter.plugins.content.skills.slayer.SlayerMaster.KRYSTILLIA)
+                 2 -> chooseOwnTask(player)
+             }
+        } else {
+             org.alter.plugins.content.skills.slayer.Slayer.assign(player, org.alter.plugins.content.skills.slayer.SlayerMaster.KRYSTILLIA)
+        }
+    }
+
+    suspend fun QueueTask.chooseOwnTask(player: Player) {
+        chatNpc(player, "Very well. What creature do you wish to hunt?")
+        val input = inputString(player, "Enter NPC name:")
+        
+        if (!org.alter.plugins.content.skills.slayer.Slayer.assignSpecific(player, org.alter.plugins.content.skills.slayer.SlayerMaster.KRYSTILLIA, input)) {
+             chatNpc(player, "I cannot assign that creature as a task.")
+        }
     }
 }
 

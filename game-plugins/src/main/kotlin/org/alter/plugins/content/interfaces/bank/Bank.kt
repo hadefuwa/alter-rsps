@@ -11,6 +11,7 @@ import org.alter.game.model.item.Item
 import org.alter.plugins.content.interfaces.bank.BankTabs.SELECTED_TAB_VARBIT
 import org.alter.plugins.content.interfaces.bank.BankTabs.getTabsItems
 import org.alter.plugins.content.interfaces.equipstats.EquipmentStats
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -138,6 +139,13 @@ object Bank {
         p.openInterface(BANK_INTERFACE_ID, InterfaceDestination.MAIN_SCREEN)
         p.openInterface(INV_INTERFACE_ID, InterfaceDestination.TAB_AREA)
         p.setVarp(262, -1)
+        
+        // Dynamic bank capacity
+        val capacity = if (p.attr[DoomPoints.INCREASED_BANK_UNLOCK] == true) 1200 else 800
+        if (p.bank.capacity != capacity) {
+            p.bank.resize(capacity)
+        }
+        
         p.setComponentText(interfaceId = BANK_INTERFACE_ID, component = 9, text = p.bank.capacity.toString())
         p.runClientScript(
             ClientScript(id = 1495),
@@ -163,7 +171,7 @@ object Bank {
             InterfaceEvent.DRAG_DEPTH1,
             InterfaceEvent.DragTargetable,
         )
-        p.setInterfaceEvents(interfaceId = BANK_INTERFACE_ID, component = 47, 1..1200, InterfaceEvent.ClickOp1)
+        p.setInterfaceEvents(interfaceId = BANK_INTERFACE_ID, component = 47, 1..capacity, InterfaceEvent.ClickOp1)
         p.setInterfaceEvents(
             interfaceId = INV_INTERFACE_ID,
             component = 19,
@@ -177,7 +185,7 @@ object Bank {
         p.setInterfaceEvents(
             interfaceId = BANK_INTERFACE_ID,
             component = 13,
-            0..1199,
+            0 until capacity,
             InterfaceEvent.ClickOp1,
             InterfaceEvent.ClickOp2,
             InterfaceEvent.ClickOp3,

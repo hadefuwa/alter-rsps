@@ -211,6 +211,7 @@ tasks.named<JavaExec>("run") {
     errorOutput = System.err
     // Don't fail silently
     isIgnoreExitValue = false
+    jvmArgs = listOf("-Xmx4g", "-XX:+UseParallelGC")
 }
 
 /**

@@ -224,6 +224,35 @@ object Slayer {
         val npcName = npcDef.name
         return "Your current task is $npcName."
     }
+    fun assignSpecific(player: Player, master: SlayerMaster, npcName: String): Boolean {
+        val validNpcIds = getSpawnedNpcIds(player.world)
+        val targetNpcId = validNpcIds.find { 
+            getNpc(it).name.equals(npcName, ignoreCase = true) 
+        }
+        
+        if (targetNpcId == null) {
+            player.message("That creature is not available as a slayer task.")
+            return false
+        }
+        
+        val npcDef = getNpc(targetNpcId)
+        
+        val baseAmount = when {
+            npcDef.combatLevel >= 200 -> player.world.random(50..100)
+            npcDef.combatLevel >= 100 -> player.world.random(30..60)
+            npcDef.combatLevel >= 50 -> player.world.random(20..40)
+            npcDef.combatLevel >= 20 -> player.world.random(15..30)
+            else -> player.world.random(10..25)
+        }
+        
+        player.attr[SLAYER_TASK_ATTR] = targetNpcId
+        player.attr[SLAYER_AMOUNT_ATTR] = baseAmount
+        player.attr[SLAYER_PROGRESS_ATTR] = 0
+        player.attr[SLAYER_MASTER_ATTR] = master.id
+        
+        player.message("You have chosen to kill $baseAmount ${npcDef.name.lowercase()}.")
+        return true
+    }
 }
 
 class SlayerPlugin(

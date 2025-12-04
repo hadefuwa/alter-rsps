@@ -129,6 +129,9 @@ class ScytheOfViturPlugin(
         
         // Register combat logic for all scythe variants
         registerCombatLogic()
+        
+        // Register equip handlers to show charges when equipping
+        registerEquipHandlers()
     }
     
     private fun registerChargingHandlers() {
@@ -345,6 +348,43 @@ class ScytheOfViturPlugin(
                     player.message("You decide to keep the scythe charged.")
                 }
             }
+        }
+    }
+    
+    private fun registerEquipHandlers() {
+        SCYTHE_VARIANTS.forEach { variant ->
+            onItemEquip("item.$variant") {
+                handleScytheEquip(player)
+            }
+        }
+    }
+    
+    private fun handleScytheEquip(player: Player) {
+        val weapon = player.getEquipment(EquipmentType.WEAPON) ?: return
+        
+        // Check if it's a corrupted scythe (doesn't use charges)
+        val isCorrupted = weapon.id == getRSCM("item.corrupted_scythe_of_vitur")
+        
+        if (isCorrupted) {
+            player.message("Your corrupted scythe of vitur doesn't require charges.")
+            return
+        }
+        
+        // Check if it's an uncharged variant
+        val isUncharged = weapon.getDef().name.contains("uncharged", ignoreCase = true)
+        
+        if (isUncharged) {
+            player.message("Your scythe is uncharged.")
+            return
+        }
+        
+        // Get charges for charged variants
+        val charges = weapon.getAttr(ItemAttribute.CHARGES) ?: 0
+        
+        if (charges > 0) {
+            player.message("Your scythe has $charges charges remaining.")
+        } else {
+            player.message("Your scythe has no charges remaining.")
         }
     }
     

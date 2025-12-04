@@ -26,11 +26,23 @@ class ItemContainer(val key: ContainerKey) : Iterable<Item?> {
     /**
      * The total amount of items that the container can hold at a time.
      */
-    val capacity = key.capacity
+    /**
+     * The total amount of items that the container can hold at a time.
+     */
+    var capacity = key.capacity
 
     private val stackType = key.stackType
 
-    private val items = Array<Item?>(capacity) { null }
+    private var items = Array<Item?>(capacity) { null }
+
+    fun resize(newCapacity: Int) {
+        val newItems = Array<Item?>(newCapacity) { null }
+        for (i in 0 until Math.min(capacity, newCapacity)) {
+            newItems[i] = items[i]
+        }
+        this.items = newItems
+        this.capacity = newCapacity
+    }
 
     /**
      * A flag which indicates that the [items] has been modified since the last

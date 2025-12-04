@@ -19,6 +19,9 @@ object DoomPoints {
     val PASSIVE_XP_PERK = AttributeKey<Int>("doom_perk_passive_xp")
     val COIN_MULTIPLIER_PERK = AttributeKey<Int>("doom_perk_coin_mult")
     val SLAYER_POINTS_PERK = AttributeKey<Int>("doom_perk_slayer_points")
+    val SELECT_SLAYER_TASK_UNLOCK = AttributeKey<Boolean>("doom_unlock_select_slayer_task")
+    val INCREASED_BANK_UNLOCK = AttributeKey<Boolean>("doom_unlock_increased_bank")
+    val REMOTE_BANK_UNLOCK = AttributeKey<Boolean>("doom_unlock_remote_bank")
     
     /**
      * Get the player's current Doom Points
@@ -365,6 +368,39 @@ object DoomPoints {
         ) { player, level ->
             player.attr[SLAYER_POINTS_PERK] = level * 50
             player.message("Slayer points bonus increased to ${level * 50}%!")
+        },
+        
+        Perk(
+            name = "Slayer Task Selector",
+            cost = 1000,
+            description = "Unlock the ability to select your own slayer task at any Slayer Master.",
+            maxLevel = 1
+        ) { player, level ->
+            player.attr[SELECT_SLAYER_TASK_UNLOCK] = true
+            player.message("You have unlocked the ability to select your own slayer tasks!")
+        },
+        
+        Perk(
+            name = "Increased Bank Storage",
+            cost = 1000,
+            description = "Increase your bank capacity from 800 to 1200 slots.",
+            maxLevel = 1
+        ) { player, level ->
+            player.attr[INCREASED_BANK_UNLOCK] = true
+            if (player.bank.capacity < 1200) {
+                player.bank.resize(1200)
+            }
+            player.message("You have unlocked increased bank storage! Capacity is now 1200.")
+        },
+        
+        Perk(
+            name = "Remote Banking",
+            cost = 1000,
+            description = "Unlock the ability to open your bank from anywhere using ::bank.",
+            maxLevel = 1
+        ) { player, level ->
+            player.attr[REMOTE_BANK_UNLOCK] = true
+            player.message("You have unlocked remote banking! Type ::bank to use it.")
         }
     )
     
@@ -378,6 +414,9 @@ object DoomPoints {
             2 -> player.attr[PASSIVE_XP_PERK] ?: 0
             3 -> (player.attr[COIN_MULTIPLIER_PERK] ?: 0) / 20
             4 -> (player.attr[SLAYER_POINTS_PERK] ?: 0) / 50
+            5 -> if (player.attr[SELECT_SLAYER_TASK_UNLOCK] == true) 1 else 0
+            6 -> if (player.attr[INCREASED_BANK_UNLOCK] == true) 1 else 0
+            7 -> if (player.attr[REMOTE_BANK_UNLOCK] == true) 1 else 0
             else -> 0
         }
     }

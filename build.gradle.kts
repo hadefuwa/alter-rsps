@@ -45,9 +45,6 @@ allprojects {
     tasks.withType<KotlinCompile>().all {
         compilerOptions {
             languageVersion.set(KotlinVersion.KOTLIN_2_0)
-            freeCompilerArgs = listOf(
-                "-Xuse-fir-lt=false"
-            )
         }
     }
 

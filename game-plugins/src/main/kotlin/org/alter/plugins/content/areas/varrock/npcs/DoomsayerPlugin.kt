@@ -76,12 +76,11 @@ class DoomsayerPlugin(
             animation = 554
         )
         
-        when (options(player, "What are Doom Points?", "Trade items for Doom Points", "View available perks", "Check my active perks", "Goodbye")) {
-            1 -> dialog(player)
-            2 -> showTradeMenu(player)
-            3 -> showPerksMenu(player)
-            4 -> showActivePerks(player)
-            5 -> chatPlayer(player, "Goodbye.", animation = 588)
+        when (options(player, "Trade items for Doom Points", "View available perks", "View Permanent Upgrade options", "Goodbye")) {
+            1 -> showTradeMenu(player)
+            2 -> showPerksMenu(player)
+            3 -> showActivePerks(player)
+            4 -> chatPlayer(player, "Goodbye.", animation = 588)
         }
     }
     
@@ -268,7 +267,32 @@ class DoomsayerPlugin(
         }
         
         // Build options for tradeable items
-        val itemOptions = tradeableItems.map { (slot, itemId) ->
+        // Calculate total points for all items
+        var totalAllPoints = 0
+        var totalAllItemsCount = 0
+        
+        for ((slot, itemId) in tradeableItems) {
+            val item = player.inventory[slot]!!
+            val points = DoomPoints.TRADE_IN_VALUES[itemId] ?: 0
+            
+            if (itemId == 995) { // Coins
+                val millions = item.amount / 1_000_000
+                totalAllPoints += millions
+                if (millions > 0) totalAllItemsCount++
+            } else {
+                totalAllPoints += points * item.amount
+                totalAllItemsCount++
+            }
+        }
+        
+        // Build options for tradeable items
+        val itemOptions = mutableListOf<String>()
+        
+        if (totalAllPoints > 0) {
+            itemOptions.add("Trade ALL items ($totalAllPoints points)")
+        }
+        
+        tradeableItems.forEach { (slot, itemId) ->
             val item = player.inventory[slot]!!
             val itemDef = getItem(itemId)
             val itemName = itemDef.name
@@ -276,16 +300,64 @@ class DoomsayerPlugin(
             val amount = item.amount
             
             if (amount > 1) {
-                "$itemName ($points points each, $amount in inventory)"
+                itemOptions.add("$itemName ($points points each, $amount in inventory)")
             } else {
-                "$itemName ($points points each, $amount in inventory)"
+                itemOptions.add("$itemName ($points points each, $amount in inventory)")
             }
-        } + "Nevermind"
+        }
+        itemOptions.add("Nevermind")
         
         val choice = options(player, *itemOptions.toTypedArray())
         
-        if (choice <= tradeableItems.size) {
-            val (slot, itemId) = tradeableItems[choice - 1]
+        if (totalAllPoints > 0 && choice == 1) {
+            // Trade ALL items
+            var tradedPoints = 0
+            val itemsToRemove = mutableListOf<Pair<Int, Int>>() // itemId, amount
+            
+            for ((slot, itemId) in tradeableItems) {
+                val item = player.inventory[slot]!!
+                val points = DoomPoints.TRADE_IN_VALUES[itemId] ?: 0
+                
+                if (itemId == 995) {
+                    val millions = item.amount / 1_000_000
+                    if (millions > 0) {
+                        itemsToRemove.add(itemId to millions * 1_000_000)
+                        tradedPoints += millions
+                    }
+                } else {
+                    itemsToRemove.add(itemId to item.amount)
+                    tradedPoints += points * item.amount
+                }
+            }
+            
+            // Remove items and add points
+            var success = true
+            for ((id, amount) in itemsToRemove) {
+                if (player.inventory.remove(id, amount).hasFailed()) {
+                    success = false
+                }
+            }
+            
+            if (success) {
+                DoomPoints.addDoomPoints(player, tradedPoints)
+                chatNpc(
+                    player,
+                    "Excellent! I have taken all your offerings.<br>You have gained $tradedPoints Doom Points.",
+                    animation = 567
+                )
+            } else {
+                player.message("Something went wrong while trading items.")
+            }
+            
+            showTradeMenu(player)
+            return
+        }
+        
+        // Adjust index based on whether "Trade ALL" option was added
+        val indexOffset = if (totalAllPoints > 0) 2 else 1
+        
+        if (choice >= indexOffset && choice < itemOptions.size) {
+            val (slot, itemId) = tradeableItems[choice - indexOffset]
             val item = player.inventory[slot]!!
             
             // Handle the trade
