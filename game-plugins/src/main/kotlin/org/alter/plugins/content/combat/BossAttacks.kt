@@ -1,10 +1,15 @@
 package org.alter.plugins.content.combat
 
 import org.alter.api.ProjectileType
+import org.alter.api.HitType
 import org.alter.api.ext.createProjectile
 import org.alter.api.ext.prepareAttack
+import org.alter.api.ext.hit
+import org.alter.api.ext.stun
+import org.alter.api.ext.playSound
 import org.alter.game.model.Direction
 import org.alter.game.model.Tile
+import org.alter.game.model.Hit
 import org.alter.game.model.combat.AttackStyle
 import org.alter.game.model.combat.CombatClass
 import org.alter.game.model.combat.CombatStyle
@@ -12,13 +17,13 @@ import org.alter.game.model.combat.PawnHit
 import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Pawn
 import org.alter.game.model.entity.Player
-import org.alter.game.model.HitType
 import org.alter.game.model.move.moveTo
 import org.alter.plugins.content.combat.formula.MagicCombatFormula
 import org.alter.plugins.content.combat.formula.MeleeCombatFormula
 import org.alter.plugins.content.combat.formula.RangedCombatFormula
 import org.alter.plugins.content.combat.strategy.MagicCombatStrategy
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
+import net.rsprot.protocol.game.outgoing.sound.SynthSound
 
 /**
  * A universal utility object for implementing boss attacks and mechanics.
@@ -377,6 +382,8 @@ object BossAttacks {
         }
     }
 
+
+
     /**
      * Knocks back the target from the NPC.
      *
@@ -404,7 +411,9 @@ object BossAttacks {
         // Play the knockback graphic on the target.
         target.graphic(graphic)
         // Play the sound effect if one was provided.
-        if (sound != -1) target.playSound(sound)
+        if (sound != -1) {
+            target.write(SynthSound(id = sound, loops = 1, delay = 0))
+        }
 
         // Get the current tiles of the NPC and the target.
         val npcTile = npc.tile

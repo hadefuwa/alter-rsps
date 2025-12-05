@@ -195,6 +195,48 @@ object DoomPoints {
         22644 to 10,   // Morrigan's leather chaps (variant)
         23619 to 1,   // Morrigan's javelin (variant 2)
         
+        // Armadyl Armour Set (20 points each)
+        11826 to 20,   // Armadyl helmet
+        11828 to 20,   // Armadyl chestplate
+        11830 to 20,   // Armadyl chainskirt
+        
+        // Barrows Armour Sets (2 points each)
+        // Ahrim's Set
+        4708 to 2,    // Ahrim's hood
+        4710 to 2,    // Ahrim's staff
+        4712 to 2,    // Ahrim's robetop
+        4714 to 2,    // Ahrim's robeskirt
+        
+        // Dharok's Set
+        4716 to 2,    // Dharok's helm
+        4718 to 2,    // Dharok's greataxe
+        4720 to 2,    // Dharok's platebody
+        4722 to 2,    // Dharok's platelegs
+        
+        // Guthan's Set
+        4724 to 2,    // Guthan's helm
+        4726 to 2,    // Guthan's warspear
+        4728 to 2,    // Guthan's platebody
+        4730 to 2,    // Guthan's chainskirt
+        
+        // Karil's Set
+        4732 to 2,    // Karil's coif
+        4734 to 2,    // Karil's crossbow
+        4736 to 2,    // Karil's leathertop
+        4738 to 2,    // Karil's leatherskirt
+        
+        // Torag's Set
+        4745 to 2,    // Torag's helm
+        4747 to 2,    // Torag's hammers
+        4749 to 2,    // Torag's platebody
+        4751 to 2,    // Torag's platelegs
+        
+        // Verac's Set
+        4753 to 2,    // Verac's helm
+        4755 to 2,    // Verac's flail
+        4757 to 2,    // Verac's brassard
+        4759 to 2,    // Verac's plateskirt
+        
         // Tier 3: High-value items (50-100 points)
         13576 to 50,   // Dragon warhammer
         11785 to 60,   // Armadyl crossbow
