@@ -58,30 +58,15 @@ class VarrockSuppliesShopPlugin(
         addItem("infernal_pickaxe", 10000)
         addItem("infernal_axe", 10000)
         
-        // Teleportation - 2k-8k
-        addItem("varrock_teleport", 2000)
-        addItem("lumbridge_teleport", 2000)
-        addItem("falador_teleport", 2000)
-        addItem("camelot_teleport", 3000)
-        addItem("ardougne_teleport", 4000)
-        addItem("watchtower_teleport", 5000)
-        addItem("trollheim_teleport", 6000)
-        addItem("ape_atoll_teleport", 7000)
-        addItem("kourend_castle_teleport", 8000)
-        
-        // Runes - 1k-3k per 100
-        addItem("air_rune", 1000) // per 100
-        addItem("water_rune", 1000)
-        addItem("earth_rune", 1000)
-        addItem("fire_rune", 1000)
-        addItem("mind_rune", 1000)
-        addItem("body_rune", 1000)
-        addItem("chaos_rune", 2000)
-        addItem("death_rune", 2500)
-        addItem("blood_rune", 3000)
-        addItem("soul_rune", 3000)
-        addItem("law_rune", 2000)
-        addItem("nature_rune", 2000)
+        // Nihil Shards - 10k each, 999 stock
+        try {
+            val nihilShardId = getRSCM("item.nihil_shard")
+            if (nihilShardId != -1) {
+                add(ShopItem(nihilShardId, 999, 10000, 50))
+            }
+        } catch (e: Exception) {
+            // Skip if not found in RSCM
+        }
         
         // Ammunition - 1k-5k
         addItem("rune_arrow", 1000) // per 100

@@ -3,7 +3,7 @@
 ```bash
 git status
 git add .
-git commit -m "doom"
+git commit -m "supplies store"
 git push
 ```
 git add -A                    # Stage all changes
