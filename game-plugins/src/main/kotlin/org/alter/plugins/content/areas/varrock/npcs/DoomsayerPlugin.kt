@@ -76,11 +76,12 @@ class DoomsayerPlugin(
             animation = 554
         )
         
-        when (options(player, "Trade items for Doom Points", "View available perks", "View Permanent Upgrade options", "Goodbye")) {
+        when (options(player, "Trade items for Doom Points", "View Tiered Upgrades", "View Permanent Upgrades", "Check my active perks", "Goodbye")) {
             1 -> showTradeMenu(player)
-            2 -> showPerksMenu(player)
-            3 -> showActivePerks(player)
-            4 -> chatPlayer(player, "Goodbye.", animation = 588)
+            2 -> showTieredPerksMenu(player)
+            3 -> showPermanentPerksMenu(player)
+            4 -> showActivePerks(player)
+            5 -> chatPlayer(player, "Goodbye.", animation = 588)
         }
     }
     
@@ -107,7 +108,7 @@ class DoomsayerPlugin(
         
         when (options(player, "How do I get Doom Points?", "What perks are available?", "Let me see the trade menu.", "I understand, thanks.")) {
             1 -> showItemList(player)
-            2 -> showPerksMenu(player)
+            2 -> mainMenu(player)
             3 -> showTradeMenu(player)
         }
     }
@@ -123,53 +124,94 @@ class DoomsayerPlugin(
         
         when (options(player, "I'd like to trade.", "Tell me about the perks.", "Goodbye.")) {
             1 -> showTradeMenu(player)
-            2 -> showPerksMenu(player)
+            2 -> mainMenu(player)
             3 -> chatPlayer(player, "Goodbye.", animation = 588)
         }
     }
-    
-    private suspend fun QueueTask.showPerksMenu(player: Player) {
+
+    private suspend fun QueueTask.showTieredPerksMenu(player: Player) {
         val currentPoints = DoomPoints.getDoomPoints(player)
         
         chatNpc(
             player,
-            "You currently have $currentPoints Doom Point${if (currentPoints == 1) "" else "s"}.<br>Here are the perks you can unlock:",
+            "You currently have $currentPoints Doom Point${if (currentPoints == 1) "" else "s"}.<br>Here are the tiered upgrades you can unlock:",
             animation = 567
         )
         
-        // Build perk options
-        val perkOptions = DoomPoints.AVAILABLE_PERKS.mapIndexed { index, perk ->
+        // Filter tiered perks and keep track of original index
+        val tieredPerks = DoomPoints.AVAILABLE_PERKS.mapIndexed { index, perk -> index to perk }
+            .filter { it.second.maxLevel > 1 }
+            
+        val optionsList = tieredPerks.map { (index, perk) ->
             val currentLevel = DoomPoints.getPerkLevel(player, index)
-            val nextLevel = currentLevel + 1
+            if (currentLevel >= perk.maxLevel) {
+                "${perk.name} (MAXED)"
+            } else {
+                "${perk.name} (Level: $currentLevel/${perk.maxLevel} - ${perk.cost} pts)"
+            }
+        }.toMutableList()
+        
+        optionsList.add("Main Menu")
+        
+        val choice = options(player, *optionsList.toTypedArray())
+        
+        if (choice <= tieredPerks.size) {
+            val (originalIndex, perk) = tieredPerks[choice - 1]
+            val currentLevel = DoomPoints.getPerkLevel(player, originalIndex)
             
             if (currentLevel >= perk.maxLevel) {
-                "${perk.name} (MAX LEVEL: $currentLevel/${perk.maxLevel})"
+                chatNpc(player, "You have already maxed out this perk!", animation = 554)
+                showTieredPerksMenu(player)
             } else {
-                "${perk.name} (Level: $currentLevel/${perk.maxLevel} - ${perk.cost} points)"
+                showPerkDetails(player, originalIndex, isTiered = true)
             }
-        } + listOf("View Active Perks", "Go back")
+        } else {
+            mainMenu(player)
+        }
+    }
+
+    private suspend fun QueueTask.showPermanentPerksMenu(player: Player) {
+        val currentPoints = DoomPoints.getDoomPoints(player)
         
-        val choice = options(player, *perkOptions.toTypedArray())
+        chatNpc(
+            player,
+            "You currently have $currentPoints Doom Point${if (currentPoints == 1) "" else "s"}.<br>Here are the permanent upgrades you can unlock:",
+            animation = 567
+        )
         
-        when {
-            choice <= DoomPoints.AVAILABLE_PERKS.size -> {
-                val perkIndex = choice - 1
-                val perk = DoomPoints.AVAILABLE_PERKS[perkIndex]
-                val currentLevel = DoomPoints.getPerkLevel(player, perkIndex)
-                
-                if (currentLevel >= perk.maxLevel) {
-                    chatNpc(player, "You have already maxed out this perk!", animation = 554)
-                    showPerksMenu(player)
-                } else {
-                    showPerkDetails(player, perkIndex)
-                }
+        // Filter permanent perks and keep track of original index
+        val permanentPerks = DoomPoints.AVAILABLE_PERKS.mapIndexed { index, perk -> index to perk }
+            .filter { it.second.maxLevel == 1 }
+            
+        val optionsList = permanentPerks.map { (index, perk) ->
+            val currentLevel = DoomPoints.getPerkLevel(player, index)
+            if (currentLevel >= perk.maxLevel) {
+                "${perk.name} (UNLOCKED)"
+            } else {
+                "${perk.name} (${perk.cost} pts)"
             }
-            choice == DoomPoints.AVAILABLE_PERKS.size + 1 -> showActivePerks(player)
-            else -> chatPlayer(player, "I'll think about it.", animation = 588)
+        }.toMutableList()
+        
+        optionsList.add("Main Menu")
+        
+        val choice = options(player, *optionsList.toTypedArray())
+        
+        if (choice <= permanentPerks.size) {
+            val (originalIndex, perk) = permanentPerks[choice - 1]
+            val currentLevel = DoomPoints.getPerkLevel(player, originalIndex)
+            
+            if (currentLevel >= perk.maxLevel) {
+                chatNpc(player, "You have already unlocked this upgrade!", animation = 554)
+                showPermanentPerksMenu(player)
+            } else {
+                showPerkDetails(player, originalIndex, isTiered = false)
+            }
+        } else {
+            mainMenu(player)
         }
     }
     
-    private suspend fun QueueTask.showPerkDetails(player: Player, perkIndex: Int) {
+    private suspend fun QueueTask.showPerkDetails(player: Player, perkIndex: Int, isTiered: Boolean) {
         val perk = DoomPoints.AVAILABLE_PERKS[perkIndex]
         val currentLevel = DoomPoints.getPerkLevel(player, perkIndex)
         val nextLevel = currentLevel + 1
@@ -192,17 +234,17 @@ class DoomsayerPlugin(
                         "The perk has been unlocked! Your power grows...",
                         animation = 567
                     )
-                    showPerksMenu(player)
+                    if (isTiered) showTieredPerksMenu(player) else showPermanentPerksMenu(player)
                 } else {
                     chatNpc(
                         player,
                         "You do not have enough Doom Points!<br>You need ${perk.cost} but only have $currentPoints.",
                         animation = 554
                     )
-                    showPerksMenu(player)
+                    if (isTiered) showTieredPerksMenu(player) else showPermanentPerksMenu(player)
                 }
             }
-            2 -> showPerksMenu(player)
+            2 -> if (isTiered) showTieredPerksMenu(player) else showPermanentPerksMenu(player)
             3 -> chatPlayer(player, "Nevermind.", animation = 588)
         }
     }
@@ -214,26 +256,40 @@ class DoomsayerPlugin(
         val slayerBonus = DoomPoints.getSlayerPointsBonus(player)
         val passiveXpLevel = DoomPoints.getPassiveXpPerkLevel(player)
         
-        chatNpc(
-            player,
-            "Here are your currently active perks:",
-            animation = 567
-        )
+        // New perks
+        val slayerTaskSelector = DoomPoints.getPerkLevel(player, 5) > 0
+        val increasedBank = DoomPoints.getPerkLevel(player, 6) > 0
+        val remoteBank = DoomPoints.getPerkLevel(player, 7) > 0
         
-        if (slayerBonus > 0) player.message("Slayer XP Boost: +${slayerBonus}%")
-        if (dropBonus > 0) player.message("Drop Rate Boost: +${dropBonus}%")
-        if (coinBonus > 0) player.message("Coin Drop Boost: +${coinBonus}%")
-        if (damageBonus > 0) player.message("Damage Boost: +${damageBonus}%")
-        if (passiveXpLevel > 0) {
+        player.message("<col=ff0000>--- Active Doom Perks ---</col>")
+        var hasPerks = false
+        
+        if (damageBonus > 0) { player.message("Damage Boost: +${damageBonus}%"); hasPerks = true }
+        if (dropBonus > 0) { player.message("Drop Rate Boost: +${dropBonus}%"); hasPerks = true }
+        if (coinBonus > 0) { player.message("Coin Drop Boost: +${coinBonus}%"); hasPerks = true }
+        if (slayerBonus > 0) { player.message("Slayer XP Boost: +${slayerBonus}%"); hasPerks = true }
+        if (passiveXpLevel > 0) { 
             val chance = passiveXpLevel * 5
-            player.message("Passive XP: Level $passiveXpLevel ($chance% chance)")
+            player.message("Passive XP: Level $passiveXpLevel ($chance% chance)"); hasPerks = true 
         }
         
-        if (damageBonus == 0 && dropBonus == 0 && coinBonus == 0 && slayerBonus == 0 && passiveXpLevel == 0) {
+        if (slayerTaskSelector) { player.message("Slayer Task Selector: Active"); hasPerks = true }
+        if (increasedBank) { player.message("Increased Bank Storage: Active (1200 slots)"); hasPerks = true }
+        if (remoteBank) { player.message("Remote Banking: Active (::bank)"); hasPerks = true }
+        
+        if (!hasPerks) {
             player.message("No perks unlocked yet.")
         }
         
-        showPerksMenu(player)
+        chatNpc(
+            player,
+            "I have listed your currently active perks in your chatbox.",
+            animation = 567
+        )
+        
+        when (options(player, "Main Menu")) {
+            1 -> mainMenu(player)
+        }
     }
     
     private suspend fun QueueTask.showTradeMenu(player: Player) {

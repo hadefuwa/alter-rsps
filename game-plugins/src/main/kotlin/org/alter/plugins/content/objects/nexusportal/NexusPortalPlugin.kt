@@ -58,9 +58,9 @@ class NexusPortalPlugin(
             "Dagannoth Kings" to Tile(x = 2900, z = 4449, height = 0),
             "Last Man Standing" to Tile(x = 3459, z = 5829, height = 0),
             "Gauntlet" to Tile(x = 3034, z = 6126, height = 0),
-            "Blood Moon" to Tile(x = 1413, z = 9632, height = 0),
-            "Blue Moon" to Tile(x = 1439, z = 9657, height = 0),
-            "Eclipse Moon" to Tile(x = 1465, z = 9632, height = 0),
+            "Blood Moon" to Tile(x = 1392, z = 9632, height = 0),
+            "Blue Moon" to Tile(x = 1440, z = 9680, height = 0),
+            "Eclipse Moon" to Tile(x = 1488, z = 9632, height = 0),
             "Hydra" to Tile(x = 1366, z = 10266, height = 0),
             // GWD Bosses
             "Commander Zilyana" to Tile(x = 2899, z = 5268, height = 2),

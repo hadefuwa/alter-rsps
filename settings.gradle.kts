@@ -1,5 +1,9 @@
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.FileVisitResult
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
+import java.io.File
 
 rootProject.name = "Alter"
 pluginManagement {
@@ -29,20 +33,18 @@ include(":plugins")
 includePlugins(project(":plugins"))
 fun includePlugins(pluginProject: ProjectDescriptor) {
     val pluginPath = pluginProject.projectDir.toPath()
-    Files.walk(pluginPath).forEach {
-        if (!Files.isDirectory(it)) {
-            return@forEach
+    Files.walkFileTree(pluginPath, object : SimpleFileVisitor<Path>() {
+        override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+            if (dir == pluginPath) return FileVisitResult.CONTINUE
+            if (dir.fileName.toString() in setOf("build", ".gradle", "src", ".git", ".idea", "bin", "out")) {
+                return FileVisitResult.SKIP_SUBTREE
+            }
+            if (Files.exists(dir.resolve("build.gradle.kts"))) {
+                val relativePath = pluginPath.relativize(dir)
+                val pluginName = relativePath.toString().replace(File.separator, ":")
+                include("${pluginProject.name}:$pluginName")
+            }
+            return FileVisitResult.CONTINUE
         }
-        searchPlugin(pluginProject.name, pluginPath, it)
-    }
-}
-
-fun searchPlugin(parentName: String, pluginRoot: Path, currentPath: Path) {
-    val hasBuildFile = Files.exists(currentPath.resolve("build.gradle.kts"))
-    if (!hasBuildFile) {
-        return
-    }
-    val relativePath = pluginRoot.relativize(currentPath)
-    val pluginName = relativePath.toString().replace(File.separator, ":")
-    include("$parentName:$pluginName")
+    })
 }
