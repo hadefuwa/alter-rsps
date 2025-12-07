@@ -111,6 +111,7 @@ class MiningBossPlugin(r: PluginRepository, world: World, server: Server) :
                     add("item.rune_pickaxe_noted", min = 1, max = 5, weight = 15)
                     add("item.dragon_pickaxe", min = 1, max = 2, weight = 5)      // Rare!
                     add("item.gilded_pickaxe", min = 1, max = 1, weight = 3)      // Very rare!
+                    add("item.infernal_pickaxe", min = 1, max = 1, weight = 2)    // Ultra rare!
 
                     // Other drops
                     add("item.coins", min = 5000, max = 10000, weight = 30)
