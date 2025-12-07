@@ -10,6 +10,7 @@ import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Player
 import org.alter.game.model.timer.TimeConstants
 import org.alter.game.model.weightedTableBuilder.roll
+import org.alter.game.model.weightedTableBuilder.LootTable
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
 import org.alter.rscm.RSCM.getRSCM
@@ -64,7 +65,8 @@ class SharedLootDropPlugin(
             "npc.cerberus", // Cerberus - shared loot for all damage dealers
             "npc.chaos_fanatic",
             "npc.chaos_elemental",
-            "npc.corporeal_beast" // Corporeal Beast - shared loot for all damage dealers
+            "npc.corporeal_beast", // Corporeal Beast - shared loot for all damage dealers
+            "npc.zulrah" // Zulrah - shared loot for all damage dealers
         )
         
     }
@@ -183,7 +185,7 @@ class SharedLootDropPlugin(
         }
         
         // Add NPCs that should drop loot at player locations instead of NPC location
-        // Currently: Crazy Archaeologist (players can't stand on same tile), Venenatis, Callisto, Vetion
+        // Currently: Crazy Archaeologist (players can't stand on same tile), Venenatis, Callisto, Vetion, Zulrah
         try {
             val crazyArchId = getRSCM("npc.crazy_archaeologist")
             dropAtPlayerLocationNpcIds.add(crazyArchId)
@@ -205,6 +207,12 @@ class SharedLootDropPlugin(
         try {
             val vetionId = getRSCM("npc.vetion")
             dropAtPlayerLocationNpcIds.add(vetionId)
+        } catch (e: Exception) {
+            // NPC not found, skip
+        }
+        try {
+            val zulrahId = getRSCM("npc.zulrah")
+            dropAtPlayerLocationNpcIds.add(zulrahId)
         } catch (e: Exception) {
             // NPC not found, skip
         }
@@ -281,6 +289,9 @@ class SharedLootDropPlugin(
                     newGroundItem.ownerShipType = 1 // Set ownership type to "Self Player"
                     
                     npc.world.spawn(newGroundItem)
+                    
+                    // Check if this item should be announced (rare drop)
+                    checkAndAnnounceRareDrop(npc, player, groundItem.item, lootTables)
                 }
                 
                 // Notify the player
@@ -401,6 +412,53 @@ class SharedLootDropPlugin(
         } catch (e: Exception) {
             println("Error dropping random item for player ${player.username} from NPC ${npc.id} (${npc.def.name}): ${e.message}")
             e.printStackTrace()
+        }
+    }
+    
+    /**
+     * Checks if a dropped item should be announced (rare drop) and broadcasts a message if so.
+     * 
+     * @param npc The NPC that died
+     * @param player The player who received the drop
+     * @param itemId The item ID that was dropped
+     * @param lootTables The loot tables to check for announce flags
+     */
+    private fun checkAndAnnounceRareDrop(npc: Npc, player: Player, itemId: Int, lootTables: Set<LootTable>?) {
+        try {
+            if (lootTables == null) return
+            
+            // Check all loot tables for items with announce=true that match this item ID
+            lootTables.forEach outer@ { table ->
+                table.drops.forEach inner@ { loot ->
+                    // Check if this loot entry has announce=true and matches the dropped item
+                    if (loot.announce) {
+                        val item = loot.item
+                        val lootItemId = when (item) {
+                            is Int -> item
+                            is String -> {
+                                try {
+                                    getRSCM(item)
+                                } catch (e: Exception) {
+                                    return@inner
+                                }
+                            }
+                            else -> return@inner
+                        }
+                        
+                        // If the item IDs match, broadcast the announcement
+                        if (lootItemId == itemId) {
+                            val itemDef = getItem(itemId)
+                            val itemName = itemDef.name.replace("_", " ")
+                            npc.world.players.forEach { p ->
+                                p.message("<col=ff0000>${player.username} has received a drop: $itemName</col>")
+                            }
+                            return@outer // Only announce once per item
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Silently fail - don't break loot drops if announcement fails
         }
     }
     

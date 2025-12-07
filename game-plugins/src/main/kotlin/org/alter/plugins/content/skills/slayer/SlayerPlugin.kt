@@ -47,6 +47,15 @@ object Slayer {
     private val excludedNpcIds = setOf<Int>(
         680, 681, // Giant Skeleton - add more IDs here as needed
     )
+    
+    /**
+     * NPC IDs that should be allowed for slayer tasks even if they match excluded name patterns.
+     * Use this for boss NPCs or special NPCs that have names matching excluded patterns.
+     * Example: 925 (Mining Boss Rock)
+     */
+    private val allowedNpcIds = setOf<Int>(
+        925, // Mining Boss Rock (rock_925) - allowed despite "rock" in name
+    )
 
     /**
      * NPC name patterns that should be excluded from slayer tasks.
@@ -70,6 +79,18 @@ object Slayer {
      * Checks if an NPC is valid for slayer tasks based on its definition
      */
     private fun isValidSlayerNpcDefinition(npcId: Int): Boolean {
+        // Allow specific NPCs even if they match excluded patterns
+        if (npcId in allowedNpcIds) {
+            return try {
+                val npcDef = getNpc(npcId)
+                // Still check for valid name and combat level
+                if (npcDef.name.isBlank() || npcDef.name.lowercase() == "null") return false
+                npcDef.combatLevel > 0
+            } catch (e: Exception) {
+                false
+            }
+        }
+        
         if (npcId in excludedNpcIds) return false
         
         return try {
@@ -225,13 +246,44 @@ object Slayer {
         return "Your current task is $npcName."
     }
     fun assignSpecific(player: Player, master: SlayerMaster, npcName: String): Boolean {
-        val validNpcIds = getSpawnedNpcIds(player.world)
-        val targetNpcId = validNpcIds.find { 
-            getNpc(it).name.equals(npcName, ignoreCase = true) 
+        val searchName = npcName.trim().lowercase()
+        var targetNpcId: Int? = null
+        
+        // First, try RSCM name lookup (e.g., "rock_925" -> "npc.rock_925")
+        try {
+            val rscmNpcId = org.alter.rscm.RSCM.getRSCM("npc.$searchName")
+            val npcDef = getNpc(rscmNpcId)
+            if (isValidSlayerNpcDefinition(rscmNpcId)) {
+                targetNpcId = rscmNpcId
+            }
+        } catch (e: Exception) {
+            // RSCM lookup failed, continue with other methods
+        }
+        
+        // If not found via RSCM, search through spawned NPCs by display name
+        if (targetNpcId == null) {
+            val validNpcIds = getSpawnedNpcIds(player.world)
+            
+            // Try exact match on display name
+            targetNpcId = validNpcIds.find { 
+                val npcDef = getNpc(it)
+                npcDef.name.lowercase().equals(searchName, ignoreCase = true) ||
+                npcDef.name.lowercase().replace(".", "").trim().equals(searchName, ignoreCase = true)
+            }
+            
+            // If still not found, try partial matching on display name
+            if (targetNpcId == null) {
+                targetNpcId = validNpcIds.find { 
+                    val npcDef = getNpc(it)
+                    val displayName = npcDef.name.lowercase().replace(".", "").trim()
+                    displayName.contains(searchName) || searchName.contains(displayName.split(" ").firstOrNull() ?: "")
+                }
+            }
         }
         
         if (targetNpcId == null) {
             player.message("That creature is not available as a slayer task.")
+            player.message("Try using the NPC's display name (e.g., 'rock') or RSCM name (e.g., 'rock_925').")
             return false
         }
         

@@ -18,16 +18,18 @@ class ZulrahLootPlugin(r: PluginRepository, world: World, server: Server) :
         KotlinPlugin(r, world, server) {
 
         init {
-                setupZulrahLoot()
+                // Disabled: Zulrah now uses SharedLootDropPlugin with loot tables from combat definition
+                // setupZulrahLoot()
         }
 
         private fun setupZulrahLoot() {
-                onNpcDeath("npc.zulrah") {
-                        val npc = this.npc
-                        val killer = npc.getDamageDealer() ?: return@onNpcDeath
-
-                        generateZulrahLoot(npc, killer)
-                }
+                // Disabled: Zulrah now uses SharedLootDropPlugin with loot tables from combat definition
+                // onNpcDeath("npc.zulrah") {
+                //         val npc = this.npc
+                //         val killer = npc.getDamageDealer() ?: return@onNpcDeath
+                //
+                //         generateZulrahLoot(npc, killer)
+                // }
         }
 
         /**
