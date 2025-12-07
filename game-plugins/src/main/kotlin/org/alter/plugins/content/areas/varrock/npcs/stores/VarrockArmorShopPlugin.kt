@@ -50,6 +50,9 @@ class VarrockArmorShopPlugin(
         
         // Rune Armor - 10m-30m
         addArmor("rune_gloves", 10000000)
+        
+        // Barrows Gloves - 150m
+        addArmor("barrows_gloves", 150000000)
 
         
         // Dragon Boots - 55m

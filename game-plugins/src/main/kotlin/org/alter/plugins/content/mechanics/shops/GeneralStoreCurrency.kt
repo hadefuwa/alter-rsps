@@ -26,9 +26,9 @@ class GeneralStoreCurrency : ItemCurrency(getRSCM("item.coins_995"), singularCur
         val unnoted = Item(item).toUnnoted().id
         val itemDef = getItem(unnoted)
         
-        // Special handling: All gilded items sell for 1,000,000 coins
+        // Special handling: All gilded items sell for 10,000,000 coins (10x multiplier)
         if (itemDef.name.lowercase().contains("gilded")) {
-            return 1_000_000
+            return 10_000_000
         }
         
         // Base cost from cache
@@ -49,8 +49,9 @@ class GeneralStoreCurrency : ItemCurrency(getRSCM("item.coins_995"), singularCur
         // Calculate buy price using tiered percentage system
         val buyPrice = calculateBuyPrice(itemDef, baseCost)
         
+        // Apply 10x multiplier to all General Store buy prices
         // Ensure minimum value of 1 for items that can be sold
-        return Math.max(1, buyPrice)
+        return Math.max(1, buyPrice * 10)
     }
     
     /**
