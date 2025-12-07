@@ -244,3 +244,9 @@ val CLIENT_KEY_COMBINATION = AttributeKey<Int>()
  * The [Player] that this player is currently following.
  */
 val FOLLOWING_TARGET_ATTR = AttributeKey<WeakReference<Player>>()
+
+/**
+ * A flag that indicates if the player is currently in a death sequence.
+ * This prevents the death plugin from being called multiple times.
+ */
+val DEATH_SEQUENCE_ACTIVE_ATTR = AttributeKey<Boolean>(resetOnDeath = true)

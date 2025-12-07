@@ -880,6 +880,15 @@ abstract class KotlinPlugin(
         plugin: Plugin.() -> Unit,
     ) = r.bindItemOnNpc(npc = getRSCM(npc), item = getRSCM(item), plugin = plugin)
 
+    /**
+     * Invoke [plugin] when [itemId] (integer) is used on any NPC.
+     * This is useful for items that don't have RSCM names.
+     */
+    fun onItemOnNpcGlobal(
+        itemId: Int,
+        plugin: Plugin.() -> Unit,
+    ) = r.bindItemOnNpcGlobal(itemId, plugin)
+
     fun onAnimation(
         animid: Int,
         plugin: Plugin.() -> Unit,

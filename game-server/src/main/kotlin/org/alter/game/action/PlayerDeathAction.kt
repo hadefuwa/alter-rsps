@@ -2,6 +2,7 @@ package org.alter.game.action
 
 import dev.openrune.cache.CacheManager.getAnim
 import net.rsprot.protocol.game.outgoing.sound.MidiJingle
+import org.alter.game.model.attr.DEATH_SEQUENCE_ACTIVE_ATTR
 import org.alter.game.model.attr.KILLER_ATTR
 import org.alter.game.model.entity.Player
 import org.alter.game.model.move.moveTo
@@ -21,14 +22,21 @@ object PlayerDeathAction {
     val deathPlugin: Plugin.() -> Unit = {
         val player = ctx as Player
 
-        player.interruptQueues()
-        player.stopMovement()
-        player.lock()
-        // Reset combat state immediately to stop ghost combat
-        player.resetInteractions()
+        // Prevent multiple death sequences from starting
+        // If death sequence is already active, don't start a new one
+        if (!(player.attr.has(DEATH_SEQUENCE_ACTIVE_ATTR) && player.attr[DEATH_SEQUENCE_ACTIVE_ATTR] == true)) {
+            // Mark death sequence as active
+            player.attr[DEATH_SEQUENCE_ACTIVE_ATTR] = true
 
-        player.queue(TaskPriority.STRONG) {
-            death(player)
+            player.interruptQueues()
+            player.stopMovement()
+            player.lock()
+            // Reset combat state immediately to stop ghost combat
+            player.resetInteractions()
+
+            player.queue(TaskPriority.STRONG) {
+                death(player)
+            }
         }
     }
 
@@ -60,6 +68,10 @@ object PlayerDeathAction {
         }
         player.writeMessage("Oh dear, you are dead!")
         player.unlock()
+
+        // Clear death sequence flag before removing other attributes
+        // (it will also be removed by removeIf below, but clear explicitly for safety)
+        player.attr.remove(DEATH_SEQUENCE_ACTIVE_ATTR)
 
         player.attr.removeIf { it.resetOnDeath }
         player.timers.removeIf { it.resetOnDeath }

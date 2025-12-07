@@ -65,7 +65,30 @@ class CrazyArchaeologistCombatPlugin(
         // Prevent players from standing on the same tile as the Crazy Archaeologist
         onGlobalNpcSpawn {
             if (npc.id == getRSCM("npc.crazy_archaeologist")) {
-                npc.timers[TILE_BLOCK_CHECK_TIMER] = 1 // Check every cycle
+                // Use world queue to ensure reset happens after respawn is complete
+                world.queue {
+                    // Small delay to ensure respawn process is fully complete
+                    wait(1)
+                    
+                    // Ensure NPC is fully reset and attackable after respawn
+                    // This is critical to fix the issue where NPC becomes unattackable after first kill
+                    npc.unlock()
+                    npc.resetInteractions()
+                    npc.resetFacePawn()
+                    npc.removeCombatTarget()
+                    
+                    // Clear any lingering combat timers that might prevent combat
+                    npc.timers.remove(org.alter.game.model.timer.ATTACK_DELAY)
+                    npc.timers.remove(org.alter.game.model.timer.ACTIVE_COMBAT_TIMER)
+                    
+                    // Ensure NPC is fully alive and ready
+                    if (npc.getCurrentHp() <= 0) {
+                        npc.setCurrentHp(npc.getMaxHp())
+                    }
+                    
+                    // Set up tile blocking timer
+                    npc.timers[TILE_BLOCK_CHECK_TIMER] = 1 // Check every cycle
+                }
             }
         }
         

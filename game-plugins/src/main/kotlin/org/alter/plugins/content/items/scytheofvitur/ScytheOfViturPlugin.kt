@@ -402,7 +402,10 @@ class ScytheOfViturPlugin(
         
         // Debug logging
         val targetName = if (target is Npc) target.name else "Player"
-
+        val targetSize = target.getSize()
+        val weaponName = weapon.getDef().name
+        
+        player.message("[DEBUG] Scythe Attack: Target=$targetName (Size $targetSize), Weapon=$weaponName")
         
         // Play attack animation
         player.animate(8056)
@@ -438,8 +441,8 @@ class ScytheOfViturPlugin(
         // Check for Sanguine variant (for healing)
         val isSanguine = weapon.id == getRSCM("item.sanguine_scythe_of_vitur")
         
-        // Check if target is large enough (2x2 or bigger)
-        if (target.getSize() < MIN_MULTI_HIT_SIZE) {
+        // Check if target is large enough (2x2 or bigger) or is a known large boss
+        if (!isLargeTarget(target)) {
 
             // Normal single hit for small targets
             val maxHit = MeleeCombatFormula.getMaxHit(player, target)
@@ -521,5 +524,32 @@ class ScytheOfViturPlugin(
         
         // Visual effects for multi-hit
         player.graphic(1834, delay = 1) // Scythe multi-hit effect
+    }
+
+    private fun isLargeTarget(target: Pawn): Boolean {
+        if (target.getSize() >= MIN_MULTI_HIT_SIZE) return true
+        
+        if (target is Npc) {
+            val name = target.name.lowercase()
+            // List of large bosses/NPCs that might have incorrect size definitions or transformations
+            return name.contains("bloat") || 
+                   name.contains("verzik") || 
+                   name.contains("sotetseg") || 
+                   name.contains("xarpus") || 
+                   name.contains("tekton") || 
+                   name.contains("olm") ||
+                   name.contains("maiden") || 
+                   name.contains("nightmare") ||
+                   name.contains("corporeal beast") ||
+                   name.contains("cerberus") ||
+                   name.contains("vorkath") ||
+                   name.contains("zulrah") ||
+                   name.contains("hydra") ||
+                   name.contains("kraken") ||
+                   name.contains("crazy archaeologist") ||
+                   name.contains("archaeologist")
+        }
+        
+        return false
     }
 }

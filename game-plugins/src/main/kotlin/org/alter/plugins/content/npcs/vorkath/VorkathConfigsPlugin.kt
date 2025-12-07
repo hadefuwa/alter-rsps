@@ -30,12 +30,13 @@ class VorkathConfigsPlugin(
 
     init {
         // Spawn Vorkath at coordinates 2270, 4056
-        spawnNpc("npc.vorkath", x = 2270, z = 4056, height = 0, walkRadius = 6)
+        // Using NPC ID 8059 (vorkath_8059)
+        spawnNpc("npc.vorkath_8059", x = 2270, z = 4056, height = 0, walkRadius = 6)
 
         // Note: Attack option handler not needed - setCombatDef makes the NPC attackable automatically
         // Players can attack Vorkath by clicking option 2 (attack) which is handled by the combat system
 
-        setCombatDef("npc.vorkath") {
+        setCombatDef("npc.vorkath_8059") {
             species {
                 +NpcSpecies.DRACONIC
                 +NpcSpecies.BASIC_DRAGON

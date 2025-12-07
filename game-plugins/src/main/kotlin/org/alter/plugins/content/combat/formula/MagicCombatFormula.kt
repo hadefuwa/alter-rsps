@@ -71,14 +71,38 @@ object MagicCombatFormula : CombatFormula {
             "item.hydra_slayer_helmet_i",
             "item.twisted_slayer_helmet",
             "item.twisted_slayer_helmet_i",
+            "item.tztok_slayer_helmet",
+            "item.tztok_slayer_helmet_i",
+            "item.vampyric_slayer_helmet",
+            "item.vampyric_slayer_helmet_i",
+            "item.tzkal_slayer_helmet",
+            "item.tzkal_slayer_helmet_i",
+            "item.araxyte_slayer_helmet",
+            "item.araxyte_slayer_helmet_i",
+            "item.slayer_helmet_i_25177",
+            "item.black_slayer_helmet_i_25179",
+            "item.green_slayer_helmet_i_25181",
+            "item.red_slayer_helmet_i_25183",
             "item.purple_slayer_helmet_i_25185",
             "item.turquoise_slayer_helmet_i_25187",
             "item.hydra_slayer_helmet_i_25189",
             "item.twisted_slayer_helmet_i_25191",
+            "item.tztok_slayer_helmet_i_25902",
+            "item.vampyric_slayer_helmet_i_25908",
+            "item.tzkal_slayer_helmet_i_25914",
+            "item.slayer_helmet_i_26674",
+            "item.black_slayer_helmet_i_26675",
+            "item.green_slayer_helmet_i_26676",
+            "item.red_slayer_helmet_i_26677",
             "item.purple_slayer_helmet_i_26678",
             "item.turquoise_slayer_helmet_i_26679",
             "item.hydra_slayer_helmet_i_26680",
-            "item.twisted_slayer_helmet_i_26681"
+            "item.twisted_slayer_helmet_i_26681",
+            "item.tztok_slayer_helmet_i_26682",
+            "item.vampyric_slayer_helmet_i_26683",
+            "item.tzkal_slayer_helmet_i_26684",
+            "item.araxyte_slayer_helmet_i_29820",
+            "item.araxyte_slayer_helmet_i_29822"
         )
 
     private val MAGE_VOID = arrayOf("item.void_mage_helm", "item.void_knight_top", "item.void_knight_robe", "item.void_knight_gloves")
@@ -207,8 +231,8 @@ object MagicCombatFormula : CombatFormula {
                     hit *= 1.15
                     hit = Math.floor(hit)
                 } else if (pawn.hasEquipped(EquipmentType.HEAD, *SLAYER_HELMETS) && isOnSlayerTaskFor(pawn, target)) {
-                    // Slayer helmet bonus - 50% when on slayer task
-                    hit *= 1.5
+                    // Slayer helmet bonus - 100% when on slayer task
+                    hit *= 2.0
                     hit = Math.floor(hit)
                 } else if (pawn.hasEquipped(EquipmentType.AMULET, "item.salve_amuletei") && target.isSpecies(NpcSpecies.UNDEAD)) {
                     hit *= 1.20

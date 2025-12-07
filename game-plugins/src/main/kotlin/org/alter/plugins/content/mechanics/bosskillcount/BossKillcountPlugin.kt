@@ -58,7 +58,7 @@ class BossKillcountPlugin(
             "npc.kreearra_3162",
             "npc.kril_tsutsaroth",
             "npc.zulrah",
-            "npc.vorkath",
+            "npc.vorkath_8059",
             "npc.corporeal_beast",
             "npc.nightmare",
             "npc.phosanis_nightmare",

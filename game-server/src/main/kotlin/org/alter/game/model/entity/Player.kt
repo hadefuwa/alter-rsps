@@ -23,6 +23,7 @@ import org.alter.game.action.PlayerDeathAction
 import org.alter.game.model.*
 import org.alter.game.model.appearance.Appearance
 import org.alter.game.model.attr.CURRENT_SHOP_ATTR
+import org.alter.game.model.attr.DEATH_SEQUENCE_ACTIVE_ATTR
 import org.alter.game.model.attr.LEVEL_UP_INCREMENT
 import org.alter.game.model.attr.LEVEL_UP_OLD_XP
 import org.alter.game.model.attr.LEVEL_UP_SKILL_ID
@@ -389,6 +390,25 @@ open class Player(world: World) : Pawn(world) {
         }
 
         hitsCycle()
+
+        // Recovery check: If player is locked with 0 HP but no active tasks, restart death sequence
+        // This handles cases where the death task was interrupted and player is stuck
+        // Check if death sequence flag is set but no tasks are running (task was interrupted)
+        val hasDeathFlag = attr.has(DEATH_SEQUENCE_ACTIVE_ATTR) && attr[DEATH_SEQUENCE_ACTIVE_ATTR] == true
+        if (getCurrentHp() <= 0 && lock != LockState.NONE && queues.size == 0) {
+            if (hasDeathFlag) {
+                // Player is stuck in death state - clear the flag and restart death sequence
+                attr.remove(DEATH_SEQUENCE_ACTIVE_ATTR)
+                setCurrentHp(0)
+                executePlugin(PlayerDeathAction.deathPlugin)
+            } else {
+                // Player is locked with 0 HP but no death flag - likely stuck death state
+                // Unlock and restart death sequence to recover
+                unlock()
+                setCurrentHp(0)
+                executePlugin(PlayerDeathAction.deathPlugin)
+            }
+        }
 
         // Safety check: If player is at 0 HP but death hasn't been triggered, force death
         // This handles cases where HP regeneration or other issues prevented death registration

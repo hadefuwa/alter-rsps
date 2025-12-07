@@ -36,15 +36,9 @@ class NpcDeathFixPlugin(
             // The NpcDeathAction already handles queue interruption before queuing the death task.
             // Interrupting here would break the respawn mechanism.
             
-            // For NPCs that respawn, we need to ensure they can't attack during the respawn delay
-            // The NPC will be set to inaccessible in NpcDeathAction, but we add extra protection here
-            if (npc.respawns) {
-                // Set a very long attack delay to prevent re-engagement during respawn
-                npc.timers[org.alter.game.model.timer.ATTACK_DELAY] = 1000
-            }
-            
             // Queue a task to double-check cleanup after death animation completes
             // This acts as a fallback if the engine's default death cleanup fails.
+            // Only check for non-respawning NPCs to avoid interfering with respawn logic
             world.queue {
                 // Wait for death animation to complete (typically 3-5 ticks)
                 wait(6)
@@ -56,22 +50,16 @@ class NpcDeathFixPlugin(
                     
                     // If the NPC is not supposed to respawn, force remove it.
                     // If it IS supposed to respawn, NpcDeathAction handles it by resetting/hiding it.
+                    // We don't interfere with respawning NPCs here to avoid breaking the respawn mechanism.
                     if (!shouldRespawn) {
                         // Double-check combat is reset before removal
                         Combat.reset(npc)
                         Combat.resetCombatForTarget(npc)
                         npc.interruptQueues()
                         world.remove(npc)
-                    } else {
-                        // For respawning NPCs, ensure they're still locked/inaccessible
-                        // and can't attack during respawn delay
-                        // NOTE: Do NOT interrupt queues here as it would break the respawn wait()
-                        if (!npc.isLocked()) {
-                            npc.lock()
-                        }
-                        Combat.reset(npc)
-                        npc.timers[org.alter.game.model.timer.ATTACK_DELAY] = 1000
                     }
+                    // NOTE: For respawning NPCs, we let NpcDeathAction handle everything.
+                    // The timers will be cleared in NpcDeathAction after respawn completes.
                 }
             }
         }

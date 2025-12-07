@@ -46,6 +46,7 @@ object NpcDeathAction {
         val world = npc.world
         val deathAnimation = npc.combatDef.deathAnimation
         val deathSound = npc.combatDef.defaultDeathSound
+        // CRITICAL: Capture respawnDelay BEFORE reset() is called, as reset() may change combatDef
         val respawnDelay = npc.combatDef.respawnDelay
         var killer: Pawn? = null
         // Use damage percentage to determine the killer (person who did the most damage %)
@@ -83,10 +84,19 @@ object NpcDeathAction {
         if (respawnDelay > 0) {
             NpcInfo(npc).setInaccessible(true)
             npc.reset()
+            // Ensure respawns flag is set correctly after reset (setNpcDefaults may have changed it)
+            npc.respawns = true
             wait(respawnDelay)
             NpcInfo(npc).setAllOpsVisible()
             NpcInfo(npc).setInaccessible(false)
             npc.unlock()
+            // Clear any lingering timers that might prevent combat
+            npc.timers.remove(org.alter.game.model.timer.ATTACK_DELAY)
+            npc.timers.remove(org.alter.game.model.timer.ACTIVE_COMBAT_TIMER)
+            // Ensure NPC is fully ready for combat
+            npc.resetInteractions()
+            // Clear combat target (using direct attribute removal since removeCombatTarget is an extension in game-plugins)
+            npc.attr.remove(COMBAT_TARGET_FOCUS_ATTR)
             world.plugins.executeNpcSpawn(npc)
         } else {
             world.remove(npc)
