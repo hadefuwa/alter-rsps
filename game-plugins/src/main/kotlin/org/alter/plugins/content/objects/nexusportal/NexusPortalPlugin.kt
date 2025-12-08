@@ -60,6 +60,7 @@ class NexusPortalPlugin(r: PluginRepository, world: World, server: Server) :
                         "Blue Moon" to Tile(x = 1440, z = 9680, height = 0),
                         "Eclipse Moon" to Tile(x = 1488, z = 9632, height = 0),
                         "Hydra" to Tile(x = 1366, z = 10266, height = 0),
+                        "Araxxor" to Tile(x = 3647, z = 9816, height = 0),
                         // GWD Bosses
                         "Commander Zilyana" to Tile(x = 2899, z = 5268, height = 2),
                         "General Graardor" to Tile(x = 2864, z = 5354, height = 2),
