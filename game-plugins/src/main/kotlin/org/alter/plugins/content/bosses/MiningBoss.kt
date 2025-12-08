@@ -6,11 +6,13 @@ import org.alter.api.dsl.*
 import org.alter.api.ext.*
 import org.alter.game.*
 import org.alter.game.model.*
+import org.alter.game.model.attr.AttributeKey
 import org.alter.game.model.attr.GROUNDITEM_PICKUP_TRANSACTION
 import org.alter.game.model.combat.*
 import org.alter.game.model.entity.*
 import org.alter.plugins.content.mechanics.prayer.Prayers
 import org.alter.game.model.queue.*
+import org.alter.game.model.timer.TimerKey
 import org.alter.game.plugin.*
 import org.alter.plugins.content.combat.*
 import org.alter.rscm.RSCM.getRSCM
@@ -19,13 +21,30 @@ import org.alter.rscm.RSCM.getRSCM
 class MiningBossPlugin(r: PluginRepository, world: World, server: Server) :
         KotlinPlugin(r, world, server) {
 
+    companion object {
+        private val TRAP_CHECK_TIMER = TimerKey()
+        private const val TRAP_TILE_X = 2977
+        private const val TRAP_TILE_Z = 3241
+        private const val TRAP_CHECK_INTERVAL = 1 // Check every cycle for immediate response
+        private const val TRAP_COOLDOWN_MS = 2000 // 2 second cooldown between trap triggers per player
+        private val TRAP_LAST_TRIGGER_ATTR = AttributeKey<Long>("mining_boss_trap_last_trigger")
+    }
+
     init {
         // 1. SPAWN THE BOSS 📍
         // This makes the boss appear in the game at coordinates (2977, 3238)
         spawnNpc("npc.rock_925", x = 2977, z = 3238, walkRadius = 5)
 
         // Spawn a decoration item nearby (a pickaxe)
+        // This is a trap item - players cannot pick it up
         spawnItem("item.gilded_pickaxe", 1, 2977, 3241)
+        
+        // Prevent players from picking up the gilded pickaxe (it's a trap decoration)
+        setGroundItemCondition("item.gilded_pickaxe") {
+            val player = ctx as Player
+            player.message("You cannot pick up this pickaxe - it's a trap!")
+            false // Prevent pickup
+        }
 
         // 2. DEFINE STATS & DROPS 📊
         // This tells the game how strong the boss is and what it drops
@@ -125,16 +144,83 @@ class MiningBossPlugin(r: PluginRepository, world: World, server: Server) :
         // Also check if player is attacking with a pickaxe
         onNpcCombat("npc.rock_925") { npc.queue { combatLoop() } }
         
-        // 4. SPECIAL FUNCTIONALITY 🎁
-        // Give mining XP when the boss is killed
+        // Set up trap check timer on world initialization
+        // This ensures the trap works independently of boss state
+        onWorldInit {
+            world.timers[TRAP_CHECK_TIMER] = TRAP_CHECK_INTERVAL
+        }
+        
+        // Trap check: Periodically check all players on the trap tile
+        // This works even when the boss is dead or not spawned
+        onTimer(TRAP_CHECK_TIMER) {
+            // Check all players in the world
+            world.players.forEach { player ->
+                if (player.initiated && !player.isDead()) {
+                    // Check if player is standing on the trap tile
+                    if (player.tile.x == TRAP_TILE_X && player.tile.z == TRAP_TILE_Z) {
+                        // Check cooldown to prevent spam
+                        val currentTime = System.currentTimeMillis()
+                        val lastTrigger = player.attr[TRAP_LAST_TRIGGER_ATTR] ?: 0L
+                        
+                        if (currentTime - lastTrigger >= TRAP_COOLDOWN_MS) {
+                            // Trigger the trap!
+                            player.hit(135)
+                            player.graphic(100)
+                            player.message("IT'S A TRAP! The pickaxe was fake!")
+                            player.attr[TRAP_LAST_TRIGGER_ATTR] = currentTime
+                        }
+                    }
+                }
+            }
+            // Reset timer to check again next cycle
+            world.timers[TRAP_CHECK_TIMER] = TRAP_CHECK_INTERVAL
+        }
+        
+        // 4. HANDLE PICKAXE ON DEATH 🪦
+        // If a player dies with the gilded pickaxe, remove it (they shouldn't have it)
+        onPlayerDeath {
+            val player = this.player
+            val pickaxeId = getRSCM("item.gilded_pickaxe")
+            
+            // Check inventory
+            val inventoryCount = player.inventory.getItemCount(pickaxeId)
+            if (inventoryCount > 0) {
+                player.inventory.remove(pickaxeId, inventoryCount)
+                player.message("The gilded pickaxe was lost upon death - it was a trap!")
+            }
+            
+            // Check equipment
+            val weapon = player.getEquipment(EquipmentType.WEAPON)
+            if (weapon?.id == pickaxeId) {
+                player.equipment[EquipmentType.WEAPON.id] = null
+                player.equipment.dirty = true
+                player.message("The gilded pickaxe was lost upon death - it was a trap!")
+            }
+        }
+        
+        // 5. SPECIAL FUNCTIONALITY 🎁
+        // Give mining XP when the boss is killed to all players who dealt damage
         onNpcDeath("npc.rock_925") {
             val npc = this.npc
-            val killer = npc.damageMap.getMostDamage() as? Player ?: return@onNpcDeath
             
-            // Give mining XP (1000 XP for 100 HP boss)
+            // Get all players who dealt damage to the boss
+            val playersWhoDamaged = mutableListOf<Player>()
+            npc.world.players.forEach { player ->
+                if (player.initiated && !player.isDead() && npc.damageMap.getDamageFrom(player) > 0) {
+                    playersWhoDamaged.add(player)
+                }
+            }
+            
+            if (playersWhoDamaged.isEmpty()) {
+                return@onNpcDeath // No players dealt damage
+            }
+            
+            // Give mining XP to all players who dealt damage (1000 XP for 100 HP boss)
             val miningXp = npc.combatDef.hitpoints * 10.0
-            killer.addXp(Skills.MINING, miningXp)
-            killer.message("<col=00ff00>You gain ${miningXp.toInt()} Mining experience for defeating the Rock!</col>")
+            playersWhoDamaged.forEach { player ->
+                player.addXp(Skills.MINING, miningXp)
+                player.message("<col=00ff00>You gain ${miningXp.toInt()} Mining experience for defeating the Rock!</col>")
+            }
         }
     }
 
@@ -167,13 +253,6 @@ class MiningBossPlugin(r: PluginRepository, world: World, server: Server) :
             } else {
                 // Reset damage multiplier if they have a pickaxe
                 npc.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
-            }
-
-            // Trap: If player steps on the pickaxe, they get hurt!
-            if (target.tile.x == 2977 && target.tile.z == 3241) {
-                target.hit(135)
-                target.graphic(100)
-                target.message("IT'S A TRAP! The pickaxe was fake!")
             }
 
             // Move close and attack when ready

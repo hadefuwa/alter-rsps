@@ -292,7 +292,9 @@ class MiningPlugin(
     private fun rewardPlayer(player: Player, entry: MiningEntry, rockName: String) {
         player.addXp(Skills.MINING, entry.experience)
 
-        val transaction = player.inventory.add(item = entry.oreId, amount = entry.oreAmount)
+        // Convert ore to noted version and give 10 ores per mine
+        val notedOreId = org.alter.game.model.item.Item(entry.oreId).toNoted().id
+        val transaction = player.inventory.add(item = notedOreId, amount = 10)
 
         if (transaction.hasSucceeded()) {
             player.message("You mine some ore.")

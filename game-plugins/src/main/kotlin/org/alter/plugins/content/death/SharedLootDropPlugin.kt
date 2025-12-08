@@ -66,7 +66,8 @@ class SharedLootDropPlugin(
             "npc.chaos_fanatic",
             "npc.chaos_elemental",
             "npc.corporeal_beast", // Corporeal Beast - shared loot for all damage dealers
-            "npc.zulrah" // Zulrah - shared loot for all damage dealers
+            "npc.zulrah", // Zulrah - shared loot for all damage dealers
+            "npc.rock_925" // Mining Boss - shared loot for all damage dealers
         )
         
     }
