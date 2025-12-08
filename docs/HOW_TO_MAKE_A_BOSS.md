@@ -259,37 +259,47 @@ class MyBossPlugin(
                     // add("item.bones", 1)     // Or regular bones
                 }
                 
-                main(128) {  // 👉 ADJUST: The number (128) is the drop rate denominator
-                    // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
+                // ⚠️ IMPORTANT: Table weight MUST be >= sum of all item weights!
+                // If table weight < sum of item weights, server will crash on startup.
+                // 
+                // HOW TO CALCULATE:
+                // 1. Add up ALL item weights in the main() block
+                // 2. Set main(weight = SUM) or higher
+                // 3. Example: If items total 79, use main(weight = 79) for guaranteed drops
+                //             or main(weight = 128) for ~62% drop chance
+                main(weight = 128) {  // 👉 ADJUST: Table weight (must be >= sum of item weights)
+                    // ITEM WEIGHTS:
+                    // - Higher weight = more common drop (weight 20 is twice as likely as weight 10)
+                    // - Relative weights determine drop probability within the table
                     
-                    add("item.coins", 5000, 10000, 20)  // 20/128 chance, drops 5000-10000 coins
-                    // add("item.coins", 1000, 5000, 50)   // More common, less coins
-                    // add("item.coins", 10000, 50000, 5)  // Rare but lots of coins
+                    add("item.coins", min = 5000, max = 10000, weight = 20)  // Common drop
+                    // add("item.coins", min = 1000, max = 5000, weight = 50)   // More common, less coins
+                    // add("item.coins", min = 10000, max = 50000, weight = 5)  // Rare but lots of coins
                     
-                    add("item.dragon_scimitar", 1, 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    // add("item.dragon_scimitar", 1, 1)   // Very rare (1/128)
-                    // add("item.dragon_scimitar", 1, 20)  // More common (20/128)
+                    add("item.dragon_scimitar", min = 1, max = 1, weight = 5)  // 👉 ADJUST: Rare drop!
+                    // add("item.dragon_scimitar", min = 1, max = 1, weight = 1)   // Very rare
+                    // add("item.dragon_scimitar", min = 1, max = 1, weight = 20)  // More common
                     
                     // 💡 MORE DROP EXAMPLES (uncomment to add):
-                    // add("item.rune_scimitar", 1, 30)     // Common weapon
-                    // add("item.dragon_longsword", 1, 10)  // Rare weapon
-                    // add("item.abyssal_whip", 1, 2)       // Very rare weapon
-                    // add("item.shark", 5, 10, 40)         // Food (5-10 sharks, 40/128 chance)
-                    // add("item.super_restore_4", 1, 25)   // Potion
-                    // add("item.dragon_bones", 5, 10, 15)  // Bones (5-10, 15/128 chance)
+                    // add("item.rune_scimitar", min = 1, max = 1, weight = 30)     // Common weapon
+                    // add("item.dragon_longsword", min = 1, max = 1, weight = 10)  // Rare weapon
+                    // add("item.abyssal_whip", min = 1, max = 1, weight = 2)       // Very rare weapon
+                    // add("item.shark", min = 5, max = 10, weight = 40)         // Food (5-10 sharks)
+                    // add("item.super_restore_4", min = 1, max = 1, weight = 25)   // Potion
+                    // add("item.dragon_bones", min = 5, max = 10, weight = 15)  // Bones (5-10)
                 }
             }
             
             // 💡 RICH BOSS DROP TABLE (uncomment to try):
             // drops {
             //     always { add("item.big_bones", 1) }
-            //     main(128) {
-            //         add("item.coins", 10000, 50000, 30)
-            //         add("item.dragon_scimitar", 1, 5)
-            //         add("item.dragon_longsword", 1, 5)
-            //         add("item.abyssal_whip", 1, 2)
-            //         add("item.shark", 10, 20, 50)
-            //         add("item.super_restore_4", 3, 5, 40)
+            //     main(weight = 200) {  // Must be >= sum of all item weights!
+            //         add("item.coins", min = 10000, max = 50000, weight = 30)
+            //         add("item.dragon_scimitar", min = 1, max = 1, weight = 5)
+            //         add("item.dragon_longsword", min = 1, max = 1, weight = 5)
+            //         add("item.abyssal_whip", min = 1, max = 1, weight = 2)
+            //         add("item.shark", min = 10, max = 20, weight = 50)
+            //         add("item.super_restore_4", min = 3, max = 5, weight = 40)
             //     }
             // }
         }
@@ -647,7 +657,9 @@ Look for `stats`.
 #### C. What does it drop? (Loot)
 Look for `drops`.
 *   You can change "item.coins" to any item name you want, like "item.partyhat"!
-*   The last number is the rarity. Lower number = rarer!
+*   Use `min = X, max = Y, weight = Z` syntax for drops
+*   **Weight** determines rarity: Higher weight = more common drop
+*   **Table weight** (`main(weight = X)`) must be >= sum of all item weights!
 
 #### D. How does it fight? (Combat)
 Look for `combatLoop`.
@@ -921,6 +933,27 @@ The game will randomly pick one when the boss dies!
 
 Sounds add atmosphere and make your boss feel more alive! This section will teach you everything about boss sounds.
 
+### 🎯 Quick Start: Testing Sounds
+
+**The easiest way to find sounds is to test them in-game!**
+
+1. **Use the `::sound` command** (requires developer privileges):
+   ```
+   ::sound <sound_id>
+   ```
+   Example: `::sound 718` will play that sound immediately!
+
+2. **Try different IDs** until you find sounds you like:
+   ```
+   ::sound 718   // Rock attack
+   ::sound 720   // Rock hit
+   ::sound 719   // Rock death
+   ::sound 448   // Giant attack
+   ::sound 474   // Golem attack
+   ```
+
+3. **Then use the IDs in your boss code!**
+
 ### What Are Sounds?
 
 Sounds are audio effects that play when your boss performs actions:
@@ -1061,7 +1094,29 @@ sound {
 
 ### How to Find Sound IDs
 
-#### Method 1: Check the Sound Constants
+#### Method 1: Test Sounds In-Game (Easiest!)
+**The best way to find sounds is to test them directly in-game!**
+
+1. **Use the `::sound` command** (requires developer privileges):
+   ```
+   ::sound <sound_id>
+   ```
+   Example: `::sound 2582` will play that sound so you can hear it!
+
+2. **Try different IDs** until you find sounds you like:
+   - Start with IDs from the `Sound.kt` file (see Method 2)
+   - Test them in-game to see how they sound
+   - Adjust volume and radius in your boss code
+
+3. **Quick Testing Workflow**:
+   ```
+   ::sound 718   // Test rock attack sound
+   ::sound 720   // Test rock hit sound
+   ::sound 719   // Test rock death sound
+   ```
+   Then use the ones that sound good in your boss code!
+
+#### Method 2: Check the Sound Constants
 Look in: `game-api/src/main/kotlin/org/alter/api/cfg/Sound.kt`
 
 Search for sounds related to your boss type:
@@ -1069,12 +1124,30 @@ Search for sounds related to your boss type:
 - Dragon boss? Search for "DRAGON"
 - Giant boss? Search for "GIANT"
 
-#### Method 2: Look at Existing Bosses
+**Example constants you'll find:**
+```kotlin
+Sound.ROCK_CRAB_ATTACK = 718
+Sound.ROCK_CRAB_HIT = 720
+Sound.ROCK_CRAB_DEATH = 719
+Sound.DRAGON_ATTACK = <id>
+Sound.GIANT_ATTACK = 448
+```
+
+#### Method 3: Look at Existing Bosses
 Check other boss files to see what sounds they use:
 - `game-plugins/src/main/kotlin/org/alter/plugins/content/bosses/`
 - `game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/`
 
-#### Method 3: Use Generic Combat Sounds
+**Example from MiningBoss.kt:**
+```kotlin
+sound {
+    attackSound = Sound.ROCK_CRAB_ATTACK  // 718
+    blockSound = Sound.ROCK_CRAB_HIT      // 720
+    deathSound = Sound.ROCK_CRAB_DEATH   // 719
+}
+```
+
+#### Method 4: Use Generic Combat Sounds
 If you can't find a specific sound, use generic combat sounds:
 ```kotlin
 // Generic melee sounds
@@ -1084,6 +1157,16 @@ blockSound = Sound.STEEL_MAIL         // 14
 // Impact sounds
 blockSound = Sound.ROCK_IMPACT         // 851
 blockSound = Sound.STONE_IMPACT        // 860
+```
+
+#### Method 5: Use Direct Sound IDs
+You can also use raw sound IDs directly (test with `::sound` first!):
+```kotlin
+sound {
+    attackSound = 718   // Direct ID (test with ::sound 718 first!)
+    blockSound = 720
+    deathSound = 719
+}
 ```
 
 ### Sound Tips & Tricks
@@ -1127,11 +1210,46 @@ If you don't want sounds, you can simply **omit the `sound { }` block entirely**
 
 ### Testing Your Sounds
 
+#### Step 1: Test Individual Sounds
+Before adding sounds to your boss, test them individually:
+
+1. **In-game, use the `::sound` command**:
+   ```
+   ::sound 718   // Test attack sound
+   ::sound 720   // Test block sound
+   ::sound 719   // Test death sound
+   ```
+
+2. **Try different IDs** until you find sounds that fit your boss:
+   ```
+   ::sound 448   // Try giant attack
+   ::sound 450   // Try giant death
+   ::sound 474   // Try golem attack
+   ```
+
+3. **Note which IDs sound good** and use them in your code!
+
+#### Step 2: Test Sounds on Your Boss
+After adding sounds to your boss code:
+
 1. **Spawn your boss in-game**
 2. **Attack it** - Listen for the attack sound
 3. **Let it hit you** - Listen for the block sound
 4. **Kill it** - Listen for the death sound
-5. **Adjust volume/radius** if needed!
+5. **Check if nearby players can hear it** (if `attackArea = true`)
+6. **Adjust volume/radius** if needed!
+
+#### Step 3: Fine-Tune Settings
+If sounds are too loud/quiet or don't travel far enough:
+
+```kotlin
+sound {
+    attackSound = Sound.ROCK_CRAB_ATTACK
+    attackVolume = 30    // 👉 ADJUST: Lower if too loud
+    attackRadius = 5     // 👉 ADJUST: Smaller if too far
+    // ... test and adjust until perfect!
+}
+```
 
 ### Common Sound Mistakes to Avoid
 
@@ -1336,6 +1454,274 @@ import org.alter.game.model.combat.Prayers
 
 ---
 
+## 🛡️ Making Your Boss Use Protection Prayers
+
+Want to make your boss more challenging? You can make it use protection prayers to reduce damage from specific attack styles! The boss can protect from **1 or 2 attack styles** at a time.
+
+### How Protection Prayers Work for NPCs
+
+When an NPC has a protection prayer active:
+- **Protect from Melee**: Reduces melee damage by 60% (only 40% gets through)
+- **Protect from Magic**: Completely blocks magic damage (100% protection)
+- **Protect from Missiles (Ranged)**: Reduces ranged damage by 60% (only 40% gets through)
+
+**Important:** NPCs can only **display one prayer icon** at a time, but they can have **two prayers active** simultaneously (the combat system checks both internally).
+
+### 1️⃣ Single Protection Prayer (Easiest!)
+
+Make your boss protect from one attack style:
+
+#### Add this import:
+```kotlin
+import org.alter.api.PrayerIcon
+```
+
+#### Add this code inside your `combatLoop`:
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // 🛡️ PROTECT FROM MELEE: Boss reduces melee damage by 60%
+        npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id
+        
+        // Your attack code here
+        if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) && 
+            npc.isAttackDelayReady()) {
+            BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+            npc.postAttackLogic(target)
+        }
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    // Clear prayer icon when combat ends
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+```
+
+#### Other Single Prayer Options:
+```kotlin
+// Protect from Magic (blocks all magic damage)
+npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
+
+// Protect from Missiles/Ranged (reduces ranged damage by 60%)
+npc.prayerIcon = PrayerIcon.PROTECT_FROM_MISSILES.id
+```
+
+### 2️⃣ Two Protection Prayers (Advanced!)
+
+Make your boss protect from **two attack styles** at once! This is more complex but makes the boss much harder.
+
+#### Add these imports:
+```kotlin
+import org.alter.api.PrayerIcon
+import org.alter.game.model.attr.AttributeKey
+```
+
+#### Add this code to your plugin class (outside the `init` block):
+```kotlin
+companion object {
+    // Store which two prayers are active
+    private val PRAYER_1_ATTR = AttributeKey<Int>()  // First prayer (0=Magic, 1=Missiles, 2=Melee)
+    private val PRAYER_2_ATTR = AttributeKey<Int>()  // Second prayer (0=Magic, 1=Missiles, 2=Melee)
+}
+```
+
+#### Add this code inside your `combatLoop`:
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+
+    // Initialize prayers if not set (e.g., Protect from Melee + Missiles)
+    if (!npc.attr.has(PRAYER_1_ATTR)) {
+        npc.attr[PRAYER_1_ATTR] = 2  // Protect from Melee
+        npc.attr[PRAYER_2_ATTR] = 1  // Protect from Missiles
+        npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id  // Display first prayer
+    }
+
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // Get the two active prayers
+        val prayer1 = npc.attr[PRAYER_1_ATTR] ?: 2
+        val prayer2 = npc.attr[PRAYER_2_ATTR] ?: 1
+        
+        // Check which attack types are blocked
+        // 0 = Magic, 1 = Missiles (Ranged), 2 = Melee
+        val hasMagicPrayer = prayer1 == 0 || prayer2 == 0
+        val hasMissilesPrayer = prayer1 == 1 || prayer2 == 1
+        val hasMeleePrayer = prayer1 == 2 || prayer2 == 2
+        
+        // Update the displayed prayer icon (show the first one)
+        npc.prayerIcon = when (prayer1) {
+            0 -> PrayerIcon.PROTECT_FROM_MAGIC.id
+            1 -> PrayerIcon.PROTECT_FROM_MISSILES.id
+            2 -> PrayerIcon.PROTECT_FROM_MELEE.id
+            else -> -1
+        }
+        
+        // Determine which attack type the boss can use
+        // (The one that's NOT blocked by prayers)
+        val canUseMagic = !hasMagicPrayer
+        val canUseRanged = !hasMissilesPrayer
+        val canUseMelee = !hasMeleePrayer
+        
+        // Attack with the allowed style
+        if (npc.isAttackDelayReady()) {
+            when {
+                canUseMagic -> {
+                    // Use magic attack
+                    BossAttacks.magic(npc, target, projectile = 100, maxHit = 30, anim = 1979)
+                    npc.postAttackLogic(target)
+                }
+                canUseRanged -> {
+                    // Use ranged attack
+                    BossAttacks.ranged(npc, target, projectile = 10, maxHit = 25, anim = 426)
+                    npc.postAttackLogic(target)
+                }
+                canUseMelee -> {
+                    // Use melee attack
+                    if (npc.moveToAttackRange(this, target, distance = 1, projectile = false)) {
+                        BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                        npc.postAttackLogic(target)
+                    }
+                }
+            }
+        }
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    // Clear prayer icon when combat ends
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+```
+
+### 🔄 Switching Prayers (Dynamic Prayer Changes)
+
+Make your boss switch prayers based on conditions (e.g., every 50 damage taken, or at certain HP thresholds):
+
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+    
+    // Track damage taken
+    var damageTaken = 0
+    var lastHp = npc.getMaxHp()
+    
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // Check if we've taken enough damage to switch prayers
+        val currentHp = npc.getCurrentHp()
+        val damageThisTick = lastHp - currentHp
+        if (damageThisTick > 0) {
+            damageTaken += damageThisTick
+            lastHp = currentHp
+            
+            // Switch prayers every 50 damage
+            if (damageTaken >= 50) {
+                switchPrayers(npc)
+                damageTaken = 0  // Reset counter
+            }
+        }
+        
+        // Set prayer icon based on current prayers
+        val prayer1 = npc.attr[PRAYER_1_ATTR] ?: 2
+        npc.prayerIcon = when (prayer1) {
+            0 -> PrayerIcon.PROTECT_FROM_MAGIC.id
+            1 -> PrayerIcon.PROTECT_FROM_MISSILES.id
+            2 -> PrayerIcon.PROTECT_FROM_MELEE.id
+            else -> -1
+        }
+        
+        // Your attack code here...
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+
+// Helper function to cycle through prayer pairs
+private fun switchPrayers(npc: Npc) {
+    val current1 = npc.attr[PRAYER_1_ATTR] ?: 2
+    val current2 = npc.attr[PRAYER_2_ATTR] ?: 1
+    
+    // Cycle: (Melee+Missiles) -> (Magic+Melee) -> (Missiles+Magic) -> repeat
+    val (next1, next2) = when {
+        current1 == 2 && current2 == 1 -> Pair(0, 2)  // Melee+Missiles -> Magic+Melee
+        current1 == 0 && current2 == 2 -> Pair(1, 0)  // Magic+Melee -> Missiles+Magic
+        current1 == 1 && current2 == 0 -> Pair(2, 1)  // Missiles+Magic -> Melee+Missiles
+        else -> Pair(2, 1)  // Default
+    }
+    
+    npc.attr[PRAYER_1_ATTR] = next1
+    npc.attr[PRAYER_2_ATTR] = next2
+    
+    npc.forceChat("The boss switches protection prayers!")
+}
+```
+
+### 📋 Prayer Icon Reference
+
+| Prayer Icon | ID | Protection Against |
+|------------|----|-------------------|
+| `PrayerIcon.PROTECT_FROM_MELEE` | 0 | Melee attacks (60% reduction) |
+| `PrayerIcon.PROTECT_FROM_MISSILES` | 1 | Ranged attacks (60% reduction) |
+| `PrayerIcon.PROTECT_FROM_MAGIC` | 2 | Magic attacks (100% block) |
+| `PrayerIcon.NONE` | -1 | No protection (clear prayers) |
+
+### 💡 Tips & Tricks
+
+1. **Display Only One Icon**: NPCs can only show one prayer icon at a time, but the combat system checks both prayers internally when you use attributes.
+
+2. **Always Clear on Combat End**: Always set `npc.prayerIcon = -1` when combat ends to remove the prayer icon.
+
+3. **Prayer Switching Sounds**: You can add a sound when switching prayers:
+   ```kotlin
+   import org.alter.api.cfg.Sound
+   import org.alter.game.model.entity.AreaSound
+   
+   npc.world.spawn(AreaSound(npc.tile, id = Sound.ALTAR_PRAY, radius = 10, volume = 5))
+   ```
+
+4. **HP-Based Prayer Switching**: Switch prayers at certain HP thresholds:
+   ```kotlin
+   val hpPercent = npc.getCurrentHp().toDouble() / npc.getMaxHp()
+   if (hpPercent < 0.5) {  // Below 50% HP
+       // Switch to different prayers
+       switchPrayers(npc)
+   }
+   ```
+
+5. **Prevent Certain Attack Types**: When your boss has a protection prayer active, it typically shouldn't use that attack type (it's protected from it, so it makes sense to use a different style).
+
+### ⚠️ Important Notes
+
+- **Prayer Icon Display**: Only one prayer icon can be displayed at a time. If you have two prayers active, display the first one using `npc.prayerIcon`.
+
+- **Combat Formula Integration**: The combat formulas automatically check `npc.prayerIcon` to reduce damage. Make sure to set it correctly!
+
+- **Clearing Prayers**: Always clear the prayer icon (`npc.prayerIcon = -1`) when combat ends or the boss dies.
+
+---
+
 ## 🎁 Adding Special Functionality to Your Boss
 
 Want to make your boss unique? You can add special rewards, messages, or mechanics that trigger when the boss dies or during combat!
@@ -1501,5 +1887,190 @@ You can award XP in any of these skills:
 killer.addXp(Skills.MINING, 1000.0)  // 1000 Mining XP
 killer.addXp(Skills.SMITHING, 500.0)  // 500 Smithing XP
 ```
+
+---
+
+## 📦 Drop Table Guide: Understanding How Drops Work
+
+This section explains the drop table system in detail so you can create perfect drop tables for your boss!
+
+### Drop Table Syntax
+
+The correct syntax for drop tables is:
+
+```kotlin
+drops {
+    always {
+        add("item.bones", 1)  // Always drops this item
+    }
+    
+    main(weight = 128) {  // Table weight (MUST be >= sum of item weights!)
+        add("item.coins", min = 5000, max = 10000, weight = 20)
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 5)
+    }
+}
+```
+
+### Key Parameters Explained
+
+#### `main(weight = X)`
+- **What it does:** Sets the total weight of the drop table
+- **CRITICAL RULE:** Must be **>= sum of all item weights** or server will crash!
+- **How it works:**
+  - If `weight = sum of item weights`: Guaranteed drop (100% chance)
+  - If `weight > sum of item weights`: Less than 100% chance to get a drop
+  - Example: Items total 79, `main(weight = 79)` = 100% drop chance
+  - Example: Items total 79, `main(weight = 128)` = ~62% drop chance (79/128)
+
+#### `add("item.name", min = X, max = Y, weight = Z)`
+- **`min`**: Minimum quantity to drop
+- **`max`**: Maximum quantity to drop
+- **`weight`**: Drop probability (relative to other items)
+  - Higher weight = more common drop
+  - Weight 20 is twice as likely as weight 10
+  - Weight determines probability **within the table**, not overall drop chance
+
+### How Drop Probability Works
+
+**Example Drop Table:**
+```kotlin
+main(weight = 100) {
+    add("item.coins", min = 1000, max = 5000, weight = 50)      // 50% of drops
+    add("item.shark", min = 1, max = 5, weight = 30)            // 30% of drops
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)  // 20% of drops
+}
+// Total item weights = 50 + 30 + 20 = 100
+// Table weight = 100, so 100% chance to get a drop
+```
+
+**Probability Breakdown:**
+- **Overall drop chance:** 100% (100/100)
+- **If a drop occurs:**
+  - 50% chance for coins (50/100)
+  - 30% chance for shark (30/100)
+  - 20% chance for dragon scimitar (20/100)
+
+**Example with Lower Drop Chance:**
+```kotlin
+main(weight = 200) {
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+}
+// Total item weights = 100
+// Table weight = 200, so 50% chance to get a drop (100/200)
+```
+
+**Probability Breakdown:**
+- **Overall drop chance:** 50% (100/200)
+- **If a drop occurs:**
+  - 50% chance for coins (50/100)
+  - 30% chance for shark (30/100)
+  - 20% chance for dragon scimitar (20/100)
+
+### Common Mistakes to Avoid
+
+❌ **WRONG - Missing named parameters:**
+```kotlin
+main(128) {  // ❌ Missing "weight ="
+    add("item.coins", 5000, 10000, 20)  // ❌ Missing "min =", "max =", "weight ="
+}
+```
+
+✅ **CORRECT - Using named parameters:**
+```kotlin
+main(weight = 128) {
+    add("item.coins", min = 5000, max = 10000, weight = 20)
+}
+```
+
+❌ **WRONG - Table weight too low:**
+```kotlin
+main(weight = 50) {  // ❌ Items total 100, but table weight is only 50!
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+    // Total = 100, but table weight = 50 → SERVER WILL CRASH!
+}
+```
+
+✅ **CORRECT - Table weight >= sum of item weights:**
+```kotlin
+main(weight = 100) {  // ✅ Table weight (100) >= sum of items (100)
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+    // Total = 100, table weight = 100 → Works perfectly!
+}
+```
+
+### Quick Reference: Drop Table Cheat Sheet
+
+| Parameter | Required? | Description | Example |
+|-----------|-----------|-------------|---------|
+| `main(weight = X)` | ✅ Yes | Table weight (must be >= sum of item weights) | `main(weight = 128)` |
+| `min = X` | ✅ Yes | Minimum quantity | `min = 1` |
+| `max = Y` | ✅ Yes | Maximum quantity | `max = 10` |
+| `weight = Z` | ✅ Yes | Drop probability (relative to other items) | `weight = 20` |
+
+### Example Drop Tables
+
+#### Simple Drop Table (Guaranteed Drop)
+```kotlin
+drops {
+    always { add("item.bones", 1) }
+    
+    main(weight = 50) {  // Table weight = sum of items = guaranteed drop
+        add("item.coins", min = 1000, max = 5000, weight = 30)
+        add("item.shark", min = 1, max = 5, weight = 20)
+    }
+}
+```
+
+#### Rare Drop Table (50% Drop Chance)
+```kotlin
+drops {
+    always { add("item.bones", 1) }
+    
+    main(weight = 200) {  // Table weight = 2x sum of items = 50% drop chance
+        add("item.coins", min = 5000, max = 10000, weight = 50)
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 30)
+        add("item.abyssal_whip", min = 1, max = 1, weight = 20)
+    }
+}
+```
+
+#### Rich Boss Drop Table
+```kotlin
+drops {
+    always { add("item.big_bones", 1) }
+    
+    main(weight = 500) {  // Large table for variety
+        // Common drops
+        add("item.coins", min = 10000, max = 50000, weight = 100)
+        add("item.shark", min = 10, max = 20, weight = 80)
+        add("item.super_restore_4", min = 3, max = 5, weight = 60)
+        
+        // Uncommon drops
+        add("item.rune_scimitar", min = 1, max = 1, weight = 40)
+        add("item.dragon_bones", min = 5, max = 10, weight = 30)
+        
+        // Rare drops
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 10)
+        add("item.dragon_longsword", min = 1, max = 1, weight = 8)
+        
+        // Very rare drops
+        add("item.abyssal_whip", min = 1, max = 1, weight = 2)
+    }
+}
+```
+
+### Tips for Creating Drop Tables
+
+1. **Calculate First:** Add up all item weights before setting `main(weight = X)`
+2. **Use Named Parameters:** Always use `min =`, `max =`, `weight =` for clarity
+3. **Test Drop Rates:** Start with guaranteed drops (`weight = sum`), then adjust
+4. **Balance Rarity:** Use lower weights for rare items, higher weights for common items
+5. **Check Server Logs:** If server crashes on startup, check your drop table weights!
 
 Have fun creating your monster! 🧟‍♂️🤖👹
