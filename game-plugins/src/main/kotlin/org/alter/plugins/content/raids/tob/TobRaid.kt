@@ -1,7 +1,7 @@
 package org.alter.plugins.content.raids.tob
 
 import java.util.concurrent.CopyOnWriteArrayList
-import org.alter.api.ext.* // Import for message, etc
+import org.alter.api.ext.*
 import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.entity.Npc
@@ -11,7 +11,7 @@ import org.alter.game.model.instance.InstancedMap
 
 class TobRaid(val world: World, val instance: InstancedMap, val party: List<Player>) {
 
-    // 0 = Maiden, 1 = Bloat, 2 = Nylocas, 3 = Sotetseg, 4 = Xarpus, 5 = Verzik
+    // 0 = Maiden, 1 = Bloat, 2 = Nylocas, 3 = Sotetseg, 4 = Xarpus, 5 = Verzik, 6 = Reward
     var currentRoomIndex = 0
     var active = true
     var completed = false
@@ -32,13 +32,12 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
                 }
 
     val roomNpcs = CopyOnWriteArrayList<Npc>()
-    val bloodPools = CopyOnWriteArrayList<Tile>() // Example for Maiden mechanic
+    val bloodPools = CopyOnWriteArrayList<Tile>()
 
     fun start() {
         if (!active) return
         party.forEach { player ->
             player.message("<col=ff0000>Welcome to the Theatre of Blood!</col>")
-            // Teleport to Maiden room (Room 0)
             teleportToRoom(0, player)
         }
         spawnRoom(0)
@@ -53,14 +52,13 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
             wipe()
             return
         }
-
-        // Additional process logic (e.g. timers)
     }
 
     fun nextRoom() {
         cleanupRoom()
         currentRoomIndex++
-        if (currentRoomIndex > 5) {
+        if (currentRoomIndex > 6) {
+            // Index 6 is reward room, > 6 means finished
             finishRaid()
             return
         }
@@ -76,38 +74,88 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
 
     private fun teleportToRoom(roomIndex: Int, player: Player) {
         val base = instance.area.bottomLeft
-        // Each room is 64 tiles wide (1 region) in our linear layout
-        val roomOffsetX = roomIndex * 64
+        val roomOffsetX = roomIndex * 64 // Each room is 64x64
 
-        // Approximate safe spawn for each room relative to its region start
-        // These offsets are estimates and should be refined
-        val (relX, relZ) =
-                when (roomIndex) {
-                    0 -> 32 to 32 // Maiden
-                    1 -> 32 to 32 // Bloat
-                    2 -> 32 to 32 // Nylocas
-                    3 -> 32 to 32 // Sotetseg
-                    4 -> 32 to 32 // Xarpus
-                    5 -> 32 to 32 // Verzik
-                    else -> 32 to 32
-                }
+        // Calculate relative offset based on global spawn tile and its region base
+        val (relX, relZ, relH) = getRelativeSpawn(roomIndex)
 
-        val targetTile = base.transform(roomOffsetX + relX, relZ, 0)
+        val targetTile = base.transform(roomOffsetX + relX, relZ, relH)
         player.tile = targetTile
     }
 
     private fun spawnRoom(roomIndex: Int) {
         val base = instance.area.bottomLeft
         val roomOffsetX = roomIndex * 64
-        val centerTile = base.transform(roomOffsetX + 32, 32, 0)
+
+        val (relX, relZ, relH) = getRelativeSpawn(roomIndex)
+        val spawnTile = base.transform(roomOffsetX + relX, relZ, relH)
 
         when (roomIndex) {
-            0 -> spawnMaiden(centerTile)
-            1 -> spawnBloat(centerTile)
-            2 -> spawnNylocas(centerTile)
-            3 -> spawnSotetseg(centerTile)
-            4 -> spawnXarpus(centerTile)
-            5 -> spawnVerzik(centerTile)
+            0 -> spawnMaiden(spawnTile)
+            1 -> spawnBloat(spawnTile)
+            2 -> spawnNylocas(spawnTile)
+            3 -> spawnSotetseg(spawnTile)
+            4 -> spawnXarpus(spawnTile)
+            5 -> spawnVerzik(spawnTile)
+            6 -> {
+                /* Reward room - just teleport players there */
+            }
+        }
+    }
+
+    private fun getRelativeSpawn(roomIndex: Int): Triple<Int, Int, Int> {
+        return when (roomIndex) {
+            0 -> { // Maiden
+                val globalX = TobConstants.MAIDEN_SPAWN.first
+                val globalZ = TobConstants.MAIDEN_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            1 -> { // Bloat (Height 1)
+                val globalX = TobConstants.BLOAT_SPAWN.first
+                val globalZ = TobConstants.BLOAT_SPAWN.second
+                val globalH = TobConstants.BLOAT_SPAWN.third
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, globalH)
+            }
+            2 -> { // Nylocas
+                val globalX = TobConstants.NYLOCAS_SPAWN.first
+                val globalZ = TobConstants.NYLOCAS_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            3 -> { // Sotetseg
+                val globalX = TobConstants.SOTETSEG_SPAWN.first
+                val globalZ = TobConstants.SOTETSEG_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            4 -> { // Xarpus
+                val globalX = TobConstants.XARPUS_SPAWN.first
+                val globalZ = TobConstants.XARPUS_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            5 -> { // Verzik
+                val globalX = TobConstants.VERZIK_SPAWN.first
+                val globalZ = TobConstants.VERZIK_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            6 -> { // Reward
+                val globalX = TobConstants.REWARD_SPAWN.first
+                val globalZ = TobConstants.REWARD_SPAWN.second
+                val regionBaseX = (globalX shr 6) shl 6
+                val regionBaseZ = (globalZ shr 6) shl 6
+                Triple(globalX - regionBaseX, globalZ - regionBaseZ, 0)
+            }
+            else -> Triple(32, 32, 0)
         }
     }
 
@@ -121,11 +169,9 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
         active = false
         party.forEach { player ->
             player.message("Your party has been wiped!")
-            // Teleport to exit
             player.tile =
                     org.alter.game.model.Tile(TobConstants.EXIT_TILE_X, TobConstants.EXIT_TILE_Z, 0)
         }
-        // Deallocate instance handled by world if setup correctly, or manually deallocate here
     }
 
     private fun finishRaid() {
@@ -135,19 +181,16 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
             player.message(
                     "<col=ff0000>Congratulations! You have completed the Theatre of Blood!</col>"
             )
-            // Teleport to Exit for now
             player.tile =
                     org.alter.game.model.Tile(TobConstants.EXIT_TILE_X, TobConstants.EXIT_TILE_Z, 0)
         }
     }
 
     // --- Spawning Logic ---
-
     private fun spawnMaiden(tile: Tile) {
         val npc = Npc(TobConstants.MAIDEN_NPC_ID, tile, world)
         world.spawn(npc)
         roomNpcs.add(npc)
-        // Set HP based on scale
         val newHp = (npc.combatDef.hitpoints * scaleFactor).toInt()
         npc.combatDef = npc.combatDef.copy(hitpoints = newHp)
         npc.setCurrentHp(newHp)
@@ -163,7 +206,6 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
     }
 
     private fun spawnNylocas(tile: Tile) {
-        // Nylo waves logic is complex, just spawn boss for now
         val npc = Npc(TobConstants.NYLOCAS_BOSS_ID, tile, world)
         world.spawn(npc)
         roomNpcs.add(npc)
@@ -203,25 +245,31 @@ class TobRaid(val world: World, val instance: InstancedMap, val party: List<Play
         fun buildTobChunks(): InstancedChunkSet {
             val builder = InstancedChunkSet.Builder()
 
-            // Map regions linearly: 0, 1, 2, 3, 4, 5
+            // Map regions linearly: 0, 1, 2, 3, 4, 5, 6 (Reward)
+            // Each "step" is 8 chunks (1 region width)
 
-            // Maiden (Region 12613)
+            // Maiden (Region 13125)
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_MAIDEN), 0, 0)
 
-            // Bloat (Region 13125)
+            // Bloat (Region 12612)
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_BLOAT), 8, 0)
 
-            // Nylocas (Region 13122)
+            // Nylocas (Region 12613)
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_NYLOCAS), 16, 0)
 
             // Sotetseg (Region 13123)
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_SOTETSEG), 24, 0)
 
-            // Xarpus (Region 12612)
+            // Xarpus (Region 13123)
+            // Note: Use offset 32 for the next X slot
+            // Since it's the SAME region as Sote, we just copy it again to a new instance slot
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_XARPUS), 32, 0)
 
             // Verzik (Region 12611)
             copyRegion(builder, Tile.fromRegion(TobConstants.REGION_VERZIK), 40, 0)
+
+            // Reward (Region 12867)
+            copyRegion(builder, Tile.fromRegion(TobConstants.REGION_REWARD), 48, 0)
 
             return builder.build()
         }
