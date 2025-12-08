@@ -1,6 +1,5 @@
 package org.alter.plugins.content.raids.tob
 
-// from ext is fine too
 import org.alter.api.HitType
 import org.alter.api.ext.*
 import org.alter.game.Server
@@ -17,9 +16,11 @@ class TobBosses(r: PluginRepository, world: World, server: Server) :
 
     init {
         // --- Maiden of Sugadinti ---
-        onNpcSpawn(TobConstants.MAIDEN_KEY) { npc.combatDef = npc.combatDef.copy(attackSpeed = 6) }
+        onNpcSpawn(TobConstants.MAIDEN_NPC_ID) {
+            npc.combatDef = npc.combatDef.copy(attackSpeed = 6)
+        }
 
-        onNpcCombat(TobConstants.MAIDEN_KEY) {
+        onNpcCombat(TobConstants.MAIDEN_NPC_ID) {
             val npc = npc
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
@@ -81,7 +82,7 @@ class TobBosses(r: PluginRepository, world: World, server: Server) :
         }
 
         // --- Pestilent Bloat ---
-        onNpcCombat(TobConstants.BLOAT_KEY) {
+        onNpcCombat(TobConstants.BLOAT_NPC_ID) {
             val npc = npc
             npc.queue {
                 while (canEngageCombat(npc)) {
@@ -110,7 +111,7 @@ class TobBosses(r: PluginRepository, world: World, server: Server) :
         }
 
         // --- Verzik Vitur ---
-        onNpcCombat(TobConstants.VERZIK_KEY) {
+        onNpcCombat(TobConstants.VERZIK_NPC_ID) {
             val npc = npc
             npc.queue {
                 while (canEngageCombat(npc)) {
@@ -147,37 +148,37 @@ class TobBosses(r: PluginRepository, world: World, server: Server) :
         }
 
         // --- Death Logic for Progression ---
-        onNpcDeath(TobConstants.MAIDEN_KEY) {
+        onNpcDeath(TobConstants.MAIDEN_NPC_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
         }
 
-        onNpcDeath(TobConstants.BLOAT_KEY) {
+        onNpcDeath(TobConstants.BLOAT_NPC_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
         }
 
-        onNpcDeath(TobConstants.NYLOCAS_KEY) {
+        onNpcDeath(TobConstants.NYLOCAS_BOSS_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
         }
 
-        onNpcDeath(TobConstants.SOTETSEG_KEY) {
+        onNpcDeath(TobConstants.SOTETSEG_NPC_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
         }
 
-        onNpcDeath(TobConstants.XARPUS_KEY) {
+        onNpcDeath(TobConstants.XARPUS_NPC_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
         }
 
-        onNpcDeath(TobConstants.VERZIK_KEY) {
+        onNpcDeath(TobConstants.VERZIK_NPC_ID) {
             val instance = world.instanceAllocator.getMap(npc.tile)
             val raid = if (instance != null) TobService.activeRaids[instance] else null
             raid?.nextRoom()
