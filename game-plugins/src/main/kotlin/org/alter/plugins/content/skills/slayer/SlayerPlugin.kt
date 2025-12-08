@@ -12,6 +12,7 @@ import org.alter.game.model.entity.Player
 import org.alter.game.model.timer.TimeConstants
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.plugins.content.mechanics.doompoints.DoomPoints
 
 object Slayer {
     val SLAYER_TASK_ATTR = AttributeKey<Int>("slayer_task") // Now stores NPC ID directly
@@ -375,7 +376,14 @@ class SlayerPlugin(
 
                 // Drop 500k coins for slayer task kill
                 val coinItemId = 995
-                val coinAmount = 500_000
+                var coinAmount = 500_000
+                
+                // Apply doom points coin multiplier perk
+                val coinMultiplier = DoomPoints.getCoinMultiplier(killer)
+                if (coinMultiplier > 0) {
+                    coinAmount = (coinAmount * (1.0 + coinMultiplier / 100.0)).toInt()
+                }
+                
                 val coinGroundItem = GroundItem(
                     item = coinItemId,
                     amount = coinAmount,
