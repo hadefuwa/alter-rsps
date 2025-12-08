@@ -259,37 +259,47 @@ class MyBossPlugin(
                     // add("item.bones", 1)     // Or regular bones
                 }
                 
-                main(128) {  // 👉 ADJUST: The number (128) is the drop rate denominator
-                    // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
+                // ⚠️ IMPORTANT: Table weight MUST be >= sum of all item weights!
+                // If table weight < sum of item weights, server will crash on startup.
+                // 
+                // HOW TO CALCULATE:
+                // 1. Add up ALL item weights in the main() block
+                // 2. Set main(weight = SUM) or higher
+                // 3. Example: If items total 79, use main(weight = 79) for guaranteed drops
+                //             or main(weight = 128) for ~62% drop chance
+                main(weight = 128) {  // 👉 ADJUST: Table weight (must be >= sum of item weights)
+                    // ITEM WEIGHTS:
+                    // - Higher weight = more common drop (weight 20 is twice as likely as weight 10)
+                    // - Relative weights determine drop probability within the table
                     
-                    add("item.coins", 5000, 10000, 20)  // 20/128 chance, drops 5000-10000 coins
-                    // add("item.coins", 1000, 5000, 50)   // More common, less coins
-                    // add("item.coins", 10000, 50000, 5)  // Rare but lots of coins
+                    add("item.coins", min = 5000, max = 10000, weight = 20)  // Common drop
+                    // add("item.coins", min = 1000, max = 5000, weight = 50)   // More common, less coins
+                    // add("item.coins", min = 10000, max = 50000, weight = 5)  // Rare but lots of coins
                     
-                    add("item.dragon_scimitar", 1, 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    // add("item.dragon_scimitar", 1, 1)   // Very rare (1/128)
-                    // add("item.dragon_scimitar", 1, 20)  // More common (20/128)
+                    add("item.dragon_scimitar", min = 1, max = 1, weight = 5)  // 👉 ADJUST: Rare drop!
+                    // add("item.dragon_scimitar", min = 1, max = 1, weight = 1)   // Very rare
+                    // add("item.dragon_scimitar", min = 1, max = 1, weight = 20)  // More common
                     
                     // 💡 MORE DROP EXAMPLES (uncomment to add):
-                    // add("item.rune_scimitar", 1, 30)     // Common weapon
-                    // add("item.dragon_longsword", 1, 10)  // Rare weapon
-                    // add("item.abyssal_whip", 1, 2)       // Very rare weapon
-                    // add("item.shark", 5, 10, 40)         // Food (5-10 sharks, 40/128 chance)
-                    // add("item.super_restore_4", 1, 25)   // Potion
-                    // add("item.dragon_bones", 5, 10, 15)  // Bones (5-10, 15/128 chance)
+                    // add("item.rune_scimitar", min = 1, max = 1, weight = 30)     // Common weapon
+                    // add("item.dragon_longsword", min = 1, max = 1, weight = 10)  // Rare weapon
+                    // add("item.abyssal_whip", min = 1, max = 1, weight = 2)       // Very rare weapon
+                    // add("item.shark", min = 5, max = 10, weight = 40)         // Food (5-10 sharks)
+                    // add("item.super_restore_4", min = 1, max = 1, weight = 25)   // Potion
+                    // add("item.dragon_bones", min = 5, max = 10, weight = 15)  // Bones (5-10)
                 }
             }
             
             // 💡 RICH BOSS DROP TABLE (uncomment to try):
             // drops {
             //     always { add("item.big_bones", 1) }
-            //     main(128) {
-            //         add("item.coins", 10000, 50000, 30)
-            //         add("item.dragon_scimitar", 1, 5)
-            //         add("item.dragon_longsword", 1, 5)
-            //         add("item.abyssal_whip", 1, 2)
-            //         add("item.shark", 10, 20, 50)
-            //         add("item.super_restore_4", 3, 5, 40)
+            //     main(weight = 200) {  // Must be >= sum of all item weights!
+            //         add("item.coins", min = 10000, max = 50000, weight = 30)
+            //         add("item.dragon_scimitar", min = 1, max = 1, weight = 5)
+            //         add("item.dragon_longsword", min = 1, max = 1, weight = 5)
+            //         add("item.abyssal_whip", min = 1, max = 1, weight = 2)
+            //         add("item.shark", min = 10, max = 20, weight = 50)
+            //         add("item.super_restore_4", min = 3, max = 5, weight = 40)
             //     }
             // }
         }
@@ -647,7 +657,9 @@ Look for `stats`.
 #### C. What does it drop? (Loot)
 Look for `drops`.
 *   You can change "item.coins" to any item name you want, like "item.partyhat"!
-*   The last number is the rarity. Lower number = rarer!
+*   Use `min = X, max = Y, weight = Z` syntax for drops
+*   **Weight** determines rarity: Higher weight = more common drop
+*   **Table weight** (`main(weight = X)`) must be >= sum of all item weights!
 
 #### D. How does it fight? (Combat)
 Look for `combatLoop`.
@@ -1875,5 +1887,190 @@ You can award XP in any of these skills:
 killer.addXp(Skills.MINING, 1000.0)  // 1000 Mining XP
 killer.addXp(Skills.SMITHING, 500.0)  // 500 Smithing XP
 ```
+
+---
+
+## 📦 Drop Table Guide: Understanding How Drops Work
+
+This section explains the drop table system in detail so you can create perfect drop tables for your boss!
+
+### Drop Table Syntax
+
+The correct syntax for drop tables is:
+
+```kotlin
+drops {
+    always {
+        add("item.bones", 1)  // Always drops this item
+    }
+    
+    main(weight = 128) {  // Table weight (MUST be >= sum of item weights!)
+        add("item.coins", min = 5000, max = 10000, weight = 20)
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 5)
+    }
+}
+```
+
+### Key Parameters Explained
+
+#### `main(weight = X)`
+- **What it does:** Sets the total weight of the drop table
+- **CRITICAL RULE:** Must be **>= sum of all item weights** or server will crash!
+- **How it works:**
+  - If `weight = sum of item weights`: Guaranteed drop (100% chance)
+  - If `weight > sum of item weights`: Less than 100% chance to get a drop
+  - Example: Items total 79, `main(weight = 79)` = 100% drop chance
+  - Example: Items total 79, `main(weight = 128)` = ~62% drop chance (79/128)
+
+#### `add("item.name", min = X, max = Y, weight = Z)`
+- **`min`**: Minimum quantity to drop
+- **`max`**: Maximum quantity to drop
+- **`weight`**: Drop probability (relative to other items)
+  - Higher weight = more common drop
+  - Weight 20 is twice as likely as weight 10
+  - Weight determines probability **within the table**, not overall drop chance
+
+### How Drop Probability Works
+
+**Example Drop Table:**
+```kotlin
+main(weight = 100) {
+    add("item.coins", min = 1000, max = 5000, weight = 50)      // 50% of drops
+    add("item.shark", min = 1, max = 5, weight = 30)            // 30% of drops
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)  // 20% of drops
+}
+// Total item weights = 50 + 30 + 20 = 100
+// Table weight = 100, so 100% chance to get a drop
+```
+
+**Probability Breakdown:**
+- **Overall drop chance:** 100% (100/100)
+- **If a drop occurs:**
+  - 50% chance for coins (50/100)
+  - 30% chance for shark (30/100)
+  - 20% chance for dragon scimitar (20/100)
+
+**Example with Lower Drop Chance:**
+```kotlin
+main(weight = 200) {
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+}
+// Total item weights = 100
+// Table weight = 200, so 50% chance to get a drop (100/200)
+```
+
+**Probability Breakdown:**
+- **Overall drop chance:** 50% (100/200)
+- **If a drop occurs:**
+  - 50% chance for coins (50/100)
+  - 30% chance for shark (30/100)
+  - 20% chance for dragon scimitar (20/100)
+
+### Common Mistakes to Avoid
+
+❌ **WRONG - Missing named parameters:**
+```kotlin
+main(128) {  // ❌ Missing "weight ="
+    add("item.coins", 5000, 10000, 20)  // ❌ Missing "min =", "max =", "weight ="
+}
+```
+
+✅ **CORRECT - Using named parameters:**
+```kotlin
+main(weight = 128) {
+    add("item.coins", min = 5000, max = 10000, weight = 20)
+}
+```
+
+❌ **WRONG - Table weight too low:**
+```kotlin
+main(weight = 50) {  // ❌ Items total 100, but table weight is only 50!
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+    // Total = 100, but table weight = 50 → SERVER WILL CRASH!
+}
+```
+
+✅ **CORRECT - Table weight >= sum of item weights:**
+```kotlin
+main(weight = 100) {  // ✅ Table weight (100) >= sum of items (100)
+    add("item.coins", min = 1000, max = 5000, weight = 50)
+    add("item.shark", min = 1, max = 5, weight = 30)
+    add("item.dragon_scimitar", min = 1, max = 1, weight = 20)
+    // Total = 100, table weight = 100 → Works perfectly!
+}
+```
+
+### Quick Reference: Drop Table Cheat Sheet
+
+| Parameter | Required? | Description | Example |
+|-----------|-----------|-------------|---------|
+| `main(weight = X)` | ✅ Yes | Table weight (must be >= sum of item weights) | `main(weight = 128)` |
+| `min = X` | ✅ Yes | Minimum quantity | `min = 1` |
+| `max = Y` | ✅ Yes | Maximum quantity | `max = 10` |
+| `weight = Z` | ✅ Yes | Drop probability (relative to other items) | `weight = 20` |
+
+### Example Drop Tables
+
+#### Simple Drop Table (Guaranteed Drop)
+```kotlin
+drops {
+    always { add("item.bones", 1) }
+    
+    main(weight = 50) {  // Table weight = sum of items = guaranteed drop
+        add("item.coins", min = 1000, max = 5000, weight = 30)
+        add("item.shark", min = 1, max = 5, weight = 20)
+    }
+}
+```
+
+#### Rare Drop Table (50% Drop Chance)
+```kotlin
+drops {
+    always { add("item.bones", 1) }
+    
+    main(weight = 200) {  // Table weight = 2x sum of items = 50% drop chance
+        add("item.coins", min = 5000, max = 10000, weight = 50)
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 30)
+        add("item.abyssal_whip", min = 1, max = 1, weight = 20)
+    }
+}
+```
+
+#### Rich Boss Drop Table
+```kotlin
+drops {
+    always { add("item.big_bones", 1) }
+    
+    main(weight = 500) {  // Large table for variety
+        // Common drops
+        add("item.coins", min = 10000, max = 50000, weight = 100)
+        add("item.shark", min = 10, max = 20, weight = 80)
+        add("item.super_restore_4", min = 3, max = 5, weight = 60)
+        
+        // Uncommon drops
+        add("item.rune_scimitar", min = 1, max = 1, weight = 40)
+        add("item.dragon_bones", min = 5, max = 10, weight = 30)
+        
+        // Rare drops
+        add("item.dragon_scimitar", min = 1, max = 1, weight = 10)
+        add("item.dragon_longsword", min = 1, max = 1, weight = 8)
+        
+        // Very rare drops
+        add("item.abyssal_whip", min = 1, max = 1, weight = 2)
+    }
+}
+```
+
+### Tips for Creating Drop Tables
+
+1. **Calculate First:** Add up all item weights before setting `main(weight = X)`
+2. **Use Named Parameters:** Always use `min =`, `max =`, `weight =` for clarity
+3. **Test Drop Rates:** Start with guaranteed drops (`weight = sum`), then adjust
+4. **Balance Rarity:** Use lower weights for rare items, higher weights for common items
+5. **Check Server Logs:** If server crashes on startup, check your drop table weights!
 
 Have fun creating your monster! 🧟‍♂️🤖👹
