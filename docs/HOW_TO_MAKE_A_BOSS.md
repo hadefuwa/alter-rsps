@@ -1336,6 +1336,274 @@ import org.alter.game.model.combat.Prayers
 
 ---
 
+## 🛡️ Making Your Boss Use Protection Prayers
+
+Want to make your boss more challenging? You can make it use protection prayers to reduce damage from specific attack styles! The boss can protect from **1 or 2 attack styles** at a time.
+
+### How Protection Prayers Work for NPCs
+
+When an NPC has a protection prayer active:
+- **Protect from Melee**: Reduces melee damage by 60% (only 40% gets through)
+- **Protect from Magic**: Completely blocks magic damage (100% protection)
+- **Protect from Missiles (Ranged)**: Reduces ranged damage by 60% (only 40% gets through)
+
+**Important:** NPCs can only **display one prayer icon** at a time, but they can have **two prayers active** simultaneously (the combat system checks both internally).
+
+### 1️⃣ Single Protection Prayer (Easiest!)
+
+Make your boss protect from one attack style:
+
+#### Add this import:
+```kotlin
+import org.alter.api.PrayerIcon
+```
+
+#### Add this code inside your `combatLoop`:
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // 🛡️ PROTECT FROM MELEE: Boss reduces melee damage by 60%
+        npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id
+        
+        // Your attack code here
+        if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) && 
+            npc.isAttackDelayReady()) {
+            BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+            npc.postAttackLogic(target)
+        }
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    // Clear prayer icon when combat ends
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+```
+
+#### Other Single Prayer Options:
+```kotlin
+// Protect from Magic (blocks all magic damage)
+npc.prayerIcon = PrayerIcon.PROTECT_FROM_MAGIC.id
+
+// Protect from Missiles/Ranged (reduces ranged damage by 60%)
+npc.prayerIcon = PrayerIcon.PROTECT_FROM_MISSILES.id
+```
+
+### 2️⃣ Two Protection Prayers (Advanced!)
+
+Make your boss protect from **two attack styles** at once! This is more complex but makes the boss much harder.
+
+#### Add these imports:
+```kotlin
+import org.alter.api.PrayerIcon
+import org.alter.game.model.attr.AttributeKey
+```
+
+#### Add this code to your plugin class (outside the `init` block):
+```kotlin
+companion object {
+    // Store which two prayers are active
+    private val PRAYER_1_ATTR = AttributeKey<Int>()  // First prayer (0=Magic, 1=Missiles, 2=Melee)
+    private val PRAYER_2_ATTR = AttributeKey<Int>()  // Second prayer (0=Magic, 1=Missiles, 2=Melee)
+}
+```
+
+#### Add this code inside your `combatLoop`:
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+
+    // Initialize prayers if not set (e.g., Protect from Melee + Missiles)
+    if (!npc.attr.has(PRAYER_1_ATTR)) {
+        npc.attr[PRAYER_1_ATTR] = 2  // Protect from Melee
+        npc.attr[PRAYER_2_ATTR] = 1  // Protect from Missiles
+        npc.prayerIcon = PrayerIcon.PROTECT_FROM_MELEE.id  // Display first prayer
+    }
+
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // Get the two active prayers
+        val prayer1 = npc.attr[PRAYER_1_ATTR] ?: 2
+        val prayer2 = npc.attr[PRAYER_2_ATTR] ?: 1
+        
+        // Check which attack types are blocked
+        // 0 = Magic, 1 = Missiles (Ranged), 2 = Melee
+        val hasMagicPrayer = prayer1 == 0 || prayer2 == 0
+        val hasMissilesPrayer = prayer1 == 1 || prayer2 == 1
+        val hasMeleePrayer = prayer1 == 2 || prayer2 == 2
+        
+        // Update the displayed prayer icon (show the first one)
+        npc.prayerIcon = when (prayer1) {
+            0 -> PrayerIcon.PROTECT_FROM_MAGIC.id
+            1 -> PrayerIcon.PROTECT_FROM_MISSILES.id
+            2 -> PrayerIcon.PROTECT_FROM_MELEE.id
+            else -> -1
+        }
+        
+        // Determine which attack type the boss can use
+        // (The one that's NOT blocked by prayers)
+        val canUseMagic = !hasMagicPrayer
+        val canUseRanged = !hasMissilesPrayer
+        val canUseMelee = !hasMeleePrayer
+        
+        // Attack with the allowed style
+        if (npc.isAttackDelayReady()) {
+            when {
+                canUseMagic -> {
+                    // Use magic attack
+                    BossAttacks.magic(npc, target, projectile = 100, maxHit = 30, anim = 1979)
+                    npc.postAttackLogic(target)
+                }
+                canUseRanged -> {
+                    // Use ranged attack
+                    BossAttacks.ranged(npc, target, projectile = 10, maxHit = 25, anim = 426)
+                    npc.postAttackLogic(target)
+                }
+                canUseMelee -> {
+                    // Use melee attack
+                    if (npc.moveToAttackRange(this, target, distance = 1, projectile = false)) {
+                        BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                        npc.postAttackLogic(target)
+                    }
+                }
+            }
+        }
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    // Clear prayer icon when combat ends
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+```
+
+### 🔄 Switching Prayers (Dynamic Prayer Changes)
+
+Make your boss switch prayers based on conditions (e.g., every 50 damage taken, or at certain HP thresholds):
+
+```kotlin
+suspend fun QueueTask.combatLoop() {
+    val npc = ctx as Npc
+    var target = npc.getCombatTarget() as? Player ?: return
+    
+    // Track damage taken
+    var damageTaken = 0
+    var lastHp = npc.getMaxHp()
+    
+    while (npc.canEngageCombat(target)) {
+        npc.facePawn(target)
+        
+        // Check if we've taken enough damage to switch prayers
+        val currentHp = npc.getCurrentHp()
+        val damageThisTick = lastHp - currentHp
+        if (damageThisTick > 0) {
+            damageTaken += damageThisTick
+            lastHp = currentHp
+            
+            // Switch prayers every 50 damage
+            if (damageTaken >= 50) {
+                switchPrayers(npc)
+                damageTaken = 0  // Reset counter
+            }
+        }
+        
+        // Set prayer icon based on current prayers
+        val prayer1 = npc.attr[PRAYER_1_ATTR] ?: 2
+        npc.prayerIcon = when (prayer1) {
+            0 -> PrayerIcon.PROTECT_FROM_MAGIC.id
+            1 -> PrayerIcon.PROTECT_FROM_MISSILES.id
+            2 -> PrayerIcon.PROTECT_FROM_MELEE.id
+            else -> -1
+        }
+        
+        // Your attack code here...
+        
+        wait(1)
+        target = npc.getCombatTarget() as? Player ?: break
+    }
+    
+    npc.prayerIcon = -1
+    npc.resetFacePawn()
+    npc.removeCombatTarget()
+}
+
+// Helper function to cycle through prayer pairs
+private fun switchPrayers(npc: Npc) {
+    val current1 = npc.attr[PRAYER_1_ATTR] ?: 2
+    val current2 = npc.attr[PRAYER_2_ATTR] ?: 1
+    
+    // Cycle: (Melee+Missiles) -> (Magic+Melee) -> (Missiles+Magic) -> repeat
+    val (next1, next2) = when {
+        current1 == 2 && current2 == 1 -> Pair(0, 2)  // Melee+Missiles -> Magic+Melee
+        current1 == 0 && current2 == 2 -> Pair(1, 0)  // Magic+Melee -> Missiles+Magic
+        current1 == 1 && current2 == 0 -> Pair(2, 1)  // Missiles+Magic -> Melee+Missiles
+        else -> Pair(2, 1)  // Default
+    }
+    
+    npc.attr[PRAYER_1_ATTR] = next1
+    npc.attr[PRAYER_2_ATTR] = next2
+    
+    npc.forceChat("The boss switches protection prayers!")
+}
+```
+
+### 📋 Prayer Icon Reference
+
+| Prayer Icon | ID | Protection Against |
+|------------|----|-------------------|
+| `PrayerIcon.PROTECT_FROM_MELEE` | 0 | Melee attacks (60% reduction) |
+| `PrayerIcon.PROTECT_FROM_MISSILES` | 1 | Ranged attacks (60% reduction) |
+| `PrayerIcon.PROTECT_FROM_MAGIC` | 2 | Magic attacks (100% block) |
+| `PrayerIcon.NONE` | -1 | No protection (clear prayers) |
+
+### 💡 Tips & Tricks
+
+1. **Display Only One Icon**: NPCs can only show one prayer icon at a time, but the combat system checks both prayers internally when you use attributes.
+
+2. **Always Clear on Combat End**: Always set `npc.prayerIcon = -1` when combat ends to remove the prayer icon.
+
+3. **Prayer Switching Sounds**: You can add a sound when switching prayers:
+   ```kotlin
+   import org.alter.api.cfg.Sound
+   import org.alter.game.model.entity.AreaSound
+   
+   npc.world.spawn(AreaSound(npc.tile, id = Sound.ALTAR_PRAY, radius = 10, volume = 5))
+   ```
+
+4. **HP-Based Prayer Switching**: Switch prayers at certain HP thresholds:
+   ```kotlin
+   val hpPercent = npc.getCurrentHp().toDouble() / npc.getMaxHp()
+   if (hpPercent < 0.5) {  // Below 50% HP
+       // Switch to different prayers
+       switchPrayers(npc)
+   }
+   ```
+
+5. **Prevent Certain Attack Types**: When your boss has a protection prayer active, it typically shouldn't use that attack type (it's protected from it, so it makes sense to use a different style).
+
+### ⚠️ Important Notes
+
+- **Prayer Icon Display**: Only one prayer icon can be displayed at a time. If you have two prayers active, display the first one using `npc.prayerIcon`.
+
+- **Combat Formula Integration**: The combat formulas automatically check `npc.prayerIcon` to reduce damage. Make sure to set it correctly!
+
+- **Clearing Prayers**: Always clear the prayer icon (`npc.prayerIcon = -1`) when combat ends or the boss dies.
+
+---
+
 ## 🎁 Adding Special Functionality to Your Boss
 
 Want to make your boss unique? You can add special rewards, messages, or mechanics that trigger when the boss dies or during combat!
