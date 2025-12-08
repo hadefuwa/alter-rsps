@@ -230,23 +230,24 @@ class MyBossPlugin(
                 main(weight = 128) {  // 👉 ADJUST: The number (128) is the drop rate denominator
                     // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
                     
-                    add("item.coins", min = 5000, max = 10000, weight = 20)  // 20/128 chance, drops 5000-10000 coin                add("item.law_rune", min = 500, max = 1500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.coins", min = 5000, max = 10000, weight = 20)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.pure_essence_noted", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
                     
                     // add("item.coins", min = 1000, max = 5000, weight = 50)   // More common, less coins
                     // add("item.coins", min = 10000, max = 50000, weight = 5)  // Rare but lots of coins
                     
-                    add("item.air_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.water_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.earth_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.fire_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.mind_rune", amount = 500, weight = 5)  // � ADJUST: Rare drop! (5/128 chance)
-                    add("item.wrath_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.chaos_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.death_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.nature_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.soul_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.cosmic_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.blood_rune", amount = 500, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.air_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.water_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.earth_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.fire_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.mind_rune", min = 400, max = 600, weight = 5)  // � ADJUST: Rare drop! (5/128 chance)
+                    add("item.wrath_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.chaos_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.death_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.nature_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.soul_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.cosmic_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.blood_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
                 }
             }
             
