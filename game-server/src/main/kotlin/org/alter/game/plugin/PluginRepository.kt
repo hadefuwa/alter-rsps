@@ -1536,16 +1536,26 @@ class PluginRepository(
         plugin: Plugin.() -> Unit,
     ) {
         val optMap = objectPlugins[obj] ?: Int2ObjectOpenHashMap(1)
-        if (optMap.containsKey(opt)) {
-            logger.error { "Object is already bound to a plugin: $obj [opt=$opt]" }
-            throw IllegalStateException("Objects [opt=$opt : id = $obj] is already bound to a plugin")
+        val existingPlugin = optMap[opt]
+        
+        if (existingPlugin != null) {
+            // Chain the handlers: execute both, each will check their own conditions
+            val chainedPlugin: Plugin.() -> Unit = {
+                // Execute the existing handler first
+                existingPlugin.invoke(this)
+                // Then execute the new handler
+                plugin.invoke(this)
+            }
+            optMap[opt] = chainedPlugin
+            logger.debug { "Chaining object plugin handlers for obj=$obj [opt=$opt]" }
+        } else {
+            optMap[opt] = plugin
         }
 
         if (lineOfSightDistance != -1) {
             objInteractionDistancePlugins[obj] = lineOfSightDistance
         }
 
-        optMap[opt] = plugin
         objectPlugins[obj] = optMap
     }
 

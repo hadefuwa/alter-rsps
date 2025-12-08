@@ -48,75 +48,263 @@ class MyBossPlugin(
 ) : KotlinPlugin(r, world, server) {
 
     init {
+        // ============================================================
         // 1. SPAWN THE BOSS 📍
+        // ============================================================
         // This makes the boss appear in the game
+        // 👉 CHANGE: Replace "npc.crazy_archaeologist" with your boss NPC name
+        // 👉 CHANGE: Replace x and z with coordinates where you want the boss
+        // Type ::coords in-game to find coordinates!
         spawnNpc("npc.crazy_archaeologist", x = 3200, z = 3200, walkRadius = 5)
+        
+        // 💡 MORE SPAWN EXAMPLES (uncomment to try):
+        // spawnNpc("npc.king_black_dragon", x = 2272, z = 4680, walkRadius = 3)  // KBD location
+        // spawnNpc("npc.rock_925", x = 2977, z = 3238, walkRadius = 10)  // Bigger walk area
+        // spawnNpc("npc.dragon_245", x = 3200, z = 3200, walkRadius = 0)  // Doesn't walk around
+        // spawnNpc("npc.crazy_archaeologist", x = 3200, z = 3200, height = 1, walkRadius = 5)  // On different floor
 
+        // ============================================================
         // 2. DEFINE STATS & DROPS 📊
-        // This tells the game how strong the boss is and what it drops
+        // ============================================================
+        // 👉 CHANGE: Replace "npc.crazy_archaeologist" with your boss NPC name
         setCombatDef("npc.crazy_archaeologist") {
             configs {
-                attackSpeed = 4      // How fast it attacks
-                respawnDelay = 50     // How long before it comes back after dying
+                attackSpeed = 4      // 👉 ADJUST: How fast it attacks (lower = faster)
+                // attackSpeed = 3      // Very fast (3 ticks between attacks)
+                // attackSpeed = 5      // Medium speed
+                // attackSpeed = 6      // Slow but powerful
+                
+                respawnDelay = 50     // 👉 ADJUST: How long before it comes back after dying (in ticks)
+                // respawnDelay = 30    // Quick respawn
+                // respawnDelay = 100   // Slow respawn (harder to farm)
             }
+            
             aggro {
-                radius = 10          // How far it can see players
-                searchDelay = 2       // How often it looks for players
-                alwaysAggro()         // Attacks players even if they're high level
+                radius = 10          // 👉 ADJUST: How far it can see players
+                // radius = 5          // Short range (only attacks nearby)
+                // radius = 15          // Long range (sees players far away)
+                
+                searchDelay = 2       // 👉 ADJUST: How often it looks for players
+                // searchDelay = 1      // Checks every tick (very aggressive)
+                // searchDelay = 5      // Checks less often (lazy boss)
+                
+                alwaysAggro()         // 👉 ADJUST: Attacks players even if they're high level
+                // remove alwaysAggro() to make it only attack players near its level
             }
+            
             stats {
+                // 👉 ADJUST: Change these numbers to make your boss stronger or weaker!
                 hitpoints = 500      // How much health it has
-                attack = 200         // How accurate it is
-                strength = 200       // How hard it hits
-                defence = 150         // How well it blocks
-                magic = 300
-                ranged = 1
+                // hitpoints = 100      // Weak boss (dies fast)
+                // hitpoints = 1000     // Tank boss (hard to kill)
+                // hitpoints = 2500     // Super tank (very hard to kill)
+                
+                attack = 200         // How accurate it is (higher = hits more often)
+                // attack = 50          // Inaccurate (misses a lot)
+                // attack = 450          // Very accurate (hits almost always)
+                
+                strength = 200       // How hard it hits (higher = more damage)
+                // strength = 50        // Weak hits
+                // strength = 450       // Very strong hits
+                // strength = 6000      // One-shot potential!
+                
+                defence = 150         // How well it blocks (higher = takes less damage)
+                // defence = 50         // Low defense (takes lots of damage)
+                // defence = 450        // High defense (tanky)
+                
+                magic = 300          // 👉 ADJUST: Magic accuracy and damage
+                // magic = 1            // No magic (melee/ranged only)
+                // magic = 450          // Strong magic user
+                
+                ranged = 1           // 👉 ADJUST: Ranged accuracy and damage
+                // ranged = 450         // Strong ranged attacker
             }
+            
+            // 💡 STAT PRESETS (uncomment one to try):
+            // TANK BOSS (High HP and Defense, but slow and weak attacks)
+            // stats {
+            //     hitpoints = 2000
+            //     attack = 100
+            //     strength = 100
+            //     defence = 450
+            //     magic = 1
+            //     ranged = 1
+            // }
+            
+            // GLASS CANNON (Low HP and Defense, but hits very hard)
+            // stats {
+            //     hitpoints = 100
+            //     attack = 450
+            //     strength = 6000
+            //     defence = 50
+            //     magic = 1
+            //     ranged = 1
+            // }
+            
+            // BALANCED BOSS (Good at everything)
+            // stats {
+            //     hitpoints = 1000
+            //     attack = 300
+            //     strength = 300
+            //     defence = 300
+            //     magic = 300
+            //     ranged = 300
+            // }
+            
+            // MAGIC BOSS (Strong magic, weak melee)
+            // stats {
+            //     hitpoints = 800
+            //     attack = 100
+            //     strength = 100
+            //     defence = 200
+            //     magic = 450
+            //     ranged = 1
+            // }
+            
             bonuses {
-                defenceStab = 50
-                defenceSlash = 50
-                defenceCrush = 50
-                defenceMagic = 100
-                defenceRanged = 50
+                // 👉 ADJUST: Defense bonuses (how well it blocks different attack types)
+                defenceStab = 50     // Defense against stabbing weapons
+                // defenceStab = 200    // Very resistant to stabs
+                
+                defenceSlash = 50    // Defense against slashing weapons
+                // defenceSlash = 200   // Very resistant to slashes
+                
+                defenceCrush = 50    // Defense against crushing weapons
+                // defenceCrush = 200   // Very resistant to crushes
+                
+                defenceMagic = 100   // Defense against magic attacks
+                // defenceMagic = 50    // Weak to magic
+                // defenceMagic = 400   // Very resistant to magic
+                
+                defenceRanged = 50   // Defense against ranged attacks
+                // defenceRanged = 200  // Very resistant to ranged
+                
+                // 💡 ATTACK BONUSES (uncomment to add):
+                // attackStab = 100     // More accurate with stabs
+                // attackSlash = 100    // More accurate with slashes
+                // attackCrush = 100    // More accurate with crushes
+                // attackMagic = 200    // More accurate with magic
+                // attackRanged = 200   // More accurate with ranged
+                // strengthBonus = 100  // Hits harder
+                // magicDamageBonus = 200 // Magic hits harder
             }
+            
             anims {
+                // 👉 ADJUST: Change animation IDs to make your boss look different!
                 attack = 3353        // Animation when it attacks
+                // attack = 422         // Quick punch
+                // attack = 451         // Sword swing
+                // attack = 423         // Aggressive punch
+                // attack = 64          // Demon claw
+                // attack = 81          // Dragon claw
+                // attack = 7060        // Heavy/unblockable attack
+                // attack = 1978        // Single-target magic cast
+                // attack = 1979        // Multi-target magic cast
+                // attack = 2652        // Ranged attack
+                // attack = 2656        // Magic attack (TzTok-Jad style)
+                
                 block = 424          // Animation when it blocks
+                // block = 1683         // Different block animation
+                // block = 424          // Standard block (most common)
+                
                 death = 836          // Animation when it dies
+                // death = 1684         // Alternative death
+                // death = 92           // Dragon death
+                // death = 836          // Standard death (most common)
             }
             
             // 🔊 SOUNDS: Make your boss sound epic! (Optional but recommended)
+            // 👉 ADJUST: Uncomment different sounds to try them!
             sound {
                 attackSound = Sound.ROCK_CRAB_ATTACK  // Sound when boss attacks
+                // attackSound = Sound.DRAGON_ATTACK    // Dragon roar
+                // attackSound = Sound.DEMON_ATTACK    // Demon growl
+                // attackSound = Sound.CHAOS_ELEMENTAL_ATTACK  // Chaos sound
+                // attackSound = Sound.DARK_BEAST_ATTACK  // Dark beast sound
+                // attackSound = Sound.COW_ATTACK        // Moo! (funny)
+                
                 attackArea = true                     // All nearby players hear it
-                attackVolume = 50                     // Volume (0-100)
-                attackRadius = 10                     // How far sound travels
+                attackVolume = 50                     // 👉 ADJUST: Volume (0-100)
+                // attackVolume = 30     // Quiet
+                // attackVolume = 80     // Very loud
+                attackRadius = 10                     // 👉 ADJUST: How far sound travels
                 
                 blockSound = Sound.ROCK_CRAB_HIT     // Sound when boss blocks
+                // blockSound = Sound.DRAGON_HIT        // Dragon hit sound
+                // blockSound = Sound.DEMON_HIT         // Demon hit sound
+                // blockSound = Sound.COW_HIT           // Cow hit sound
+                
                 blockArea = true
-                blockVolume = 40
+                blockVolume = 40                      // 👉 ADJUST: Volume
                 blockRadius = 8
                 
                 deathSound = Sound.ROCK_CRAB_DEATH   // Sound when boss dies
+                // deathSound = Sound.DRAGON_DEATH      // Dragon death roar
+                // deathSound = Sound.DEMON_DEATH       // Demon death sound
+                // deathSound = Sound.CHAOS_ELEMENTAL_DEATH  // Chaos death
+                // deathSound = Sound.COW_DEATH         // Cow death (moo!)
+                
                 deathArea = true
-                deathVolume = 60
+                deathVolume = 60                      // 👉 ADJUST: Volume
                 deathRadius = 12
             }
+            
+            // 💡 NO SOUNDS (uncomment to remove all sounds):
+            // Remove the entire "sound { }" block if you don't want any sounds
+            
             drops {
-                always { add("item.big_bones", 1) }
-                main(128) {
-                    add("item.coins", 5000, 10000, 20)
-                    add("item.dragon_scimitar", 1, 5)  // Rare!
+                // 👉 ADJUST: Change what your boss drops!
+                always { 
+                    add("item.big_bones", 1)  // Always drops bones
+                    // add("item.bones", 1)     // Or regular bones
+                }
+                
+                main(128) {  // 👉 ADJUST: The number (128) is the drop rate denominator
+                    // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
+                    
+                    add("item.coins", 5000, 10000, 20)  // 20/128 chance, drops 5000-10000 coins
+                    // add("item.coins", 1000, 5000, 50)   // More common, less coins
+                    // add("item.coins", 10000, 50000, 5)  // Rare but lots of coins
+                    
+                    add("item.dragon_scimitar", 1, 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    // add("item.dragon_scimitar", 1, 1)   // Very rare (1/128)
+                    // add("item.dragon_scimitar", 1, 20)  // More common (20/128)
+                    
+                    // 💡 MORE DROP EXAMPLES (uncomment to add):
+                    // add("item.rune_scimitar", 1, 30)     // Common weapon
+                    // add("item.dragon_longsword", 1, 10)  // Rare weapon
+                    // add("item.abyssal_whip", 1, 2)       // Very rare weapon
+                    // add("item.shark", 5, 10, 40)         // Food (5-10 sharks, 40/128 chance)
+                    // add("item.super_restore_4", 1, 25)   // Potion
+                    // add("item.dragon_bones", 5, 10, 15)  // Bones (5-10, 15/128 chance)
                 }
             }
+            
+            // 💡 RICH BOSS DROP TABLE (uncomment to try):
+            // drops {
+            //     always { add("item.big_bones", 1) }
+            //     main(128) {
+            //         add("item.coins", 10000, 50000, 30)
+            //         add("item.dragon_scimitar", 1, 5)
+            //         add("item.dragon_longsword", 1, 5)
+            //         add("item.abyssal_whip", 1, 2)
+            //         add("item.shark", 10, 20, 50)
+            //         add("item.super_restore_4", 3, 5, 40)
+            //     }
+            // }
         }
 
+        // ============================================================
         // 3. COMBAT LOGIC ⚔️
+        // ============================================================
         // When the boss starts fighting, run the combat loop
+        // 👉 CHANGE: Replace "npc.crazy_archaeologist" with your boss NPC name
         onNpcCombat("npc.crazy_archaeologist") { npc.queue { combatLoop() } }
     }
 
+    // ============================================================
     // This is the brain of the boss! 🧠
+    // ============================================================
     suspend fun QueueTask.combatLoop() {
         val npc = ctx as Npc
         var target = npc.getCombatTarget() as? Player ?: return
@@ -125,16 +313,137 @@ class MyBossPlugin(
         while (npc.canEngageCombat(target)) {
             npc.facePawn(target)
             
-            // Move close and attack when ready
+            // 👉 ADJUST: Change distance and projectile settings
+            // distance = 1 means melee range (must be next to player)
+            // distance = 7 means ranged/magic range (can attack from far away)
+            // projectile = false means melee attack
+            // projectile = true means ranged/magic attack (needs projectile)
             if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) && 
                 npc.isAttackDelayReady()) {
                 
-                // Attack with melee! Change maxHit to make it hit harder or softer
+                // ============================================================
+                // ATTACK SELECTION - Choose one of these patterns! 🎯
+                // ============================================================
+                
+                // 💡 PATTERN 1: Simple Melee Attack (Current - uncomment to use)
                 BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                
+                // 💡 PATTERN 2: Random Special Attacks (uncomment to use)
+                // when {
+                //     // 10% chance for AoE explosion
+                //     npc.world.chance(1, 10) -> {
+                //         npc.forceChat("Feel my wrath!")
+                //         BossAttacks.aoe(npc, target.tile, radius = 3, maxHit = 50, projectile = 100)
+                //     }
+                //     // 15% chance for unblockable attack
+                //     npc.world.chance(1, 7) -> {
+                //         BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)
+                //     }
+                //     // 20% chance for magic freeze
+                //     npc.world.chance(1, 5) -> {
+                //         BossAttacks.magic(npc, target, projectile = 368, maxHit = 30, anim = 1979,
+                //             onHit = { hit -> if (hit.landed) target.freeze(5) })
+                //     }
+                //     // 55% chance for normal melee (default)
+                //     else -> {
+                //         BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                //     }
+                // }
+                
+                // 💡 PATTERN 3: HP-Based Enrage Mode (uncomment to use)
+                // val isEnraged = npc.getCurrentHp() < (npc.getMaxHp() * 0.3)  // Below 30% HP
+                // when {
+                //     isEnraged && npc.world.chance(1, 2) -> {  // 50% chance when enraged
+                //         npc.forceChat("THIS ISN'T OVER!")
+                //         BossAttacks.aoe(npc, target.tile, radius = 5, maxHit = 99, projectile = 100)
+                //     }
+                //     npc.world.chance(1, 4) -> {  // 25% chance normally
+                //         BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)
+                //     }
+                //     else -> {
+                //         BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                //     }
+                // }
+                
+                // 💡 PATTERN 4: Magic Boss (uncomment to use)
+                // if (npc.world.chance(1, 3)) {  // 33% chance
+                //     BossAttacks.magic(
+                //         npc = npc,
+                //         target = target,
+                //         projectile = 368,
+                //         maxHit = 30,
+                //         anim = 1979,
+                //         onHit = { hit ->
+                //             if (hit.landed) {
+                //                 target.freeze(5)  // Freeze for 5 ticks on hit
+                //             }
+                //         }
+                //     )
+                // } else {
+                //     BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                // }
+                
+                // 💡 PATTERN 5: Ranged Boss (uncomment to use)
+                // if (npc.world.chance(1, 3)) {  // 33% chance
+                //     BossAttacks.ranged(
+                //         npc = npc,
+                //         target = target,
+                //         projectile = 10,       // Arrow graphic
+                //         maxHit = 25,
+                //         anim = 426
+                //     )
+                // } else {
+                //     BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                // }
+                
+                // 💡 PATTERN 6: Knockback Boss (uncomment to use)
+                // if (npc.world.chance(1, 5)) {  // 20% chance
+                //     BossAttacks.knockback(npc, target)
+                // } else {
+                //     BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                // }
+                
+                // 💡 PATTERN 7: Teleport Boss (uncomment to use)
+                // if (npc.world.chance(1, 4)) {  // 25% chance
+                //     npc.forceChat("Get over here!")
+                //     BossAttacks.teleportTargetToNpc(npc, target)
+                //     // Then attack them!
+                //     BossAttacks.melee(npc, target, maxHit = 30, anim = 422)
+                // } else {
+                //     BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                // }
+                
+                // 💡 PATTERN 8: Mixed Melee/Ranged/Magic (uncomment to use)
+                // when {
+                //     npc.world.chance(1, 3) -> {  // 33% melee
+                //         BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                //     }
+                //     npc.world.chance(1, 2) -> {  // 33% ranged
+                //         BossAttacks.ranged(npc, target, projectile = 10, maxHit = 25, anim = 426)
+                //     }
+                //     else -> {  // 33% magic
+                //         BossAttacks.magic(npc, target, projectile = 368, maxHit = 30, anim = 1979)
+                //     }
+                // }
+                
+                // 💡 MORE ATTACK EXAMPLES (uncomment individual lines to try):
+                // BossAttacks.melee(npc, target, maxHit = 50, anim = 7060)  // Heavy melee
+                // BossAttacks.melee(npc, target, maxHit = 15, anim = 422)   // Light melee
+                // BossAttacks.ranged(npc, target, projectile = 11, maxHit = 30, anim = 426)  // Bow
+                // BossAttacks.ranged(npc, target, projectile = 27, maxHit = 25, anim = 7552)  // Crossbow
+                // BossAttacks.magic(npc, target, projectile = 100, maxHit = 35, anim = 1978)  // Single-target spell
+                // BossAttacks.magic(npc, target, projectile = 368, maxHit = 30, anim = 1979)  // Multi-target spell
+                // BossAttacks.aoe(npc, target.tile, radius = 3, maxHit = 50, projectile = 100)  // Explosion on player
+                // BossAttacks.aoe(npc, npc.tile, radius = 3, maxHit = 50, projectile = 100)  // Explosion on boss
+                // BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)  // Always hits
+                // BossAttacks.knockback(npc, target)  // Pushes player away
+                // BossAttacks.stun(target, cycles = 5)  // Stuns player for 5 ticks
+                // BossAttacks.teleportTargetToNpc(npc, target)  // Teleports player to boss
+                
                 npc.postAttackLogic(target)
             }
             
-            wait(1)
+            wait(1)  // 👉 ADJUST: Wait time between checks (1 = every tick, 2 = every 2 ticks)
             target = npc.getCombatTarget() as? Player ?: break
         }
         
@@ -143,6 +452,181 @@ class MyBossPlugin(
         npc.removeCombatTarget()
     }
 }
+```
+
+### 🎯 Adding Special Attacks to Your Boss
+
+Want your boss to do more than just basic melee attacks? You can add special attacks using the `BossAttacks` collection! Here's how to add them to your `combatLoop`:
+
+#### Basic Special Attack Pattern
+
+Replace the simple `BossAttacks.melee` line with this pattern:
+
+```kotlin
+// Decide which attack to use
+if (npc.world.chance(1, 4)) {  // 25% chance (1 in 4)
+    // Special attack!
+    BossAttacks.aoe(npc, target.tile, radius = 3, maxHit = 50, projectile = 100)
+} else {
+    // Normal attack (75% chance)
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+npc.postAttackLogic(target)
+```
+
+**How `chance()` works:**
+- `npc.world.chance(1, 4)` = 25% chance (1 out of 4)
+- `npc.world.chance(1, 3)` = 33% chance (1 out of 3)
+- `npc.world.chance(1, 2)` = 50% chance (1 out of 2)
+- Lower the second number = more frequent special attacks!
+
+#### Special Attack Examples from BossAttacks
+
+Here are some powerful special attacks you can use (see `docs/BOSS_ATTACKS_GUIDE.md` for the full collection):
+
+**1. Area of Effect (AoE) - Hits everyone nearby:**
+```kotlin
+if (npc.world.chance(1, 5)) {  // 20% chance
+    BossAttacks.aoe(
+        npc = npc,
+        center = target.tile,  // Explode on player
+        radius = 3,            // 3-tile radius
+        combatClass = CombatClass.MAGIC,
+        maxHit = 50,
+        projectile = 100       // Fireball graphic
+    )
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+**2. Unblockable Attack - Always hits:**
+```kotlin
+if (npc.world.chance(1, 4)) {  // 25% chance
+    BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+**3. Magic Attack with Freeze:**
+```kotlin
+if (npc.world.chance(1, 3)) {  // 33% chance
+    BossAttacks.magic(
+        npc = npc,
+        target = target,
+        projectile = 368,
+        maxHit = 30,
+        anim = 1979,
+        onHit = { hit ->
+            if (hit.landed) {
+                target.freeze(5)  // Freeze for 5 ticks on hit
+            }
+        }
+    )
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+**4. Ranged Attack:**
+```kotlin
+if (npc.world.chance(1, 3)) {  // 33% chance
+    BossAttacks.ranged(
+        npc = npc,
+        target = target,
+        projectile = 10,       // Arrow graphic
+        maxHit = 25,
+        anim = 426
+    )
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+**5. Knockback Attack - Pushes player away:**
+```kotlin
+if (npc.world.chance(1, 5)) {  // 20% chance
+    BossAttacks.knockback(npc, target)
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+**6. Teleport Player to Boss:**
+```kotlin
+if (npc.world.chance(1, 4)) {  // 25% chance
+    npc.forceChat("Get over here!")
+    BossAttacks.teleportTargetToNpc(npc, target)
+    // Then attack them!
+    BossAttacks.melee(npc, target, maxHit = 30, anim = 422)
+} else {
+    BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+}
+```
+
+#### Multiple Special Attacks
+
+You can have multiple special attacks with different chances:
+
+```kotlin
+when {
+    // 10% chance for AoE explosion
+    npc.world.chance(1, 10) -> {
+        npc.forceChat("Feel my wrath!")
+        BossAttacks.aoe(npc, target.tile, radius = 3, maxHit = 50, projectile = 100)
+    }
+    // 15% chance for unblockable attack
+    npc.world.chance(1, 7) -> {
+        BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)
+    }
+    // 20% chance for magic freeze
+    npc.world.chance(1, 5) -> {
+        BossAttacks.magic(npc, target, projectile = 368, maxHit = 30, anim = 1979,
+            onHit = { hit -> if (hit.landed) target.freeze(5) })
+    }
+    // 55% chance for normal melee (default)
+    else -> {
+        BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+    }
+}
+npc.postAttackLogic(target)
+```
+
+#### HP-Based Special Attacks (Enrage Mode)
+
+Make special attacks more frequent when the boss is low on health:
+
+```kotlin
+val isEnraged = npc.getCurrentHp() < (npc.getMaxHp() * 0.3)  // Below 30% HP
+
+when {
+    isEnraged && npc.world.chance(1, 2) -> {  // 50% chance when enraged
+        npc.forceChat("THIS ISN'T OVER!")
+        BossAttacks.aoe(npc, target.tile, radius = 5, maxHit = 99, projectile = 100)
+    }
+    npc.world.chance(1, 4) -> {  // 25% chance normally
+        BossAttacks.unblockable(npc, target, damage = 40, anim = 7060)
+    }
+    else -> {
+        BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+    }
+}
+npc.postAttackLogic(target)
+```
+
+#### Quick Reference: All BossAttacks Functions
+
+- `BossAttacks.melee()` - Basic melee attack
+- `BossAttacks.ranged()` - Ranged attack with projectile
+- `BossAttacks.magic()` - Magic attack with projectile
+- `BossAttacks.aoe()` - Area of Effect (hits multiple players)
+- `BossAttacks.unblockable()` - Always hits, ignores accuracy
+- `BossAttacks.knockback()` - Pushes player away
+- `BossAttacks.stun()` - Stuns the player
+- `BossAttacks.teleportTargetToNpc()` - Teleports player to boss
+
+**📖 For more details on each attack, see `docs/BOSS_ATTACKS_GUIDE.md`**
 ```
 
 ### 4️⃣ Adjust This! (Customize Your Boss)

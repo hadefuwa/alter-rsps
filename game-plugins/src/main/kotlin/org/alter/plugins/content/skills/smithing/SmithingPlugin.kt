@@ -183,12 +183,14 @@ class SmithingPlugin(
         }
         
         // Helper function to check if an object is a furnace based on examine text
+        // Must be more specific to avoid false positives (bank booths, crevices, etc.)
         fun isFurnaceByExamine(objId: Int): Boolean {
             val examine = ObjectExamineHolder.EXAMINES.get(objId) ?: return false
             val lowerExamine = examine.lowercase()
-            return lowerExamine.contains("hot") && lowerExamine.contains("furnace") ||
-                   lowerExamine.contains("very hot") ||
-                   (lowerExamine.contains("hot") && lowerExamine.contains("furnace"))
+            // Only match if it explicitly mentions "furnace" AND "hot"
+            // This avoids matching other objects that might be "hot" or have similar text
+            return (lowerExamine.contains("hot") && lowerExamine.contains("furnace")) ||
+                   lowerExamine.contains("very hot") && lowerExamine.contains("furnace")
         }
         
         // Helper function to register smelting handlers for a furnace object (by RSCM name)
@@ -222,9 +224,18 @@ class SmithingPlugin(
             // This function is deprecated - dynamic detection handles all furnaces now
         }
         
+        // Track object IDs that are explicitly registered to avoid duplicate registration in dynamic detection
+        val explicitlyRegisteredObjectIds = mutableSetOf<Int>()
+        
         // Handle furnace click to open smelting menu (custom chat window)
         // Register handlers for all known furnace objects
         furnaceObjects.forEach { furnace ->
+            try {
+                val objId = getRSCM(furnace)
+                explicitlyRegisteredObjectIds.add(objId)
+            } catch (e: Exception) {
+                // Object doesn't exist in RSCM, skip
+            }
             registerFurnaceHandlers(furnace)
 
             // OFFICIAL INTERFACE CODE (commented out - using custom chat window instead)
@@ -294,23 +305,32 @@ class SmithingPlugin(
 
         // Dynamically detect all objects with smelting options OR furnace examine text
         // This runs after world initialization to scan the cache for furnaces
+        // Skip objects that were already explicitly registered to avoid duplicate bindings
         onWorldInit {
             val registeredCombinations = mutableSetOf<Pair<Int, String>>()
             val allObjects = dev.openrune.cache.CacheManager.getObjects()
             
             allObjects.forEach { (objId, objDef) ->
+                // Skip objects that were explicitly registered in furnaceObjects
+                if (explicitlyRegisteredObjectIds.contains(objId)) {
+                    return@forEach
+                }
+                
                 // Check if object has smelting options OR is a furnace by examine text
                 val smeltOptions = objDef.actions.filterNotNull().filter { isSmeltingOption(it) }
                 val isFurnace = isFurnaceByExamine(objId)
                 
-                // If it's a furnace by examine text but has no smelting options, try "use" option
+                // Only register if we have explicit smelting options OR confirmed furnace by examine
+                // Prefer explicit smelting options over generic "use" to avoid conflicts
                 val optionsToTry = if (smeltOptions.isNotEmpty()) {
                     smeltOptions
                 } else if (isFurnace) {
-                    // If examine says it's a furnace, try common interaction options
+                    // Only try "use" if we're confident it's a furnace by examine text
+                    // Be more conservative - only try "use" if no other plugins likely own it
                     objDef.actions.filterNotNull().filter { 
                         val lower = it.lowercase()
-                        lower == "use" || lower == "operate" || lower.contains("use")
+                        // Prefer "smelt" variants, only fall back to "use" if no smelt options exist
+                        lower.contains("smelt") || (lower == "use" && smeltOptions.isEmpty())
                     }
                 } else {
                     emptyList()
@@ -326,8 +346,11 @@ class SmithingPlugin(
                                     openSmeltingMenu(player)
                                 }
                             }
+                        } catch (e: IllegalStateException) {
+                            // Object/option already bound to another plugin, skip silently
+                            // This is expected for objects like bank booths, crevices, etc.
                         } catch (e: Exception) {
-                            // Handler already registered or object doesn't exist, skip
+                            // Other errors - skip
                         }
                     }
                 }
