@@ -189,7 +189,7 @@ class MyBossPlugin(
             // 🔊 SOUNDS: Make your boss sound epic! (Optional but recommended)
             // 👉 ADJUST: Uncomment different sounds to try them!
             sound {
-                attackSound = Sound.dragon_attack_1_7562  // Sound when boss attacks
+                attackSound = Sound.MUTTADILE_ATTACK  // Sound when boss attacks
                 // attackSound = Sound.DRAGON_ATTACK    // Dragon roar
                 // attackSound = Sound.DEMON_ATTACK    // Demon growl
                 // attackSound = Sound.CHAOS_ELEMENTAL_ATTACK  // Chaos sound
@@ -202,7 +202,7 @@ class MyBossPlugin(
                 // attackVolume = 80     // Very loud
                 attackRadius = 10                     // 👉 ADJUST: How far sound travels
                 
-                blockSound = Sound.ROCK_CRAB_HIT     // Sound when boss blocks
+                blockSound = Sound.MUTTADILE_HIT     // Sound when boss blocks
                 // blockSound = Sound.DRAGON_HIT        // Dragon hit sound
                 // blockSound = Sound.DEMON_HIT         // Demon hit sound
                 // blockSound = Sound.COW_HIT           // Cow hit sound
@@ -211,7 +211,7 @@ class MyBossPlugin(
                 blockVolume = 40                      // 👉 ADJUST: Volume
                 blockRadius = 8
                 
-                deathSound = Sound.ROCK_CRAB_DEATH   // Sound when boss dies
+                deathSound = Sound.MUTTADILE_DEATH   // Sound when boss dies
                 // deathSound = Sound.DRAGON_DEATH      // Dragon death roar
                 // deathSound = Sound.DEMON_DEATH       // Demon death sound
                 // deathSound = Sound.CHAOS_ELEMENTAL_DEATH  // Chaos death
@@ -235,21 +235,15 @@ class MyBossPlugin(
                 main(128) {  // 👉 ADJUST: The number (128) is the drop rate denominator
                     // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
                     
-                    add("item.coins", 5000, 10000, 20)  // 20/128 chance, drops 5000-10000 coins
-                    // add("item.coins", 1000, 5000, 50)   // More common, less coins
-                    // add("item.coins", 10000, 50000, 5)  // Rare but lots of coins
-                    
-                    add("item.dragon_scimitar", 1, 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    // add("item.dragon_scimitar", 1, 1)   // Very rare (1/128)
-                    // add("item.dragon_scimitar", 1, 20)  // More common (20/128)
-                    
-                    // 💡 MORE DROP EXAMPLES (uncomment to add):
-                    // add("item.rune_scimitar", 1, 30)     // Common weapon
-                    // add("item.dragon_longsword", 1, 10)  // Rare weapon
-                    // add("item.abyssal_whip", 1, 2)       // Very rare weapon
-                    // add("item.shark", 5, 10, 40)         // Food (5-10 sharks, 40/128 chance)
-                    // add("item.super_restore_4", 1, 25)   // Potion
-                    // add("item.dragon_bones", 5, 10, 15)  // Bones (5-10, 15/128 chance)
+                    add("item.coins", 5000, 10000, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.raw_anglerfish_noted", 20, 25, 300)  // 20/128 chance, drops 5000-10000 coins                   
+                    add("item.anglerfish_noted", 15, 20, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.sand_worm", 5000, 10000, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.raw_lobster_noted", 30, 60, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.lobster_noted", 25, 55, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.raw_shark_noted", 20, 30, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.shark_noted", 16, 26, 300)  // 20/128 chance, drops 5000-10000 coins
+                    add("item.raw_tuna_noted", 40, 65, 300)  // 20/128 chance, drops 5000-10000 coins
                 }
             }
             
