@@ -255,13 +255,62 @@ class MiningBossPlugin(r: PluginRepository, world: World, server: Server) :
                 npc.attr.remove(Combat.DAMAGE_TAKE_MULTIPLIER)
             }
 
-            // Move close and attack when ready
-            if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) &&
-                npc.isAttackDelayReady()
-            ) {
-                // Attack with melee! Can hit up to 110 damage
-                BossAttacks.melee(npc, target, maxHit = 110, anim = 422)
-                npc.postAttackLogic(target)
+            // Try to attack - use ranged/magic if line of sight is blocked by obstacles
+            if (npc.isAttackDelayReady()) {
+                val targetDistance = npc.tile.getDistance(target.tile)
+                val inMeleeRange = targetDistance <= 1
+                
+                // Check if we can use melee (close enough and have line of sight for melee)
+                val canMelee = if (inMeleeRange) {
+                    // Check line of sight for melee attacks (projectile = false)
+                    npc.hasLineOfSightTo(target, projectile = false, maximumDistance = 1)
+                } else {
+                    // Try to move into melee range
+                    npc.moveToAttackRange(this, target, distance = 1, projectile = false)
+                }
+                
+                if (canMelee) {
+                    // Attack with melee! Can hit up to 110 damage
+                    BossAttacks.melee(npc, target, maxHit = 110, anim = 422)
+                    npc.postAttackLogic(target)
+                } else {
+                    // Line of sight blocked for melee (e.g., by a rock) - use magic attack
+                    // Magic projectiles can sometimes go through obstacles better than ranged
+                    // Check if we're within magic attack range (10 tiles)
+                    val inMagicRange = targetDistance <= 10
+                    
+                    if (inMagicRange) {
+                        // Check if we have line of sight for magic attacks (projectile = true)
+                        val canMagicSight = npc.hasLineOfSightTo(target, projectile = true, maximumDistance = 10)
+                        
+                        if (canMagicSight) {
+                            // Use magic attack that can go through obstacles
+                            BossAttacks.magic(
+                                npc = npc,
+                                target = target,
+                                projectile = 100,  // Magic projectile graphic
+                                maxHit = 110,
+                                anim = 1979  // Magic attack animation
+                            )
+                            npc.postAttackLogic(target)
+                        } else {
+                            // Even magic line of sight is blocked - use AoE attack centered on player
+                            // This bypasses line of sight requirements
+                            BossAttacks.aoe(
+                                npc = npc,
+                                center = target.tile,  // Explode on player's location
+                                radius = 1,            // Small radius to hit just the player
+                                combatClass = CombatClass.MAGIC,
+                                maxHit = 110,
+                                projectile = 100       // Magic explosion graphic
+                            )
+                            npc.postAttackLogic(target)
+                        }
+                    } else {
+                        // Too far away - try to move closer
+                        npc.moveToAttackRange(this, target, distance = 10, projectile = true)
+                    }
+                }
             }
 
             wait(1)
