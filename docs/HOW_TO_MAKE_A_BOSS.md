@@ -921,6 +921,27 @@ The game will randomly pick one when the boss dies!
 
 Sounds add atmosphere and make your boss feel more alive! This section will teach you everything about boss sounds.
 
+### 🎯 Quick Start: Testing Sounds
+
+**The easiest way to find sounds is to test them in-game!**
+
+1. **Use the `::sound` command** (requires developer privileges):
+   ```
+   ::sound <sound_id>
+   ```
+   Example: `::sound 718` will play that sound immediately!
+
+2. **Try different IDs** until you find sounds you like:
+   ```
+   ::sound 718   // Rock attack
+   ::sound 720   // Rock hit
+   ::sound 719   // Rock death
+   ::sound 448   // Giant attack
+   ::sound 474   // Golem attack
+   ```
+
+3. **Then use the IDs in your boss code!**
+
 ### What Are Sounds?
 
 Sounds are audio effects that play when your boss performs actions:
@@ -1061,7 +1082,29 @@ sound {
 
 ### How to Find Sound IDs
 
-#### Method 1: Check the Sound Constants
+#### Method 1: Test Sounds In-Game (Easiest!)
+**The best way to find sounds is to test them directly in-game!**
+
+1. **Use the `::sound` command** (requires developer privileges):
+   ```
+   ::sound <sound_id>
+   ```
+   Example: `::sound 2582` will play that sound so you can hear it!
+
+2. **Try different IDs** until you find sounds you like:
+   - Start with IDs from the `Sound.kt` file (see Method 2)
+   - Test them in-game to see how they sound
+   - Adjust volume and radius in your boss code
+
+3. **Quick Testing Workflow**:
+   ```
+   ::sound 718   // Test rock attack sound
+   ::sound 720   // Test rock hit sound
+   ::sound 719   // Test rock death sound
+   ```
+   Then use the ones that sound good in your boss code!
+
+#### Method 2: Check the Sound Constants
 Look in: `game-api/src/main/kotlin/org/alter/api/cfg/Sound.kt`
 
 Search for sounds related to your boss type:
@@ -1069,12 +1112,30 @@ Search for sounds related to your boss type:
 - Dragon boss? Search for "DRAGON"
 - Giant boss? Search for "GIANT"
 
-#### Method 2: Look at Existing Bosses
+**Example constants you'll find:**
+```kotlin
+Sound.ROCK_CRAB_ATTACK = 718
+Sound.ROCK_CRAB_HIT = 720
+Sound.ROCK_CRAB_DEATH = 719
+Sound.DRAGON_ATTACK = <id>
+Sound.GIANT_ATTACK = 448
+```
+
+#### Method 3: Look at Existing Bosses
 Check other boss files to see what sounds they use:
 - `game-plugins/src/main/kotlin/org/alter/plugins/content/bosses/`
 - `game-plugins/src/main/kotlin/org/alter/plugins/content/npcs/`
 
-#### Method 3: Use Generic Combat Sounds
+**Example from MiningBoss.kt:**
+```kotlin
+sound {
+    attackSound = Sound.ROCK_CRAB_ATTACK  // 718
+    blockSound = Sound.ROCK_CRAB_HIT      // 720
+    deathSound = Sound.ROCK_CRAB_DEATH   // 719
+}
+```
+
+#### Method 4: Use Generic Combat Sounds
 If you can't find a specific sound, use generic combat sounds:
 ```kotlin
 // Generic melee sounds
@@ -1084,6 +1145,16 @@ blockSound = Sound.STEEL_MAIL         // 14
 // Impact sounds
 blockSound = Sound.ROCK_IMPACT         // 851
 blockSound = Sound.STONE_IMPACT        // 860
+```
+
+#### Method 5: Use Direct Sound IDs
+You can also use raw sound IDs directly (test with `::sound` first!):
+```kotlin
+sound {
+    attackSound = 718   // Direct ID (test with ::sound 718 first!)
+    blockSound = 720
+    deathSound = 719
+}
 ```
 
 ### Sound Tips & Tricks
@@ -1127,11 +1198,46 @@ If you don't want sounds, you can simply **omit the `sound { }` block entirely**
 
 ### Testing Your Sounds
 
+#### Step 1: Test Individual Sounds
+Before adding sounds to your boss, test them individually:
+
+1. **In-game, use the `::sound` command**:
+   ```
+   ::sound 718   // Test attack sound
+   ::sound 720   // Test block sound
+   ::sound 719   // Test death sound
+   ```
+
+2. **Try different IDs** until you find sounds that fit your boss:
+   ```
+   ::sound 448   // Try giant attack
+   ::sound 450   // Try giant death
+   ::sound 474   // Try golem attack
+   ```
+
+3. **Note which IDs sound good** and use them in your code!
+
+#### Step 2: Test Sounds on Your Boss
+After adding sounds to your boss code:
+
 1. **Spawn your boss in-game**
 2. **Attack it** - Listen for the attack sound
 3. **Let it hit you** - Listen for the block sound
 4. **Kill it** - Listen for the death sound
-5. **Adjust volume/radius** if needed!
+5. **Check if nearby players can hear it** (if `attackArea = true`)
+6. **Adjust volume/radius** if needed!
+
+#### Step 3: Fine-Tune Settings
+If sounds are too loud/quiet or don't travel far enough:
+
+```kotlin
+sound {
+    attackSound = Sound.ROCK_CRAB_ATTACK
+    attackVolume = 30    // 👉 ADJUST: Lower if too loud
+    attackRadius = 5     // 👉 ADJUST: Smaller if too far
+    // ... test and adjust until perfect!
+}
+```
 
 ### Common Sound Mistakes to Avoid
 

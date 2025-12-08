@@ -11,6 +11,7 @@ import org.alter.game.model.queue.TaskPriority
 import org.alter.game.model.timer.TimeConstants
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import java.text.DecimalFormat
 
 /**
  * Level 99 Reward Plugin
@@ -28,6 +29,7 @@ class Level99RewardPlugin(
         private const val COINS_ITEM_ID = 995
         private const val REWARD_AMOUNT = 200_000_000 // 200 million coins
         private const val LEVEL_99 = 99
+        private val NUMBER_FORMAT = DecimalFormat("#,###")
     }
     
     init {
@@ -73,7 +75,7 @@ class Level99RewardPlugin(
         if (addResult.hasSucceeded()) {
             // All coins fit in inventory
             player.message("<col=00ff00>Congratulations! You've achieved level 99 in $skillName!")
-            player.message("<col=00ff00>You have been awarded ${REWARD_AMOUNT.formatNumber()} coins!")
+            player.message("<col=00ff00>You have been awarded ${NUMBER_FORMAT.format(REWARD_AMOUNT)} coins!")
         } else {
             // Inventory is full, drop coins on the floor
             val coinsToAdd = addResult.completed
@@ -82,7 +84,7 @@ class Level99RewardPlugin(
             // Add what we can to inventory
             if (coinsToAdd > 0) {
                 player.message("<col=00ff00>Congratulations! You've achieved level 99 in $skillName!")
-                player.message("<col=00ff00>You have been awarded ${coinsToAdd.formatNumber()} coins in your inventory!")
+                player.message("<col=00ff00>You have been awarded ${NUMBER_FORMAT.format(coinsToAdd)} coins in your inventory!")
             }
             
             // Drop the rest on the floor
@@ -99,10 +101,10 @@ class Level99RewardPlugin(
                 player.world.spawn(groundItem)
                 
                 if (coinsToAdd > 0) {
-                    player.message("<col=ffff00>The remaining ${coinsToDrop.formatNumber()} coins were dropped on the floor!")
+                    player.message("<col=ffff00>The remaining ${NUMBER_FORMAT.format(coinsToDrop)} coins were dropped on the floor!")
                 } else {
                     player.message("<col=00ff00>Congratulations! You've achieved level 99 in $skillName!")
-                    player.message("<col=ffff00>You have been awarded ${REWARD_AMOUNT.formatNumber()} coins, but your inventory is full!")
+                    player.message("<col=ffff00>You have been awarded ${NUMBER_FORMAT.format(REWARD_AMOUNT)} coins, but your inventory is full!")
                     player.message("<col=ffff00>The coins have been dropped on the floor!")
                 }
             }
