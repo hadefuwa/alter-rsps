@@ -91,7 +91,6 @@ class TeleportsPlugin(
                     "Stronghold of Security" to Tile(x = 3081, z = 3420, height = 0),
                     "Stronghold of Player Safety" to Tile(x = 3081, z = 3420, height = 0),
                     "TzHaar City" to Tile(x = 2436, z = 5171, height = 0),
-                    "Araxxor" to Tile(x = 3647, z = 9816, height = 0),
                     // Page 4: Skilling Locations
                     "Seers' Village" to Tile(x = 2725, z = 3486, height = 0),
                     "Catherby" to Tile(x = 2804, z = 3433, height = 0),
@@ -274,7 +273,6 @@ class TeleportsPlugin(
                         "Stronghold of Security" to Tile(x = 3081, z = 3420, height = 0),
                         "Stronghold of Player Safety" to Tile(x = 3081, z = 3420, height = 0),
                         "TzHaar City" to Tile(x = 2436, z = 5171, height = 0),
-                        "Araxxor" to Tile(x = 3647, z = 9816, height = 0),
                         // Page 4: Skilling Locations
                         "Seers' Village" to Tile(x = 2725, z = 3486, height = 0),
                         "Catherby" to Tile(x = 2804, z = 3433, height = 0),

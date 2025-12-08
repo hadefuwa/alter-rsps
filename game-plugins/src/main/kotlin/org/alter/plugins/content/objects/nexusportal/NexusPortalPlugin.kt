@@ -48,7 +48,6 @@ class NexusPortalPlugin(r: PluginRepository, world: World, server: Server) :
                         "Obor's Lair" to Tile(x = 3107, z = 9831, height = 0),
                         "Jormungands Prison" to Tile(x = 2460, z = 10415, height = 0),
                         "Tombs of Amascut" to Tile(x = 3355, z = 9120, height = 0),
-                        "Theatre of Blood" to Tile(x = 3659, z = 3219, height = 0),
                         "Vardorvis" to Tile(x = 1130, z = 3419, height = 0),
                         "Chambers of Xeric" to Tile(x = 1246, z = 3561, height = 0),
                         "Wintertodt" to Tile(x = 1636, z = 3943, height = 0),
@@ -61,7 +60,6 @@ class NexusPortalPlugin(r: PluginRepository, world: World, server: Server) :
                         "Blue Moon" to Tile(x = 1440, z = 9680, height = 0),
                         "Eclipse Moon" to Tile(x = 1488, z = 9632, height = 0),
                         "Hydra" to Tile(x = 1366, z = 10266, height = 0),
-                        "Araxxor" to Tile(x = 3647, z = 9816, height = 0),
                         // GWD Bosses
                         "Commander Zilyana" to Tile(x = 2899, z = 5268, height = 2),
                         "General Graardor" to Tile(x = 2864, z = 5354, height = 2),
