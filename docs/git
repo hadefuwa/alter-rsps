@@ -3,7 +3,7 @@
 ```bash
 git status
 git add .
-git commit -m "arraxor"
+git commit -m "cannon"
 git push
 ```
 git add -A                    # Stage all changes
