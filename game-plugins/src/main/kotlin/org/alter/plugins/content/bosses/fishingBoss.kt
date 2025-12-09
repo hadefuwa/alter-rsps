@@ -14,7 +14,7 @@ import org.alter.plugins.content.combat.*
 import org.alter.rscm.RSCM.getRSCM
 
 // 👉 CHANGE "MyBossPlugin" to your boss name!
-class MyBossPlugin(
+class FishingBoss(
     r: PluginRepository,
     world: World,
     server: Server
