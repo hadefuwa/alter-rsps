@@ -531,28 +531,25 @@ class SmithingPlugin(
             val pageRecipes = availableRecipes.subList(startIndex, endIndex)
             
             // Build options list for current page
+            // Structure: [Previous Page] -> [Items (5 max)] -> [Next Page]
             val pageOptions = mutableListOf<String>()
             
             // Check if we have previous/next pages available
             val hasPrevious = currentPage > 0
             val hasNext = currentPage < totalPages - 1
             
-            // Always add Previous Page as first option if available
-            if (hasPrevious) {
-                pageOptions.add("<< Previous Page")
-            }
+            // Option 1: Previous Page (always shown as 1st option)
+            pageOptions.add("Previous Page")
             
-            // Add item options
+            // Options 2-6: Add item options (5 items max)
             pageOptions.addAll(pageRecipes.map { recipe ->
                 val barId = getRSCM(recipe.barName)
                 val barCount = player.getItemCountIncludingNoted(barId)
                 "${recipe.displayName} (${recipe.barsRequired} bars) - You have: $barCount"
             })
             
-            // Always add Next Page as last option if available
-            if (hasNext) {
-                pageOptions.add("Next Page >>")
-            }
+            // Last option: Next Page (always shown as last option)
+            pageOptions.add("Next Page")
             
             val title = "What would you like to smith? (Page ${currentPage + 1}/$totalPages)"
             val selected = options(player, *pageOptions.toTypedArray(), title = title)
@@ -565,25 +562,31 @@ class SmithingPlugin(
             val optionIndex = selected - 1
             val itemCount = pageRecipes.size
             
-            // Check if Previous Page was selected (always first option if present)
-            if (hasPrevious && optionIndex == 0) {
-                currentPage--
+            // Handle the selected option based on its position in the menu
+            // Menu structure: [0: Previous Page] [1-5: Items] [6: Next Page]
+            
+            // Option 0: Previous Page
+            if (optionIndex == 0) {
+                if (hasPrevious) {
+                    currentPage--
+                }
                 continue
             }
             
-            // Check if Next Page was selected (always last option if present)
-            val lastOptionIndex = pageOptions.size - 1
-            if (hasNext && optionIndex == lastOptionIndex) {
-                currentPage++
+            // Check if it's the last option (Next Page)
+            val nextPageIndex = 1 + itemCount
+            if (optionIndex == nextPageIndex) {
+                if (hasNext) {
+                    currentPage++
+                }
                 continue
             }
             
-            // Handle item selection
-            // If Previous Page exists, items start at index 1, otherwise at index 0
-            val itemStartIndex = if (hasPrevious) 1 else 0
-            val recipeIndex = optionIndex - itemStartIndex
-            
-            if (recipeIndex >= 0 && recipeIndex < itemCount) {
+            // Check if it's an item selection
+            // Items are at indices 1 to itemCount (after the Previous Page button)
+            if (optionIndex >= 1 && optionIndex <= itemCount) {
+                // Convert to 0-based index for the pageRecipes list
+                val recipeIndex = optionIndex - 1
                 val recipe = pageRecipes[recipeIndex]
                 smithItem(this, player, recipe)
                 break
@@ -619,17 +622,10 @@ class SmithingPlugin(
         val startTile = player.tile
         var smithedCount = 0
 
-        // Helper function to check if we should stop
-        fun shouldStop(): Boolean {
-            return !player.isOnline || 
-                   player.hasMoveDestination() || 
-                   !player.tile.sameAs(startTile)
-        }
-
         // Continuously smith until materials run out or player stops
         while (true) {
             // Check if player has moved or closed interface
-            if (shouldStop()) {
+            if (!player.isOnline || player.hasMoveDestination() || !player.tile.sameAs(startTile)) {
                 break
             }
 
@@ -666,7 +662,7 @@ class SmithingPlugin(
             }
 
             // Check again before proceeding
-            if (shouldStop()) {
+            if (!player.isOnline || player.hasMoveDestination() || !player.tile.sameAs(startTile)) {
                 break
             }
 
@@ -677,7 +673,7 @@ class SmithingPlugin(
                 // Wait for smithing animation with interruption checks
                 var interrupted = false
                 for (i in 0 until 4) {
-                    if (shouldStop()) {
+                    if (!player.isOnline || player.hasMoveDestination() || !player.tile.sameAs(startTile)) {
                         interrupted = true
                         break
                     }
@@ -689,7 +685,7 @@ class SmithingPlugin(
                 }
 
                 // Final check after waiting
-                if (shouldStop()) {
+                if (!player.isOnline || player.hasMoveDestination() || !player.tile.sameAs(startTile)) {
                     break
                 }
 
@@ -713,7 +709,7 @@ class SmithingPlugin(
             }
 
             // Small delay between smithing cycles
-            if (shouldStop()) {
+            if (!player.isOnline || player.hasMoveDestination() || !player.tile.sameAs(startTile)) {
                 break
             }
             task.wait(1)

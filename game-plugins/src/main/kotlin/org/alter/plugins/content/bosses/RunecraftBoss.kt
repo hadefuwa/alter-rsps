@@ -72,19 +72,19 @@ class RunecraftBossPlugin(
             }
             
             sound {
-                attackSound = Sound.WYRM_ATTACK
+                attackSound = Sound.CHAOS_ELEMENTAL_ATTACK
                 
                 attackArea = true
                 attackVolume = 50
                 attackRadius = 10
                 
-                blockSound = Sound.WYRM_HIT
+                blockSound = Sound.CHAOS_ELEMENTAL_HIT
                 
                 blockArea = true
                 blockVolume = 40
                 blockRadius = 8
                 
-                deathSound = Sound.WYRM_DEATH
+                deathSound = Sound.CHAOS_ELEMENTAL_DEATH
                 
                 deathArea = true
                 deathVolume = 60
