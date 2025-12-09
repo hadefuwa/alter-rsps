@@ -121,7 +121,7 @@ class RunecraftBossPlugin(
             
         // 5. SPECIAL FUNCTIONALITY 🎁
         // Give mining XP when the boss is killed to all players who dealt damage
-        onNpcDeath("npc.rock_925") {
+        onNpcDeath("npc.balance_elemental") {
             val npc = this.npc
             
             // Get all players who dealt damage to the boss
@@ -137,10 +137,10 @@ class RunecraftBossPlugin(
             }
             
             // Give mining XP to all players who dealt damage (1000 XP for 100 HP boss)
-            val miningXp = npc.combatDef.hitpoints * 10.0
+            val runecraftingXp = npc.combatDef.hitpoints * 10.0
             playersWhoDamaged.forEach { player ->
-                player.addXp(Skills.MINING, miningXp)
-                player.message("<col=00ff00>You gain ${miningXp.toInt()} Mining experience for defeating the Rock!</col>")
+                player.addXp(Skills.RUNECRAFTING, runecraftingXp)
+                player.message("<col=00ff00>You gain ${runecraftingXp.toInt()} Runecrafting experience for defeating the Balance Elemental!</col>")
             }
         }
 
