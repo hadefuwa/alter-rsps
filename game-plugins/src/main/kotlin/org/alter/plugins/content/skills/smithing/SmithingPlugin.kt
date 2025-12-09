@@ -43,7 +43,8 @@ class SmithingPlugin(
         val barName: String,
         val barsRequired: Int,
         val level: Int,
-        val experience: Double
+        val experience: Double,
+        val quantity: Int = 1  // Number of items produced per smithing action (default 1, 10 for bolts)
     )
 
     // Smithing recipes for anvil
@@ -161,6 +162,42 @@ class SmithingPlugin(
         SmithingRecipe("item.rune_med_helm", "Rune med helm", "item.runite_bar", 1, 88, 75.0),
         SmithingRecipe("item.rune_sq_shield", "Rune sq shield", "item.runite_bar", 2, 93, 150.0),
         SmithingRecipe("item.rune_kiteshield", "Rune kiteshield", "item.runite_bar", 3, 97, 225.0),
+        
+        // Bronze bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.bronze_bolts_unf", "Bronze bolts (unf)", "item.bronze_bar", 1, 9, 25.0, quantity = 10),
+        
+        // Iron bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.iron_bolts_unf", "Iron bolts (unf)", "item.iron_bar", 1, 39, 50.0, quantity = 10),
+        
+        // Steel bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.steel_bolts_unf", "Steel bolts (unf)", "item.steel_bar", 1, 46, 75.0, quantity = 10),
+        
+        // Mithril bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.mithril_bolts_unf", "Mithril bolts (unf)", "item.mithril_bar", 1, 54, 100.0, quantity = 10),
+        
+        // Adamant bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.adamant_boltsunf", "Adamant bolts (unf)", "item.adamantite_bar", 1, 61, 125.0, quantity = 10),
+        
+        // Rune bolts (10 unfinished bolts per bar)
+        SmithingRecipe("item.runite_bolts_unf", "Rune bolts (unf)", "item.runite_bar", 1, 88, 150.0, quantity = 10),
+        
+        // Bronze knives (5 knives per bar)
+        SmithingRecipe("item.bronze_knife", "Bronze knife", "item.bronze_bar", 1, 5, 12.5, quantity = 5),
+        
+        // Iron knives (5 knives per bar)
+        SmithingRecipe("item.iron_knife", "Iron knife", "item.iron_bar", 1, 20, 25.0, quantity = 5),
+        
+        // Steel knives (5 knives per bar)
+        SmithingRecipe("item.steel_knife", "Steel knife", "item.steel_bar", 1, 35, 37.5, quantity = 5),
+        
+        // Mithril knives (5 knives per bar)
+        SmithingRecipe("item.mithril_knife", "Mithril knife", "item.mithril_bar", 1, 55, 50.0, quantity = 5),
+        
+        // Adamant knives (5 knives per bar)
+        SmithingRecipe("item.adamant_knife", "Adamant knife", "item.adamantite_bar", 1, 75, 62.5, quantity = 5),
+        
+        // Rune knives (5 knives per bar)
+        SmithingRecipe("item.rune_knife", "Rune knife", "item.runite_bar", 1, 90, 75.0, quantity = 5),
     )
 
     // Data class for chat window selection
@@ -519,8 +556,8 @@ class SmithingPlugin(
             return
         }
 
-        // Pagination settings - 5 items per page
-        val itemsPerPage = 5
+        // Pagination settings - 3 items per page (5 total options: Prev + 3 items + Next)
+        val itemsPerPage = 3
         val totalPages = (availableRecipes.size + itemsPerPage - 1) / itemsPerPage
         
         var currentPage = 0
@@ -531,7 +568,7 @@ class SmithingPlugin(
             val pageRecipes = availableRecipes.subList(startIndex, endIndex)
             
             // Build options list for current page
-            // Structure: [Previous Page] -> [Items (5 max)] -> [Next Page]
+            // Structure: [Previous Page] -> [Items (3 max)] -> [Next Page]
             val pageOptions = mutableListOf<String>()
             
             // Check if we have previous/next pages available
@@ -541,7 +578,7 @@ class SmithingPlugin(
             // Option 1: Previous Page (always shown as 1st option)
             pageOptions.add("Previous Page")
             
-            // Options 2-6: Add item options (5 items max)
+            // Options 2-4: Add item options (3 items max)
             pageOptions.addAll(pageRecipes.map { recipe ->
                 val barId = getRSCM(recipe.barName)
                 val barCount = player.getItemCountIncludingNoted(barId)
@@ -563,7 +600,7 @@ class SmithingPlugin(
             val itemCount = pageRecipes.size
             
             // Handle the selected option based on its position in the menu
-            // Menu structure: [0: Previous Page] [1-5: Items] [6: Next Page]
+            // Menu structure: [0: Previous Page] [1-3: Items] [4: Next Page]
             
             // Option 0: Previous Page
             if (optionIndex == 0) {
@@ -653,7 +690,15 @@ class SmithingPlugin(
             }
 
             // Check inventory space - consider both noted and unnoted items
-            val hasItemSpace = player.inventory.contains(notedItemId) || player.inventory.contains(itemId)
+            // For items with quantity > 1, we need to check if we have enough space
+            val hasItemSpace = if (recipe.quantity > 1) {
+                // For multiple items, check if we can add them (either stack on existing or have free slots)
+                val existingCount = player.inventory.getItemCount(notedItemId) + player.inventory.getItemCount(itemId)
+                val freeSlots = player.inventory.freeSlotCount
+                existingCount > 0 || freeSlots >= 1
+            } else {
+                player.inventory.contains(notedItemId) || player.inventory.contains(itemId)
+            }
             if (player.inventory.isFull && !hasItemSpace) {
                 if (smithedCount == 0) {
                     player.message("You don't have enough inventory space.")
@@ -700,8 +745,8 @@ class SmithingPlugin(
                     break
                 }
 
-                // Add noted item
-                player.inventory.add(notedItemId, 1)
+                // Add noted item (quantity from recipe, default 1)
+                player.inventory.add(notedItemId, recipe.quantity)
                 player.addXp(Skills.SMITHING, recipe.experience)
                 smithedCount++
             } finally {

@@ -1,12 +1,15 @@
 package org.alter.plugins.content.mechanics.level99
 
 import org.alter.api.Skills
+import org.alter.api.cfg.Graphic
 import org.alter.api.ext.*
 import org.alter.game.Server
+import org.alter.game.model.TileGraphic
 import org.alter.game.model.World
 import org.alter.game.model.attr.*
 import org.alter.game.model.entity.GroundItem
 import org.alter.game.model.entity.Player
+import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.model.timer.TimeConstants
 import org.alter.game.plugin.KotlinPlugin
@@ -55,11 +58,34 @@ class Level99RewardPlugin(
                     val oldLevel = newLevel - increment
                     if (oldLevel < LEVEL_99) {
                         // Check if we've already rewarded this skill
-                        var rewardedSkills = player.attr[REWARDED_SKILLS_KEY]
-                        if (rewardedSkills == null) {
+                        val existingValue = player.attr[REWARDED_SKILLS_KEY]
+                        var rewardedSkills: MutableSet<Int>
+                        
+                        if (existingValue == null) {
                             rewardedSkills = mutableSetOf<Int>()
                             player.attr[REWARDED_SKILLS_KEY] = rewardedSkills
+                        } else {
+                            // Convert existing value to Set (handles ArrayList or any Collection)
+                            rewardedSkills = when (existingValue) {
+                                is MutableSet<Int> -> existingValue
+                                is Set<Int> -> existingValue.toMutableSet()
+                                is Collection<*> -> {
+                                    // Handle ArrayList or any other Collection type
+                                    val converted = mutableSetOf<Int>()
+                                    existingValue.forEach { 
+                                        if (it is Int) converted.add(it)
+                                    }
+                                    // Update the attribute with the correct type
+                                    player.attr[REWARDED_SKILLS_KEY] = converted
+                                    converted
+                                }
+                                else -> {
+                                    // Fallback: create new set
+                                    mutableSetOf<Int>()
+                                }
+                            }
                         }
+                        
                         if (skill !in rewardedSkills) {
                             rewardedSkills.add(skill)
                             // Award reward after a small delay to ensure level up dialog is shown first
@@ -90,11 +116,36 @@ class Level99RewardPlugin(
      * Checks all skills and awards rewards for any that are 99 but haven't been rewarded yet
      */
     private fun checkAndAwardExisting99s(player: Player) {
-        var rewardedSkills = player.attr[REWARDED_SKILLS_KEY]
-        if (rewardedSkills == null) {
+        // Get the attribute value - it might be a Set or ArrayList from old saves
+        val existingValue = player.attr[REWARDED_SKILLS_KEY]
+        var rewardedSkills: MutableSet<Int>
+        
+        if (existingValue == null) {
+            // No attribute exists, create new set
             rewardedSkills = mutableSetOf<Int>()
             player.attr[REWARDED_SKILLS_KEY] = rewardedSkills
+        } else {
+            // Convert existing value to Set (handles ArrayList or any Collection)
+            rewardedSkills = when (existingValue) {
+                is MutableSet<Int> -> existingValue
+                is Set<Int> -> existingValue.toMutableSet()
+                is Collection<*> -> {
+                    // Handle ArrayList or any other Collection type
+                    val converted = mutableSetOf<Int>()
+                    existingValue.forEach { 
+                        if (it is Int) converted.add(it)
+                    }
+                    // Update the attribute with the correct type
+                    player.attr[REWARDED_SKILLS_KEY] = converted
+                    converted
+                }
+                else -> {
+                    // Fallback: create new set
+                    mutableSetOf<Int>()
+                }
+            }
         }
+        
         var awardedCount = 0
         
         for (skill in 0 until player.getSkills().maxSkills) {
@@ -119,6 +170,9 @@ class Level99RewardPlugin(
      */
     private fun awardLevel99Reward(player: Player, skill: Int) {
         val skillName = Skills.getSkillName(player.world, skill)
+        
+        // Create confetti explosion effect
+        createConfettiExplosion(player)
         
         // Try to add coins to inventory
         val addResult = player.inventory.add(item = COINS_ITEM_ID, amount = REWARD_AMOUNT)
@@ -158,6 +212,70 @@ class Level99RewardPlugin(
                     player.message("<col=ffff00>You have been awarded ${NUMBER_FORMAT.format(REWARD_AMOUNT)} coins, but your inventory is full!")
                     player.message("<col=ffff00>The coins have been dropped on the floor!")
                 }
+            }
+        }
+    }
+    
+    /**
+     * Creates a large confetti explosion effect above the player's head
+     */
+    private fun createConfettiExplosion(player: Player) {
+        val playerTile = player.tile
+        
+        // Main level 99 graphic above player's head (high height for visibility)
+        player.graphic(id = Graphic.FINAL_LEVEL_UP, height = 200, delay = 0)
+        
+        // Create confetti explosion in a 5x5 area around the player
+        player.queue(TaskPriority.STRONG) {
+            // First wave - center explosion
+            player.graphic(id = Graphic.FINAL_LEVEL_UP, height = 200, delay = 0)
+            player.world.spawn(TileGraphic(tile = playerTile, id = Graphic.FINAL_LEVEL_UP, height = 200, delay = 0))
+            
+            // Second wave - colorful confetti around player (3x3 area)
+            wait(1)
+            val confettiGraphics = listOf(
+                Graphic.FIRE_WAVE_HIT,      // Red/orange
+                Graphic.WATER_WAVE_HIT,     // Blue
+                Graphic.EARTH_WAVE_HIT,     // Brown/green
+                Graphic.WIND_WAVE_HIT,      // White/light
+                Graphic.FIRE_BLAST_HIT,     // Bright red
+                Graphic.WATER_BLAST_HIT,    // Bright blue
+                Graphic.EARTH_BLAST_HIT,    // Bright green
+                Graphic.WIND_BLAST_HIT,     // Bright white
+            )
+            
+            for (x in -1..1) {
+                for (z in -1..1) {
+                    val tile = playerTile.transform(x, z)
+                    val graphicId = confettiGraphics.random()
+                    val delay = (x + z) * 2
+                    player.world.spawn(TileGraphic(tile = tile, id = graphicId, height = 100 + (x + z) * 20, delay = delay))
+                }
+            }
+            
+            // Third wave - outer ring explosion (5x5 area)
+            wait(2)
+            for (x in -2..2) {
+                for (z in -2..2) {
+                    // Skip center 3x3 area
+                    if (x in -1..1 && z in -1..1) continue
+                    
+                    val tile = playerTile.transform(x, z)
+                    val graphicId = confettiGraphics.random()
+                    val delay = (x + z) * 3
+                    player.world.spawn(TileGraphic(tile = tile, id = graphicId, height = 50 + (x + z) * 15, delay = delay))
+                }
+            }
+            
+            // Final burst - multiple graphics at different heights in a circle
+            wait(3)
+            repeat(8) { i ->
+                val angle = (i * 45) * Math.PI / 180
+                val offsetX = (Math.cos(angle) * 2).toInt()
+                val offsetZ = (Math.sin(angle) * 2).toInt()
+                val tile = playerTile.transform(offsetX, offsetZ)
+                val graphicId = confettiGraphics.random()
+                player.world.spawn(TileGraphic(tile = tile, id = graphicId, height = 150 + i * 10, delay = i))
             }
         }
     }

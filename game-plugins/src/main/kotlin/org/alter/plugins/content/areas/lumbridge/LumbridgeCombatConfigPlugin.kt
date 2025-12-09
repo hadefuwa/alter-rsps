@@ -340,10 +340,10 @@ class LumbridgeCombatConfigPlugin(
             drops {
                 always {
                     add(526, 1) // bones - always drop
+                    add(314, min = 10, max = 400) // feathers - always drop 10-400
                 }
-                main(64) {
-                    add(314, 1, weight = 50) // raw chicken - common
-                    add(2138, min = 5, max = 25, weight = 15) // feathers
+                main(weight = 50) {
+                    add(2138, 1, weight = 50) // raw chicken - common drop
                 }
             }
         }

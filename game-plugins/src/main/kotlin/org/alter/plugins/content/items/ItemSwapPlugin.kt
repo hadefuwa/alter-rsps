@@ -48,6 +48,20 @@ class ItemSwapPlugin(
             // "item.useless_item_2" to "item.useful_item_2",
             // etc...
         )
+        
+        /**
+         * Special swaps that convert one item into multiple items.
+         * Format: source item to list of destination items
+         */
+        private val MULTI_ITEM_SWAPS = mapOf(
+            // Dwarf Cannon Set -> 4 individual cannon pieces
+            "item.dwarf_cannon_set" to listOf(
+                "item.cannon_barrels",  // 1. Cannon barrels
+                "item.cannon_base",     // 2. Cannon base
+                "item.cannon_furnace",  // 3. Cannon furnace
+                "item.cannon_stand"     // 4. Cannon stand
+            )
+        )
     }
 
     init {
@@ -152,7 +166,112 @@ class ItemSwapPlugin(
             }
         }
         
-        println("ItemSwapPlugin: Initialized with ${ITEM_SWAPS.size} item swap(s)")
+        // Register handlers for multi-item swaps (1 item -> multiple items)
+        MULTI_ITEM_SWAPS.forEach { (sourceItem, destinationItems) ->
+            try {
+                val sourceItemId = getRSCM(sourceItem)
+                val destinationItemIds = destinationItems.map { getRSCM(it) }
+                val itemDef = getItem(sourceItemId)
+                
+                println("ItemSwapPlugin: Attempting to register multi-item swap for $sourceItem (ID: $sourceItemId)")
+                println("ItemSwapPlugin: Available options: ${itemDef.interfaceOptions.filterNotNull()}")
+                
+                // Track which options were successfully registered to avoid duplicates
+                var registeredOption: Int? = null
+                
+                // CRITICAL: Try option 2 first (this is what inventory clicks send)
+                if (itemDef.interfaceOptions.size >= 2 && itemDef.interfaceOptions[1] != null) {
+                    if (!world.plugins.isItemBound(sourceItemId, 2)) {
+                        try {
+                            r.bindItem(sourceItemId, 2) {
+                                player.queue {
+                                    swapItemToMultiple(player, sourceItem, sourceItemId, destinationItems, destinationItemIds)
+                                }
+                            }
+                            registeredOption = 2
+                            println("ItemSwapPlugin: Successfully registered option 2 for $sourceItem")
+                        } catch (e: IllegalStateException) {
+                            println("ItemSwapPlugin: Option 2 already bound for $sourceItem")
+                        } catch (e: Exception) {
+                            println("ItemSwapPlugin: Failed to register option 2 for $sourceItem: ${e.message}")
+                        }
+                    } else {
+                        println("ItemSwapPlugin: Option 2 already bound for $sourceItem")
+                    }
+                }
+                
+                // Try option 1 if option 2 wasn't registered
+                if (registeredOption == null && itemDef.interfaceOptions.size >= 1 && itemDef.interfaceOptions[0] != null) {
+                    if (!world.plugins.isItemBound(sourceItemId, 1)) {
+                        try {
+                            r.bindItem(sourceItemId, 1) {
+                                player.queue {
+                                    swapItemToMultiple(player, sourceItem, sourceItemId, destinationItems, destinationItemIds)
+                                }
+                            }
+                            registeredOption = 1
+                            println("ItemSwapPlugin: Successfully registered option 1 for $sourceItem")
+                        } catch (e: IllegalStateException) {
+                            println("ItemSwapPlugin: Option 1 already bound for $sourceItem")
+                        } catch (e: Exception) {
+                            println("ItemSwapPlugin: Failed to register option 1 for $sourceItem: ${e.message}")
+                        }
+                    }
+                }
+                
+                // Try option 3 if still not registered
+                if (registeredOption == null && itemDef.interfaceOptions.size >= 3 && itemDef.interfaceOptions[2] != null) {
+                    if (!world.plugins.isItemBound(sourceItemId, 3)) {
+                        try {
+                            r.bindItem(sourceItemId, 3) {
+                                player.queue {
+                                    swapItemToMultiple(player, sourceItem, sourceItemId, destinationItems, destinationItemIds)
+                                }
+                            }
+                            registeredOption = 3
+                            println("ItemSwapPlugin: Successfully registered option 3 for $sourceItem")
+                        } catch (e: IllegalStateException) {
+                            println("ItemSwapPlugin: Option 3 already bound for $sourceItem")
+                        } catch (e: Exception) {
+                            println("ItemSwapPlugin: Failed to register option 3 for $sourceItem: ${e.message}")
+                        }
+                    }
+                }
+                
+                // Try string options as well (only if no numeric option was registered)
+                if (registeredOption == null) {
+                    val optionNames = listOf("use", "Use", "activate", "Activate", "convert", "Convert", "transform", "Transform", "open", "Open")
+                    for (optionName in optionNames) {
+                        try {
+                            val optionIndex = itemDef.interfaceOptions.indexOfFirst { it?.lowercase() == optionName.lowercase() }
+                            if (optionIndex != -1 && !world.plugins.isItemBound(sourceItemId, optionIndex + 1)) {
+                                r.bindItem(sourceItemId, optionIndex + 1) {
+                                    player.queue {
+                                        swapItemToMultiple(player, sourceItem, sourceItemId, destinationItems, destinationItemIds)
+                                    }
+                                }
+                                registeredOption = optionIndex + 1
+                                println("ItemSwapPlugin: Successfully registered '$optionName' (option ${optionIndex + 1}) for $sourceItem")
+                                break
+                            }
+                        } catch (e: Exception) {
+                            // Continue to next option
+                        }
+                    }
+                }
+                
+                if (registeredOption != null) {
+                    println("ItemSwapPlugin: Successfully registered multi-item swap handler for $sourceItem -> ${destinationItems.size} items (option $registeredOption)")
+                } else {
+                    println("ItemSwapPlugin: WARNING - Could not register any option for $sourceItem. All options may be bound.")
+                }
+            } catch (e: Exception) {
+                println("ItemSwapPlugin: ERROR - Could not register multi-item swap for $sourceItem: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+        
+        println("ItemSwapPlugin: Initialized with ${ITEM_SWAPS.size} item swap(s) and ${MULTI_ITEM_SWAPS.size} multi-item swap(s)")
         
         // Track which items were successfully registered in ITEM_SWAPS to avoid duplicates
         val registeredItems = mutableSetOf<Int>()
@@ -441,6 +560,51 @@ class ItemSwapPlugin(
             groundItem.ownerShipType = 1
             world.spawn(groundItem)
         }
+    }
+    
+    /**
+     * Swaps one source item for multiple destination items.
+     * Used for items like cannon set that break down into multiple pieces.
+     */
+    private suspend fun swapItemToMultiple(
+        player: Player,
+        sourceItemName: String,
+        sourceItemId: Int,
+        destinationItemNames: List<String>,
+        destinationItemIds: List<Int>
+    ) {
+        // Find the source item in inventory
+        val slot = player.inventory.getItemIndex(sourceItemId, false)
+        
+        if (slot == -1) {
+            player.message("You don't have that item.")
+            return
+        }
+        
+        // Check inventory space - need (destinationItems.size - 1) free slots
+        // (we're removing 1 item and adding destinationItems.size items)
+        val freeSlots = player.inventory.freeSlotCount
+        val requiredSlots = destinationItemIds.size - 1
+        if (freeSlots < requiredSlots) {
+            player.message("You need at least $requiredSlots free inventory space${if (requiredSlots > 1) "s" else ""} to break down this item.")
+            return
+        }
+        
+        // Remove the source item
+        val removeResult = player.inventory.remove(item = sourceItemId, amount = 1, beginSlot = slot, assureFullRemoval = true)
+        
+        if (!removeResult.hasSucceeded()) {
+            player.message("Failed to remove the item.")
+            return
+        }
+        
+        // Add all destination items directly
+        player.inventory.add(item = destinationItemIds[0], amount = 1) // Cannon barrels
+        player.inventory.add(item = destinationItemIds[1], amount = 1) // Cannon base
+        player.inventory.add(item = destinationItemIds[2], amount = 1) // Cannon furnace
+        player.inventory.add(item = destinationItemIds[3], amount = 1) // Cannon stand
+        
+        player.message("You break down the cannon set into its individual pieces.")
     }
 }
 

@@ -122,11 +122,36 @@ class SlayerRewardsShopPlugin(
             // Old School Bond - 200 slayer points
             items[14] = ShopItem(13190, 10000, sellPrice = 200, buyPrice = null)
             
-            // Dwarf Multicannon Set (contains all 4 parts: base, stand, barrels, furnace)
+            // Dwarf Multicannon Pieces (individual pieces instead of set)
+            // Cannon barrels - 200 points
             try {
-                val cannonSet = getRSCM("item.dwarf_cannon_set")
-                if (cannonSet != -1) {
-                    items[15] = ShopItem(cannonSet, 100, sellPrice = 750, buyPrice = null)
+                val cannonBarrels = getRSCM("item.cannon_barrels")
+                if (cannonBarrels != -1) {
+                    items[15] = ShopItem(cannonBarrels, 100, sellPrice = 200, buyPrice = null)
+                }
+            } catch (e: Exception) {}
+            
+            // Cannon base - 200 points
+            try {
+                val cannonBase = getRSCM("item.cannon_base")
+                if (cannonBase != -1) {
+                    items[16] = ShopItem(cannonBase, 100, sellPrice = 200, buyPrice = null)
+                }
+            } catch (e: Exception) {}
+            
+            // Cannon furnace - 200 points
+            try {
+                val cannonFurnace = getRSCM("item.cannon_furnace")
+                if (cannonFurnace != -1) {
+                    items[17] = ShopItem(cannonFurnace, 100, sellPrice = 200, buyPrice = null)
+                }
+            } catch (e: Exception) {}
+            
+            // Cannon stand - 200 points
+            try {
+                val cannonStand = getRSCM("item.cannon_stand")
+                if (cannonStand != -1) {
+                    items[18] = ShopItem(cannonStand, 100, sellPrice = 200, buyPrice = null)
                 }
             } catch (e: Exception) {}
             
@@ -134,7 +159,7 @@ class SlayerRewardsShopPlugin(
             try {
                 val cannonballs = getRSCM("item.cannonball")
                 if (cannonballs != -1) {
-                    items[16] = ShopItem(cannonballs, 10000, sellPrice = 1, buyPrice = null)
+                    items[19] = ShopItem(cannonballs, 10000, sellPrice = 1, buyPrice = null)
                 }
             } catch (e: Exception) {}
         }
