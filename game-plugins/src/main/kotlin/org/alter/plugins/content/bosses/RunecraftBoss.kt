@@ -72,7 +72,7 @@ class RunecraftBossPlugin(
             }
             
             sound {
-                attackSound = Sound.DRAGON_DEATH
+                attackSound = Sound.FIRESURGE_HIT
                 
                 attackArea = true
                 attackVolume = 50
@@ -84,7 +84,7 @@ class RunecraftBossPlugin(
                 blockVolume = 40
                 blockRadius = 8
                 
-                deathSound = Sound.DRAGON_DEATH
+                deathSound = Sound.WYRM_DEATH
                 
                 deathArea = true
                 deathVolume = 60
@@ -130,7 +130,17 @@ class RunecraftBossPlugin(
             if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) && 
                 npc.isAttackDelayReady()) {
                 
-                BossAttacks.magic(npc, target, projectile = 100, maxHit = 25, anim = 422)
+                // Melee Attack - Hits 3 or 2, but misses if player is praying melee
+                if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
+                    // Player is praying melee - make the attack miss
+                    npc.prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.AGGRESSIVE)
+                    npc.animate(422)
+                    npc.dealHit(target = target, maxHit = 0, landHit = false, delay = 1)
+                } else {
+                    // Player is not praying melee - hit for 3 or 2 (random)
+                    val damage = if (npc.world.chance(1, 2)) 3 else 2
+                    BossAttacks.melee(npc, target, maxHit = damage, anim = 422)
+                }
                 
                 npc.postAttackLogic(target)
             }
