@@ -30,6 +30,7 @@ class Level99RewardPlugin(
         private const val REWARD_AMOUNT = 200_000_000 // 200 million coins
         private const val LEVEL_99 = 99
         private val NUMBER_FORMAT = DecimalFormat("#,###")
+        private val REWARDED_SKILLS_KEY = AttributeKey<MutableSet<Int>>("level99_rewarded_skills")
     }
     
     init {
@@ -37,28 +38,78 @@ class Level99RewardPlugin(
          * Hook into skill level ups to detect when a player reaches level 99
          * Also shows the level up dialog for all level ups
          */
-        setLevelUpLogic {
-            val skill = player.attr[LEVEL_UP_SKILL_ID] ?: return@setLevelUpLogic
-            val increment = player.attr[LEVEL_UP_INCREMENT] ?: return@setLevelUpLogic
-            val newLevel = player.getSkills().getBaseLevel(skill)
-            
-            // Show the level up dialog
-            player.queue {
-                levelUpMessageBox(player, skill, increment)
-            }
-            
-            // Check if the player just reached level 99
-            if (newLevel == LEVEL_99 && increment > 0) {
-                // Only reward once per skill (check if they were below 99 before)
-                val oldLevel = newLevel - increment
-                if (oldLevel < LEVEL_99) {
-                    // Award reward after a small delay to ensure level up dialog is shown first
-                    player.queue(TaskPriority.STRONG) {
-                        wait(2)
-                        awardLevel99Reward(player, skill)
+        try {
+            setLevelUpLogic {
+                val skill = player.attr[LEVEL_UP_SKILL_ID] ?: return@setLevelUpLogic
+                val increment = player.attr[LEVEL_UP_INCREMENT] ?: return@setLevelUpLogic
+                val newLevel = player.getSkills().getBaseLevel(skill)
+                
+                // Show the level up dialog
+                player.queue {
+                    levelUpMessageBox(player, skill, increment)
+                }
+                
+                // Check if the player just reached level 99
+                if (newLevel == LEVEL_99 && increment > 0) {
+                    // Only reward once per skill (check if they were below 99 before)
+                    val oldLevel = newLevel - increment
+                    if (oldLevel < LEVEL_99) {
+                        // Check if we've already rewarded this skill
+                        var rewardedSkills = player.attr[REWARDED_SKILLS_KEY]
+                        if (rewardedSkills == null) {
+                            rewardedSkills = mutableSetOf<Int>()
+                            player.attr[REWARDED_SKILLS_KEY] = rewardedSkills
+                        }
+                        if (skill !in rewardedSkills) {
+                            rewardedSkills.add(skill)
+                            // Award reward after a small delay to ensure level up dialog is shown first
+                            player.queue(TaskPriority.STRONG) {
+                                wait(2)
+                                awardLevel99Reward(player, skill)
+                            }
+                        }
                     }
                 }
             }
+        } catch (e: IllegalStateException) {
+            // Another plugin already set level up logic, we need to hook into it differently
+            // This shouldn't happen, but if it does, we'll need to use a different approach
+            // Just silently fail - the plugin won't work but won't crash the server
+        }
+        
+        /**
+         * Command to check and award rewards for skills that are already 99
+         * Usage: ::check99rewards
+         */
+        onCommand("check99rewards") {
+            checkAndAwardExisting99s(player)
+        }
+    }
+    
+    /**
+     * Checks all skills and awards rewards for any that are 99 but haven't been rewarded yet
+     */
+    private fun checkAndAwardExisting99s(player: Player) {
+        var rewardedSkills = player.attr[REWARDED_SKILLS_KEY]
+        if (rewardedSkills == null) {
+            rewardedSkills = mutableSetOf<Int>()
+            player.attr[REWARDED_SKILLS_KEY] = rewardedSkills
+        }
+        var awardedCount = 0
+        
+        for (skill in 0 until player.getSkills().maxSkills) {
+            val level = player.getSkills().getBaseLevel(skill)
+            if (level >= LEVEL_99 && skill !in rewardedSkills) {
+                rewardedSkills.add(skill)
+                awardLevel99Reward(player, skill)
+                awardedCount++
+            }
+        }
+        
+        if (awardedCount == 0) {
+            player.message("<col=ffff00>You have already received rewards for all your level 99 skills.")
+        } else {
+            player.message("<col=00ff00>Awarded rewards for $awardedCount skill(s) that were already level 99.")
         }
     }
     

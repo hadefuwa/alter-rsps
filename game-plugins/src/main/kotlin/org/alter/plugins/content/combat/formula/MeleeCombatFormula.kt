@@ -247,11 +247,7 @@ object MeleeCombatFormula : CombatFormula {
             }
         }
 
-        // Wilderness weapon bonus: 100% damage increase (2.0x) in wilderness against wilderness NPCs/revenants
-        if (target is Npc && isWildernessWeaponBonus(player, target)) {
-            hit *= 2.0
-            hit = Math.floor(hit)
-        }
+        // Wilderness weapon bonus: Damage bonus removed (previously 2.0x, now 1.0x - normal damage)
         
         // Check if NPC target has Protect from Melee prayer active - reduces melee damage by 40%
         if (target is Npc && target.prayerIcon == PrayerIcon.PROTECT_FROM_MELEE.id) {
@@ -701,7 +697,7 @@ object MeleeCombatFormula : CombatFormula {
     }
 
     /**
-     * Check if wilderness weapon bonus applies (100% damage/accuracy bonus)
+     * Check if wilderness weapon bonus applies (100% accuracy bonus only - damage bonus removed)
      * Conditions:
      * 1. Player must be in wilderness or Revenant Caves
      * 2. Player must have a wilderness weapon equipped (Viggora's Chainmace or Ursine Chainmace for melee)

@@ -36,6 +36,133 @@ class SmithingPlugin(
         "object.anvil_2097",
     )
 
+    // Data class for smithing recipes
+    private data class SmithingRecipe(
+        val itemName: String,
+        val displayName: String,
+        val barName: String,
+        val barsRequired: Int,
+        val level: Int,
+        val experience: Double
+    )
+
+    // Smithing recipes for anvil
+    private val smithingRecipes = listOf(
+        // Bronze items
+        SmithingRecipe("item.bronze_dagger", "Bronze dagger", "item.bronze_bar", 1, 1, 12.5),
+        SmithingRecipe("item.bronze_sword", "Bronze sword", "item.bronze_bar", 1, 4, 12.5),
+        SmithingRecipe("item.bronze_scimitar", "Bronze scimitar", "item.bronze_bar", 2, 5, 25.0),
+        SmithingRecipe("item.bronze_longsword", "Bronze longsword", "item.bronze_bar", 2, 6, 25.0),
+        SmithingRecipe("item.bronze_2h_sword", "Bronze 2h sword", "item.bronze_bar", 3, 14, 37.5),
+        SmithingRecipe("item.bronze_axe", "Bronze axe", "item.bronze_bar", 1, 1, 12.5),
+        SmithingRecipe("item.bronze_mace", "Bronze mace", "item.bronze_bar", 1, 2, 12.5),
+        SmithingRecipe("item.bronze_warhammer", "Bronze warhammer", "item.bronze_bar", 3, 9, 37.5),
+        SmithingRecipe("item.bronze_battleaxe", "Bronze battleaxe", "item.bronze_bar", 3, 10, 37.5),
+        SmithingRecipe("item.bronze_chainbody", "Bronze chainbody", "item.bronze_bar", 3, 11, 37.5),
+        SmithingRecipe("item.bronze_platebody", "Bronze platebody", "item.bronze_bar", 5, 18, 62.5),
+        SmithingRecipe("item.bronze_platelegs", "Bronze platelegs", "item.bronze_bar", 3, 16, 37.5),
+        SmithingRecipe("item.bronze_plateskirt", "Bronze plateskirt", "item.bronze_bar", 3, 16, 37.5),
+        SmithingRecipe("item.bronze_full_helm", "Bronze full helm", "item.bronze_bar", 2, 7, 25.0),
+        SmithingRecipe("item.bronze_med_helm", "Bronze med helm", "item.bronze_bar", 1, 3, 12.5),
+        SmithingRecipe("item.bronze_sq_shield", "Bronze sq shield", "item.bronze_bar", 2, 8, 25.0),
+        SmithingRecipe("item.bronze_kiteshield", "Bronze kiteshield", "item.bronze_bar", 3, 12, 37.5),
+        
+        // Iron items
+        SmithingRecipe("item.iron_dagger", "Iron dagger", "item.iron_bar", 1, 15, 25.0),
+        SmithingRecipe("item.iron_sword", "Iron sword", "item.iron_bar", 1, 19, 25.0),
+        SmithingRecipe("item.iron_scimitar", "Iron scimitar", "item.iron_bar", 2, 20, 50.0),
+        SmithingRecipe("item.iron_longsword", "Iron longsword", "item.iron_bar", 2, 21, 50.0),
+        SmithingRecipe("item.iron_2h_sword", "Iron 2h sword", "item.iron_bar", 3, 29, 75.0),
+        SmithingRecipe("item.iron_axe", "Iron axe", "item.iron_bar", 1, 16, 25.0),
+        SmithingRecipe("item.iron_mace", "Iron mace", "item.iron_bar", 1, 17, 25.0),
+        SmithingRecipe("item.iron_warhammer", "Iron warhammer", "item.iron_bar", 3, 24, 75.0),
+        SmithingRecipe("item.iron_battleaxe", "Iron battleaxe", "item.iron_bar", 3, 25, 75.0),
+        SmithingRecipe("item.iron_chainbody", "Iron chainbody", "item.iron_bar", 3, 26, 75.0),
+        SmithingRecipe("item.iron_platebody", "Iron platebody", "item.iron_bar", 5, 33, 125.0),
+        SmithingRecipe("item.iron_platelegs", "Iron platelegs", "item.iron_bar", 3, 31, 75.0),
+        SmithingRecipe("item.iron_plateskirt", "Iron plateskirt", "item.iron_bar", 3, 31, 75.0),
+        SmithingRecipe("item.iron_full_helm", "Iron full helm", "item.iron_bar", 2, 22, 50.0),
+        SmithingRecipe("item.iron_med_helm", "Iron med helm", "item.iron_bar", 1, 18, 25.0),
+        SmithingRecipe("item.iron_sq_shield", "Iron sq shield", "item.iron_bar", 2, 23, 50.0),
+        SmithingRecipe("item.iron_kiteshield", "Iron kiteshield", "item.iron_bar", 3, 27, 75.0),
+        
+        // Steel items
+        SmithingRecipe("item.steel_dagger", "Steel dagger", "item.steel_bar", 1, 30, 37.5),
+        SmithingRecipe("item.steel_sword", "Steel sword", "item.steel_bar", 1, 34, 37.5),
+        SmithingRecipe("item.steel_scimitar", "Steel scimitar", "item.steel_bar", 2, 35, 75.0),
+        SmithingRecipe("item.steel_longsword", "Steel longsword", "item.steel_bar", 2, 36, 75.0),
+        SmithingRecipe("item.steel_2h_sword", "Steel 2h sword", "item.steel_bar", 3, 44, 112.5),
+        SmithingRecipe("item.steel_axe", "Steel axe", "item.steel_bar", 1, 31, 37.5),
+        SmithingRecipe("item.steel_mace", "Steel mace", "item.steel_bar", 1, 32, 37.5),
+        SmithingRecipe("item.steel_warhammer", "Steel warhammer", "item.steel_bar", 3, 39, 112.5),
+        SmithingRecipe("item.steel_battleaxe", "Steel battleaxe", "item.steel_bar", 3, 40, 112.5),
+        SmithingRecipe("item.steel_chainbody", "Steel chainbody", "item.steel_bar", 3, 41, 112.5),
+        SmithingRecipe("item.steel_platebody", "Steel platebody", "item.steel_bar", 5, 48, 187.5),
+        SmithingRecipe("item.steel_platelegs", "Steel platelegs", "item.steel_bar", 3, 46, 112.5),
+        SmithingRecipe("item.steel_plateskirt", "Steel plateskirt", "item.steel_bar", 3, 46, 112.5),
+        SmithingRecipe("item.steel_full_helm", "Steel full helm", "item.steel_bar", 2, 37, 75.0),
+        SmithingRecipe("item.steel_med_helm", "Steel med helm", "item.steel_bar", 1, 33, 37.5),
+        SmithingRecipe("item.steel_sq_shield", "Steel sq shield", "item.steel_bar", 2, 38, 75.0),
+        SmithingRecipe("item.steel_kiteshield", "Steel kiteshield", "item.steel_bar", 3, 42, 112.5),
+        
+        // Mithril items
+        SmithingRecipe("item.mithril_dagger", "Mithril dagger", "item.mithril_bar", 1, 50, 50.0),
+        SmithingRecipe("item.mithril_sword", "Mithril sword", "item.mithril_bar", 1, 54, 50.0),
+        SmithingRecipe("item.mithril_scimitar", "Mithril scimitar", "item.mithril_bar", 2, 55, 100.0),
+        SmithingRecipe("item.mithril_longsword", "Mithril longsword", "item.mithril_bar", 2, 56, 100.0),
+        SmithingRecipe("item.mithril_2h_sword", "Mithril 2h sword", "item.mithril_bar", 3, 64, 150.0),
+        SmithingRecipe("item.mithril_axe", "Mithril axe", "item.mithril_bar", 1, 51, 50.0),
+        SmithingRecipe("item.mithril_mace", "Mithril mace", "item.mithril_bar", 1, 52, 50.0),
+        SmithingRecipe("item.mithril_warhammer", "Mithril warhammer", "item.mithril_bar", 3, 59, 150.0),
+        SmithingRecipe("item.mithril_battleaxe", "Mithril battleaxe", "item.mithril_bar", 3, 60, 150.0),
+        SmithingRecipe("item.mithril_chainbody", "Mithril chainbody", "item.mithril_bar", 3, 61, 150.0),
+        SmithingRecipe("item.mithril_platebody", "Mithril platebody", "item.mithril_bar", 5, 68, 250.0),
+        SmithingRecipe("item.mithril_platelegs", "Mithril platelegs", "item.mithril_bar", 3, 66, 150.0),
+        SmithingRecipe("item.mithril_plateskirt", "Mithril plateskirt", "item.mithril_bar", 3, 66, 150.0),
+        SmithingRecipe("item.mithril_full_helm", "Mithril full helm", "item.mithril_bar", 2, 57, 100.0),
+        SmithingRecipe("item.mithril_med_helm", "Mithril med helm", "item.mithril_bar", 1, 53, 50.0),
+        SmithingRecipe("item.mithril_sq_shield", "Mithril sq shield", "item.mithril_bar", 2, 58, 100.0),
+        SmithingRecipe("item.mithril_kiteshield", "Mithril kiteshield", "item.mithril_bar", 3, 62, 150.0),
+        
+        // Adamant items
+        SmithingRecipe("item.adamant_dagger", "Adamant dagger", "item.adamantite_bar", 1, 70, 62.5),
+        SmithingRecipe("item.adamant_sword", "Adamant sword", "item.adamantite_bar", 1, 74, 62.5),
+        SmithingRecipe("item.adamant_scimitar", "Adamant scimitar", "item.adamantite_bar", 2, 75, 125.0),
+        SmithingRecipe("item.adamant_longsword", "Adamant longsword", "item.adamantite_bar", 2, 76, 125.0),
+        SmithingRecipe("item.adamant_2h_sword", "Adamant 2h sword", "item.adamantite_bar", 3, 84, 187.5),
+        SmithingRecipe("item.adamant_axe", "Adamant axe", "item.adamantite_bar", 1, 71, 62.5),
+        SmithingRecipe("item.adamant_mace", "Adamant mace", "item.adamantite_bar", 1, 72, 62.5),
+        SmithingRecipe("item.adamant_warhammer", "Adamant warhammer", "item.adamantite_bar", 3, 79, 187.5),
+        SmithingRecipe("item.adamant_battleaxe", "Adamant battleaxe", "item.adamantite_bar", 3, 80, 187.5),
+        SmithingRecipe("item.adamant_chainbody", "Adamant chainbody", "item.adamantite_bar", 3, 81, 187.5),
+        SmithingRecipe("item.adamant_platebody", "Adamant platebody", "item.adamantite_bar", 5, 88, 312.5),
+        SmithingRecipe("item.adamant_platelegs", "Adamant platelegs", "item.adamantite_bar", 3, 86, 187.5),
+        SmithingRecipe("item.adamant_plateskirt", "Adamant plateskirt", "item.adamantite_bar", 3, 86, 187.5),
+        SmithingRecipe("item.adamant_full_helm", "Adamant full helm", "item.adamantite_bar", 2, 77, 125.0),
+        SmithingRecipe("item.adamant_med_helm", "Adamant med helm", "item.adamantite_bar", 1, 73, 62.5),
+        SmithingRecipe("item.adamant_sq_shield", "Adamant sq shield", "item.adamantite_bar", 2, 78, 125.0),
+        SmithingRecipe("item.adamant_kiteshield", "Adamant kiteshield", "item.adamantite_bar", 3, 82, 187.5),
+        
+        // Rune items
+        SmithingRecipe("item.rune_dagger", "Rune dagger", "item.runite_bar", 1, 85, 75.0),
+        SmithingRecipe("item.rune_sword", "Rune sword", "item.runite_bar", 1, 89, 75.0),
+        SmithingRecipe("item.rune_scimitar", "Rune scimitar", "item.runite_bar", 2, 90, 150.0),
+        SmithingRecipe("item.rune_longsword", "Rune longsword", "item.runite_bar", 2, 91, 150.0),
+        SmithingRecipe("item.rune_2h_sword", "Rune 2h sword", "item.runite_bar", 3, 99, 225.0),
+        SmithingRecipe("item.rune_axe", "Rune axe", "item.runite_bar", 1, 86, 75.0),
+        SmithingRecipe("item.rune_mace", "Rune mace", "item.runite_bar", 1, 87, 75.0),
+        SmithingRecipe("item.rune_warhammer", "Rune warhammer", "item.runite_bar", 3, 94, 225.0),
+        SmithingRecipe("item.rune_battleaxe", "Rune battleaxe", "item.runite_bar", 3, 95, 225.0),
+        SmithingRecipe("item.rune_chainbody", "Rune chainbody", "item.runite_bar", 3, 96, 225.0),
+        SmithingRecipe("item.rune_platebody", "Rune platebody", "item.runite_bar", 5, 99, 375.0),
+        SmithingRecipe("item.rune_platelegs", "Rune platelegs", "item.runite_bar", 3, 99, 225.0),
+        SmithingRecipe("item.rune_plateskirt", "Rune plateskirt", "item.runite_bar", 3, 99, 225.0),
+        SmithingRecipe("item.rune_full_helm", "Rune full helm", "item.runite_bar", 2, 92, 150.0),
+        SmithingRecipe("item.rune_med_helm", "Rune med helm", "item.runite_bar", 1, 88, 75.0),
+        SmithingRecipe("item.rune_sq_shield", "Rune sq shield", "item.runite_bar", 2, 93, 150.0),
+        SmithingRecipe("item.rune_kiteshield", "Rune kiteshield", "item.runite_bar", 3, 97, 225.0),
+    )
+
     // Data class for chat window selection
     private data class SmeltingRecipe(
         val barName: String,
@@ -357,6 +484,249 @@ class SmithingPlugin(
             }
         }
 
+        // Handle anvil smithing
+        anvilObjects.forEach { anvil ->
+            onObjOption(obj = anvil, option = "Smith") {
+                player.queue {
+                    openSmithingMenu(player)
+                }
+            }
+        }
+    }
+
+    /**
+     * Opens the paginated smithing menu for the player
+     */
+    private suspend fun QueueTask.openSmithingMenu(player: Player) {
+        // Check if player has a hammer
+        val hammerId = getRSCM("item.hammer")
+        if (!player.inventory.contains(hammerId)) {
+            player.message("You need a hammer to smith items.")
+            return
+        }
+
+        // Filter recipes by what the player can make (has bars and level)
+        val availableRecipes = smithingRecipes.filter { recipe ->
+            val barId = getRSCM(recipe.barName)
+            val hasBars = player.hasItemIncludingNoted(barId) && 
+                         player.getItemCountIncludingNoted(barId) >= recipe.barsRequired
+            val hasLevel = player.getSkills().getCurrentLevel(Skills.SMITHING) >= recipe.level
+            hasBars && hasLevel
+        }
+
+        if (availableRecipes.isEmpty()) {
+            player.message("You don't have the required bars or level to smith anything.")
+            return
+        }
+
+        // Pagination settings - 5 items per page
+        val itemsPerPage = 5
+        val totalPages = (availableRecipes.size + itemsPerPage - 1) / itemsPerPage
+        
+        var currentPage = 0
+        
+        while (true) {
+            val startIndex = currentPage * itemsPerPage
+            val endIndex = minOf(startIndex + itemsPerPage, availableRecipes.size)
+            val pageRecipes = availableRecipes.subList(startIndex, endIndex)
+            
+            // Build options list for current page
+            val pageOptions = mutableListOf<String>()
+            
+            // Check if we have previous/next pages available
+            val hasPrevious = currentPage > 0
+            val hasNext = currentPage < totalPages - 1
+            
+            // Always add Previous Page as first option if available
+            if (hasPrevious) {
+                pageOptions.add("<< Previous Page")
+            }
+            
+            // Add item options
+            pageOptions.addAll(pageRecipes.map { recipe ->
+                val barId = getRSCM(recipe.barName)
+                val barCount = player.getItemCountIncludingNoted(barId)
+                "${recipe.displayName} (${recipe.barsRequired} bars) - You have: $barCount"
+            })
+            
+            // Always add Next Page as last option if available
+            if (hasNext) {
+                pageOptions.add("Next Page >>")
+            }
+            
+            val title = "What would you like to smith? (Page ${currentPage + 1}/$totalPages)"
+            val selected = options(player, *pageOptions.toTypedArray(), title = title)
+            
+            if (selected <= 0) {
+                break
+            }
+            
+            // selected is 1-based (1 = first option, 2 = second option, etc.)
+            val optionIndex = selected - 1
+            val itemCount = pageRecipes.size
+            
+            // Check if Previous Page was selected (always first option if present)
+            if (hasPrevious && optionIndex == 0) {
+                currentPage--
+                continue
+            }
+            
+            // Check if Next Page was selected (always last option if present)
+            val lastOptionIndex = pageOptions.size - 1
+            if (hasNext && optionIndex == lastOptionIndex) {
+                currentPage++
+                continue
+            }
+            
+            // Handle item selection
+            // If Previous Page exists, items start at index 1, otherwise at index 0
+            val itemStartIndex = if (hasPrevious) 1 else 0
+            val recipeIndex = optionIndex - itemStartIndex
+            
+            if (recipeIndex >= 0 && recipeIndex < itemCount) {
+                val recipe = pageRecipes[recipeIndex]
+                smithItem(this, player, recipe)
+                break
+            }
+        }
+    }
+
+    /**
+     * Smiths an item at an anvil continuously until materials run out
+     */
+    private suspend fun smithItem(
+        task: QueueTask,
+        player: Player,
+        recipe: SmithingRecipe
+    ) {
+        val smithingLevel = player.getSkills().getCurrentLevel(Skills.SMITHING)
+        val barId = getRSCM(recipe.barName)
+        val itemId = getRSCM(recipe.itemName)
+        val notedItemId = getNotedItemId(itemId)
+        val hammerId = getRSCM("item.hammer")
+
+        if (smithingLevel < recipe.level) {
+            player.message("You need a Smithing level of ${recipe.level} to smith this item.")
+            return
+        }
+
+        if (!player.inventory.contains(hammerId)) {
+            player.message("You need a hammer to smith items.")
+            return
+        }
+
+        // Track starting position
+        val startTile = player.tile
+        var smithedCount = 0
+
+        // Helper function to check if we should stop
+        fun shouldStop(): Boolean {
+            return !player.isOnline || 
+                   player.hasMoveDestination() || 
+                   !player.tile.sameAs(startTile)
+        }
+
+        // Continuously smith until materials run out or player stops
+        while (true) {
+            // Check if player has moved or closed interface
+            if (shouldStop()) {
+                break
+            }
+
+            // Check level requirement
+            if (player.getSkills().getCurrentLevel(Skills.SMITHING) < recipe.level) {
+                player.message("You need a Smithing level of ${recipe.level} to smith this item.")
+                break
+            }
+
+            // Check for hammer
+            if (!player.inventory.contains(hammerId)) {
+                if (smithedCount == 0) {
+                    player.message("You need a hammer to smith items.")
+                }
+                break
+            }
+
+            // Check for bars
+            val barCount = player.getItemCountIncludingNoted(barId)
+            if (barCount < recipe.barsRequired) {
+                if (smithedCount == 0) {
+                    player.message("You need ${recipe.barsRequired} ${recipe.barName.replace("item.", "").replace("_", " ")} to smith this item.")
+                }
+                break
+            }
+
+            // Check inventory space - consider both noted and unnoted items
+            val hasItemSpace = player.inventory.contains(notedItemId) || player.inventory.contains(itemId)
+            if (player.inventory.isFull && !hasItemSpace) {
+                if (smithedCount == 0) {
+                    player.message("You don't have enough inventory space.")
+                }
+                break
+            }
+
+            // Check again before proceeding
+            if (shouldStop()) {
+                break
+            }
+
+            player.lock()
+            try {
+                player.animate(Animation.SMITHING_ANVIL)
+                
+                // Wait for smithing animation with interruption checks
+                var interrupted = false
+                for (i in 0 until 4) {
+                    if (shouldStop()) {
+                        interrupted = true
+                        break
+                    }
+                    task.wait(1)
+                }
+
+                if (interrupted) {
+                    break
+                }
+
+                // Final check after waiting
+                if (shouldStop()) {
+                    break
+                }
+
+                // Re-check materials after waiting
+                if (!player.hasItemIncludingNoted(barId) || 
+                    player.getItemCountIncludingNoted(barId) < recipe.barsRequired) {
+                    break
+                }
+
+                // Remove bars
+                if (!player.removeItemIncludingNoted(barId, recipe.barsRequired)) {
+                    break
+                }
+
+                // Add noted item
+                player.inventory.add(notedItemId, 1)
+                player.addXp(Skills.SMITHING, recipe.experience)
+                smithedCount++
+            } finally {
+                player.unlock()
+            }
+
+            // Small delay between smithing cycles
+            if (shouldStop()) {
+                break
+            }
+            task.wait(1)
+        }
+
+        // Show summary message
+        if (smithedCount > 1) {
+            val itemName = recipe.displayName
+            player.message("You smith $smithedCount $itemName${if (smithedCount > 1) "s" else ""}.")
+        } else if (smithedCount == 1) {
+            val itemName = recipe.displayName
+            player.message("You smith a $itemName.")
+        }
     }
 
     /**
