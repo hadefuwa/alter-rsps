@@ -38,7 +38,7 @@ class FishingBossPlugin(
             }
             
             stats {
-                hitpoints = 150
+                hitpoints = 250
                 
                 attack = 250
                 
@@ -46,7 +46,7 @@ class FishingBossPlugin(
                 
                 defence = 200
                 
-                magic = 1
+                magic = 160
                 
                 ranged = 175
             }
@@ -56,7 +56,7 @@ class FishingBossPlugin(
                 
                 defenceSlash = 100
                 
-                defenceCrush = 100
+                defenceCrush = 200
                 
                 defenceMagic = 150
                 
@@ -96,9 +96,9 @@ class FishingBossPlugin(
                     add("item.big_bones", 1)
                 }
                 
-                main(128) {
+                main(2700) {
                     
-                    add("item.coins", 5000, 10000, 300)
+                    add("item.coins", 100000, 200000, 300)
                     add("item.raw_anglerfish_noted", 20, 25, 300)
                     add("item.anglerfish_noted", 15, 20, 300)
                     add("item.sand_worm", 5000, 10000, 300)
