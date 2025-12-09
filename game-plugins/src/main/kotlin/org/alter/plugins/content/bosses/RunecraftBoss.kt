@@ -14,7 +14,7 @@ import org.alter.plugins.content.combat.*
 import org.alter.rscm.RSCM.getRSCM
 
 // 👉 CHANGE "MyBossPlugin" to your boss name!
-class MyBossPlugin(
+class RunecraftBossPlugin(
     r: PluginRepository,
     world: World,
     server: Server
@@ -28,7 +28,7 @@ class MyBossPlugin(
         // 👉 CHANGE: Replace "npc.crazy_archaeologist" with your boss NPC name
         // 👉 CHANGE: Replace x and z with coordinates where you want the boss
         // Type ::coords in-game to find coordinates!
-        spawnNpc("npc.balance_elemental_13530", x = 1720, z = 3829, walkRadius = 5)
+        spawnNpc("npc.balance_elemental", x = 1720, z = 3829, walkRadius = 5)
 
 
         // ============================================================
@@ -231,23 +231,23 @@ class MyBossPlugin(
                     // Lower number = rarer drops (e.g., 5 = very rare, 128 = common)
                     
                     add("item.coins", min = 5000, max = 10000, weight = 20)  // 20/128 chance, drops 5000-10000 coins
-                    add("item.pure_essence_noted", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.pure_essence_noted", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
                     
                     // add("item.coins", min = 1000, max = 5000, weight = 50)   // More common, less coins
                     // add("item.coins", min = 10000, max = 50000, weight = 5)  // Rare but lots of coins
                     
-                    add("item.air_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.water_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.earth_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.fire_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.mind_rune", min = 400, max = 600, weight = 5)  // � ADJUST: Rare drop! (5/128 chance)
-                    add("item.wrath_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.chaos_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.death_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.nature_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.soul_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.cosmic_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
-                    add("item.blood_rune", min = 400, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.air_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.water_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.earth_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.fire_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.mind_rune", min = 40, max = 600, weight = 5)  // � ADJUST: Rare drop! (5/128 chance)
+                    add("item.wrath_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.chaos_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.death_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.nature_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.soul_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.cosmic_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
+                    add("item.blood_rune", min = 40, max = 600, weight = 5)  // 👉 ADJUST: Rare drop! (5/128 chance)
                 }
             }
             
@@ -270,7 +270,7 @@ class MyBossPlugin(
         // ============================================================
         // When the boss starts fighting, run the combat loop
         // 👉 CHANGE: Replace "npc.crazy_archaeologist" with your boss NPC name
-        onNpcCombat("npc.balance_elemental") { npc.queue { combatLoop() } }
+        onNpcCombat("npc.balance_elemental_13530") { npc.queue { combatLoop() } }
     }
 
     // ============================================================
@@ -297,7 +297,7 @@ class MyBossPlugin(
                 // ============================================================
                 
                 // 💡 PATTERN 1: Simple Melee Attack (Current - uncomment to use)
-                BossAttacks.melee(npc, target, maxHit = 25, anim = 422)
+                BossAttacks.magic(npc, target, maxHit = 25, anim = 422)
                 
                 // 💡 PATTERN 2: Random Special Attacks (uncomment to use)
                 // when {
