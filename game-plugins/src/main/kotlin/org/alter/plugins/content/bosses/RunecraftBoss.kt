@@ -117,6 +117,32 @@ class RunecraftBossPlugin(
             }
         }
 
+            
+        // 5. SPECIAL FUNCTIONALITY 🎁
+        // Give mining XP when the boss is killed to all players who dealt damage
+        onNpcDeath("npc.rock_925") {
+            val npc = this.npc
+            
+            // Get all players who dealt damage to the boss
+            val playersWhoDamaged = mutableListOf<Player>()
+            npc.world.players.forEach { player ->
+                if (player.initiated && !player.isDead() && npc.damageMap.getDamageFrom(player) > 0) {
+                    playersWhoDamaged.add(player)
+                }
+            }
+            
+            if (playersWhoDamaged.isEmpty()) {
+                return@onNpcDeath // No players dealt damage
+            }
+            
+            // Give mining XP to all players who dealt damage (1000 XP for 100 HP boss)
+            val miningXp = npc.combatDef.hitpoints * 10.0
+            playersWhoDamaged.forEach { player ->
+                player.addXp(Skills.MINING, miningXp)
+                player.message("<col=00ff00>You gain ${miningXp.toInt()} Mining experience for defeating the Rock!</col>")
+            }
+        }
+
         onNpcCombat("npc.balance_elemental_13530") { npc.queue { combatLoop() } }
     }
 
