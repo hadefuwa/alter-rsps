@@ -14,7 +14,7 @@ import org.alter.plugins.content.combat.*
 import org.alter.rscm.RSCM.getRSCM
 
 // 👉 CHANGE "MyBossPlugin" to your boss name!
-class MyBossPlugin(
+class FishingBossPlugin(
     r: PluginRepository,
     world: World,
     server: Server
@@ -189,7 +189,7 @@ class MyBossPlugin(
             // 🔊 SOUNDS: Make your boss sound epic! (Optional but recommended)
             // 👉 ADJUST: Uncomment different sounds to try them!
             sound {
-                attackSound = Sound.CROCODILE_ATTACK  // Sound when boss attacks
+                attackSound = Sound.SEA_TROLL_QUEEN_ATTACK  // Sound when boss attacks
                 // attackSound = Sound.DRAGON_ATTACK    // Dragon roar
                 // attackSound = Sound.DEMON_ATTACK    // Demon growl
                 // attackSound = Sound.CHAOS_ELEMENTAL_ATTACK  // Chaos sound
@@ -202,7 +202,7 @@ class MyBossPlugin(
                 // attackVolume = 80     // Very loud
                 attackRadius = 10                     // 👉 ADJUST: How far sound travels
                 
-                blockSound = Sound.CROCODILE_HIT     // Sound when boss blocks
+                blockSound = Sound.SEA_TROLL_QUEEN_HIT     // Sound when boss blocks
                 // blockSound = Sound.DRAGON_HIT        // Dragon hit sound
                 // blockSound = Sound.DEMON_HIT         // Demon hit sound
                 // blockSound = Sound.COW_HIT           // Cow hit sound
@@ -211,7 +211,7 @@ class MyBossPlugin(
                 blockVolume = 40                      // 👉 ADJUST: Volume
                 blockRadius = 8
                 
-                deathSound = Sound.CROCODILE_DEATH   // Sound when boss dies
+                deathSound = Sound.SEA_TROLL_QUEEN_DEATH   // Sound when boss dies
                 // deathSound = Sound.DRAGON_DEATH      // Dragon death roar
                 // deathSound = Sound.DEMON_DEATH       // Demon death sound
                 // deathSound = Sound.CHAOS_ELEMENTAL_DEATH  // Chaos death
