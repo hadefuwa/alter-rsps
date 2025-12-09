@@ -72,13 +72,13 @@ class RunecraftBossPlugin(
             }
             
             sound {
-                attackSound = Sound.FIRESURGE_HIT
+                attackSound = Sound.WYRM_ATTACK
                 
                 attackArea = true
                 attackVolume = 50
                 attackRadius = 10
                 
-                blockSound = Sound.DRAGON_DEATH
+                blockSound = Sound.WYRM_HIT
                 
                 blockArea = true
                 blockVolume = 40
@@ -130,16 +130,22 @@ class RunecraftBossPlugin(
             if (npc.moveToAttackRange(this, target, distance = 1, projectile = false) && 
                 npc.isAttackDelayReady()) {
                 
-                // Melee Attack - Hits 3 or 2, but misses if player is praying melee
+                // Attack selection - normal attack or smashing attack
                 if (target is Player && target.hasPrayerIcon(PrayerIcon.PROTECT_FROM_MELEE)) {
                     // Player is praying melee - make the attack miss
                     npc.prepareAttack(CombatClass.MELEE, CombatStyle.CRUSH, AttackStyle.AGGRESSIVE)
                     npc.animate(422)
                     npc.dealHit(target = target, maxHit = 0, landHit = false, delay = 1)
                 } else {
-                    // Player is not praying melee - hit for 3 or 2 (random)
-                    val damage = if (npc.world.chance(1, 2)) 3 else 2
-                    BossAttacks.melee(npc, target, maxHit = damage, anim = 422)
+                    // Check if we should do a smashing attack (25% chance)
+                    if (npc.world.chance(1, 4)) {
+                        // Smashing attack - hits for 50 damage
+                        BossAttacks.melee(npc, target, maxHit = 50, anim = 7060)
+                    } else {
+                        // Normal attack - hit for 3 or 2 (random)
+                        val damage = if (npc.world.chance(1, 2)) 3 else 2
+                        BossAttacks.melee(npc, target, maxHit = damage, anim = 422)
+                    }
                 }
                 
                 npc.postAttackLogic(target)
