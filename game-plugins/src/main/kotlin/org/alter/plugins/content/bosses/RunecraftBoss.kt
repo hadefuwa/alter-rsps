@@ -46,7 +46,7 @@ class RunecraftBossPlugin(
                 
                 defence = 1
                 
-                magic = 4
+                magic = 400
                 
                 ranged = 2
             }
@@ -98,8 +98,9 @@ class RunecraftBossPlugin(
                 
                 main(weight = 128) {
                     
-                    add("item.coins", min = 5000, max = 10000, weight = 20)
+                    add("item.coins", min = 5000, max = 100000, weight = 20)
                     add("item.pure_essence_noted", min = 40, max = 600, weight = 5)
+                    
                     
                     add("item.air_rune", min = 40, max = 600, weight = 5)
                     add("item.water_rune", min = 40, max = 600, weight = 5)

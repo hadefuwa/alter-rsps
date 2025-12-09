@@ -1,5 +1,6 @@
 package org.alter.plugins.content.items.cannon
 
+import org.alter.api.Skills
 import org.alter.api.cfg.Sound
 import org.alter.api.cfg.Varp
 import org.alter.api.ext.*
@@ -8,14 +9,21 @@ import org.alter.game.model.Direction
 import org.alter.game.model.Tile
 import org.alter.game.model.World
 import org.alter.game.model.attr.AttributeKey
+import org.alter.game.model.combat.XpMode
 import org.alter.game.model.entity.DynamicObject
+import org.alter.game.model.entity.Npc
 import org.alter.game.model.entity.Player
 import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.plugin.KotlinPlugin
 import org.alter.game.plugin.PluginRepository
+import org.alter.plugins.content.combat.Combat
+import org.alter.plugins.content.combat.CombatConfigs
 import org.alter.plugins.content.combat.strategy.RangedCombatStrategy
+import org.alter.plugins.content.mechanics.doompoints.addXpWithPassiveCheck
+import org.alter.plugins.content.skills.slayer.Slayer
 import org.alter.rscm.RSCM.getRSCM
+import dev.openrune.cache.CacheManager.getNpc
 
 class DwarfCannonPlugin(
     r: PluginRepository,
@@ -503,11 +511,89 @@ class DwarfCannonPlugin(
         world.queue {
             wait(hitDelay)
             val damage = world.random(1..30)
-            target.hit(damage = damage, type = org.alter.api.HitType.HIT)
+            // Attribute damage to the cannon owner so they get slayer XP and kill credit
+            val hit = target.hit(damage = damage, type = org.alter.api.HitType.HIT, attackersIndex = owner.index)
             target.graphic(52)
             // Play cannon hit sound
             owner.playSound(Sound.CF_CANNONHIT)
+            
+            // Add damage to damageMap so killcount is tracked
+            // This ensures the player gets kill credit when the NPC dies
+            if (damage > 0) {
+                val actualDamage = Math.min(target.getCurrentHp(), damage)
+                target.damageMap.add(owner, actualDamage)
+            }
+            
+            // Award ranged XP for cannon hits (use the damage we dealt, clamped to target's current HP)
+            if (damage > 0) {
+                addCannonXp(owner, target, damage)
+                // Award slayer XP if this NPC is part of the player's slayer task
+                addCannonSlayerXp(owner, target, damage)
+            }
+            
             owner.message("The cannon hits ${target.def.name} for $damage damage.")
+        }
+    }
+    
+    private fun addCannonXp(player: Player, target: Npc, damage: Int) {
+        val modDamage = Math.min(target.getCurrentHp(), damage)
+        val mode = CombatConfigs.getXpMode(player)
+        val multiplier = Combat.getNpcXpMultiplier(target)
+        
+        // Cannon always gives ranged XP, but respect player's XP mode setting
+        if (mode == XpMode.RANGED) {
+            player.addXpWithPassiveCheck(Skills.RANGED, modDamage * 4.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+        } else if (mode == XpMode.SHARED) {
+            player.addXpWithPassiveCheck(Skills.RANGED, modDamage * 2.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.DEFENCE, modDamage * 2.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+        } else {
+            // If player is in melee/magic mode, still give ranged XP since cannon is a ranged weapon
+            player.addXpWithPassiveCheck(Skills.RANGED, modDamage * 4.0 * multiplier)
+            player.addXpWithPassiveCheck(Skills.HITPOINTS, modDamage * 1.33 * multiplier)
+        }
+    }
+    
+    private fun addCannonSlayerXp(player: Player, target: Npc, damage: Int) {
+        val taskNpcId = player.attr[Slayer.SLAYER_TASK_ATTR] ?: return
+        
+        // Get the task NPC definition to compare names
+        val taskNpcDef = try {
+            getNpc(taskNpcId)
+        } catch (e: Exception) {
+            null
+        }
+        
+        // Check if the hit NPC matches the assigned NPC ID
+        val idMatches = target.id == taskNpcId
+        val nameMatches = taskNpcDef != null && target.name.lowercase() == taskNpcDef.name.lowercase()
+        
+        // Special case: If task is a TzHaar NPC, allow any TzHaar NPC to count
+        val tzhaarMatches = if (taskNpcDef != null) {
+            val taskNameLower = taskNpcDef.name.lowercase()
+            val killedNameLower = target.name.lowercase()
+            (taskNameLower.contains("tzhaar") || taskNameLower.contains("tz-haar")) &&
+            (killedNameLower.contains("tzhaar") || killedNameLower.contains("tz-haar"))
+        } else {
+            false
+        }
+        
+        if (idMatches || nameMatches || tzhaarMatches) {
+            // Award slayer XP based on damage dealt (proportional to NPC's max HP)
+            // Use slayerXp from combat def if available, otherwise use hitpoints
+            val slayerXp = if (target.combatDef.slayerXp > 0) {
+                target.combatDef.slayerXp
+            } else {
+                target.combatDef.hitpoints.toDouble().coerceAtLeast(1.0)
+            }
+            
+            // Award XP proportional to damage dealt
+            val modDamage = Math.min(target.getCurrentHp(), damage)
+            val xpGain = (slayerXp * modDamage) / target.getMaxHp().toDouble()
+            if (xpGain > 0) {
+                player.addXpWithPassiveCheck(Skills.SLAYER, xpGain)
+            }
         }
     }
     
